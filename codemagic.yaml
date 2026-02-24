@@ -17,6 +17,8 @@
     environment:
       flutter: stable
       xcode: latest
+      integrations:
+        app_store_connect: "asc_rodizio_v3"
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.rodiziobrinquedos.v3
