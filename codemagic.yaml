@@ -1,12 +1,12 @@
 ﻿workflows:
-  # Main release workflow for Android + iOS distribution.
   production:
     name: Production
     instance_type: mac_mini_m2
+
+    # ✅ integrations fica no nível do workflow (não dentro de environment)
     integrations:
       app_store_connect: "asc_rodizio_v3"
 
-    # Trigger builds from the main branch.
     triggering:
       events:
         - push
@@ -15,28 +15,23 @@
           include: true
           source: true
 
-    # Build environment: Flutter stable + latest Xcode on macOS.
     environment:
       flutter: stable
       xcode: latest
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.rodiziobrinquedos.v3
-
+        automatic_signing: true
     scripts:
-      # Ensure a clean workspace.
       - name: Clean
         script: flutter clean
 
-      # Install dependencies.
       - name: Pub get
         script: flutter pub get
 
-      # Static analysis.
       - name: Analyze
         script: flutter analyze
 
-      # Run tests only when a test directory exists.
       - name: Test
         script: |
           if [ -d test ]; then
@@ -45,21 +40,17 @@
             echo "No tests directory found. Skipping flutter test."
           fi
 
-      # Android release bundle (AAB).
       - name: Build Android AAB
         script: flutter build appbundle --release
 
-      # iOS release IPA.
       - name: Build iOS IPA
         script: flutter build ipa --release --export-method app-store
 
-    # Generated build artifacts to keep in Codemagic.
     artifacts:
       - build/app/outputs/**/*.aab
       - build/ios/ipa/*.ipa
 
     publishing:
-      # Publish using Codemagic App Store Connect integration.
       app_store_connect:
         auth: integration
         submit_to_testflight: true
