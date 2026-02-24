@@ -1,0 +1,9 @@
+build/
+.dart_tool/
+.android/
+.ios/
+.gradle/
+node_modules/
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart

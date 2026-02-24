@@ -1,0 +1,123 @@
+workflows:
+  android_release:
+    name: Android • Release (APK + AAB)
+    max_build_duration: 60
+    instance_type: mac_mini_m1 # pode manter assim (serve pra Android também)
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        # Altere se o seu projeto usa outro entrypoint
+        FLUTTER_TARGET: "lib/main.dart"
+
+        # Opcional: se você quiser forçar versão/código via CI (senão, ignore)
+        # APP_VERSION_NAME: "1.0.0"
+        # APP_VERSION_CODE: "1"
+
+      # Se você já tiver assinatura Android e quiser publicar na Play, use os "Environment variables" do Codemagic
+      # e preencha estes nomes (Secrets):
+      #   CM_KEYSTORE_BASE64  (keystore.jks em base64)
+      #   CM_KEYSTORE_PASSWORD
+      #   CM_KEY_ALIAS
+      #   CM_KEY_PASSWORD
+      #
+      # Se você AINDA não quer assinatura, o build sai, mas Play Console vai exigir assinatura depois.
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+        - $CM_BUILD_DIR/.dart_tool
+        - $CM_BUILD_DIR/build
+
+    scripts:
+      - name: Flutter doctor
+        script: |
+          flutter --version
+          flutter doctor -v
+
+      - name: Pub get
+        script: |
+          flutter pub get
+
+      - name: Analyze (não falha o build)
+        script: |
+          flutter analyze || true
+
+      - name: Tests (opcional — não falha o build)
+        script: |
+          flutter test || true
+
+      # --- Assinatura Android (opcional mas recomendado para Play) ---
+      # Se os secrets estiverem preenchidos, cria o keystore e usa no Gradle.
+      - name: Setup Android signing (optional)
+        script: |
+          set -e
+          if [ -n "$CM_KEYSTORE_BASE64" ]; then
+            echo "Setting up Android keystore from CM_KEYSTORE_BASE64..."
+            echo "$CM_KEYSTORE_BASE64" | base64 --decode > /tmp/keystore.jks
+
+            mkdir -p android
+            cat > android/key.properties <<EOF
+storeFile=/tmp/keystore.jks
+storePassword=$CM_KEYSTORE_PASSWORD
+keyPassword=$CM_KEY_PASSWORD
+keyAlias=$CM_KEY_ALIAS
+EOF
+            echo "key.properties generated."
+          else
+            echo "No signing secrets found. Building without configured signing."
+          fi
+
+      - name: Build APK (release)
+        script: |
+          flutter build apk --release --target="$FLUTTER_TARGET"
+
+      - name: Build App Bundle (AAB) (release)
+        script: |
+          flutter build appbundle --release --target="$FLUTTER_TARGET"
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/bundle/release/app-release.aab
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
+
+    publishing:
+      email:
+        recipients:
+          - ricardo@example.com
+        notify:
+          success: false
+          failure: false
+
+  # Workflow manual “rápido” (pra você rodar quando quiser sem depender de push)
+  android_manual:
+    name: Android • Manual (APK + AAB)
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+      vars:
+        FLUTTER_TARGET: "lib/main.dart"
+    scripts:
+      - name: Pub get
+        script: |
+          flutter pub get
+      - name: Build APK
+        script: |
+          flutter build apk --release --target="$FLUTTER_TARGET"
+      - name: Build AAB
+        script: |
+          flutter build appbundle --release --target="$FLUTTER_TARGET"
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+      - build/app/outputs/bundle/release/app-release.aab
