@@ -40,7 +40,7 @@
           fi
 
       - name: Build iOS IPA
-        script: flutter build ipa --release --export-method app-store --no-codesign
+        script: flutter build ipa --release --export-method app-store
 
     artifacts:
       - build/app/outputs/**/*.aab
