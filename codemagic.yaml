@@ -21,7 +21,6 @@
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.rodiziobrinquedos.v3
-        automatic_signing: true
     scripts:
       - name: Clean
         script: flutter clean
