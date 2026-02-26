@@ -39,8 +39,8 @@
             echo "No tests directory found. Skipping flutter test."
           fi
 
-      - name: Build iOS IPA
-        script: flutter build ipa --release --export-method app-store
+      - name: Build iOS
+        script: flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
