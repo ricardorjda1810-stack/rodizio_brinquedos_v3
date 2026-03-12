@@ -3,7 +3,6 @@
     name: Production
     instance_type: mac_mini_m2
 
-    # ✅ integrations fica no nível do workflow (não dentro de environment)
     integrations:
       app_store_connect: "asc_rodizio_v3"
 
@@ -21,6 +20,7 @@
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.rodiziobrinquedos.v3
+
     scripts:
       - name: Clean
         script: flutter clean
@@ -39,8 +39,9 @@
             echo "No tests directory found. Skipping flutter test."
           fi
 
-      - name: Build iOS
-        script: flutter build ipa --release
+      - name: Build iOS (IPA)
+        script: |
+          flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
