@@ -4,7 +4,7 @@
     instance_type: mac_mini_m2
 
     integrations:
-      app_store_connect: "asc_rodizio_v3"
+      app_store_connect: asc_rodizio_v3
 
     triggering:
       events:
@@ -28,6 +28,9 @@
       - name: Pub get
         script: flutter pub get
 
+      - name: Set up code signing for Xcode
+        script: xcode-project use-profiles
+
       - name: Analyze
         script: flutter analyze
 
@@ -40,8 +43,7 @@
           fi
 
       - name: Build iOS (IPA)
-        script: |
-          flutter build ipa --release
+        script: flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
