@@ -22,8 +22,14 @@ workflows:
         bundle_identifier: com.rodiziobrinquedos.v3
 
     scripts:
-      - name: Clean
+      - name: Clean Flutter
         script: flutter clean
+
+      - name: Remove iOS Pods cache
+        script: |
+          rm -rf ios/Pods
+          rm -f ios/Podfile.lock
+          rm -f ios/Runner.xcworkspace
 
       - name: Pub get
         script: flutter pub get
@@ -31,7 +37,7 @@ workflows:
       - name: Install CocoaPods
         script: |
           cd ios
-          pod install
+          pod install --repo-update
           cd ..
 
       - name: Set up code signing for Xcode
@@ -49,10 +55,7 @@ workflows:
           fi
 
       - name: Build iOS (IPA)
-        script: |
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+        script: flutter build ipa --release
 
     artifacts:
       - build/ios/ipa/*.ipa
