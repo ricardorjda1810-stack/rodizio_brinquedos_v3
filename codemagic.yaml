@@ -28,6 +28,12 @@ workflows:
       - name: Pub get
         script: flutter pub get
 
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+
       - name: Set up code signing for Xcode
         script: xcode-project use-profiles
 
