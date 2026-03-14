@@ -22,11 +22,22 @@ workflows:
         bundle_identifier: com.rodiziobrinquedos.v3
 
     scripts:
-      - name: Clean Flutter
-        script: flutter clean
+      - name: Clean Flutter and iOS cache
+        script: |
+          flutter clean
+          rm -rf ios/Pods
+          rm -f ios/Podfile.lock
+          rm -rf ios/Runner.xcworkspace
+          rm -rf ~/Library/Developer/Xcode/DerivedData/* || true
 
       - name: Pub get
         script: flutter pub get
+
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install --repo-update
+          cd ..
 
       - name: Set up code signing
         script: xcode-project use-profiles
@@ -34,17 +45,25 @@ workflows:
       - name: Analyze
         script: flutter analyze
 
-      - name: Build iOS
-        script: flutter build ios --release --no-codesign
-
-      - name: Archive IPA
+      - name: Test
         script: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "No tests directory found. Skipping flutter test."
+          fi
+
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
           xcode-project build-ipa \
             --workspace ios/Runner.xcworkspace \
             --scheme Runner
 
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
 
     publishing:
       app_store_connect:
