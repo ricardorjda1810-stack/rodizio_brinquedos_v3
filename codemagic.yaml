@@ -25,26 +25,53 @@ workflows:
       - name: Clean Flutter
         script: flutter clean
 
+      - name: Remove iOS Pods cache
+        script: |
+          rm -rf ios/Pods
+          rm -f ios/Podfile.lock
+          rm -rf ios/Runner.xcworkspace
+
       - name: Pub get
         script: flutter pub get
 
-      - name: Set up code signing
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Set up code signing for Xcode
         script: xcode-project use-profiles
 
       - name: Analyze
         script: flutter analyze
 
-      - name: Build iOS
-        script: flutter build ios --release --no-codesign
-
-      - name: Archive IPA
+      - name: Test
         script: |
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "No tests directory found. Skipping flutter test."
+          fi
+
+      - name: Build iOS (IPA)
+        script: |
+          flutter build ipa --release
+          echo "=== LISTANDO build/ios ==="
+          find build/ios -maxdepth 4 -type f | sort || true
+          mkdir -p build/ios/ipa_export
+          IPA_PATH=$(find build/ios -name "*.ipa" | head -n 1)
+          if [ -z "$IPA_PATH" ]; then
+            echo "ERRO: nenhum arquivo .ipa foi encontrado."
+            exit 1
+          fi
+          cp "$IPA_PATH" build/ios/ipa_export/Runner.ipa
+          echo "IPA copiado para build/ios/ipa_export/Runner.ipa"
 
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/ipa_export/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
 
     publishing:
       app_store_connect:
