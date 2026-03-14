@@ -29,7 +29,7 @@ workflows:
         script: |
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
-          rm -f ios/Runner.xcworkspace
+          rm -rf ios/Runner.xcworkspace
 
       - name: Pub get
         script: flutter pub get
