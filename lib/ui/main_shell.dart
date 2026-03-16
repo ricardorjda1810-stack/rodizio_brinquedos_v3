@@ -96,7 +96,6 @@ class _MainShellState extends State<MainShell> {
             settingsRepository: widget.settingsRepository,
             toyRepository: widget.toyRepository,
             onOpenRodizioTab: () => _goTo(0),
-            onOpenBrinquedosTab: () => _goTo(1),
           ),
           brinquedos.BrinquedosPage(
             toyRepository: widget.toyRepository,

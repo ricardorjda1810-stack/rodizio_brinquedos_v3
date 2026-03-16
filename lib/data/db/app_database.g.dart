@@ -1,4 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+﻿// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'app_database.dart';
 
@@ -2561,6 +2561,193 @@ class RoundToysCompanion extends UpdateCompanion<RoundToy> {
   }
 }
 
+class $HistoryEventsTable extends HistoryEvents
+    with TableInfo<$HistoryEventsTable, HistoryEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $HistoryEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      hasAutoIncrement: true);
+  static const VerificationMeta _eventTypeMeta =
+      VerificationMeta('eventType');
+  @override
+  late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
+      'event_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _payloadMeta = VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, eventType, createdAt, payload];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'history_events';
+  @override
+  VerificationContext validateIntegrity(Insertable<HistoryEvent> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('event_type')) {
+      context.handle(_eventTypeMeta,
+          eventType.isAcceptableOrUnknown(data['event_type']!, _eventTypeMeta));
+    } else if (isInserting) {
+      context.missing(_eventTypeMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  HistoryEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return HistoryEvent(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      eventType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_type'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+    );
+  }
+
+  @override
+  $HistoryEventsTable createAlias(String alias) {
+    return $HistoryEventsTable(attachedDatabase, alias);
+  }
+}
+
+class HistoryEvent extends DataClass implements Insertable<HistoryEvent> {
+  final int id;
+  final String eventType;
+  final int createdAt;
+  final String payload;
+  const HistoryEvent({
+    required this.id,
+    required this.eventType,
+    required this.createdAt,
+    required this.payload,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['event_type'] = Variable<String>(eventType);
+    map['created_at'] = Variable<int>(createdAt);
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  HistoryEventsCompanion toCompanion(bool nullToAbsent) {
+    return HistoryEventsCompanion(
+      id: Value(id),
+      eventType: Value(eventType),
+      createdAt: Value(createdAt),
+      payload: Value(payload),
+    );
+  }
+
+  factory HistoryEvent.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return HistoryEvent(
+      id: serializer.fromJson<int>(json['id']),
+      eventType: serializer.fromJson<String>(json['eventType']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'eventType': serializer.toJson<String>(eventType),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+}
+
+class HistoryEventsCompanion extends UpdateCompanion<HistoryEvent> {
+  final Value<int> id;
+  final Value<String> eventType;
+  final Value<int> createdAt;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const HistoryEventsCompanion({
+    this.id = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  HistoryEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required String eventType,
+    required int createdAt,
+    required String payload,
+    this.rowid = const Value.absent(),
+  })  : eventType = Value(eventType),
+        createdAt = Value(createdAt),
+        payload = Value(payload);
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(eventType.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2580,6 +2767,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocationDefinitionsTable(this);
   late final $RoundsTable rounds = $RoundsTable(this);
   late final $RoundToysTable roundToys = $RoundToysTable(this);
+  late final $HistoryEventsTable historyEvents = $HistoryEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2594,7 +2782,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         toyAutoNameCounters,
         locationDefinitions,
         rounds,
-        roundToys
+        roundToys,
+        historyEvents
       ];
 }
 
@@ -5022,4 +5211,5 @@ class $AppDatabaseManager {
       $$RoundsTableTableManager(_db, _db.rounds);
   $$RoundToysTableTableManager get roundToys =>
       $$RoundToysTableTableManager(_db, _db.roundToys);
+  $HistoryEventsTable get historyEvents => _db.historyEvents;
 }

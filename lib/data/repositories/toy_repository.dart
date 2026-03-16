@@ -60,12 +60,7 @@ class ToyRepository {
   final AppDatabase? db;
   final ImagePicker _picker = ImagePicker();
 
-  ToyRepository(this.db) {
-    if (db != null) {
-      // ignore: discarded_futures
-      ensureSeedData();
-    }
-  }
+  ToyRepository(this.db);
 
   static const List<CategorySeed> defaultCategories = [
     CategorySeed('veiculos', 'Veículos'),
@@ -1062,21 +1057,41 @@ class ToyRepository {
   }
 
   Future<void> deleteAll() async {
+    await hardResetAllData();
+  }
+
+  Future<void> hardResetAllData() async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
     await d.transaction(() async {
+      await d.delete(d.roundToys).go();
+      await d.delete(d.rounds).go();
+      await d.delete(d.historyEvents).go();
       await d.delete(d.toys).go();
+      await d.delete(d.toyAutoNameCounters).go();
       await d.delete(d.boxes).go();
+      await d.delete(d.categoryCounters).go();
+      await d.delete(d.roundCategorySettings).go();
+      await d.delete(d.categoryDefinitions).go();
+      await d.delete(d.locationDefinitions).go();
     });
 
+    await ensureSeedData();
+
     try {
-      final dir = await _ensureToyPhotosDir();
-      if (dir.existsSync()) {
-        dir.deleteSync(recursive: true);
-      }
+      await _deletePhotosDir(_ensureToyPhotosDir);
+      await _deletePhotosDir(_ensureBoxPhotosDir);
+    } catch (_) {}
+  }
+
+  Future<void> _deletePhotosDir(Future<Directory> Function() dirFactory) async {
+    try {
+      final dir = await dirFactory();
+      if (!dir.existsSync()) return;
+      dir.deleteSync(recursive: true);
     } catch (_) {}
   }
 

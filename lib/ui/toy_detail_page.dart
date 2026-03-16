@@ -1,10 +1,12 @@
-// lib/ui/toy_detail_page.dart
+﻿// lib/ui/toy_detail_page.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class ToyDetailPage extends StatelessWidget {
@@ -178,6 +180,80 @@ class ToyDetailPage extends StatelessWidget {
     }
   }
 
+  Future<void> _editToyBox(
+    BuildContext context, {
+    required String? currentBoxId,
+  }) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final boxes = await toyRepository.watchBoxes().first;
+    if (!context.mounted) return;
+
+    String? selectedBoxId = currentBoxId;
+    if (selectedBoxId != null && !boxes.any((b) => b.id == selectedBoxId)) {
+      selectedBoxId = null;
+    }
+
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text('Editar caixa'),
+            content: DropdownButtonFormField<String?>(
+              initialValue: selectedBoxId,
+              decoration: const InputDecoration(
+                labelText: 'Caixa',
+              ),
+              items: <DropdownMenuItem<String?>>[
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Sem caixa'),
+                ),
+                ...boxes.map(
+                  (b) => DropdownMenuItem<String?>(
+                    value: b.id,
+                    child: Text('Caixa ${b.number} - ${b.local}'),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                setDialogState(() => selectedBoxId = value);
+              },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(selectedBoxId),
+                child: const Text('Salvar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (result == currentBoxId) return;
+
+    try {
+      await toyRepository.setToyBox(
+        toyId: toyId,
+        boxId: result,
+      );
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Caixa atualizada.')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text('Erro ao atualizar caixa: $e')),
+      );
+    }
+  }
+
   Future<void> _deleteToy(BuildContext context) async {
     final ok = await showDialog<bool>(
       context: context,
@@ -212,6 +288,29 @@ class ToyDetailPage extends StatelessWidget {
     }
   }
 
+  void _openPhotoViewer(
+    BuildContext context, {
+    required String photoPath,
+    required String title,
+    required String boxLabel,
+    required String categoryLabel,
+    required String locationFieldLabel,
+    required String locationLabel,
+  }) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PhotoViewerPage(
+          photoPath: photoPath,
+          title: title,
+          boxLabel: boxLabel,
+          categoryLabel: categoryLabel,
+          locationFieldLabel: locationFieldLabel,
+          locationLabel: locationLabel,
+        ),
+      ),
+    );
+  }
+
   Widget _photoOrPlaceholder(BuildContext context, String? path) {
     final textTheme = Theme.of(context).textTheme;
 
@@ -244,145 +343,199 @@ class ToyDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return StreamBuilder<ToyWithBox?>(
-      stream: toyRepository.watchToyWithBox(toyId: toyId),
-      builder: (context, snapshot) {
-        final data = snapshot.data;
+    return StreamBuilder<List<CategoryDefinition>>(
+      stream: toyRepository.watchCategories(),
+      builder: (context, categoriesSnapshot) {
+        final categories = categoriesSnapshot.data ?? const <CategoryDefinition>[];
 
-        final title = (data == null || data.toy.name.trim().isEmpty)
-            ? 'Brinquedo'
-            : data.toy.name;
+        return StreamBuilder<ToyWithBox?>(
+          stream: toyRepository.watchToyWithBox(toyId: toyId),
+          builder: (context, snapshot) {
+            final data = snapshot.data;
 
-        final photoPath = data?.toy.photoPath;
-        final box = data?.box;
-        final boxLabel =
-            (box == null) ? null : 'Caixa ${box.number} - ${box.local}';
-        final locationText = (data?.toy.locationText ?? '').trim();
+            final title = (data == null || data.toy.name.trim().isEmpty)
+                ? 'Brinquedo'
+                : data.toy.name;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(UiTokens.m),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: Card(
-                      child: ClipRRect(
-                        borderRadius:
-                            BorderRadius.circular(UiTokens.radiusCard),
-                        child: _photoOrPlaceholder(context, photoPath),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: UiTokens.m),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(UiTokens.m),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Nome', style: textTheme.bodySmall),
-                          const SizedBox(height: UiTokens.xs),
-                          Text(
-                            title,
-                            style: textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: UiTokens.s),
-                          OutlinedButton.icon(
-                            onPressed: data == null
-                                ? null
-                                : () => _renameToy(context, data.toy.name),
-                            icon: const Icon(Icons.edit_outlined),
-                            label: const Text('Editar nome'),
-                          ),
-                          const SizedBox(height: UiTokens.s),
-                          OutlinedButton.icon(
-                            onPressed: data == null
-                                ? null
-                                : () => _editToyCategory(
-                                      context,
-                                      currentCategoryId: data.toy.categoryId,
-                                    ),
-                            icon: const Icon(Icons.category_outlined),
-                            label: const Text('Editar categoria'),
-                          ),
-                          const SizedBox(height: UiTokens.s),
-                          OutlinedButton.icon(
-                            onPressed:
-                                data == null ? null : () => _deleteToy(context),
-                            icon: const Icon(Icons.delete_outline),
-                            label: const Text('Excluir brinquedo'),
-                          ),
-                          const SizedBox(height: UiTokens.m),
-                          Text('Caixa', style: textTheme.bodySmall),
-                          const SizedBox(height: UiTokens.xs),
-                          Text(
-                            (boxLabel == null || boxLabel.isEmpty)
-                                ? 'Sem caixa'
-                                : boxLabel,
-                            style: textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: UiTokens.textMuted,
-                            ),
-                          ),
-                          if (locationText.isNotEmpty) ...[
-                            const SizedBox(height: UiTokens.m),
-                            Text('Local extra', style: textTheme.bodySmall),
-                            const SizedBox(height: UiTokens.xs),
-                            Text(
-                              locationText,
-                              style: textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: UiTokens.textMuted,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: UiTokens.m),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(UiTokens.m),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text('Foto', style: textTheme.titleMedium),
-                          const SizedBox(height: UiTokens.s),
-                          FilledButton.icon(
-                            onPressed: () => _pick(context, ImageSource.camera),
-                            icon: const Icon(Icons.photo_camera),
-                            label: const Text('Tirar foto'),
-                          ),
-                          const SizedBox(height: UiTokens.s),
-                          FilledButton.icon(
-                            onPressed: () =>
-                                _pick(context, ImageSource.gallery),
-                            icon: const Icon(Icons.photo_library),
-                            label: const Text('Escolher da galeria'),
-                          ),
-                          const SizedBox(height: UiTokens.s),
-                          TextButton.icon(
-                            onPressed: () => _remove(context),
-                            icon: const Icon(Icons.delete),
-                            label: const Text('Remover foto'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+            final photoPath = data?.toy.photoPath;
+            final box = data?.box;
+            final boxLabel =
+                (box == null) ? 'Sem caixa' : 'Caixa ${box.number} - ${box.local}';
+            final locationText = (data?.toy.locationText ?? '').trim();
+            final categoryId = (data?.toy.categoryId ?? '').trim();
+            final categoryLabel = categories
+                    .where((c) => c.id == categoryId)
+                    .map((c) => c.name.trim())
+                    .cast<String?>()
+                    .firstWhere(
+                      (c) => c != null && c.isNotEmpty,
+                      orElse: () => null,
+                    ) ??
+                'Sem categoria';
+            final effectiveLocationLabel = box != null
+                ? (box.local.trim().isEmpty ? 'Sem local' : box.local.trim())
+                : (locationText.isEmpty ? 'Sem local' : locationText);
+            final locationFieldLabel =
+                box != null ? 'Local da caixa' : 'Local fora da caixa';
+
+            return Scaffold(
+              appBar: AppBar(
+                title: Text(title),
               ),
-            ),
-          ),
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(UiTokens.m),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: Card(
+                          child: InkWell(
+                            onTap: photoPath == null || photoPath.trim().isEmpty
+                                ? null
+                                : () => _openPhotoViewer(
+                                      context,
+                                      photoPath: photoPath,
+                                      title: title,
+                                      boxLabel: boxLabel,
+                                      categoryLabel: categoryLabel,
+                                      locationFieldLabel: locationFieldLabel,
+                                      locationLabel: effectiveLocationLabel,
+                                    ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+                              child: _photoOrPlaceholder(context, photoPath),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.m),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(UiTokens.m),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Nome', style: textTheme.bodySmall),
+                              const SizedBox(height: UiTokens.xs),
+                              Text(
+                                title,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              OutlinedButton.icon(
+                                onPressed: data == null
+                                    ? null
+                                    : () => _renameToy(context, data.toy.name),
+                                icon: const Icon(Icons.edit_outlined),
+                                label: const Text('Editar nome'),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              OutlinedButton.icon(
+                                onPressed: data == null
+                                    ? null
+                                    : () => _editToyCategory(
+                                          context,
+                                          currentCategoryId: data.toy.categoryId,
+                                        ),
+                                icon: const Icon(Icons.category_outlined),
+                                label: const Text('Editar categoria'),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              OutlinedButton.icon(
+                                onPressed: data == null
+                                    ? null
+                                    : () => _editToyBox(
+                                          context,
+                                          currentBoxId: data.toy.boxId,
+                                        ),
+                                icon: const Icon(Icons.inventory_2_outlined),
+                                label: const Text('Editar caixa'),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              OutlinedButton.icon(
+                                onPressed: data == null
+                                    ? null
+                                    : () => _deleteToy(context),
+                                icon: const Icon(Icons.delete_outline),
+                                label: const Text('Excluir brinquedo'),
+                              ),
+                              const SizedBox(height: UiTokens.m),
+                              Text('Caixa', style: textTheme.bodySmall),
+                              const SizedBox(height: UiTokens.xs),
+                              Text(
+                                boxLabel,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: UiTokens.textMuted,
+                                ),
+                              ),
+                              const SizedBox(height: UiTokens.m),
+                              Text('Categoria', style: textTheme.bodySmall),
+                              const SizedBox(height: UiTokens.xs),
+                              Text(
+                                categoryLabel,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: UiTokens.textMuted,
+                                ),
+                              ),
+                              const SizedBox(height: UiTokens.m),
+                              Text(
+                                box != null ? 'Local da caixa' : 'Local sem caixa',
+                                style: textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: UiTokens.xs),
+                              Text(
+                                effectiveLocationLabel,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: UiTokens.textMuted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.m),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(UiTokens.m),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text('Foto', style: textTheme.titleMedium),
+                              const SizedBox(height: UiTokens.s),
+                              FilledButton.icon(
+                                onPressed: () => _pick(context, ImageSource.camera),
+                                icon: const Icon(Icons.photo_camera),
+                                label: const Text('Tirar foto'),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              FilledButton.icon(
+                                onPressed: () => _pick(context, ImageSource.gallery),
+                                icon: const Icon(Icons.photo_library),
+                                label: const Text('Escolher da galeria'),
+                              ),
+                              const SizedBox(height: UiTokens.s),
+                              TextButton.icon(
+                                onPressed: () => _remove(context),
+                                icon: const Icon(Icons.delete),
+                                label: const Text('Remover foto'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );

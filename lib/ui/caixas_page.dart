@@ -1,4 +1,4 @@
-// lib/ui/caixas_page.dart
+﻿// lib/ui/caixas_page.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,10 +11,9 @@ import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 
-class CaixasPage extends StatelessWidget {
-  static const double _gridInfoHeight = 80;
-
+class CaixasPage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository settingsRepository;
   final void Function(String boxId) onOpenBrinquedosForBox;
@@ -26,6 +25,13 @@ class CaixasPage extends StatelessWidget {
     required this.onOpenBrinquedosForBox,
   });
 
+  @override
+  State<CaixasPage> createState() => _CaixasPageState();
+}
+
+class _CaixasPageState extends State<CaixasPage> {
+  String? _expandedBoxId;
+
   String _boxTitle(Boxe box) {
     final local = box.local.trim();
     if (local.isEmpty) return 'Caixa ${box.number}';
@@ -36,8 +42,8 @@ class CaixasPage extends StatelessWidget {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BoxCreatePage(
-          toyRepository: toyRepository,
-          settingsRepository: settingsRepository,
+          toyRepository: widget.toyRepository,
+          settingsRepository: widget.settingsRepository,
         ),
       ),
     );
@@ -65,8 +71,12 @@ class CaixasPage extends StatelessWidget {
     );
 
     if (ok == true) {
-      await AppFeedback(settingsRepository).onDeleteConfirmed();
-      await toyRepository.deleteBox(boxId: boxId);
+      await AppFeedback(widget.settingsRepository).onDeleteConfirmed();
+      await widget.toyRepository.deleteBox(boxId: boxId);
+      if (!mounted) return;
+      if (_expandedBoxId == boxId) {
+        setState(() => _expandedBoxId = null);
+      }
     }
   }
 
@@ -98,7 +108,7 @@ class CaixasPage extends StatelessWidget {
     if (source == null) return;
 
     try {
-      await toyRepository.pickAndSaveBoxPhoto(boxId: box.id, source: source);
+      await widget.toyRepository.pickAndSaveBoxPhoto(boxId: box.id, source: source);
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +118,7 @@ class CaixasPage extends StatelessWidget {
   }
 
   Future<void> _editBoxLocal(BuildContext context, Boxe box) async {
-    final locations = await toyRepository.watchLocations().first;
+    final locations = await widget.toyRepository.watchLocations().first;
     if (!context.mounted) return;
     if (locations.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -166,7 +176,7 @@ class CaixasPage extends StatelessWidget {
     if (result == null) return;
 
     try {
-      await toyRepository.updateBoxLocal(
+      await widget.toyRepository.updateBoxLocal(
         boxId: box.id,
         local: result,
       );
@@ -213,7 +223,7 @@ class CaixasPage extends StatelessWidget {
     if (result == null) return;
 
     try {
-      await toyRepository.updateBoxNotes(
+      await widget.toyRepository.updateBoxNotes(
         boxId: box.id,
         notes: result,
       );
@@ -225,25 +235,116 @@ class CaixasPage extends StatelessWidget {
     }
   }
 
+  void _toggleExpandedBox(String boxId) {
+    setState(() {
+      _expandedBoxId = _expandedBoxId == boxId ? null : boxId;
+    });
+  }
+
+  void _openToyDetail(BuildContext context, String toyId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ToyDetailPage(
+          toyId: toyId,
+          toyRepository: widget.toyRepository,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToyList(List<ToyCatalogItem> boxItems) {
+    if (boxItems.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(UiTokens.s, 0, UiTokens.s, UiTokens.s),
+        child: Text(
+          'Nenhum brinquedo nesta caixa.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(UiTokens.s, UiTokens.xs, UiTokens.s, UiTokens.s),
+      child: Column(
+        children: List<Widget>.generate(boxItems.length, (index) {
+          final item = boxItems[index];
+          final toyName = item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
+          final categoryName = item.category?.name.trim();
+          final subtitle = (categoryName == null || categoryName.isEmpty)
+              ? 'Brinquedo da caixa'
+              : categoryName;
+
+          return Column(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(UiTokens.radiusButton),
+                onTap: () => _openToyDetail(context, item.toy.id),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: UiTokens.xs,
+                    vertical: UiTokens.s,
+                  ),
+                  child: Row(
+                    children: [
+                      _ToyThumb(path: item.toy.photoPath),
+                      const SizedBox(width: UiTokens.s),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              toyName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+              ),
+              if (index < boxItems.length - 1)
+                const Divider(height: 1, thickness: 0.6),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
   Widget _buildBoxCard(
     BuildContext context, {
     required Boxe box,
     required int count,
+    required List<ToyCatalogItem> boxItems,
   }) {
     final title = _boxTitle(box);
     final hasPhoto = (box.photoPath ?? '').trim().isNotEmpty;
     final notes = (box.notes ?? '').trim();
-    final subtitle =
-        notes.isEmpty ? '$count brinquedos' : '$count brinquedos\n$notes';
+    final toyCountLabel = count == 1 ? '1 brinquedo' : '$count brinquedos';
+    final subtitle = notes.isEmpty ? toyCountLabel : '$toyCountLabel\n$notes';
+    final isExpanded = _expandedBoxId == box.id;
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => onOpenBrinquedosForBox(box.id),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AspectRatio(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => _toggleExpandedBox(box.id),
+            child: AspectRatio(
               aspectRatio: 1,
               child: Stack(
                 fit: StackFit.expand,
@@ -271,6 +372,34 @@ class CaixasPage extends StatelessWidget {
                           ),
                         ),
                   Positioned(
+                    left: UiTokens.xs,
+                    right: UiTokens.xs,
+                    bottom: UiTokens.xs,
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: UiTokens.s,
+                          vertical: UiTokens.xs,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withValues(alpha: 0.9),
+                          borderRadius:
+                              BorderRadius.circular(UiTokens.radiusButton),
+                        ),
+                        child: Text(
+                          isExpanded ? 'Ocultar brinquedos' : 'Ver brinquedos',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
                     right: UiTokens.xs,
                     top: UiTokens.xs,
                     child: PopupMenuButton<String>(
@@ -286,6 +415,10 @@ class CaixasPage extends StatelessWidget {
                         }
                         if (value == 'edit_notes') {
                           await _editBoxNotes(context, box);
+                          return;
+                        }
+                        if (value == 'open_toys') {
+                          widget.onOpenBrinquedosForBox(box.id);
                           return;
                         }
                         if (value == 'delete') {
@@ -306,6 +439,10 @@ class CaixasPage extends StatelessWidget {
                         const PopupMenuItem<String>(
                           value: 'edit_notes',
                           child: Text('Editar informacoes'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'open_toys',
+                          child: Text('Abrir em Brinquedos'),
                         ),
                         const PopupMenuItem<String>(
                           value: 'delete',
@@ -329,30 +466,37 @@ class CaixasPage extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  UiTokens.s, UiTokens.xs, UiTokens.s, 2),
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                UiTokens.s, UiTokens.xs, UiTokens.s, 2),
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  UiTokens.s, 0, UiTokens.s, UiTokens.xs),
-              child: Text(
-                subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+                UiTokens.s, 0, UiTokens.s, UiTokens.xs),
+            child: Text(
+              subtitle,
+              maxLines: isExpanded ? 3 : 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall,
             ),
-          ],
-        ),
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: _buildToyList(boxItems),
+            crossFadeState:
+                isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 180),
+          ),
+        ],
       ),
     );
   }
@@ -364,7 +508,7 @@ class CaixasPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(UiTokens.m),
           child: StreamBuilder<List<Boxe>>(
-            stream: toyRepository.watchBoxes(),
+            stream: widget.toyRepository.watchBoxes(),
             builder: (context, boxesSnapshot) {
               final boxes = boxesSnapshot.data ?? const <Boxe>[];
 
@@ -390,7 +534,7 @@ class CaixasPage extends StatelessWidget {
               }
 
               return StreamBuilder<List<ToyCatalogItem>>(
-                stream: toyRepository.watchCatalog(),
+                stream: widget.toyRepository.watchCatalog(),
                 builder: (context, catalogSnapshot) {
                   if (catalogSnapshot.connectionState ==
                           ConnectionState.waiting &&
@@ -401,10 +545,12 @@ class CaixasPage extends StatelessWidget {
                   final items =
                       catalogSnapshot.data ?? const <ToyCatalogItem>[];
                   final toyCountByBoxId = <String, int>{};
+                  final toysByBoxId = <String, List<ToyCatalogItem>>{};
                   for (final item in items) {
                     final boxId = item.toy.boxId;
                     if (boxId == null) continue;
                     toyCountByBoxId[boxId] = (toyCountByBoxId[boxId] ?? 0) + 1;
+                    toysByBoxId.putIfAbsent(boxId, () => <ToyCatalogItem>[]).add(item);
                   }
 
                   final width = MediaQuery.sizeOf(context).width;
@@ -415,26 +561,27 @@ class CaixasPage extends StatelessWidget {
                       final tileWidth =
                           (constraints.maxWidth - (UiTokens.s * (cols - 1))) /
                               cols;
-                      final tileHeight = tileWidth + _gridInfoHeight;
 
-                      return GridView.builder(
+                      return SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 96),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: cols,
-                          crossAxisSpacing: UiTokens.s,
-                          mainAxisSpacing: UiTokens.s,
-                          mainAxisExtent: tileHeight,
+                        child: Wrap(
+                          spacing: UiTokens.s,
+                          runSpacing: UiTokens.s,
+                          children: List<Widget>.generate(boxes.length, (i) {
+                            final box = boxes[i];
+                            final count = toyCountByBoxId[box.id] ?? 0;
+                            final boxItems = toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
+                            return SizedBox(
+                              width: tileWidth,
+                              child: _buildBoxCard(
+                                context,
+                                box: box,
+                                count: count,
+                                boxItems: boxItems,
+                              ),
+                            );
+                          }),
                         ),
-                        itemCount: boxes.length,
-                        itemBuilder: (ctx, i) {
-                          final box = boxes[i];
-                          final count = toyCountByBoxId[box.id] ?? 0;
-                          return _buildBoxCard(
-                            ctx,
-                            box: box,
-                            count: count,
-                          );
-                        },
                       );
                     },
                   );
@@ -452,3 +599,47 @@ class CaixasPage extends StatelessWidget {
     );
   }
 }
+
+class _ToyThumb extends StatelessWidget {
+  final String? path;
+
+  const _ToyThumb({required this.path});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = (path ?? '').trim();
+    const size = 40.0;
+
+    if (p.isEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+        ),
+        child: const Icon(Icons.image_outlined, size: 18),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+      child: Image.file(
+        File(p),
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) {
+          return Container(
+            width: size,
+            height: size,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: const Icon(Icons.broken_image_outlined, size: 18),
+          );
+        },
+      ),
+    );
+  }
+}
+

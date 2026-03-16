@@ -99,6 +99,13 @@ class RoundToys extends Table {
   Set<Column> get primaryKey => {roundId, toyId};
 }
 
+class HistoryEvents extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get eventType => text()();
+  IntColumn get createdAt => integer()();
+  TextColumn get payload => text()();
+}
+
 @DriftDatabase(
   tables: [
     Boxes,
@@ -111,13 +118,14 @@ class RoundToys extends Table {
     LocationDefinitions,
     Rounds,
     RoundToys,
+    HistoryEvents,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -201,6 +209,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 9) {
             await m.database
                 .customStatement('ALTER TABLE boxes ADD COLUMN notes TEXT');
+          }
+
+          if (from < 10) {
+            await m.createTable(historyEvents);
           }
         },
       );

@@ -19,7 +19,7 @@ class _BootstrapState extends State<Bootstrap> {
   late final ToyRepository _toyRepository;
   late final RoundRepository _roundRepository;
   late final SettingsRepository _settingsRepository;
-  late final Future<void> _initFuture;
+  late Future<void> _initFuture;
 
   @override
   void initState() {
@@ -28,10 +28,7 @@ class _BootstrapState extends State<Bootstrap> {
     _toyRepository = ToyRepository(_db);
     _roundRepository = RoundRepository(_db);
     _settingsRepository = SettingsRepository(_db);
-    _initFuture = () async {
-      await _toyRepository.ensureSeedData();
-      await _settingsRepository.load();
-    }();
+    _initFuture = _runInitialization();
   }
 
   @override
@@ -46,12 +43,33 @@ class _BootstrapState extends State<Bootstrap> {
     return FutureBuilder<void>(
       future: _initFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.connectionState == ConnectionState.active) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
+          );
+        }
+
+        if (!snapshot.hasData && snapshot.connectionState != ConnectionState.done) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return _BootstrapErrorScreen(
+            onRetry: () {
+              setState(() {
+                _initFuture = _runInitialization();
+              });
+            },
+            error: snapshot.error?.toString(),
           );
         }
 
@@ -61,6 +79,66 @@ class _BootstrapState extends State<Bootstrap> {
           settingsRepository: _settingsRepository,
         );
       },
+    );
+  }
+
+  Future<void> _runInitialization() async {
+    await _toyRepository.ensureSeedData();
+    await _settingsRepository.load();
+  }
+}
+
+class _BootstrapErrorScreen extends StatelessWidget {
+  final String? error;
+  final VoidCallback onRetry;
+
+  const _BootstrapErrorScreen({
+    required this.error,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 46,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Falha ao iniciar o aplicativo',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    (error ?? 'Erro desconhecido').trim(),
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 20),
+                  FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Tentar novamente'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
