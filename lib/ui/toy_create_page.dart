@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/data/services/photo_cropper_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/category_quick_picker.dart';
@@ -27,8 +27,9 @@ class ToyCreatePage extends StatefulWidget {
 }
 
 class _ToyCreatePageState extends State<ToyCreatePage> {
-  static const Duration _localFieldAnimationDuration =
-      Duration(milliseconds: 200);
+  static const Duration _localFieldAnimationDuration = Duration(
+    milliseconds: 200,
+  );
   static String? _lastCategoryId;
   String? _selectedCategoryId;
   String? _selectedBoxId;
@@ -51,9 +52,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: source, imageQuality: 85);
-    if (image == null) return;
-    final croppedPath =
-        await PhotoCropperService.cropToSquare(sourcePath: image.path);
+    if (image == null || !mounted) return;
+    final croppedPath = await PhotoCropPage.open(
+      context,
+      sourcePath: image.path,
+    );
     if (!mounted || croppedPath == null) return;
     setState(() => _photoSourcePath = croppedPath);
   }
@@ -78,9 +81,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
 
   Future<void> _save() async {
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione uma categoria.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
       return;
     }
 
@@ -98,18 +101,18 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar brinquedo: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar brinquedo: $e')));
       setState(() => _saving = false);
     }
   }
 
   Future<void> _saveAndAddAnother() async {
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecione uma categoria.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
       return;
     }
 
@@ -140,9 +143,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar brinquedo: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar brinquedo: $e')));
       setState(() => _saving = false);
     }
   }
@@ -162,8 +165,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       errorBuilder: (_, __, ___) {
         return Container(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child:
-              const Center(child: Icon(Icons.broken_image_outlined, size: 42)),
+          child: const Center(
+            child: Icon(Icons.broken_image_outlined, size: 42),
+          ),
         );
       },
     );
@@ -202,31 +206,33 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                     builder: (context, locationsSnap) {
                       final locations =
                           locationsSnap.data ?? const <LocationDefinition>[];
-                      final categoriesSorted = [...categories]..sort((a, b) {
-                        int rank(String name) {
-                          final n = name.toLowerCase();
-                          if (n.contains('veic')) return 0;
-                          if (n.contains('bonec')) return 1;
-                          if (n.contains('mont')) return 2;
-                          if (n.contains('faz')) return 3;
-                          if (n.contains('jogo')) return 4;
-                          if (n.contains('liv')) return 5;
-                          if (n.contains('arte')) return 6;
-                          if (n.contains('music')) return 7;
-                          if (n.contains('banh')) return 8;
-                          if (n.contains('out')) return 9;
-                          return 100;
-                        }
+                      final categoriesSorted = [...categories]
+                        ..sort((a, b) {
+                          int rank(String name) {
+                            final n = name.toLowerCase();
+                            if (n.contains('veic')) return 0;
+                            if (n.contains('bonec')) return 1;
+                            if (n.contains('mont')) return 2;
+                            if (n.contains('faz')) return 3;
+                            if (n.contains('jogo')) return 4;
+                            if (n.contains('liv')) return 5;
+                            if (n.contains('arte')) return 6;
+                            if (n.contains('music')) return 7;
+                            if (n.contains('banh')) return 8;
+                            if (n.contains('out')) return 9;
+                            return 100;
+                          }
 
-                        final ra = rank(a.name);
-                        final rb = rank(b.name);
-                        if (ra != rb) return ra.compareTo(rb);
-                        return a.name.compareTo(b.name);
-                      });
+                          final ra = rank(a.name);
+                          final rb = rank(b.name);
+                          if (ra != rb) return ra.compareTo(rb);
+                          return a.name.compareTo(b.name);
+                        });
 
                       if (_selectedLooseLocation != null &&
-                          !locations
-                              .any((l) => l.name == _selectedLooseLocation)) {
+                          !locations.any(
+                            (l) => l.name == _selectedLooseLocation,
+                          )) {
                         _selectedLooseLocation = null;
                       }
 
@@ -234,7 +240,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                         children: [
                           Expanded(
                             child: ListView(
-                              padding: const EdgeInsets.only(bottom: UiTokens.m),
+                              padding: const EdgeInsets.only(
+                                bottom: UiTokens.m,
+                              ),
                               children: [
                                 AspectRatio(
                                   aspectRatio: 1,
@@ -251,13 +259,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         onPressed: _saving
                                             ? null
                                             : () async {
-                                                await HapticFeedback
-                                                    .selectionClick();
+                                                await HapticFeedback.selectionClick();
                                                 await _pickImage(
-                                                    ImageSource.camera);
+                                                  ImageSource.camera,
+                                                );
                                               },
                                         icon: const Icon(
-                                            Icons.photo_camera_outlined),
+                                          Icons.photo_camera_outlined,
+                                        ),
                                         label: const Text('Câmera'),
                                       ),
                                     ),
@@ -267,13 +276,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         onPressed: _saving
                                             ? null
                                             : () async {
-                                                await HapticFeedback
-                                                    .selectionClick();
+                                                await HapticFeedback.selectionClick();
                                                 await _pickImage(
-                                                    ImageSource.gallery);
+                                                  ImageSource.gallery,
+                                                );
                                               },
                                         icon: const Icon(
-                                            Icons.photo_library_outlined),
+                                          Icons.photo_library_outlined,
+                                        ),
                                         label: const Text('Galeria'),
                                       ),
                                     ),
@@ -305,8 +315,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                   const SizedBox(height: 6),
                                   Text(
                                     'Obrigatório.',
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ],
                                 const SizedBox(height: UiTokens.m),
@@ -335,8 +346,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         onChanged: _saving
                                             ? null
                                             : (v) => setState(
-                                                  () => _selectedBoxId = v,
-                                                ),
+                                                () => _selectedBoxId = v,
+                                              ),
                                       ),
                                     ),
                                     const SizedBox(width: UiTokens.s),
@@ -347,8 +358,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           : () async {
                                               await _createBox();
                                             },
-                                      icon:
-                                          const Icon(Icons.add_box_outlined),
+                                      icon: const Icon(Icons.add_box_outlined),
                                     ),
                                   ],
                                 ),
@@ -379,40 +389,41 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             padding: const EdgeInsets.only(
                                               top: UiTokens.m,
                                             ),
-                                            child:
-                                                DropdownButtonFormField<String?>(
+                                            child: DropdownButtonFormField<String?>(
                                               initialValue:
                                                   _selectedLooseLocation,
-                                              decoration:
-                                                  const InputDecoration(
+                                              decoration: const InputDecoration(
                                                 labelText: 'Local',
                                               ),
                                               items:
                                                   <DropdownMenuItem<String?>>[
-                                                const DropdownMenuItem<String?>(
-                                                  value: null,
-                                                  child: Text('Sem local'),
-                                                ),
-                                                ...locations.map(
-                                                  (l) =>
-                                                      DropdownMenuItem<String?>(
-                                                    value: l.name,
-                                                    child: Text(l.name),
-                                                  ),
-                                                ),
-                                              ],
+                                                    const DropdownMenuItem<
+                                                      String?
+                                                    >(
+                                                      value: null,
+                                                      child: Text('Sem local'),
+                                                    ),
+                                                    ...locations.map(
+                                                      (l) =>
+                                                          DropdownMenuItem<
+                                                            String?
+                                                          >(
+                                                            value: l.name,
+                                                            child: Text(l.name),
+                                                          ),
+                                                    ),
+                                                  ],
                                               onChanged: _saving
                                                   ? null
                                                   : (v) => setState(
-                                                        () =>
-                                                            _selectedLooseLocation =
-                                                                v,
-                                                      ),
+                                                      () =>
+                                                          _selectedLooseLocation =
+                                                              v,
+                                                    ),
                                             ),
                                           )
                                         : const SizedBox.shrink(
-                                            key: ValueKey(
-                                                'local-field-hidden'),
+                                            key: ValueKey('local-field-hidden'),
                                           ),
                                   ),
                                 ),
@@ -467,4 +478,3 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     );
   }
 }
-

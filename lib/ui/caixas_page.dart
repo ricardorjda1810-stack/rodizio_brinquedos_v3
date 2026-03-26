@@ -1,4 +1,4 @@
-﻿// lib/ui/caixas_page.dart
+// lib/ui/caixas_page.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
@@ -50,13 +51,17 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _confirmDelete(
-      BuildContext context, String boxId, String label) async {
+    BuildContext context,
+    String boxId,
+    String label,
+  ) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Excluir caixa?'),
-        content:
-            Text('"$label" sera apagada e os brinquedos ficarao sem caixa.'),
+        content: Text(
+          '"$label" sera apagada e os brinquedos ficarao sem caixa.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -108,7 +113,20 @@ class _CaixasPageState extends State<CaixasPage> {
     if (source == null) return;
 
     try {
-      await widget.toyRepository.pickAndSaveBoxPhoto(boxId: box.id, source: source);
+      final picker = ImagePicker();
+      final image = await picker.pickImage(source: source, imageQuality: 85);
+      if (image == null || !context.mounted) return;
+
+      final croppedPath = await PhotoCropPage.open(
+        context,
+        sourcePath: image.path,
+      );
+      if (croppedPath == null || !context.mounted) return;
+
+      await widget.toyRepository.saveBoxPhoto(
+        boxId: box.id,
+        croppedPhotoPath: croppedPath,
+      );
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,9 +157,7 @@ class _CaixasPageState extends State<CaixasPage> {
           title: const Text('Editar local'),
           content: DropdownButtonFormField<String>(
             initialValue: selectedLocationId,
-            decoration: const InputDecoration(
-              labelText: 'Local',
-            ),
+            decoration: const InputDecoration(labelText: 'Local'),
             items: locations
                 .map(
                   (l) => DropdownMenuItem<String>(
@@ -162,8 +178,9 @@ class _CaixasPageState extends State<CaixasPage> {
             ),
             FilledButton(
               onPressed: () {
-                final selected =
-                    locations.firstWhere((l) => l.id == selectedLocationId);
+                final selected = locations.firstWhere(
+                  (l) => l.id == selectedLocationId,
+                );
                 Navigator.of(ctx).pop(selected.name);
               },
               child: const Text('SALVAR'),
@@ -176,10 +193,7 @@ class _CaixasPageState extends State<CaixasPage> {
     if (result == null) return;
 
     try {
-      await widget.toyRepository.updateBoxLocal(
-        boxId: box.id,
-        local: result,
-      );
+      await widget.toyRepository.updateBoxLocal(boxId: box.id, local: result);
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -199,9 +213,7 @@ class _CaixasPageState extends State<CaixasPage> {
           minLines: 2,
           maxLines: 4,
           maxLength: 120,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(120),
-          ],
+          inputFormatters: [LengthLimitingTextInputFormatter(120)],
           decoration: const InputDecoration(
             labelText: 'Informacoes importantes (opcional)',
           ),
@@ -223,10 +235,7 @@ class _CaixasPageState extends State<CaixasPage> {
     if (result == null) return;
 
     try {
-      await widget.toyRepository.updateBoxNotes(
-        boxId: box.id,
-        notes: result,
-      );
+      await widget.toyRepository.updateBoxNotes(boxId: box.id, notes: result);
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -244,10 +253,8 @@ class _CaixasPageState extends State<CaixasPage> {
   void _openToyDetail(BuildContext context, String toyId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ToyDetailPage(
-          toyId: toyId,
-          toyRepository: widget.toyRepository,
-        ),
+        builder: (_) =>
+            ToyDetailPage(toyId: toyId, toyRepository: widget.toyRepository),
       ),
     );
   }
@@ -255,7 +262,12 @@ class _CaixasPageState extends State<CaixasPage> {
   Widget _buildToyList(List<ToyCatalogItem> boxItems) {
     if (boxItems.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(UiTokens.s, 0, UiTokens.s, UiTokens.s),
+        padding: const EdgeInsets.fromLTRB(
+          UiTokens.s,
+          0,
+          UiTokens.s,
+          UiTokens.s,
+        ),
         child: Text(
           'Nenhum brinquedo nesta caixa.',
           style: Theme.of(context).textTheme.bodySmall,
@@ -264,11 +276,18 @@ class _CaixasPageState extends State<CaixasPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(UiTokens.s, UiTokens.xs, UiTokens.s, UiTokens.s),
+      padding: const EdgeInsets.fromLTRB(
+        UiTokens.s,
+        UiTokens.xs,
+        UiTokens.s,
+        UiTokens.s,
+      ),
       child: Column(
         children: List<Widget>.generate(boxItems.length, (index) {
           final item = boxItems[index];
-          final toyName = item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
+          final toyName = item.toy.name.trim().isEmpty
+              ? 'Sem nome'
+              : item.toy.name.trim();
           final categoryName = item.category?.name.trim();
           final subtitle = (categoryName == null || categoryName.isEmpty)
               ? 'Brinquedo da caixa'
@@ -296,9 +315,8 @@ class _CaixasPageState extends State<CaixasPage> {
                               toyName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -351,9 +369,9 @@ class _CaixasPageState extends State<CaixasPage> {
                 children: [
                   (box.photoPath ?? '').trim().isEmpty
                       ? Container(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           child: const Center(
                             child: Icon(Icons.inventory_2_outlined),
                           ),
@@ -363,9 +381,9 @@ class _CaixasPageState extends State<CaixasPage> {
                           fit: BoxFit.cover,
                           gaplessPlayback: true,
                           errorBuilder: (_, __, ___) => Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             child: const Center(
                               child: Icon(Icons.inventory_2_outlined),
                             ),
@@ -383,18 +401,17 @@ class _CaixasPageState extends State<CaixasPage> {
                           vertical: UiTokens.xs,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.9),
-                          borderRadius:
-                              BorderRadius.circular(UiTokens.radiusButton),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(
+                            UiTokens.radiusButton,
+                          ),
                         ),
                         child: Text(
                           isExpanded ? 'Ocultar brinquedos' : 'Ver brinquedos',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
@@ -451,12 +468,12 @@ class _CaixasPageState extends State<CaixasPage> {
                       ],
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.92),
-                          borderRadius:
-                              BorderRadius.circular(UiTokens.radiusButton),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surface.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(
+                            UiTokens.radiusButton,
+                          ),
                         ),
                         padding: const EdgeInsets.all(2),
                         child: const Icon(Icons.more_vert, size: 18),
@@ -469,19 +486,27 @@ class _CaixasPageState extends State<CaixasPage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                UiTokens.s, UiTokens.xs, UiTokens.s, 2),
+              UiTokens.s,
+              UiTokens.xs,
+              UiTokens.s,
+              2,
+            ),
             child: Text(
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(
-                UiTokens.s, 0, UiTokens.s, UiTokens.xs),
+              UiTokens.s,
+              0,
+              UiTokens.s,
+              UiTokens.xs,
+            ),
             child: Text(
               subtitle,
               maxLines: isExpanded ? 3 : 2,
@@ -492,8 +517,9 @@ class _CaixasPageState extends State<CaixasPage> {
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: _buildToyList(boxItems),
-            crossFadeState:
-                isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 180),
           ),
         ],
@@ -522,7 +548,8 @@ class _CaixasPageState extends State<CaixasPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                          'Nenhuma caixa cadastrada. Crie sua primeira caixa.'),
+                        'Nenhuma caixa cadastrada. Crie sua primeira caixa.',
+                      ),
                       const SizedBox(height: UiTokens.s),
                       FilledButton(
                         onPressed: () => _openAddBoxPage(context),
@@ -550,7 +577,9 @@ class _CaixasPageState extends State<CaixasPage> {
                     final boxId = item.toy.boxId;
                     if (boxId == null) continue;
                     toyCountByBoxId[boxId] = (toyCountByBoxId[boxId] ?? 0) + 1;
-                    toysByBoxId.putIfAbsent(boxId, () => <ToyCatalogItem>[]).add(item);
+                    toysByBoxId
+                        .putIfAbsent(boxId, () => <ToyCatalogItem>[])
+                        .add(item);
                   }
 
                   final width = MediaQuery.sizeOf(context).width;
@@ -560,7 +589,7 @@ class _CaixasPageState extends State<CaixasPage> {
                     builder: (context, constraints) {
                       final tileWidth =
                           (constraints.maxWidth - (UiTokens.s * (cols - 1))) /
-                              cols;
+                          cols;
 
                       return SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 96),
@@ -570,7 +599,8 @@ class _CaixasPageState extends State<CaixasPage> {
                           children: List<Widget>.generate(boxes.length, (i) {
                             final box = boxes[i];
                             final count = toyCountByBoxId[box.id] ?? 0;
-                            final boxItems = toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
+                            final boxItems =
+                                toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
                             return SizedBox(
                               width: tileWidth,
                               child: _buildBoxCard(
@@ -642,4 +672,3 @@ class _ToyThumb extends StatelessWidget {
     );
   }
 }
-

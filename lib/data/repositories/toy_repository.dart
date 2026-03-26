@@ -12,10 +12,7 @@ class ToyWithBox {
   final Toy toy;
   final Boxe? box;
 
-  const ToyWithBox({
-    required this.toy,
-    required this.box,
-  });
+  const ToyWithBox({required this.toy, required this.box});
 }
 
 class ToyCatalogItem {
@@ -92,7 +89,9 @@ class ToyRepository {
 
     await d.transaction(() async {
       for (final c in defaultCategories) {
-        await d.into(d.categoryDefinitions).insertOnConflictUpdate(
+        await d
+            .into(d.categoryDefinitions)
+            .insertOnConflictUpdate(
               CategoryDefinitionsCompanion.insert(
                 id: c.id,
                 name: c.name,
@@ -100,7 +99,9 @@ class ToyRepository {
               ),
             );
 
-        await d.into(d.categoryCounters).insert(
+        await d
+            .into(d.categoryCounters)
+            .insert(
               CategoryCountersCompanion.insert(
                 categoryId: c.id,
                 nextNumber: const Value(1),
@@ -108,7 +109,9 @@ class ToyRepository {
               mode: InsertMode.insertOrIgnore,
             );
 
-        await d.into(d.roundCategorySettings).insert(
+        await d
+            .into(d.roundCategorySettings)
+            .insert(
               RoundCategorySettingsCompanion.insert(
                 categoryId: c.id,
                 isIncluded: const Value(true),
@@ -119,25 +122,28 @@ class ToyRepository {
       }
 
       for (final loc in defaultLocations) {
-        await d.into(d.locationDefinitions).insert(
-              LocationDefinitionsCompanion.insert(
-                id: loc.id,
-                name: loc.name,
-              ),
+        await d
+            .into(d.locationDefinitions)
+            .insert(
+              LocationDefinitionsCompanion.insert(id: loc.id, name: loc.name),
               mode: InsertMode.insertOrIgnore,
             );
       }
 
       final categories = await d.select(d.categoryDefinitions).get();
       for (final c in categories) {
-        await d.into(d.categoryCounters).insert(
+        await d
+            .into(d.categoryCounters)
+            .insert(
               CategoryCountersCompanion.insert(
                 categoryId: c.id,
                 nextNumber: const Value(1),
               ),
               mode: InsertMode.insertOrIgnore,
             );
-        await d.into(d.roundCategorySettings).insert(
+        await d
+            .into(d.roundCategorySettings)
+            .insert(
               RoundCategorySettingsCompanion.insert(
                 categoryId: c.id,
                 isIncluded: const Value(true),
@@ -150,14 +156,16 @@ class ToyRepository {
       final existingBoxes = await d.select(d.boxes).get();
       if (existingBoxes.length < 4) {
         final existingByNumber = <int>{
-          for (final box in existingBoxes) box.number
+          for (final box in existingBoxes) box.number,
         };
         var createdAt = DateTime.now().millisecondsSinceEpoch;
 
         for (var i = 1; i <= 4; i++) {
           if (existingByNumber.contains(i)) continue;
 
-          await d.into(d.boxes).insert(
+          await d
+              .into(d.boxes)
+              .insert(
                 BoxesCompanion.insert(
                   id: const Uuid().v4(),
                   number: Value(i),
@@ -194,8 +202,9 @@ class ToyRepository {
   Future<List<Toy>> getAllToysOnce() async {
     final d = db;
     if (d == null) return const <Toy>[];
-    return (d.select(d.toys)..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
-        .get();
+    return (d.select(
+      d.toys,
+    )..orderBy([(t) => OrderingTerm.asc(t.createdAt)])).get();
   }
 
   Stream<List<ToyCatalogItem>> watchCatalog() {
@@ -209,8 +218,7 @@ class ToyRepository {
     final query = d.select(t).join([
       leftOuterJoin(b, b.id.equalsExp(t.boxId)),
       leftOuterJoin(c, c.id.equalsExp(t.categoryId)),
-    ])
-      ..orderBy([OrderingTerm.asc(t.createdAt)]);
+    ])..orderBy([OrderingTerm.asc(t.createdAt)]);
 
     return query.watch().map((rows) {
       return rows
@@ -232,19 +240,13 @@ class ToyRepository {
     final t = d.toys;
     final b = d.boxes;
 
-    final query = d.select(t).join([
-      leftOuterJoin(b, b.id.equalsExp(t.boxId)),
-    ])
-      ..orderBy([
-        OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc),
-      ]);
+    final query = d.select(t).join(
+      [leftOuterJoin(b, b.id.equalsExp(t.boxId))],
+    )..orderBy([OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc)]);
 
     return query.watch().map((rows) {
       return rows.map((row) {
-        return ToyWithBox(
-          toy: row.readTable(t),
-          box: row.readTableOrNull(b),
-        );
+        return ToyWithBox(toy: row.readTable(t), box: row.readTableOrNull(b));
       }).toList();
     });
   }
@@ -263,10 +265,7 @@ class ToyRepository {
     return query.watch().map((rows) {
       if (rows.isEmpty) return null;
       final row = rows.first;
-      return ToyWithBox(
-        toy: row.readTable(t),
-        box: row.readTableOrNull(b),
-      );
+      return ToyWithBox(toy: row.readTable(t), box: row.readTableOrNull(b));
     });
   }
 
@@ -289,8 +288,9 @@ class ToyRepository {
     }
 
     final maxExpr = d.boxes.number.max();
-    final row =
-        await (d.selectOnly(d.boxes)..addColumns([maxExpr])).getSingle();
+    final row = await (d.selectOnly(
+      d.boxes,
+    )..addColumns([maxExpr])).getSingle();
     final currentMax = row.read(maxExpr);
     if (currentMax == null) return 1;
     return currentMax + 1;
@@ -315,14 +315,15 @@ class ToyRepository {
     final c = d.categoryDefinitions;
     final s = d.roundCategorySettings;
 
-    final query = d.select(c).join([
-      innerJoin(
-        s,
-        s.categoryId.equalsExp(c.id) & s.isIncluded.equals(true),
-      ),
-    ])
-      ..where(c.isActive.equals(true))
-      ..orderBy([OrderingTerm.asc(c.name)]);
+    final query =
+        d.select(c).join([
+            innerJoin(
+              s,
+              s.categoryId.equalsExp(c.id) & s.isIncluded.equals(true),
+            ),
+          ])
+          ..where(c.isActive.equals(true))
+          ..orderBy([OrderingTerm.asc(c.name)]);
 
     return query.watch().map((rows) {
       return rows.map((row) => row.readTable(c)).toList();
@@ -342,8 +343,7 @@ class ToyRepository {
 
     final query = d.select(c).join([
       leftOuterJoin(s, s.categoryId.equalsExp(c.id)),
-    ])
-      ..orderBy([OrderingTerm.asc(c.name)]);
+    ])..orderBy([OrderingTerm.asc(c.name)]);
 
     return query.watch().map((rows) {
       return rows
@@ -382,7 +382,9 @@ class ToyRepository {
       final now = DateTime.now().millisecondsSinceEpoch;
       final id = const Uuid().v4();
 
-      await d.into(d.toys).insert(
+      await d
+          .into(d.toys)
+          .insert(
             ToysCompanion.insert(
               id: id,
               categoryId: const Value('outros'),
@@ -416,7 +418,9 @@ class ToyRepository {
     final now = DateTime.now().millisecondsSinceEpoch;
     final id = const Uuid().v4();
 
-    await d.into(d.toys).insert(
+    await d
+        .into(d.toys)
+        .insert(
           ToysCompanion.insert(
             id: id,
             categoryId: const Value('outros'),
@@ -450,9 +454,9 @@ class ToyRepository {
     final toyId = const Uuid().v4();
 
     await d.transaction(() async {
-      final category = await (d.select(d.categoryDefinitions)
-            ..where((c) => c.id.equals(categoryId)))
-          .getSingleOrNull();
+      final category = await (d.select(
+        d.categoryDefinitions,
+      )..where((c) => c.id.equals(categoryId))).getSingleOrNull();
       if (category == null) {
         throw StateError('Categoria inválida.');
       }
@@ -460,7 +464,9 @@ class ToyRepository {
       final resolvedName =
           normalizedName ?? await _nextAutoToyNameForBox(normalizedBoxId);
 
-      await d.into(d.toys).insert(
+      await d
+          .into(d.toys)
+          .insert(
             ToysCompanion.insert(
               id: toyId,
               categoryId: Value(categoryId),
@@ -475,8 +481,10 @@ class ToyRepository {
 
     final source = _normalizeNullable(photoSourcePath);
     if (source != null) {
-      final copiedPath =
-          await _copyPhotoToToyStorage(toyId: toyId, sourcePath: source);
+      final copiedPath = await _copyPhotoToToyStorage(
+        toyId: toyId,
+        sourcePath: source,
+      );
       await (d.update(d.toys)..where((t) => t.id.equals(toyId))).write(
         ToysCompanion(photoPath: Value(copiedPath)),
       );
@@ -496,8 +504,10 @@ class ToyRepository {
     );
   }
 
-  Future<void> updateToyLocationText(
-      {required String toyId, String? locationText}) async {
+  Future<void> updateToyLocationText({
+    required String toyId,
+    String? locationText,
+  }) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
@@ -541,9 +551,9 @@ class ToyRepository {
       throw StateError('Categoria invalida.');
     }
 
-    final category = await (d.select(d.categoryDefinitions)
-          ..where((c) => c.id.equals(normalizedCategoryId)))
-        .getSingleOrNull();
+    final category = await (d.select(
+      d.categoryDefinitions,
+    )..where((c) => c.id.equals(normalizedCategoryId))).getSingleOrNull();
     if (category == null) {
       throw StateError('Categoria invalida.');
     }
@@ -577,8 +587,9 @@ class ToyRepository {
 
     final nextNumber = await d.transaction<int>(() async {
       final maxExpr = d.boxes.number.max();
-      final row =
-          await (d.selectOnly(d.boxes)..addColumns([maxExpr])).getSingle();
+      final row = await (d.selectOnly(
+        d.boxes,
+      )..addColumns([maxExpr])).getSingle();
       final currentMax = row.read(maxExpr) ?? 0;
       return currentMax + 1;
     });
@@ -595,7 +606,9 @@ class ToyRepository {
       createdAt: now,
     );
 
-    await d.into(d.boxes).insert(
+    await d
+        .into(d.boxes)
+        .insert(
           BoxesCompanion.insert(
             id: box.id,
             number: Value(box.number),
@@ -609,8 +622,10 @@ class ToyRepository {
 
     final source = _normalizeNullable(photoSourcePath);
     if (source != null) {
-      final copiedPath =
-          await _copyPhotoToBoxStorage(boxId: box.id, sourcePath: source);
+      final copiedPath = await _copyPhotoToBoxStorage(
+        boxId: box.id,
+        sourcePath: source,
+      );
       await (d.update(d.boxes)..where((b) => b.id.equals(box.id))).write(
         BoxesCompanion(photoPath: Value(copiedPath)),
       );
@@ -620,10 +635,7 @@ class ToyRepository {
     return box;
   }
 
-  Future<Boxe> createBox({
-    required int number,
-    required String local,
-  }) async {
+  Future<Boxe> createBox({required int number, required String local}) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
@@ -638,16 +650,18 @@ class ToyRepository {
       throw StateError('Local da caixa é obrigatório.');
     }
 
-    final existing = await (d.select(d.boxes)
-          ..where((b) => b.number.equals(number)))
-        .getSingleOrNull();
+    final existing = await (d.select(
+      d.boxes,
+    )..where((b) => b.number.equals(number))).getSingleOrNull();
     if (existing != null) return existing;
 
     final id = const Uuid().v4();
     final now = DateTime.now().millisecondsSinceEpoch;
     final name = 'Caixa $number';
 
-    await d.into(d.boxes).insert(
+    await d
+        .into(d.boxes)
+        .insert(
           BoxesCompanion.insert(
             id: id,
             number: Value(number),
@@ -684,8 +698,9 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final box = await (d.select(d.boxes)..where((b) => b.id.equals(boxId)))
-        .getSingleOrNull();
+    final box = await (d.select(
+      d.boxes,
+    )..where((b) => b.id.equals(boxId))).getSingleOrNull();
     if (box == null) return;
 
     final normalizedLocal = local.trim();
@@ -701,19 +716,14 @@ class ToyRepository {
     );
   }
 
-  Future<void> updateBoxNotes({
-    required String boxId,
-    String? notes,
-  }) async {
+  Future<void> updateBoxNotes({required String boxId, String? notes}) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
     await (d.update(d.boxes)..where((b) => b.id.equals(boxId))).write(
-      BoxesCompanion(
-        notes: Value(_normalizeNullable(notes)),
-      ),
+      BoxesCompanion(notes: Value(_normalizeNullable(notes))),
     );
   }
 
@@ -731,20 +741,26 @@ class ToyRepository {
     final id = _generateUniqueId(_slugify(trimmed), ids, prefix: 'cat');
 
     await d.transaction(() async {
-      await d.into(d.categoryDefinitions).insert(
+      await d
+          .into(d.categoryDefinitions)
+          .insert(
             CategoryDefinitionsCompanion.insert(
               id: id,
               name: trimmed,
               isActive: const Value(true),
             ),
           );
-      await d.into(d.categoryCounters).insert(
+      await d
+          .into(d.categoryCounters)
+          .insert(
             CategoryCountersCompanion.insert(
               categoryId: id,
               nextNumber: const Value(1),
             ),
           );
-      await d.into(d.roundCategorySettings).insert(
+      await d
+          .into(d.roundCategorySettings)
+          .insert(
             RoundCategorySettingsCompanion.insert(
               categoryId: id,
               isIncluded: const Value(true),
@@ -768,11 +784,7 @@ class ToyRepository {
 
     await (d.update(d.categoryDefinitions)
           ..where((c) => c.id.equals(categoryId)))
-        .write(
-      CategoryDefinitionsCompanion(
-        name: Value(trimmed),
-      ),
-    );
+        .write(CategoryDefinitionsCompanion(name: Value(trimmed)));
   }
 
   Future<void> removeCategory({required String categoryId}) async {
@@ -781,28 +793,26 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final inUse = await (d.select(d.toys)
-          ..where((t) => t.categoryId.equals(categoryId)))
-        .getSingleOrNull();
+    final inUse = await (d.select(
+      d.toys,
+    )..where((t) => t.categoryId.equals(categoryId))).getSingleOrNull();
     if (inUse != null) {
       await (d.update(d.categoryDefinitions)
             ..where((c) => c.id.equals(categoryId)))
-          .write(
-        const CategoryDefinitionsCompanion(isActive: Value(false)),
-      );
+          .write(const CategoryDefinitionsCompanion(isActive: Value(false)));
       return;
     }
 
     await d.transaction(() async {
-      await (d.delete(d.categoryCounters)
-            ..where((c) => c.categoryId.equals(categoryId)))
-          .go();
-      await (d.delete(d.roundCategorySettings)
-            ..where((s) => s.categoryId.equals(categoryId)))
-          .go();
-      await (d.delete(d.categoryDefinitions)
-            ..where((c) => c.id.equals(categoryId)))
-          .go();
+      await (d.delete(
+        d.categoryCounters,
+      )..where((c) => c.categoryId.equals(categoryId))).go();
+      await (d.delete(
+        d.roundCategorySettings,
+      )..where((s) => s.categoryId.equals(categoryId))).go();
+      await (d.delete(
+        d.categoryDefinitions,
+      )..where((c) => c.id.equals(categoryId))).go();
     });
   }
 
@@ -814,9 +824,7 @@ class ToyRepository {
 
     await (d.update(d.categoryDefinitions)
           ..where((c) => c.id.equals(categoryId)))
-        .write(
-      const CategoryDefinitionsCompanion(isActive: Value(true)),
-    );
+        .write(const CategoryDefinitionsCompanion(isActive: Value(true)));
   }
 
   Future<void> setCategoryIncludedInRound({
@@ -828,13 +836,15 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final current = await (d.select(d.roundCategorySettings)
-          ..where((s) => s.categoryId.equals(categoryId)))
-        .getSingleOrNull();
+    final current = await (d.select(
+      d.roundCategorySettings,
+    )..where((s) => s.categoryId.equals(categoryId))).getSingleOrNull();
     final currentQuota = current?.quota ?? 1;
     final nextQuota = isIncluded && currentQuota <= 0 ? 1 : currentQuota;
 
-    await d.into(d.roundCategorySettings).insertOnConflictUpdate(
+    await d
+        .into(d.roundCategorySettings)
+        .insertOnConflictUpdate(
           RoundCategorySettingsCompanion.insert(
             categoryId: categoryId,
             isIncluded: Value(isIncluded),
@@ -853,11 +863,13 @@ class ToyRepository {
     }
 
     final q = quota < 0 ? 0 : quota;
-    final current = await (d.select(d.roundCategorySettings)
-          ..where((s) => s.categoryId.equals(categoryId)))
-        .getSingleOrNull();
+    final current = await (d.select(
+      d.roundCategorySettings,
+    )..where((s) => s.categoryId.equals(categoryId))).getSingleOrNull();
     final included = current?.isIncluded ?? true;
-    await d.into(d.roundCategorySettings).insertOnConflictUpdate(
+    await d
+        .into(d.roundCategorySettings)
+        .insertOnConflictUpdate(
           RoundCategorySettingsCompanion.insert(
             categoryId: categoryId,
             isIncluded: Value(included),
@@ -888,7 +900,9 @@ class ToyRepository {
     final categories = await d.select(d.categoryDefinitions).get();
     for (final c in categories) {
       final q = defaultQuotas[c.id] ?? 0;
-      await d.into(d.roundCategorySettings).insertOnConflictUpdate(
+      await d
+          .into(d.roundCategorySettings)
+          .insertOnConflictUpdate(
             RoundCategorySettingsCompanion.insert(
               categoryId: c.id,
               isIncluded: Value(q > 0),
@@ -911,12 +925,9 @@ class ToyRepository {
     final ids = existing.map((e) => e.id).toSet();
     final id = _generateUniqueId(_slugify(trimmed), ids, prefix: 'loc');
 
-    await d.into(d.locationDefinitions).insert(
-          LocationDefinitionsCompanion.insert(
-            id: id,
-            name: trimmed,
-          ),
-        );
+    await d
+        .into(d.locationDefinitions)
+        .insert(LocationDefinitionsCompanion.insert(id: id, name: trimmed));
   }
 
   Future<void> renameLocation({
@@ -933,11 +944,7 @@ class ToyRepository {
 
     await (d.update(d.locationDefinitions)
           ..where((l) => l.id.equals(locationId)))
-        .write(
-      LocationDefinitionsCompanion(
-        name: Value(trimmed),
-      ),
-    );
+        .write(LocationDefinitionsCompanion(name: Value(trimmed)));
   }
 
   Future<void> removeLocation({required String locationId}) async {
@@ -946,34 +953,61 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    await (d.delete(d.locationDefinitions)
-          ..where((l) => l.id.equals(locationId)))
-        .go();
+    await (d.delete(
+      d.locationDefinitions,
+    )..where((l) => l.id.equals(locationId))).go();
   }
 
   Future<void> pickAndSaveToyPhoto({
     required String toyId,
     required ImageSource source,
   }) async {
+    final xfile = await _picker.pickImage(source: source, imageQuality: 85);
+    if (xfile == null) return;
+    final croppedPath = await PhotoCropperService.cropToSquare(
+      sourcePath: xfile.path,
+    );
+    if (croppedPath == null) return;
+
+    await saveToyPhoto(toyId: toyId, croppedPhotoPath: croppedPath);
+  }
+
+  Future<void> pickAndSaveBoxPhoto({
+    required String boxId,
+    required ImageSource source,
+  }) async {
+    final xfile = await _picker.pickImage(source: source, imageQuality: 85);
+    if (xfile == null) return;
+    final croppedPath = await PhotoCropperService.cropToSquare(
+      sourcePath: xfile.path,
+    );
+    if (croppedPath == null) return;
+
+    await saveBoxPhoto(boxId: boxId, croppedPhotoPath: croppedPath);
+  }
+
+  Future<void> saveToyPhoto({
+    required String toyId,
+    required String croppedPhotoPath,
+  }) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final xfile = await _picker.pickImage(
-      source: source,
-      imageQuality: 85,
+    final sourcePath = croppedPhotoPath.trim();
+    if (sourcePath.isEmpty) {
+      throw StateError('Caminho da foto invalido.');
+    }
+
+    final targetPath = await _copyPhotoToToyStorage(
+      toyId: toyId,
+      sourcePath: sourcePath,
     );
-    if (xfile == null) return;
-    final croppedPath =
-        await PhotoCropperService.cropToSquare(sourcePath: xfile.path);
-    if (croppedPath == null) return;
 
-    final targetPath =
-        await _copyPhotoToToyStorage(toyId: toyId, sourcePath: croppedPath);
-
-    final old = await (d.select(d.toys)..where((t) => t.id.equals(toyId)))
-        .getSingleOrNull();
+    final old = await (d.select(
+      d.toys,
+    )..where((t) => t.id.equals(toyId))).getSingleOrNull();
     final oldPath = old?.photoPath;
     if (oldPath != null && oldPath.isNotEmpty) {
       _tryDeleteFile(oldPath);
@@ -984,29 +1018,28 @@ class ToyRepository {
     );
   }
 
-  Future<void> pickAndSaveBoxPhoto({
+  Future<void> saveBoxPhoto({
     required String boxId,
-    required ImageSource source,
+    required String croppedPhotoPath,
   }) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final xfile = await _picker.pickImage(
-      source: source,
-      imageQuality: 85,
+    final sourcePath = croppedPhotoPath.trim();
+    if (sourcePath.isEmpty) {
+      throw StateError('Caminho da foto invalido.');
+    }
+
+    final targetPath = await _copyPhotoToBoxStorage(
+      boxId: boxId,
+      sourcePath: sourcePath,
     );
-    if (xfile == null) return;
-    final croppedPath =
-        await PhotoCropperService.cropToSquare(sourcePath: xfile.path);
-    if (croppedPath == null) return;
 
-    final targetPath =
-        await _copyPhotoToBoxStorage(boxId: boxId, sourcePath: croppedPath);
-
-    final old = await (d.select(d.boxes)..where((b) => b.id.equals(boxId)))
-        .getSingleOrNull();
+    final old = await (d.select(
+      d.boxes,
+    )..where((b) => b.id.equals(boxId))).getSingleOrNull();
     final oldPath = old?.photoPath;
     if (oldPath != null && oldPath.isNotEmpty) {
       _tryDeleteFile(oldPath);
@@ -1023,8 +1056,9 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final toy = await (d.select(d.toys)..where((t) => t.id.equals(toyId)))
-        .getSingleOrNull();
+    final toy = await (d.select(
+      d.toys,
+    )..where((t) => t.id.equals(toyId))).getSingleOrNull();
     final path = toy?.photoPath;
 
     await (d.update(d.toys)..where((t) => t.id.equals(toyId))).write(
@@ -1042,8 +1076,9 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final toy = await (d.select(d.toys)..where((t) => t.id.equals(toyId)))
-        .getSingleOrNull();
+    final toy = await (d.select(
+      d.toys,
+    )..where((t) => t.id.equals(toyId))).getSingleOrNull();
     final path = toy?.photoPath;
 
     await d.transaction(() async {
@@ -1194,13 +1229,17 @@ class ToyRepository {
         .replaceAll('ç', 'c');
 
     final cleaned = withoutAccents.replaceAll(RegExp(r'[^a-z0-9]+'), '_');
-    final normalized =
-        cleaned.replaceAll(RegExp(r'_+'), '_').replaceAll(RegExp(r'^_|_$'), '');
+    final normalized = cleaned
+        .replaceAll(RegExp(r'_+'), '_')
+        .replaceAll(RegExp(r'^_|_$'), '');
     return normalized.isEmpty ? 'item' : normalized;
   }
 
-  String _generateUniqueId(String base, Set<String> existingIds,
-      {required String prefix}) {
+  String _generateUniqueId(
+    String base,
+    Set<String> existingIds, {
+    required String prefix,
+  }) {
     final seed = base.isEmpty ? prefix : base;
     if (!existingIds.contains(seed)) return seed;
     var i = 2;
@@ -1232,7 +1271,9 @@ class ToyRepository {
     final nextNumber = maxSeq + 1;
 
     // Mantém o contador em sincronia para compatibilidade com dados legados.
-    await d.into(d.toyAutoNameCounters).insertOnConflictUpdate(
+    await d
+        .into(d.toyAutoNameCounters)
+        .insertOnConflictUpdate(
           ToyAutoNameCountersCompanion.insert(
             boxIndex: Value(boxIndex),
             nextNumber: Value(nextNumber + 1),
@@ -1250,8 +1291,9 @@ class ToyRepository {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
     }
 
-    final box = await (d.select(d.boxes)..where((b) => b.id.equals(boxId)))
-        .getSingleOrNull();
+    final box = await (d.select(
+      d.boxes,
+    )..where((b) => b.id.equals(boxId))).getSingleOrNull();
     if (box == null) {
       throw StateError('Caixa inválida.');
     }

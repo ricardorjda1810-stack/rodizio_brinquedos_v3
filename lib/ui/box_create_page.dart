@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/data/services/photo_cropper_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
@@ -63,9 +63,9 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar caixa: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar caixa: $e')));
       setState(() => _saving = false);
     }
   }
@@ -96,11 +96,12 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
 
   Future<void> _pickPhoto(ImageSource source) async {
     final xfile = await _picker.pickImage(source: source, imageQuality: 85);
-    if (xfile == null) return;
-    final croppedPath =
-        await PhotoCropperService.cropToSquare(sourcePath: xfile.path);
-    if (croppedPath == null) return;
-    if (!mounted) return;
+    if (xfile == null || !mounted) return;
+    final croppedPath = await PhotoCropPage.open(
+      context,
+      sourcePath: xfile.path,
+    );
+    if (!mounted || croppedPath == null) return;
     setState(() {
       _photoSourcePath = croppedPath;
     });
@@ -216,7 +217,8 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                   final locations =
                       snapshot.data ?? const <LocationDefinition>[];
 
-                  final selectedLocationId = _selectedLocationId != null &&
+                  final selectedLocationId =
+                      _selectedLocationId != null &&
                           locations.any((l) => l.id == _selectedLocationId)
                       ? _selectedLocationId
                       : null;
@@ -225,9 +227,11 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                     _selectedLocationId = null;
                   }
 
-                  final extraLocalFilled =
-                      _extraLocalController.text.trim().isNotEmpty;
-                  final canSave = !_saving &&
+                  final extraLocalFilled = _extraLocalController.text
+                      .trim()
+                      .isNotEmpty;
+                  final canSave =
+                      !_saving &&
                       (locations.isEmpty ||
                           extraLocalFilled ||
                           _selectedLocationId != null);
@@ -239,9 +243,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                       TextFormField(
                         initialValue: 'Caixa $nextNumber',
                         readOnly: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Nome',
-                        ),
+                        decoration: const InputDecoration(labelText: 'Nome'),
                       ),
                       const SizedBox(height: UiTokens.xs),
                       Text(
@@ -268,7 +270,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                           onChanged: _saving
                               ? null
                               : (value) =>
-                                  setState(() => _selectedLocationId = value),
+                                    setState(() => _selectedLocationId = value),
                         ),
                       if (locations.isNotEmpty)
                         const SizedBox(height: UiTokens.s),
@@ -278,10 +280,13 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                           onPressed: _saving
                               ? null
                               : () => setState(
-                                  () => _showExtraLocal = !_showExtraLocal),
-                          child: Text(_showExtraLocal
-                              ? 'Ocultar local extra'
-                              : 'Local extra'),
+                                  () => _showExtraLocal = !_showExtraLocal,
+                                ),
+                          child: Text(
+                            _showExtraLocal
+                                ? 'Ocultar local extra'
+                                : 'Local extra',
+                          ),
                         ),
                       ),
                       if (_showExtraLocal) ...[

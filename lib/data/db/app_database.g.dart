@@ -1,4 +1,4 @@
-﻿// GENERATED CODE - DO NOT MODIFY BY HAND
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'app_database.dart';
 
@@ -2567,26 +2567,29 @@ class $HistoryEventsTable extends HistoryEvents
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $HistoryEventsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = VerificationMeta('id');
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
       'id', aliasedName, false,
+      hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
-      hasAutoIncrement: true);
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _eventTypeMeta =
-      VerificationMeta('eventType');
+      const VerificationMeta('eventType');
   @override
   late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
       'event_type', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _createdAtMeta =
-      VerificationMeta('createdAt');
+      const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
       'created_at', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _payloadMeta = VerificationMeta('payload');
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
   @override
   late final GeneratedColumn<String> payload = GeneratedColumn<String>(
       'payload', aliasedName, false,
@@ -2655,12 +2658,11 @@ class HistoryEvent extends DataClass implements Insertable<HistoryEvent> {
   final String eventType;
   final int createdAt;
   final String payload;
-  const HistoryEvent({
-    required this.id,
-    required this.eventType,
-    required this.createdAt,
-    required this.payload,
-  });
+  const HistoryEvent(
+      {required this.id,
+      required this.eventType,
+      required this.createdAt,
+      required this.payload});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2690,7 +2692,6 @@ class HistoryEvent extends DataClass implements Insertable<HistoryEvent> {
       payload: serializer.fromJson<String>(json['payload']),
     );
   }
-
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -2701,6 +2702,45 @@ class HistoryEvent extends DataClass implements Insertable<HistoryEvent> {
       'payload': serializer.toJson<String>(payload),
     };
   }
+
+  HistoryEvent copyWith(
+          {int? id, String? eventType, int? createdAt, String? payload}) =>
+      HistoryEvent(
+        id: id ?? this.id,
+        eventType: eventType ?? this.eventType,
+        createdAt: createdAt ?? this.createdAt,
+        payload: payload ?? this.payload,
+      );
+  HistoryEvent copyWithCompanion(HistoryEventsCompanion data) {
+    return HistoryEvent(
+      id: data.id.present ? data.id.value : this.id,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HistoryEvent(')
+          ..write('id: $id, ')
+          ..write('eventType: $eventType, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, eventType, createdAt, payload);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is HistoryEvent &&
+          other.id == this.id &&
+          other.eventType == this.eventType &&
+          other.createdAt == this.createdAt &&
+          other.payload == this.payload);
 }
 
 class HistoryEventsCompanion extends UpdateCompanion<HistoryEvent> {
@@ -2708,23 +2748,46 @@ class HistoryEventsCompanion extends UpdateCompanion<HistoryEvent> {
   final Value<String> eventType;
   final Value<int> createdAt;
   final Value<String> payload;
-  final Value<int> rowid;
   const HistoryEventsCompanion({
     this.id = const Value.absent(),
     this.eventType = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.payload = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
   HistoryEventsCompanion.insert({
     this.id = const Value.absent(),
     required String eventType,
     required int createdAt,
     required String payload,
-    this.rowid = const Value.absent(),
   })  : eventType = Value(eventType),
         createdAt = Value(createdAt),
         payload = Value(payload);
+  static Insertable<HistoryEvent> custom({
+    Expression<int>? id,
+    Expression<String>? eventType,
+    Expression<int>? createdAt,
+    Expression<String>? payload,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (eventType != null) 'event_type': eventType,
+      if (createdAt != null) 'created_at': createdAt,
+      if (payload != null) 'payload': payload,
+    });
+  }
+
+  HistoryEventsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? eventType,
+      Value<int>? createdAt,
+      Value<String>? payload}) {
+    return HistoryEventsCompanion(
+      id: id ?? this.id,
+      eventType: eventType ?? this.eventType,
+      createdAt: createdAt ?? this.createdAt,
+      payload: payload ?? this.payload,
+    );
+  }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2741,10 +2804,18 @@ class HistoryEventsCompanion extends UpdateCompanion<HistoryEvent> {
     if (payload.present) {
       map['payload'] = Variable<String>(payload.value);
     }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
     return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('HistoryEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('eventType: $eventType, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
   }
 }
 
@@ -5188,6 +5259,158 @@ typedef $$RoundToysTableProcessedTableManager = ProcessedTableManager<
     (RoundToy, $$RoundToysTableReferences),
     RoundToy,
     PrefetchHooks Function({bool roundId, bool toyId})>;
+typedef $$HistoryEventsTableCreateCompanionBuilder = HistoryEventsCompanion
+    Function({
+  Value<int> id,
+  required String eventType,
+  required int createdAt,
+  required String payload,
+});
+typedef $$HistoryEventsTableUpdateCompanionBuilder = HistoryEventsCompanion
+    Function({
+  Value<int> id,
+  Value<String> eventType,
+  Value<int> createdAt,
+  Value<String> payload,
+});
+
+class $$HistoryEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $HistoryEventsTable> {
+  $$HistoryEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+}
+
+class $$HistoryEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $HistoryEventsTable> {
+  $$HistoryEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get eventType => $composableBuilder(
+      column: $table.eventType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+}
+
+class $$HistoryEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $HistoryEventsTable> {
+  $$HistoryEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+}
+
+class $$HistoryEventsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $HistoryEventsTable,
+    HistoryEvent,
+    $$HistoryEventsTableFilterComposer,
+    $$HistoryEventsTableOrderingComposer,
+    $$HistoryEventsTableAnnotationComposer,
+    $$HistoryEventsTableCreateCompanionBuilder,
+    $$HistoryEventsTableUpdateCompanionBuilder,
+    (
+      HistoryEvent,
+      BaseReferences<_$AppDatabase, $HistoryEventsTable, HistoryEvent>
+    ),
+    HistoryEvent,
+    PrefetchHooks Function()> {
+  $$HistoryEventsTableTableManager(_$AppDatabase db, $HistoryEventsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$HistoryEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$HistoryEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$HistoryEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> eventType = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+          }) =>
+              HistoryEventsCompanion(
+            id: id,
+            eventType: eventType,
+            createdAt: createdAt,
+            payload: payload,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String eventType,
+            required int createdAt,
+            required String payload,
+          }) =>
+              HistoryEventsCompanion.insert(
+            id: id,
+            eventType: eventType,
+            createdAt: createdAt,
+            payload: payload,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$HistoryEventsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $HistoryEventsTable,
+    HistoryEvent,
+    $$HistoryEventsTableFilterComposer,
+    $$HistoryEventsTableOrderingComposer,
+    $$HistoryEventsTableAnnotationComposer,
+    $$HistoryEventsTableCreateCompanionBuilder,
+    $$HistoryEventsTableUpdateCompanionBuilder,
+    (
+      HistoryEvent,
+      BaseReferences<_$AppDatabase, $HistoryEventsTable, HistoryEvent>
+    ),
+    HistoryEvent,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5211,5 +5434,6 @@ class $AppDatabaseManager {
       $$RoundsTableTableManager(_db, _db.rounds);
   $$RoundToysTableTableManager get roundToys =>
       $$RoundToysTableTableManager(_db, _db.roundToys);
-  $HistoryEventsTable get historyEvents => _db.historyEvents;
+  $$HistoryEventsTableTableManager get historyEvents =>
+      $$HistoryEventsTableTableManager(_db, _db.historyEvents);
 }

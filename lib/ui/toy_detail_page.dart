@@ -1,4 +1,4 @@
-﻿// lib/ui/toy_detail_page.dart
+// lib/ui/toy_detail_page.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
@@ -22,7 +23,20 @@ class ToyDetailPage extends StatelessWidget {
   Future<void> _pick(BuildContext context, ImageSource source) async {
     final messenger = ScaffoldMessenger.of(context);
     try {
-      await toyRepository.pickAndSaveToyPhoto(toyId: toyId, source: source);
+      final picker = ImagePicker();
+      final image = await picker.pickImage(source: source, imageQuality: 85);
+      if (image == null || !context.mounted) return;
+
+      final croppedPath = await PhotoCropPage.open(
+        context,
+        sourcePath: image.path,
+      );
+      if (croppedPath == null || !context.mounted) return;
+
+      await toyRepository.saveToyPhoto(
+        toyId: toyId,
+        croppedPhotoPath: croppedPath,
+      );
     } catch (e) {
       if (!context.mounted) return;
       messenger.showSnackBar(
@@ -56,9 +70,7 @@ class ToyDetailPage extends StatelessWidget {
             controller: controller,
             autofocus: true,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(
-              labelText: 'Nome do brinquedo',
-            ),
+            decoration: const InputDecoration(labelText: 'Nome do brinquedo'),
             onSubmitted: (_) => Navigator.of(ctx).pop(controller.text.trim()),
           ),
           actions: [
@@ -123,9 +135,7 @@ class ToyDetailPage extends StatelessWidget {
                     width: double.maxFinite,
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedId,
-                      decoration: const InputDecoration(
-                        labelText: 'Categoria',
-                      ),
+                      decoration: const InputDecoration(labelText: 'Categoria'),
                       items: [
                         for (final c in categories)
                           DropdownMenuItem<String>(
@@ -201,9 +211,7 @@ class ToyDetailPage extends StatelessWidget {
             title: const Text('Editar caixa'),
             content: DropdownButtonFormField<String?>(
               initialValue: selectedBoxId,
-              decoration: const InputDecoration(
-                labelText: 'Caixa',
-              ),
+              decoration: const InputDecoration(labelText: 'Caixa'),
               items: <DropdownMenuItem<String?>>[
                 const DropdownMenuItem<String?>(
                   value: null,
@@ -238,10 +246,7 @@ class ToyDetailPage extends StatelessWidget {
     if (result == currentBoxId) return;
 
     try {
-      await toyRepository.setToyBox(
-        toyId: toyId,
-        boxId: result,
-      );
+      await toyRepository.setToyBox(toyId: toyId, boxId: result);
       if (!context.mounted) return;
       messenger.showSnackBar(
         const SnackBar(content: Text('Caixa atualizada.')),
@@ -282,9 +287,9 @@ class ToyDetailPage extends StatelessWidget {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao excluir brinquedo: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao excluir brinquedo: $e')));
     }
   }
 
@@ -318,9 +323,7 @@ class ToyDetailPage extends StatelessWidget {
     if (p.isEmpty) {
       return Container(
         color: UiTokens.playfulSoft,
-        child: Center(
-          child: Text('Sem foto', style: textTheme.bodySmall),
-        ),
+        child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
       );
     }
 
@@ -331,9 +334,7 @@ class ToyDetailPage extends StatelessWidget {
       errorBuilder: (_, __, ___) {
         return Container(
           color: UiTokens.playfulSoft,
-          child: Center(
-            child: Text('Sem foto', style: textTheme.bodySmall),
-          ),
+          child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
         );
       },
     );
@@ -346,7 +347,8 @@ class ToyDetailPage extends StatelessWidget {
     return StreamBuilder<List<CategoryDefinition>>(
       stream: toyRepository.watchCategories(),
       builder: (context, categoriesSnapshot) {
-        final categories = categoriesSnapshot.data ?? const <CategoryDefinition>[];
+        final categories =
+            categoriesSnapshot.data ?? const <CategoryDefinition>[];
 
         return StreamBuilder<ToyWithBox?>(
           stream: toyRepository.watchToyWithBox(toyId: toyId),
@@ -359,11 +361,13 @@ class ToyDetailPage extends StatelessWidget {
 
             final photoPath = data?.toy.photoPath;
             final box = data?.box;
-            final boxLabel =
-                (box == null) ? 'Sem caixa' : 'Caixa ${box.number} - ${box.local}';
+            final boxLabel = (box == null)
+                ? 'Sem caixa'
+                : 'Caixa ${box.number} - ${box.local}';
             final locationText = (data?.toy.locationText ?? '').trim();
             final categoryId = (data?.toy.categoryId ?? '').trim();
-            final categoryLabel = categories
+            final categoryLabel =
+                categories
                     .where((c) => c.id == categoryId)
                     .map((c) => c.name.trim())
                     .cast<String?>()
@@ -375,13 +379,12 @@ class ToyDetailPage extends StatelessWidget {
             final effectiveLocationLabel = box != null
                 ? (box.local.trim().isEmpty ? 'Sem local' : box.local.trim())
                 : (locationText.isEmpty ? 'Sem local' : locationText);
-            final locationFieldLabel =
-                box != null ? 'Local da caixa' : 'Local fora da caixa';
+            final locationFieldLabel = box != null
+                ? 'Local da caixa'
+                : 'Local fora da caixa';
 
             return Scaffold(
-              appBar: AppBar(
-                title: Text(title),
-              ),
+              appBar: AppBar(title: Text(title)),
               body: SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(UiTokens.m),
@@ -395,16 +398,18 @@ class ToyDetailPage extends StatelessWidget {
                             onTap: photoPath == null || photoPath.trim().isEmpty
                                 ? null
                                 : () => _openPhotoViewer(
-                                      context,
-                                      photoPath: photoPath,
-                                      title: title,
-                                      boxLabel: boxLabel,
-                                      categoryLabel: categoryLabel,
-                                      locationFieldLabel: locationFieldLabel,
-                                      locationLabel: effectiveLocationLabel,
-                                    ),
+                                    context,
+                                    photoPath: photoPath,
+                                    title: title,
+                                    boxLabel: boxLabel,
+                                    categoryLabel: categoryLabel,
+                                    locationFieldLabel: locationFieldLabel,
+                                    locationLabel: effectiveLocationLabel,
+                                  ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+                              borderRadius: BorderRadius.circular(
+                                UiTokens.radiusCard,
+                              ),
                               child: _photoOrPlaceholder(context, photoPath),
                             ),
                           ),
@@ -438,9 +443,9 @@ class ToyDetailPage extends StatelessWidget {
                                 onPressed: data == null
                                     ? null
                                     : () => _editToyCategory(
-                                          context,
-                                          currentCategoryId: data.toy.categoryId,
-                                        ),
+                                        context,
+                                        currentCategoryId: data.toy.categoryId,
+                                      ),
                                 icon: const Icon(Icons.category_outlined),
                                 label: const Text('Editar categoria'),
                               ),
@@ -449,9 +454,9 @@ class ToyDetailPage extends StatelessWidget {
                                 onPressed: data == null
                                     ? null
                                     : () => _editToyBox(
-                                          context,
-                                          currentBoxId: data.toy.boxId,
-                                        ),
+                                        context,
+                                        currentBoxId: data.toy.boxId,
+                                      ),
                                 icon: const Icon(Icons.inventory_2_outlined),
                                 label: const Text('Editar caixa'),
                               ),
@@ -485,7 +490,9 @@ class ToyDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: UiTokens.m),
                               Text(
-                                box != null ? 'Local da caixa' : 'Local sem caixa',
+                                box != null
+                                    ? 'Local da caixa'
+                                    : 'Local sem caixa',
                                 style: textTheme.bodySmall,
                               ),
                               const SizedBox(height: UiTokens.xs),
@@ -510,13 +517,15 @@ class ToyDetailPage extends StatelessWidget {
                               Text('Foto', style: textTheme.titleMedium),
                               const SizedBox(height: UiTokens.s),
                               FilledButton.icon(
-                                onPressed: () => _pick(context, ImageSource.camera),
+                                onPressed: () =>
+                                    _pick(context, ImageSource.camera),
                                 icon: const Icon(Icons.photo_camera),
                                 label: const Text('Tirar foto'),
                               ),
                               const SizedBox(height: UiTokens.s),
                               FilledButton.icon(
-                                onPressed: () => _pick(context, ImageSource.gallery),
+                                onPressed: () =>
+                                    _pick(context, ImageSource.gallery),
                                 icon: const Icon(Icons.photo_library),
                                 label: const Text('Escolher da galeria'),
                               ),
