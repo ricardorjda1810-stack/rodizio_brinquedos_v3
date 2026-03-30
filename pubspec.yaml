@@ -3,6 +3,7 @@ description: Rodízio de Brinquedos 2.1 (rebuild v3)
 publish_to: 'none'
 
 version: 1.0.0+15
+
 environment:
   sdk: ">=3.3.0 <4.0.0"
 
@@ -10,15 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # UI / util
   intl: ^0.19.0
   uuid: ^4.4.0
 
-  # Fotos
   image_picker: ^1.0.7
   image_cropper: ^9.1.0
 
-  # Drift + SQLite
   drift: ^2.31.0
   drift_flutter: ^0.2.8
   sqlite3_flutter_libs: ^0.5.0
@@ -45,6 +43,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#FFFFFF"
