@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
-import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
@@ -9,16 +8,18 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/toy_row_item.dart';
 
 class RodadaPage extends StatefulWidget {
   final RoundRepository roundRepository;
-  final SettingsRepository settingsRepository;
   final ToyRepository toyRepository;
   final VoidCallback onOpenRodizioTab;
+  final VoidCallback onOpenBrinquedosTab;
+  final VoidCallback onOpenSettings;
 
   const RodadaPage({
     super.key,
     required this.roundRepository,
-    required this.settingsRepository,
     required this.toyRepository,
     required this.onOpenRodizioTab,
+    required this.onOpenBrinquedosTab,
+    required this.onOpenSettings,
   });
 
   @override
@@ -26,7 +27,6 @@ class RodadaPage extends StatefulWidget {
 }
 
 class _RodadaPageState extends State<RodadaPage> {
-  static const Color _pageBackground = Color(0xFFFDFCFB);
   static const double _radiusLg = 16.0;
   bool _startingRound = false;
 
@@ -46,9 +46,7 @@ class _RodadaPageState extends State<RodadaPage> {
 
     setState(() => _startingRound = true);
     try {
-      await widget.roundRepository.startRound(
-        size: widget.settingsRepository.roundSize,
-      );
+      await widget.roundRepository.startRound();
       if (mounted) {
         widget.onOpenRodizioTab();
       }
@@ -66,11 +64,14 @@ class _RodadaPageState extends State<RodadaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: _pageBackground,
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(
         toolbarHeight: 56,
-        backgroundColor: UiTokens.surface.withValues(alpha: 0.84),
+        backgroundColor: UiTokens.bg.withValues(alpha: 0.96),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -80,29 +81,40 @@ class _RodadaPageState extends State<RodadaPage> {
           preferredSize: const Size.fromHeight(1),
           child: Container(
             height: 1,
-            color: UiTokens.border,
+            color: colorScheme.outlineVariant,
           ),
         ),
         title: Text(
           'Rodízio',
           style: UiTokens.textTitle.copyWith(
-            color: UiTokens.textPrimary,
+            color: colorScheme.onSurface,
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: UiTokens.spacingMd),
-            child: SizedBox(
-              width: 40,
-              height: 40,
-              child: IconButton(
-                onPressed: () {},
-                padding: EdgeInsets.zero,
-                splashRadius: 20,
-                iconSize: 20,
-                color: UiTokens.textSecondary,
-                icon: const Icon(Icons.more_vert),
+          PopupMenuButton<String>(
+            tooltip: 'Mais opcoes',
+            onSelected: (value) {
+              if (value == 'toys') {
+                widget.onOpenBrinquedosTab();
+                return;
+              }
+              if (value == 'settings') {
+                widget.onOpenSettings();
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'toys',
+                child: Text('Ver brinquedos'),
               ),
+              PopupMenuItem<String>(
+                value: 'settings',
+                child: Text('Configuracoes'),
+              ),
+            ],
+            icon: Icon(
+              Icons.more_vert,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -130,11 +142,11 @@ class _RodadaPageState extends State<RodadaPage> {
                 radius: _radiusLg,
                 itemCount: items.length,
                 child: items.isEmpty
-                          ? _RodadaEmptyState(
-                              radius: _radiusLg,
-                              onAction: _startingRound ? null : _startRound,
-                              actionText: 'Criar rodada',
-                            )
+                    ? _RodadaEmptyState(
+                        radius: _radiusLg,
+                        onAction: _startingRound ? null : _startRound,
+                        actionText: 'Criar rodada',
+                      )
                     : Column(
                         children: List<Widget>.generate(items.length, (index) {
                           final item = items[index];
@@ -172,17 +184,22 @@ class _RodadaMainCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Material(
-      color: UiTokens.surface,
+      color: colorScheme.surface,
       borderRadius: BorderRadius.circular(radius),
       child: Container(
         decoration: BoxDecoration(
-          color: UiTokens.surface,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: UiTokens.border),
+          border: Border.all(color: colorScheme.outlineVariant),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.3 : 0.05,
+              ),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -200,7 +217,7 @@ class _RodadaMainCard extends StatelessWidget {
                     style: UiTokens.textBody.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: UiTokens.textPrimary,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -210,7 +227,7 @@ class _RodadaMainCard extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.6,
-                    color: UiTokens.textSecondary,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -221,7 +238,7 @@ class _RodadaMainCard extends StatelessWidget {
               style: UiTokens.textBody.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
-                color: UiTokens.textSecondary,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 12),
@@ -246,6 +263,8 @@ class _RodadaEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: UiTokens.spacingLg),
       child: Column(
@@ -255,14 +274,14 @@ class _RodadaEmptyState extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: UiTokens.playfulSoft,
+              color: colorScheme.secondaryContainer,
               borderRadius: BorderRadius.circular(radius),
             ),
             alignment: Alignment.center,
-            child: const Icon(
+            child: Icon(
               Icons.toys_outlined,
               size: 28,
-              color: UiTokens.primary,
+              color: colorScheme.onSecondaryContainer,
             ),
           ),
           const SizedBox(height: UiTokens.spacingMd),
@@ -272,7 +291,7 @@ class _RodadaEmptyState extends StatelessWidget {
             style: UiTokens.textBody.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: UiTokens.textPrimary,
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: UiTokens.spacingSm),
@@ -282,7 +301,7 @@ class _RodadaEmptyState extends StatelessWidget {
             style: UiTokens.textButton.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: UiTokens.textSecondary,
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: UiTokens.spacingMd),

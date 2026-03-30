@@ -411,10 +411,9 @@ packages:
   image_cropper:
     dependency: "direct main"
     description:
-      name: image_cropper
-      sha256: "4e9c96c029eb5a23798da1b6af39787f964da6ffc78fd8447c140542a9f7c6fc"
-      url: "https://pub.dev"
-    source: hosted
+      path: "vendor/image_cropper"
+      relative: true
+    source: path
     version: "9.1.0"
   image_cropper_for_web:
     dependency: transitive

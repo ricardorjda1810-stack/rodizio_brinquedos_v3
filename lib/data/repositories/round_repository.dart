@@ -142,7 +142,6 @@ class RoundRepository {
 
   RoundRepository(this.db);
 
-  static const int defaultRoundSize = 7;
   static const String insufficientTotalReason = 'insufficient_total';
   static const String noDominantOrLowReason = 'no_dominant_or_low';
   static const String noDominantInRoundReason = 'no_dominant_in_round';
@@ -330,13 +329,17 @@ class RoundRepository {
     );
   }
 
-  Future<void> startRound({int size = defaultRoundSize}) async {
+  // `size` remains only as an explicit override for compatibility/test flows.
+  // The current app behavior derives the effective round size from category quotas.
+  Future<void> startRound({int? size}) async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
     }
 
-    final requestedSize = size <= 0 ? 0 : size;
+    final resolvedSize =
+        size ?? await _deriveRoundSizeFromCategoryQuotas(d);
+    final requestedSize = resolvedSize <= 0 ? 0 : resolvedSize;
     final now = DateTime.now().millisecondsSinceEpoch;
     final newRoundId = const Uuid().v4();
 
@@ -403,6 +406,29 @@ class RoundRepository {
             );
       }
     });
+  }
+
+  Future<int> _deriveRoundSizeFromCategoryQuotas(AppDatabase d) async {
+    final rows = await (d.select(d.roundCategorySettings).join([
+      innerJoin(
+        d.categoryDefinitions,
+        d.categoryDefinitions.id.equalsExp(d.roundCategorySettings.categoryId),
+      ),
+    ])
+          ..where(
+            d.roundCategorySettings.isIncluded.equals(true) &
+                d.categoryDefinitions.isActive.equals(true),
+          ))
+        .get();
+
+    var total = 0;
+    for (final row in rows) {
+      final quota = row.readTable(d.roundCategorySettings).quota;
+      if (quota > 0) {
+        total += quota;
+      }
+    }
+    return total;
   }
 
   Future<void> endActiveRound() async {

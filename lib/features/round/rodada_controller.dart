@@ -22,6 +22,8 @@ class RodadaController {
 
   List<Toy> _latestToys = const <Toy>[];
   Round? _latestActiveRound;
+  // Legacy weekly-plan size used only inside this controller's derived plan.
+  // It does not control the persisted active round created by RoundRepository.
   int _roundSize = 7;
 
   int _sourceHash = 0;
@@ -65,7 +67,7 @@ class RodadaController {
 
   Future<void> ensurePlanForCurrentWeek() async {
     if (_isPlanActive) return;
-    await _roundRepository.startRound(size: _roundSize);
+    await _roundRepository.startRound();
   }
 
   void selectDay(DateTime date) {

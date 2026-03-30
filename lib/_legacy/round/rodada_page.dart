@@ -21,8 +21,11 @@ class _RodadaPageState extends State<RodadaPage> {
   RoundRepository get roundRepository => widget.roundRepository;
   SettingsRepository get settingsRepository => widget.settingsRepository;
 
-  Future<void> _startRound(BuildContext context, int roundSize) async {
-    await roundRepository.startRound(size: roundSize);
+  Future<void> _startRound(BuildContext context) async {
+    // Historical screen: the current app derives active round size from
+    // category quotas, so this legacy view no longer overrides it with the
+    // old RoundUiSettings.perCategoryLimit value.
+    await roundRepository.startRound();
   }
 
   Future<void> _endRound(BuildContext context) async {
@@ -58,9 +61,11 @@ class _RodadaPageState extends State<RodadaPage> {
                     child: ListTile(
                       leading: const Icon(Icons.refresh_outlined),
                       title: const Text('Sem rodada ativa'),
-                      subtitle: Text('Tamanho: $roundSize'),
+                      subtitle: Text(
+                        'Compatibilidade historica: limite legado salvo = $roundSize',
+                      ),
                       trailing: FilledButton(
-                        onPressed: () => _startRound(context, roundSize),
+                        onPressed: () => _startRound(context),
                         child: const Text('INICIAR'),
                       ),
                     ),
@@ -75,7 +80,9 @@ class _RodadaPageState extends State<RodadaPage> {
                       child: ListTile(
                         leading: const Icon(Icons.play_circle_outline),
                         title: const Text('Rodada ativa'),
-                        subtitle: Text('Tamanho: $roundSize'),
+                        subtitle: Text(
+                          'Compatibilidade historica: limite legado salvo = $roundSize',
+                        ),
                         trailing: OutlinedButton(
                           onPressed: () => _endRound(context),
                           child: const Text('ENCERRAR'),

@@ -93,9 +93,10 @@ class _MainShellState extends State<MainShell> {
         children: [
           RodadaPage(
             roundRepository: widget.roundRepository,
-            settingsRepository: widget.settingsRepository,
             toyRepository: widget.toyRepository,
             onOpenRodizioTab: () => _goTo(0),
+            onOpenBrinquedosTab: () => _goTo(1),
+            onOpenSettings: _openSettings,
           ),
           brinquedos.BrinquedosPage(
             toyRepository: widget.toyRepository,

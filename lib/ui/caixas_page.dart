@@ -68,6 +68,10 @@ class _CaixasPageState extends State<CaixasPage> {
             child: const Text('CANCELAR'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: UiTokens.danger,
+              foregroundColor: UiTokens.surface,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('EXCLUIR'),
           ),

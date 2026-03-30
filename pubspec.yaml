@@ -1,8 +1,8 @@
-name: rodizio_brinquedos_v3
+﻿name: rodizio_brinquedos_v3
 description: Rodízio de Brinquedos 2.1 (rebuild v3)
 publish_to: 'none'
 
-version: 1.0.0+16
+version: 1.0.0+18
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -33,6 +33,10 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.0
 
+dependency_overrides:
+  image_cropper:
+    path: vendor/image_cropper
+
 flutter:
   uses-material-design: true
   assets:
@@ -42,8 +46,8 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icon/icon.png"
-  remove_alpha_ios: true
+  image_path: "assets/icon/icon27.png"
+  remove_alpha_ios: true]
 
 flutter_native_splash:
   color: "#FFFFFF"

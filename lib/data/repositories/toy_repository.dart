@@ -600,7 +600,7 @@ class ToyRepository {
       local: normalizedLocal,
       name: normalizedLocal.isEmpty
           ? 'Caixa $nextNumber'
-          : 'Caixa $nextNumber — $normalizedLocal',
+          : 'Caixa $nextNumber - $normalizedLocal',
       notes: normalizedNotes,
       photoPath: null,
       createdAt: now,

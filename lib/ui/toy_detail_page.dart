@@ -11,6 +11,10 @@ import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class ToyDetailPage extends StatelessWidget {
+  static const String _photoMenuCamera = 'camera';
+  static const String _photoMenuGallery = 'gallery';
+  static const String _photoMenuRemove = 'remove';
+
   final String toyId;
   final ToyRepository toyRepository;
 
@@ -271,6 +275,10 @@ class ToyDetailPage extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: UiTokens.danger,
+              foregroundColor: UiTokens.surface,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Excluir'),
           ),
@@ -462,6 +470,9 @@ class ToyDetailPage extends StatelessWidget {
                               ),
                               const SizedBox(height: UiTokens.s),
                               OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: UiTokens.danger,
+                                ),
                                 onPressed: data == null
                                     ? null
                                     : () => _deleteToy(context),
@@ -514,26 +525,50 @@ class ToyDetailPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text('Foto', style: textTheme.titleMedium),
-                              const SizedBox(height: UiTokens.s),
-                              FilledButton.icon(
-                                onPressed: () =>
-                                    _pick(context, ImageSource.camera),
-                                icon: const Icon(Icons.photo_camera),
-                                label: const Text('Tirar foto'),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Foto',
+                                      style: textTheme.titleMedium,
+                                    ),
+                                  ),
+                                  PopupMenuButton<String>(
+                                    tooltip: 'Acoes da foto',
+                                    onSelected: (value) {
+                                      if (value == _photoMenuCamera) {
+                                        _pick(context, ImageSource.camera);
+                                        return;
+                                      }
+                                      if (value == _photoMenuGallery) {
+                                        _pick(context, ImageSource.gallery);
+                                        return;
+                                      }
+                                      if (value == _photoMenuRemove) {
+                                        _remove(context);
+                                      }
+                                    },
+                                    itemBuilder: (context) => const [
+                                      PopupMenuItem<String>(
+                                        value: _photoMenuCamera,
+                                        child: Text('Tirar foto'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: _photoMenuGallery,
+                                        child: Text('Escolher da galeria'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: _photoMenuRemove,
+                                        child: Text('Remover foto'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: UiTokens.s),
-                              FilledButton.icon(
-                                onPressed: () =>
-                                    _pick(context, ImageSource.gallery),
-                                icon: const Icon(Icons.photo_library),
-                                label: const Text('Escolher da galeria'),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              TextButton.icon(
-                                onPressed: () => _remove(context),
-                                icon: const Icon(Icons.delete),
-                                label: const Text('Remover foto'),
+                              const SizedBox(height: UiTokens.xs),
+                              Text(
+                                'Use o menu para tirar, trocar ou remover a foto do brinquedo.',
+                                style: textTheme.bodySmall,
                               ),
                             ],
                           ),

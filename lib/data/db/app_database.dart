@@ -57,9 +57,12 @@ class RoundCategorySettings extends Table {
 
 class RoundUiSettings extends Table {
   IntColumn get id => integer()();
+  // Historical compatibility field. Active round size is now derived from
+  // `round_category_settings.quota` for included active categories.
   IntColumn get perCategoryLimit => integer().withDefault(const Constant(12))();
   BoolColumn get hapticEnabled => boolean().withDefault(const Constant(true))();
   BoolColumn get soundEnabled => boolean().withDefault(const Constant(false))();
+  BoolColumn get darkModeEnabled => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -125,7 +128,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -159,7 +162,7 @@ class AppDatabase extends _$AppDatabase {
                 BoxesCompanion(
                   number: Value(i + 1),
                   local: Value(localValue),
-                  name: Value('Caixa ${i + 1} — $localValue'),
+                  name: Value('Caixa ${i + 1} - $localValue'),
                 ),
               );
             }
@@ -213,6 +216,13 @@ class AppDatabase extends _$AppDatabase {
 
           if (from < 10) {
             await m.createTable(historyEvents);
+          }
+
+          if (from < 11) {
+            await m.addColumn(
+              roundUiSettings,
+              roundUiSettings.darkModeEnabled,
+            );
           }
         },
       );

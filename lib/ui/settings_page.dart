@@ -277,43 +277,52 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final selected = await showModalBottomSheet<int>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       builder: (context) {
         final baseOptions = <int>[1, 2, 3, 4, 5, 6];
 
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (maxSelectable == 0)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Text('Nenhum disponivel nesta categoria'),
-                ),
-              ListTile(
-                title: const Text('0'),
-                trailing: currentQuota == 0 ? const Icon(Icons.check) : null,
-                onTap: () => Navigator.of(context).pop(0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.75,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (maxSelectable == 0)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Text('Nenhum disponivel nesta categoria'),
+                    ),
+                  ListTile(
+                    title: const Text('0'),
+                    trailing:
+                        currentQuota == 0 ? const Icon(Icons.check) : null,
+                    onTap: () => Navigator.of(context).pop(0),
+                  ),
+                  ...baseOptions.map((value) {
+                    final enabled = value <= maxSelectable;
+                    return ListTile(
+                      enabled: enabled,
+                      title: Text('$value'),
+                      trailing:
+                          currentQuota == value ? const Icon(Icons.check) : null,
+                      onTap:
+                          enabled ? () => Navigator.of(context).pop(value) : null,
+                    );
+                  }),
+                  ListTile(
+                    title: const Text('Mais de 6...'),
+                    enabled: maxSelectable > 6,
+                    onTap: maxSelectable > 6
+                        ? () => Navigator.of(context).pop(customValue)
+                        : null,
+                  ),
+                ],
               ),
-              ...baseOptions.map((value) {
-                final enabled = value <= maxSelectable;
-                return ListTile(
-                  enabled: enabled,
-                  title: Text('$value'),
-                  trailing:
-                      currentQuota == value ? const Icon(Icons.check) : null,
-                  onTap:
-                      enabled ? () => Navigator.of(context).pop(value) : null,
-                );
-              }),
-              ListTile(
-                title: const Text('Mais de 6...'),
-                enabled: maxSelectable > 6,
-                onTap: maxSelectable > 6
-                    ? () => Navigator.of(context).pop(customValue)
-                    : null,
-              ),
-            ],
+            ),
           ),
         );
       },
@@ -394,6 +403,20 @@ class _SettingsPageState extends State<SettingsPage> {
             Text(
               'Feedback do app',
               style: textTheme.titleMedium,
+            ),
+            const SizedBox(height: UiTokens.s),
+            StreamBuilder<bool>(
+              stream: widget.settingsRepository.watchDarkModeEnabled(),
+              initialData: widget.settingsRepository.darkModeEnabled,
+              builder: (context, snapshot) {
+                final enabled = snapshot.data ?? false;
+                return SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Modo escuro'),
+                  value: enabled,
+                  onChanged: widget.settingsRepository.setDarkModeEnabled,
+                );
+              },
             ),
             const SizedBox(height: UiTokens.s),
             StreamBuilder<bool>(

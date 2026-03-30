@@ -36,20 +36,21 @@ class UiTokens {
   static const double body = 15;
   static const double secondary = 13;
 
-  // Figma color styles
-  static const Color primary = Color(0xFF4F6D7A);
-  static const Color bg = Color(0xFFFAFAFA);
+  // RDB 2.1 canonical color tokens
+  static const Color primary = Color(0xFF2E7DD7);
+  static const Color bg = Color(0xFFF7F4EF);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF1F2933);
-  static const Color textSecondary = Color(0xFF667085);
-  static const Color border = Color(0xFFD9E2EC);
+  static const Color textPrimary = Color(0xFF1E2630);
+  static const Color textSecondary = Color(0xFF667487);
+  static const Color border = Color(0xFFD9E0EA);
+  static const Color danger = Color(0xFFD4524A);
 
   // Backwards-compatible aliases
   static const Color card = surface;
   static const Color text = textPrimary;
   static const Color textMuted = textSecondary;
-  static const Color active = Color(0xFF5A8F7B);
-  static const Color playfulSoft = Color(0xFFE7F8FB);
+  static const Color active = primary;
+  static const Color playfulSoft = Color(0xFFEAF3FC);
 
   // Figma text styles
   static const TextStyle textTitle = TextStyle(

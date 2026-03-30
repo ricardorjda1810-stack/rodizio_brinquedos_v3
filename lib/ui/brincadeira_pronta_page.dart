@@ -221,6 +221,9 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             trailing: TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: UiTokens.danger,
+                              ),
                               onPressed: () => _removeToy(item.toy.id),
                               child: const Text('Remover'),
                             ),

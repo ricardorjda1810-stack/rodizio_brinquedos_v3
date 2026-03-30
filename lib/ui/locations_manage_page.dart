@@ -89,6 +89,10 @@ class LocationsManagePage extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: UiTokens.danger,
+              foregroundColor: UiTokens.surface,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Remover'),
           ),
@@ -144,6 +148,7 @@ class LocationsManagePage extends StatelessWidget {
                       IconButton(
                         tooltip: 'Remover',
                         onPressed: () => _remove(context, l),
+                        color: UiTokens.danger,
                         icon: const Icon(Icons.delete_outline),
                       ),
                     ],

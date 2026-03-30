@@ -6,25 +6,19 @@ class FilterOption {
   final String id;
   final String label;
 
-  /// label = texto completo que aparece na lista.
-  /// valueLabel (derivado) = tentamos extrair o “valor” removendo prefixos comuns.
   const FilterOption({required this.id, required this.label});
 
   String valueLabel({String? title}) {
-    // Se veio "Caixa: Todas" -> "Todas"
-    // Se veio "Categoria: Montar" -> "Montar"
-    // Se veio "Local: Quarto" -> "Quarto"
     final t = (title ?? '').trim();
     final s = label.trim();
 
     if (t.isNotEmpty) {
-      final prefix1 = '$t: ';
-      if (s.toLowerCase().startsWith(prefix1.toLowerCase())) {
-        return s.substring(prefix1.length).trim();
+      final prefix = '$t: ';
+      if (s.toLowerCase().startsWith(prefix.toLowerCase())) {
+        return s.substring(prefix.length).trim();
       }
     }
 
-    // fallback: remove "X: " se existir
     final idx = s.indexOf(':');
     if (idx >= 0 && idx + 1 < s.length) {
       return s.substring(idx + 1).trim();
@@ -33,30 +27,17 @@ class FilterOption {
   }
 }
 
-/// Barra compacta sempre lado a lado (scroll horizontal se precisar):
-/// [Caixa ▼] [Categoria ▼] [Local ▼ (opcional)] [🔍] (+ opcional [X])
-///
-/// Visual "pro":
-/// - título pequeno (label)
-/// - valor em negrito
 class FilterBar extends StatelessWidget {
   final List<FilterOption> boxes;
   final List<FilterOption> categories;
-
-  /// Se null, não mostra Local.
   final List<FilterOption>? locations;
-
   final String selectedBoxId;
   final String selectedCategoryId;
   final String? selectedLocationId;
-
   final ValueChanged<String> onBoxChanged;
   final ValueChanged<String> onCategoryChanged;
-
   final ValueChanged<String>? onLocationChanged;
-
   final VoidCallback onSearchTap;
-
   final bool showClear;
   final VoidCallback? onClear;
 
@@ -79,77 +60,84 @@ class FilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final showLocal = locations != null &&
+        selectedLocationId != null &&
+        onLocationChanged != null;
 
-    final showLocal =
-        locations != null && selectedLocationId != null && onLocationChanged != null;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        const gap = UiTokens.s;
+        const buttonWidth = 48.0;
+        final compact = maxWidth < 560;
+        final dropdownWidth = compact ? (maxWidth - gap) / 2 : 190.0;
 
-    // Larguras simples e previsíveis.
-    const double w = 190;
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: Row(
-        children: [
-          SizedBox(
-            width: w,
-            child: _ProDropdown(
-              title: 'Categoria',
-              valueId: selectedCategoryId,
-              items: categories,
-              onChanged: onCategoryChanged,
-            ),
-          ),
-          const SizedBox(width: UiTokens.s),
-          SizedBox(
-            width: w,
-            child: _ProDropdown(
-              title: 'Caixa',
-              valueId: selectedBoxId,
-              items: boxes,
-              onChanged: onBoxChanged,
-            ),
-          ),
-          if (showLocal) ...[
-            const SizedBox(width: UiTokens.s),
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
             SizedBox(
-              width: w,
+              width: dropdownWidth,
               child: _ProDropdown(
-                title: 'Local',
-                valueId: selectedLocationId!,
-                items: locations!,
-                onChanged: onLocationChanged!,
+                title: 'Categoria',
+                valueId: selectedCategoryId,
+                items: categories,
+                onChanged: onCategoryChanged,
               ),
             ),
-          ],
-          const SizedBox(width: UiTokens.s),
-          IconButton(
-            tooltip: 'Buscar',
-            onPressed: onSearchTap,
-            icon: const Icon(Icons.search),
-            style: IconButton.styleFrom(
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            SizedBox(
+              width: dropdownWidth,
+              child: _ProDropdown(
+                title: 'Caixa',
+                valueId: selectedBoxId,
+                items: boxes,
+                onChanged: onBoxChanged,
               ),
             ),
-          ),
-          if (showClear) ...[
-            const SizedBox(width: UiTokens.xs),
-            IconButton(
-              tooltip: 'Limpar filtros',
-              onPressed: onClear,
-              icon: const Icon(Icons.close),
-              style: IconButton.styleFrom(
-                backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            if (showLocal)
+              SizedBox(
+                width: dropdownWidth,
+                child: _ProDropdown(
+                  title: 'Local',
+                  valueId: selectedLocationId!,
+                  items: locations!,
+                  onChanged: onLocationChanged!,
+                ),
+              ),
+            SizedBox(
+              width: buttonWidth,
+              height: 44,
+              child: IconButton(
+                tooltip: 'Buscar',
+                onPressed: onSearchTap,
+                icon: const Icon(Icons.search),
+                style: IconButton.styleFrom(
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
+            if (showClear)
+              SizedBox(
+                width: buttonWidth,
+                height: 44,
+                child: IconButton(
+                  tooltip: 'Limpar filtros',
+                  onPressed: onClear,
+                  icon: const Icon(Icons.close),
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
           ],
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -195,19 +183,23 @@ class _ProDropdown extends StatelessWidget {
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down),
           borderRadius: BorderRadius.circular(12),
-          // O DropdownButton usa esse style pros itens; no "selectedItemBuilder" controlamos o visual selecionado.
           style: theme.textTheme.bodyMedium,
           selectedItemBuilder: (context) {
             return items.map((it) {
               return Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 26), // espaço pro ícone ▼
+                  padding: const EdgeInsets.only(right: 26),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: titleStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(
+                        title,
+                        style: titleStyle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       Text(
                         it.valueLabel(title: title),
                         style: valueStyle,

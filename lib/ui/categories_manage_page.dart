@@ -91,6 +91,10 @@ class CategoriesManagePage extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: UiTokens.danger,
+              foregroundColor: UiTokens.surface,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Remover'),
           ),
@@ -154,6 +158,7 @@ class CategoriesManagePage extends StatelessWidget {
                       IconButton(
                         tooltip: 'Remover',
                         onPressed: () => _remove(context, c),
+                        color: UiTokens.danger,
                         icon: const Icon(Icons.delete_outline),
                       ),
                     ],

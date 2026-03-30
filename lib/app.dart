@@ -1,13 +1,13 @@
-// lib/app.dart
+﻿// lib/app.dart
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'ui/main_shell.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/app_theme.dart';
+import 'ui/main_shell.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   final ToyRepository toyRepository;
   final RoundRepository roundRepository;
   final SettingsRepository settingsRepository;
@@ -20,16 +20,31 @@ class App extends StatelessWidget {
   });
 
   @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Rodízio de Brinquedos',
-      theme: AppTheme.light(),
-      home: MainShell(
-        toyRepository: toyRepository,
-        roundRepository: roundRepository,
-        settingsRepository: settingsRepository,
-      ),
+    return StreamBuilder<bool>(
+      stream: widget.settingsRepository.watchDarkModeEnabled(),
+      initialData: widget.settingsRepository.darkModeEnabled,
+      builder: (context, snapshot) {
+        final isDarkMode = snapshot.data ?? false;
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Rodízio de Brinquedos',
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: MainShell(
+            toyRepository: widget.toyRepository,
+            roundRepository: widget.roundRepository,
+            settingsRepository: widget.settingsRepository,
+          ),
+        );
+      },
     );
   }
 }

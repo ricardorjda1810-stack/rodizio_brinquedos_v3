@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
@@ -40,12 +38,10 @@ class BrinquedosPage extends StatefulWidget {
 class _BrinquedosPageState extends State<BrinquedosPage> {
   static const String _localAll = '__ALL__';
   static const String _localNone = '__NONE__';
-  static const double _gridInfoHeight = 84;
 
   final TextEditingController _searchController = TextEditingController();
   late final BrinquedosCatalogController _controller;
   bool _startingRound = false;
-  bool _showActiveRound = true;
 
   static const String _menuEditCategory = 'edit_category';
   static const String _menuEditLocation = 'edit_location';
@@ -123,8 +119,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     if (_startingRound) return;
     setState(() => _startingRound = true);
     try {
-      await widget.roundRepository
-          .startRound(size: widget.settingsRepository.roundSize);
+      await widget.roundRepository.startRound();
       await _feedback.onRoundStarted();
       if (!mounted) return;
       widget.onOpenRodizioTab();
@@ -441,131 +436,121 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     }
   }
 
-  Widget _buildToyCard(
+  Widget _buildToyRow(
     BuildContext context,
     BrinquedosCatalogItem item, {
     required String categoryLabel,
   }) {
     final displayName =
         item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
-    final path = (item.toy.photoPath ?? '').trim();
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => _openToyDetail(context, item.toy.id),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return InkWell(
+      borderRadius: BorderRadius.circular(UiTokens.radiusButton),
+      onTap: () => _openToyDetail(context, item.toy.id),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: UiTokens.xs,
+          vertical: UiTokens.s,
+        ),
+        child: Row(
           children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                fit: StackFit.expand,
+            RoundToyThumb(path: item.toy.photoPath, dense: true),
+            const SizedBox(width: UiTokens.s),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  path.isEmpty
-                      ? Container(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          child:
-                              const Center(child: Icon(Icons.image_outlined)),
-                        )
-                      : Image.file(
-                          File(path),
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                            child:
-                                const Center(child: Icon(Icons.image_outlined)),
-                          ),
+                  Text(
+                    displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
-                  Positioned(
-                    right: UiTokens.xs,
-                    top: UiTokens.xs,
-                    child: PopupMenuButton<String>(
-                      tooltip: 'Mais opcoes',
-                      onSelected: (value) {
-                        if (value == _menuEditCategory) {
-                          _editToyCategoryFromList(context, item);
-                          return;
-                        }
-                        if (value == _menuEditBox) {
-                          _editToyBoxFromList(context, item);
-                          return;
-                        }
-                        if (value == _menuEditLocation) {
-                          _editToyLocationFromList(context, item);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem<String>(
-                          value: _menuEditCategory,
-                          child: Text('Editar categoria'),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _boxAndLocationLabel(item),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    categoryLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
                         ),
-                        const PopupMenuItem<String>(
-                          value: _menuEditBox,
-                          child: Text('Editar caixa'),
-                        ),
-                        PopupMenuItem<String>(
-                          value: _menuEditLocation,
-                          enabled: item.box == null,
-                          child: const Text('Editar local'),
-                        ),
-                      ],
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surface
-                              .withValues(alpha: 0.92),
-                          borderRadius:
-                              BorderRadius.circular(UiTokens.radiusButton),
-                        ),
-                        padding: const EdgeInsets.all(2),
-                        child: const Icon(Icons.more_vert, size: 18),
-                      ),
-                    ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  UiTokens.s, UiTokens.xs, UiTokens.s, 2),
-              child: Text(
-                displayName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  UiTokens.s, 0, UiTokens.s, UiTokens.xs),
-              child: Text(
-                'Categoria: $categoryLabel',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                  UiTokens.s, 0, UiTokens.s, UiTokens.xs),
-              child: Text(
-                _boxAndLocationLabel(item),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall,
+            PopupMenuButton<String>(
+              tooltip: 'Mais opcoes',
+              onSelected: (value) {
+                if (value == _menuEditCategory) {
+                  _editToyCategoryFromList(context, item);
+                  return;
+                }
+                if (value == _menuEditBox) {
+                  _editToyBoxFromList(context, item);
+                  return;
+                }
+                if (value == _menuEditLocation) {
+                  _editToyLocationFromList(context, item);
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: _menuEditCategory,
+                  child: Text('Editar categoria'),
+                ),
+                const PopupMenuItem<String>(
+                  value: _menuEditBox,
+                  child: Text('Editar caixa'),
+                ),
+                PopupMenuItem<String>(
+                  value: _menuEditLocation,
+                  enabled: item.box == null,
+                  child: const Text('Editar local'),
+                ),
+              ],
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius:
+                      BorderRadius.circular(UiTokens.radiusButton),
+                ),
+                padding: const EdgeInsets.all(6),
+                child: const Icon(Icons.more_vert, size: 18),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildToyList(
+    BuildContext context,
+    List<BrinquedosCatalogItem> items, {
+    required Map<String, String> categoryById,
+  }) {
+    return Card(
+      child: ListView.separated(
+        padding: const EdgeInsets.all(UiTokens.s),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, thickness: 0.6),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return _buildToyRow(
+            context,
+            item,
+            categoryLabel: _categoryLabel(item, categoryById),
+          );
+        },
       ),
     );
   }
@@ -708,29 +693,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                   ],
                 ),
                 const SizedBox(height: UiTokens.m),
-                Row(
-                  children: [
-                    const Spacer(),
-                    TextButton.icon(
-                      onPressed: () =>
-                          setState(() => _showActiveRound = !_showActiveRound),
-                      icon: Icon(_showActiveRound
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined),
-                      label: Text(_showActiveRound
-                          ? 'Ocultar rodada ativa'
-                          : 'Mostrar rodada ativa'),
-                    ),
-                  ],
-                ),
-                if (_showActiveRound)
-                  ActiveRoundList(
-                    roundRepository: widget.roundRepository,
-                    toyRepository: widget.toyRepository,
-                    dense: true,
-                    maxItems: 6,
-                    title: 'Rodada ativa',
-                  ),
                 FilterBar(
                   boxes: _boxOptions(state),
                   categories: _categoryOptions(state),
@@ -777,37 +739,13 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                         );
                       }
 
-                      final width = MediaQuery.sizeOf(context).width;
-                      final cols = width < 600 ? 2 : 4;
-
-                      return LayoutBuilder(
-                        builder: (context, constraints) {
-                          final tileWidth = (constraints.maxWidth -
-                                  (UiTokens.s * (cols - 1))) /
-                              cols;
-                          final tileHeight = tileWidth + _gridInfoHeight;
-
-                          return GridView.builder(
-                            padding: const EdgeInsets.only(bottom: UiTokens.m),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: cols,
-                              crossAxisSpacing: UiTokens.s,
-                              mainAxisSpacing: UiTokens.s,
-                              mainAxisExtent: tileHeight,
-                            ),
-                            itemCount: visibleItems.length,
-                            itemBuilder: (context, index) {
-                              final item = visibleItems[index];
-                              return _buildToyCard(
-                                context,
-                                item,
-                                categoryLabel:
-                                    _categoryLabel(item, categoryById),
-                              );
-                            },
-                          );
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: UiTokens.m),
+                        child: _buildToyList(
+                          context,
+                          visibleItems,
+                          categoryById: categoryById,
+                        ),
                       );
                     },
                   ),
