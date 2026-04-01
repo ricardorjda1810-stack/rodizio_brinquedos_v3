@@ -11,6 +11,10 @@ import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class ToyDetailPage extends StatelessWidget {
+  static const String _detailsMenuRename = 'rename';
+  static const String _detailsMenuCategory = 'category';
+  static const String _detailsMenuBox = 'box';
+  static const String _detailsMenuDelete = 'delete';
   static const String _photoMenuCamera = 'camera';
   static const String _photoMenuGallery = 'gallery';
   static const String _photoMenuRemove = 'remove';
@@ -432,52 +436,63 @@ class ToyDetailPage extends StatelessWidget {
                             children: [
                               Text('Nome', style: textTheme.bodySmall),
                               const SizedBox(height: UiTokens.xs),
-                              Text(
-                                title,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              OutlinedButton.icon(
-                                onPressed: data == null
-                                    ? null
-                                    : () => _renameToy(context, data.toy.name),
-                                icon: const Icon(Icons.edit_outlined),
-                                label: const Text('Editar nome'),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              OutlinedButton.icon(
-                                onPressed: data == null
-                                    ? null
-                                    : () => _editToyCategory(
-                                        context,
-                                        currentCategoryId: data.toy.categoryId,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      title,
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                icon: const Icon(Icons.category_outlined),
-                                label: const Text('Editar categoria'),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              OutlinedButton.icon(
-                                onPressed: data == null
-                                    ? null
-                                    : () => _editToyBox(
-                                        context,
-                                        currentBoxId: data.toy.boxId,
+                                    ),
+                                  ),
+                                  PopupMenuButton<String>(
+                                    tooltip: 'Acoes do brinquedo',
+                                    onSelected: (value) {
+                                      if (data == null) return;
+                                      if (value == _detailsMenuRename) {
+                                        _renameToy(context, data.toy.name);
+                                        return;
+                                      }
+                                      if (value == _detailsMenuCategory) {
+                                        _editToyCategory(
+                                          context,
+                                          currentCategoryId: data.toy.categoryId,
+                                        );
+                                        return;
+                                      }
+                                      if (value == _detailsMenuBox) {
+                                        _editToyBox(
+                                          context,
+                                          currentBoxId: data.toy.boxId,
+                                        );
+                                        return;
+                                      }
+                                      if (value == _detailsMenuDelete) {
+                                        _deleteToy(context);
+                                      }
+                                    },
+                                    itemBuilder: (context) => const [
+                                      PopupMenuItem<String>(
+                                        value: _detailsMenuRename,
+                                        child: Text('Editar nome'),
                                       ),
-                                icon: const Icon(Icons.inventory_2_outlined),
-                                label: const Text('Editar caixa'),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: UiTokens.danger,
-                                ),
-                                onPressed: data == null
-                                    ? null
-                                    : () => _deleteToy(context),
-                                icon: const Icon(Icons.delete_outline),
-                                label: const Text('Excluir brinquedo'),
+                                      PopupMenuItem<String>(
+                                        value: _detailsMenuCategory,
+                                        child: Text('Editar categoria'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: _detailsMenuBox,
+                                        child: Text('Editar caixa'),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: _detailsMenuDelete,
+                                        child: Text('Excluir brinquedo'),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: UiTokens.m),
                               Text('Caixa', style: textTheme.bodySmall),
