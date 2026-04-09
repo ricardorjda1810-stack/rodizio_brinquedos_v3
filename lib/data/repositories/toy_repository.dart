@@ -59,6 +59,19 @@ class ToyRepository {
 
   ToyRepository(this.db);
 
+  static const Map<String, String> defaultCategoryExamplesById = {
+    'veiculos': 'carrinho, caminhÃ£o, trenzinho, Ã´nibus',
+    'bonecos': 'boneca, ursinho, personagem, fantoche',
+    'montagem': 'blocos, lego, encaixe, engrenagens',
+    'livros': 'histÃ³rias, figuras, sons, toque',
+    'jogos': 'memÃ³ria, dominÃ³, cartas, trilhas',
+    'faz_de_conta': 'cozinha, mÃ©dico, mercado, ferramentas',
+    'artes': 'giz, tinta, colagem, massinha',
+    'musica': 'tambor, chocalho, teclado, violÃ£o',
+    'banho': 'patinho, barquinho, copinhos, esguicho',
+    'outros': 'quebra-cabeÃ§a, lupa, imÃ£, surpresa',
+  };
+
   static const List<CategorySeed> defaultCategories = [
     CategorySeed('veiculos', 'Veículos'),
     CategorySeed('bonecos', 'Bonecos'),
@@ -91,12 +104,16 @@ class ToyRepository {
       for (final c in defaultCategories) {
         await d
             .into(d.categoryDefinitions)
-            .insertOnConflictUpdate(
+            .insert(
               CategoryDefinitionsCompanion.insert(
                 id: c.id,
                 name: c.name,
+                examples: Value(
+                  _normalizeNullable(defaultCategoryExamplesById[c.id]),
+                ),
                 isActive: const Value(true),
               ),
+              mode: InsertMode.insertOrIgnore,
             );
 
         await d
@@ -132,6 +149,17 @@ class ToyRepository {
 
       final categories = await d.select(d.categoryDefinitions).get();
       for (final c in categories) {
+        final seededExamples = defaultCategoryExamplesById[c.id];
+        if (seededExamples != null && (c.examples ?? '').trim().isEmpty) {
+          await (d.update(d.categoryDefinitions)
+                ..where((row) => row.id.equals(c.id)))
+              .write(
+                CategoryDefinitionsCompanion(
+                  examples: Value(seededExamples),
+                ),
+              );
+        }
+
         await d
             .into(d.categoryCounters)
             .insert(
@@ -727,7 +755,7 @@ class ToyRepository {
     );
   }
 
-  Future<void> addCategory({required String name}) async {
+  Future<void> addCategory({required String name, String? examples}) async {
     final d = db;
     if (d == null) {
       throw StateError('ToyRepository.db is null. Use um Fake no teste.');
@@ -747,6 +775,7 @@ class ToyRepository {
             CategoryDefinitionsCompanion.insert(
               id: id,
               name: trimmed,
+              examples: Value(_normalizeNullable(examples)),
               isActive: const Value(true),
             ),
           );
@@ -773,6 +802,7 @@ class ToyRepository {
   Future<void> renameCategory({
     required String categoryId,
     required String newName,
+    String? examples,
   }) async {
     final d = db;
     if (d == null) {
@@ -784,7 +814,12 @@ class ToyRepository {
 
     await (d.update(d.categoryDefinitions)
           ..where((c) => c.id.equals(categoryId)))
-        .write(CategoryDefinitionsCompanion(name: Value(trimmed)));
+        .write(
+          CategoryDefinitionsCompanion(
+            name: Value(trimmed),
+            examples: Value(_normalizeNullable(examples)),
+          ),
+        );
   }
 
   Future<void> removeCategory({required String categoryId}) async {

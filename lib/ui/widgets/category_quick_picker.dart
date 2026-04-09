@@ -1,9 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
-import 'package:rodizio_brinquedos_v3/ui/widgets/category_examples.dart';
-
 typedef CategoryIdGetter<T> = String Function(T category);
 typedef CategoryNameGetter<T> = String Function(T category);
+typedef CategoryExamplesGetter<T> = String? Function(T category);
 
 class CategoryQuickPicker<T> extends StatelessWidget {
   final List<T> categories;
@@ -11,6 +10,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
   final bool disabled;
   final CategoryIdGetter<T> getId;
   final CategoryNameGetter<T> getName;
+  final CategoryExamplesGetter<T> getExamples;
   final ValueChanged<String> onSelected;
 
   const CategoryQuickPicker({
@@ -20,6 +20,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
     required this.disabled,
     required this.getId,
     required this.getName,
+    required this.getExamples,
     required this.onSelected,
   });
 
@@ -39,6 +40,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
         final category = categories[i];
         return _CategoryQuickPickerCard(
           name: getName(category),
+          examplesText: getExamples(category),
           selected: selectedId == getId(category),
           disabled: disabled,
           onTap: () {
@@ -53,12 +55,14 @@ class CategoryQuickPicker<T> extends StatelessWidget {
 
 class _CategoryQuickPickerCard extends StatelessWidget {
   final String name;
+  final String? examplesText;
   final bool selected;
   final bool disabled;
   final VoidCallback onTap;
 
   const _CategoryQuickPickerCard({
     required this.name,
+    required this.examplesText,
     required this.selected,
     required this.disabled,
     required this.onTap,
@@ -66,7 +70,10 @@ class _CategoryQuickPickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final examples = examplesForCategoryName(name);
+    final normalizedExamples = (examplesText ?? '').trim();
+    final subtitle = normalizedExamples.isEmpty
+        ? 'Exemplos nÃ£o definidos.'
+        : 'Ex.: $normalizedExamples';
 
     return Material(
       color: Colors.transparent,
@@ -107,20 +114,18 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                     ),
                 ],
               ),
-              if (examples.isNotEmpty) ...[
-                const SizedBox(height: UiTokens.spacingSm),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Text(
-                    'Ex.: ${examples.join(' • ')}',
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
-                      color: UiTokens.textSecondary,
-                    ),
+              const SizedBox(height: UiTokens.spacingSm),
+              Flexible(
+                fit: FlexFit.loose,
+                child: Text(
+                  subtitle,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textCaption.copyWith(
+                    color: UiTokens.textSecondary,
                   ),
                 ),
-              ],
+              ),
             ],
           ),
         ),

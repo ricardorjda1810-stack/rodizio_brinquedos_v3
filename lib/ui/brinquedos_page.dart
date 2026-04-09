@@ -5,13 +5,18 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_controller.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_state.dart';
-import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
+import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/filter_bar.dart';
+
+const String _toyBoxNoSelectionValue = '__sem_selecao_caixa__';
+const String _toyBoxWithoutBoxValue = '__sem_caixa__';
+const String _toyBoxRequiredMessage =
+    'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
 
 class BrinquedosPage extends StatefulWidget {
   final ToyRepository toyRepository;
@@ -119,14 +124,36 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     if (_startingRound) return;
     setState(() => _startingRound = true);
     try {
-      await widget.roundRepository.startRound();
+      if (!mounted) return;
+      final result = await widget.roundRepository.startRound();
+      if (!mounted) return;
+      if (!result.created) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
+            ),
+          ),
+        );
+        return;
+      }
+
       await _feedback.onRoundStarted();
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Rodada criada com ${result.selectedCount} brinquedos.'),
+        ),
+      );
       widget.onOpenRodizioTab();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nao foi possivel iniciar o rodizio: $e')),
+        SnackBar(
+          content: Text(
+            'N\u00e3o foi poss\u00edvel iniciar o rod\u00edzio: $e',
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -370,9 +397,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     final boxes = await widget.toyRepository.watchBoxes().first;
     if (!context.mounted) return;
 
-    String? selectedBoxId = item.toy.boxId;
-    if (selectedBoxId != null && !boxes.any((b) => b.id == selectedBoxId)) {
-      selectedBoxId = null;
+    String selectedBoxSelection = item.toy.boxId ?? _toyBoxNoSelectionValue;
+    if (item.toy.boxId != null && !boxes.any((b) => b.id == item.toy.boxId)) {
+      selectedBoxSelection = _toyBoxNoSelectionValue;
     }
 
     final result = await showDialog<String?>(
@@ -382,13 +409,17 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
           return AlertDialog(
             title: const Text('Editar caixa'),
             content: DropdownButtonFormField<String?>(
-              initialValue: selectedBoxId,
+              initialValue: selectedBoxSelection,
               decoration: const InputDecoration(
                 labelText: 'Caixa',
               ),
               items: <DropdownMenuItem<String?>>[
                 const DropdownMenuItem<String?>(
-                  value: null,
+                  value: _toyBoxNoSelectionValue,
+                  child: Text('Selecione uma caixa ou "Sem caixa"'),
+                ),
+                const DropdownMenuItem<String?>(
+                  value: _toyBoxWithoutBoxValue,
                   child: Text('Sem caixa'),
                 ),
                 ...boxes.map(
@@ -399,7 +430,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                 ),
               ],
               onChanged: (value) {
-                setDialogState(() => selectedBoxId = value);
+                setDialogState(
+                  () => selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
+                );
               },
             ),
             actions: [
@@ -408,7 +441,20 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                 child: const Text('Cancelar'),
               ),
               FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(selectedBoxId),
+                onPressed: () {
+                  if (selectedBoxSelection == _toyBoxNoSelectionValue) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text(_toyBoxRequiredMessage)),
+                    );
+                    return;
+                  }
+
+                  Navigator.of(ctx).pop(
+                    selectedBoxSelection == _toyBoxWithoutBoxValue
+                        ? null
+                        : selectedBoxSelection,
+                  );
+                },
                 child: const Text('Salvar'),
               ),
             ],
@@ -488,7 +534,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
               ),
             ),
             PopupMenuButton<String>(
-              tooltip: 'Mais opcoes',
+              tooltip: 'Mais op\u00e7\u00f5es',
               onSelected: (value) {
                 if (value == _menuEditCategory) {
                   _editToyCategoryFromList(context, item);
@@ -520,8 +566,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius:
-                      BorderRadius.circular(UiTokens.radiusButton),
+                  borderRadius: BorderRadius.circular(UiTokens.radiusButton),
                 ),
                 padding: const EdgeInsets.all(6),
                 child: const Icon(Icons.more_vert, size: 18),
@@ -606,7 +651,8 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
   }
 
   List<BrinquedosCatalogItem> _applyLocalFilter(
-      List<BrinquedosCatalogItem> items) {
+    List<BrinquedosCatalogItem> items,
+  ) {
     final f = _selectedLocalFilter;
 
     if (f == _localAll) return items;
@@ -678,9 +724,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                       CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Icon(Icons.play_arrow),
-                          label: Text(_startingRound
-                              ? 'Iniciando...'
-                              : 'Iniciar rodizio'),
+                          label: Text(
+                            _startingRound
+                                ? 'Iniciando...'
+                                : 'Iniciar rod\u00edzio',
+                          ),
                         ),
                       ),
                     ),
@@ -722,7 +770,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                           icon: Icons.toys,
                           title: 'Nenhum brinquedo cadastrado',
                           message:
-                              'Adicione brinquedos para montar seu catalogo visual.',
+                              'Adicione brinquedos para montar seu cat\u00e1logo visual.',
                           actionLabel: 'Novo brinquedo',
                           onAction: () => _openToyCreate(context),
                         );

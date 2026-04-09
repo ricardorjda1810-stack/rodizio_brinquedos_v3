@@ -30,12 +30,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   static const Duration _localFieldAnimationDuration = Duration(
     milliseconds: 200,
   );
+  static const String _noBoxOptionValue = '__sem_caixa__';
+  static const String _locationRequiredMessage =
+      'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
   static String? _lastCategoryId;
   String? _selectedCategoryId;
-  String? _selectedBoxId;
+  String? _selectedBoxSelection;
   String? _selectedLooseLocation;
   String? _photoSourcePath;
   bool _saving = false;
+  bool _boxSelectionTouched = false;
 
   @override
   void initState() {
@@ -47,6 +51,36 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     final settings = widget.settingsRepository;
     if (settings == null) return null;
     return AppFeedback(settings);
+  }
+
+  bool get _hasExplicitBoxSelection => _selectedBoxSelection != null;
+
+  bool get _isWithoutBoxSelected => _selectedBoxSelection == _noBoxOptionValue;
+
+  String? get _selectedBoxId =>
+      _isWithoutBoxSelected ? null : _selectedBoxSelection;
+
+  void _showLocationSelectionWarning() {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text(_locationRequiredMessage)));
+  }
+
+  bool _validateBeforeSave() {
+    if (_selectedCategoryId == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
+      return false;
+    }
+
+    if (!_hasExplicitBoxSelection) {
+      setState(() => _boxSelectionTouched = true);
+      _showLocationSelectionWarning();
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -80,12 +114,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _save() async {
-    if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
-      return;
-    }
+    if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();
     setState(() => _saving = true);
@@ -93,7 +122,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       await widget.toyRepository.addToyWithGeneratedName(
         categoryId: _selectedCategoryId!,
         boxId: _selectedBoxId,
-        locationText: _selectedBoxId == null ? _selectedLooseLocation : null,
+        locationText: _isWithoutBoxSelected ? _selectedLooseLocation : null,
         photoSourcePath: _photoSourcePath,
       );
       await _feedback?.onCreateSaved(playSound: true);
@@ -109,12 +138,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _saveAndAddAnother() async {
-    if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
-      return;
-    }
+    if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();
     setState(() => _saving = true);
@@ -123,7 +147,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       await widget.toyRepository.addToyWithGeneratedName(
         categoryId: _selectedCategoryId!,
         boxId: _selectedBoxId,
-        locationText: _selectedBoxId == null ? _selectedLooseLocation : null,
+        locationText: _isWithoutBoxSelected ? _selectedLooseLocation : null,
         photoSourcePath: _photoSourcePath,
       );
 
@@ -175,7 +199,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    final showLocal = _selectedBoxId == null;
+    final showLocal = _isWithoutBoxSelected;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Novo brinquedo')),
@@ -198,7 +222,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   final boxes = boxesSnap.data ?? const <Boxe>[];
                   if (_selectedBoxId != null &&
                       !boxes.any((b) => b.id == _selectedBoxId)) {
-                    _selectedBoxId = null;
+                    _selectedBoxSelection = null;
                   }
 
                   return StreamBuilder<List<LocationDefinition>>(
@@ -228,6 +252,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                           if (ra != rb) return ra.compareTo(rb);
                           return a.name.compareTo(b.name);
                         });
+
+                      if (_selectedBoxId != null &&
+                          !boxes.any((b) => b.id == _selectedBoxId)) {
+                        _selectedBoxSelection = null;
+                      }
 
                       if (_selectedLooseLocation != null &&
                           !locations.any(
@@ -308,6 +337,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                   disabled: _saving,
                                   getId: (c) => c.id,
                                   getName: (c) => c.name,
+                                  getExamples: (c) => c.examples,
                                   onSelected: (id) =>
                                       setState(() => _selectedCategoryId = id),
                                 ),
@@ -325,13 +355,24 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                   children: [
                                     Expanded(
                                       child: DropdownButtonFormField<String?>(
-                                        initialValue: _selectedBoxId,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Caixa (opcional)',
+                                        initialValue: _selectedBoxSelection,
+                                        decoration: InputDecoration(
+                                          labelText: 'Caixa',
+                                          errorText:
+                                              _boxSelectionTouched &&
+                                                  !_hasExplicitBoxSelection
+                                              ? _locationRequiredMessage
+                                              : null,
                                         ),
                                         items: <DropdownMenuItem<String?>>[
                                           const DropdownMenuItem<String?>(
                                             value: null,
+                                            child: Text(
+                                              'Selecione uma caixa ou "Sem caixa"',
+                                            ),
+                                          ),
+                                          const DropdownMenuItem<String?>(
+                                            value: _noBoxOptionValue,
                                             child: Text('Sem caixa'),
                                           ),
                                           ...boxes.map(
@@ -346,7 +387,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         onChanged: _saving
                                             ? null
                                             : (v) => setState(
-                                                () => _selectedBoxId = v,
+                                                () {
+                                                  _selectedBoxSelection = v;
+                                                  _boxSelectionTouched = true;
+                                                  if (!_isWithoutBoxSelected) {
+                                                    _selectedLooseLocation =
+                                                        null;
+                                                  }
+                                                },
                                               ),
                                       ),
                                     ),

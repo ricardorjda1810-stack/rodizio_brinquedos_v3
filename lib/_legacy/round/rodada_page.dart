@@ -25,7 +25,18 @@ class _RodadaPageState extends State<RodadaPage> {
     // Historical screen: the current app derives active round size from
     // category quotas, so this legacy view no longer overrides it with the
     // old RoundUiSettings.perCategoryLimit value.
-    await roundRepository.startRound();
+    final result = await roundRepository.startRound();
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result.created
+              ? 'Rodada criada com ${result.selectedCount} brinquedos.'
+              : 'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
+        ),
+      ),
+    );
   }
 
   Future<void> _endRound(BuildContext context) async {
@@ -55,14 +66,13 @@ class _RodadaPageState extends State<RodadaPage> {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // Sem rodada ativa
                 if (round == null) {
                   return Card(
                     child: ListTile(
                       leading: const Icon(Icons.refresh_outlined),
                       title: const Text('Sem rodada ativa'),
                       subtitle: Text(
-                        'Compatibilidade historica: limite legado salvo = $roundSize',
+                        'Compatibilidade hist\u00f3rica: limite legado salvo = $roundSize',
                       ),
                       trailing: FilledButton(
                         onPressed: () => _startRound(context),
@@ -72,7 +82,6 @@ class _RodadaPageState extends State<RodadaPage> {
                   );
                 }
 
-                // Com rodada ativa -> lista de brinquedos com Caixa/Local
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -81,7 +90,7 @@ class _RodadaPageState extends State<RodadaPage> {
                         leading: const Icon(Icons.play_circle_outline),
                         title: const Text('Rodada ativa'),
                         subtitle: Text(
-                          'Compatibilidade historica: limite legado salvo = $roundSize',
+                          'Compatibilidade hist\u00f3rica: limite legado salvo = $roundSize',
                         ),
                         trailing: OutlinedButton(
                           onPressed: () => _endRound(context),
@@ -119,7 +128,9 @@ class _RodadaPageState extends State<RodadaPage> {
                                 child: ListTile(
                                   leading: const Icon(Icons.toys_outlined),
                                   title: Text(toyText),
-                                  subtitle: Text('Caixa: $boxText • Posição: ${item.position + 1}'),
+                                  subtitle: Text(
+                                    'Caixa: $boxText \u2022 Posi\u00e7\u00e3o: ${item.position + 1}',
+                                  ),
                                 ),
                               );
                             },

@@ -10,6 +10,11 @@ import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
+const String _toyBoxNoSelectionValue = '__sem_selecao_caixa__';
+const String _toyBoxWithoutBoxValue = '__sem_caixa__';
+const String _toyBoxRequiredMessage =
+    'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
+
 class ToyDetailPage extends StatelessWidget {
   static const String _detailsMenuRename = 'rename';
   static const String _detailsMenuCategory = 'category';
@@ -206,9 +211,9 @@ class ToyDetailPage extends StatelessWidget {
     final boxes = await toyRepository.watchBoxes().first;
     if (!context.mounted) return;
 
-    String? selectedBoxId = currentBoxId;
-    if (selectedBoxId != null && !boxes.any((b) => b.id == selectedBoxId)) {
-      selectedBoxId = null;
+    String selectedBoxSelection = currentBoxId ?? _toyBoxNoSelectionValue;
+    if (currentBoxId != null && !boxes.any((b) => b.id == currentBoxId)) {
+      selectedBoxSelection = _toyBoxNoSelectionValue;
     }
 
     final result = await showDialog<String?>(
@@ -218,11 +223,15 @@ class ToyDetailPage extends StatelessWidget {
           return AlertDialog(
             title: const Text('Editar caixa'),
             content: DropdownButtonFormField<String?>(
-              initialValue: selectedBoxId,
+              initialValue: selectedBoxSelection,
               decoration: const InputDecoration(labelText: 'Caixa'),
               items: <DropdownMenuItem<String?>>[
                 const DropdownMenuItem<String?>(
-                  value: null,
+                  value: _toyBoxNoSelectionValue,
+                  child: Text('Selecione uma caixa ou "Sem caixa"'),
+                ),
+                const DropdownMenuItem<String?>(
+                  value: _toyBoxWithoutBoxValue,
                   child: Text('Sem caixa'),
                 ),
                 ...boxes.map(
@@ -233,7 +242,11 @@ class ToyDetailPage extends StatelessWidget {
                 ),
               ],
               onChanged: (value) {
-                setDialogState(() => selectedBoxId = value);
+                setDialogState(
+                  () =>
+                      selectedBoxSelection =
+                          value ?? _toyBoxNoSelectionValue,
+                );
               },
             ),
             actions: [
@@ -242,7 +255,20 @@ class ToyDetailPage extends StatelessWidget {
                 child: const Text('Cancelar'),
               ),
               FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(selectedBoxId),
+                onPressed: () {
+                  if (selectedBoxSelection == _toyBoxNoSelectionValue) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text(_toyBoxRequiredMessage)),
+                    );
+                    return;
+                  }
+
+                  Navigator.of(ctx).pop(
+                    selectedBoxSelection == _toyBoxWithoutBoxValue
+                        ? null
+                        : selectedBoxSelection,
+                  );
+                },
                 child: const Text('Salvar'),
               ),
             ],

@@ -46,14 +46,34 @@ class _RodadaPageState extends State<RodadaPage> {
 
     setState(() => _startingRound = true);
     try {
-      await widget.roundRepository.startRound();
-      if (mounted) {
-        widget.onOpenRodizioTab();
+      final result = await widget.roundRepository.startRound();
+      if (!mounted) return;
+
+      if (!result.created) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
+            ),
+          ),
+        );
+        return;
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Rodada criada com ${result.selectedCount} brinquedos.'),
+        ),
+      );
+      widget.onOpenRodizioTab();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Nao foi possivel iniciar o rodizio: $e')),
+        SnackBar(
+          content: Text(
+            'N\u00e3o foi poss\u00edvel iniciar o rod\u00edzio: $e',
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -85,14 +105,14 @@ class _RodadaPageState extends State<RodadaPage> {
           ),
         ),
         title: Text(
-          'Rodízio',
+          'Rod\u00edzio',
           style: UiTokens.textTitle.copyWith(
             color: colorScheme.onSurface,
           ),
         ),
         actions: [
           PopupMenuButton<String>(
-            tooltip: 'Mais opcoes',
+            tooltip: 'Mais op\u00e7\u00f5es',
             onSelected: (value) {
               if (value == 'toys') {
                 widget.onOpenBrinquedosTab();
@@ -109,7 +129,7 @@ class _RodadaPageState extends State<RodadaPage> {
               ),
               PopupMenuItem<String>(
                 value: 'settings',
-                child: Text('Configuracoes'),
+                child: Text('Configura\u00e7\u00f5es'),
               ),
             ],
             icon: Icon(
@@ -296,7 +316,7 @@ class _RodadaEmptyState extends StatelessWidget {
           ),
           const SizedBox(height: UiTokens.spacingSm),
           Text(
-            'Crie uma rodada para começar.',
+            'Crie uma rodada para come\u00e7ar.',
             textAlign: TextAlign.center,
             style: UiTokens.textButton.copyWith(
               fontSize: 14,

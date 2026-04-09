@@ -32,6 +32,7 @@ class Toys extends Table {
 class CategoryDefinitions extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get examples => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
 
   @override
@@ -128,7 +129,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -222,6 +223,65 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(
               roundUiSettings,
               roundUiSettings.darkModeEnabled,
+            );
+          }
+
+          if (from < 12) {
+            await m.addColumn(categoryDefinitions, categoryDefinitions.examples);
+
+            Future<void> seedExamples(
+              String categoryId,
+              String examplesText,
+            ) async {
+              await customStatement(
+                '''
+                UPDATE category_definitions
+                SET examples = ?
+                WHERE id = ? AND (examples IS NULL OR TRIM(examples) = '')
+                ''',
+                [examplesText, categoryId],
+              );
+            }
+
+            await seedExamples(
+              'veiculos',
+              'carrinho, caminhão, trenzinho, ônibus',
+            );
+            await seedExamples(
+              'bonecos',
+              'boneca, ursinho, personagem, fantoche',
+            );
+            await seedExamples(
+              'montagem',
+              'blocos, lego, encaixe, engrenagens',
+            );
+            await seedExamples(
+              'livros',
+              'histórias, figuras, sons, toque',
+            );
+            await seedExamples(
+              'jogos',
+              'memória, dominó, cartas, trilhas',
+            );
+            await seedExamples(
+              'faz_de_conta',
+              'cozinha, médico, mercado, ferramentas',
+            );
+            await seedExamples(
+              'artes',
+              'giz, tinta, colagem, massinha',
+            );
+            await seedExamples(
+              'musica',
+              'tambor, chocalho, teclado, violão',
+            );
+            await seedExamples(
+              'banho',
+              'patinho, barquinho, copinhos, esguicho',
+            );
+            await seedExamples(
+              'outros',
+              'quebra-cabeça, lupa, imã, surpresa',
             );
           }
         },

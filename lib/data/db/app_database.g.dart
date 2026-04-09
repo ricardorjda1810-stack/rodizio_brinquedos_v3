@@ -789,6 +789,12 @@ class $CategoryDefinitionsTable extends CategoryDefinitions
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _examplesMeta =
+      const VerificationMeta('examples');
+  @override
+  late final GeneratedColumn<String> examples = GeneratedColumn<String>(
+      'examples', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isActiveMeta =
       const VerificationMeta('isActive');
   @override
@@ -800,7 +806,7 @@ class $CategoryDefinitionsTable extends CategoryDefinitions
           GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
       defaultValue: const Constant(true));
   @override
-  List<GeneratedColumn> get $columns => [id, name, isActive];
+  List<GeneratedColumn> get $columns => [id, name, examples, isActive];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -822,6 +828,10 @@ class $CategoryDefinitionsTable extends CategoryDefinitions
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('examples')) {
+      context.handle(_examplesMeta,
+          examples.isAcceptableOrUnknown(data['examples']!, _examplesMeta));
+    }
     if (data.containsKey('is_active')) {
       context.handle(_isActiveMeta,
           isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
@@ -839,6 +849,8 @@ class $CategoryDefinitionsTable extends CategoryDefinitions
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      examples: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}examples']),
       isActive: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
     );
@@ -854,14 +866,21 @@ class CategoryDefinition extends DataClass
     implements Insertable<CategoryDefinition> {
   final String id;
   final String name;
+  final String? examples;
   final bool isActive;
   const CategoryDefinition(
-      {required this.id, required this.name, required this.isActive});
+      {required this.id,
+      required this.name,
+      this.examples,
+      required this.isActive});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || examples != null) {
+      map['examples'] = Variable<String>(examples);
+    }
     map['is_active'] = Variable<bool>(isActive);
     return map;
   }
@@ -870,6 +889,9 @@ class CategoryDefinition extends DataClass
     return CategoryDefinitionsCompanion(
       id: Value(id),
       name: Value(name),
+      examples: examples == null && nullToAbsent
+          ? const Value.absent()
+          : Value(examples),
       isActive: Value(isActive),
     );
   }
@@ -880,6 +902,7 @@ class CategoryDefinition extends DataClass
     return CategoryDefinition(
       id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      examples: serializer.fromJson<String?>(json['examples']),
       isActive: serializer.fromJson<bool>(json['isActive']),
     );
   }
@@ -889,20 +912,27 @@ class CategoryDefinition extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
+      'examples': serializer.toJson<String?>(examples),
       'isActive': serializer.toJson<bool>(isActive),
     };
   }
 
-  CategoryDefinition copyWith({String? id, String? name, bool? isActive}) =>
+  CategoryDefinition copyWith(
+          {String? id,
+          String? name,
+          Value<String?> examples = const Value.absent(),
+          bool? isActive}) =>
       CategoryDefinition(
         id: id ?? this.id,
         name: name ?? this.name,
+        examples: examples.present ? examples.value : this.examples,
         isActive: isActive ?? this.isActive,
       );
   CategoryDefinition copyWithCompanion(CategoryDefinitionsCompanion data) {
     return CategoryDefinition(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      examples: data.examples.present ? data.examples.value : this.examples,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
     );
   }
@@ -912,36 +942,41 @@ class CategoryDefinition extends DataClass
     return (StringBuffer('CategoryDefinition(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('examples: $examples, ')
           ..write('isActive: $isActive')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, isActive);
+  int get hashCode => Object.hash(id, name, examples, isActive);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CategoryDefinition &&
           other.id == this.id &&
           other.name == this.name &&
+          other.examples == this.examples &&
           other.isActive == this.isActive);
 }
 
 class CategoryDefinitionsCompanion extends UpdateCompanion<CategoryDefinition> {
   final Value<String> id;
   final Value<String> name;
+  final Value<String?> examples;
   final Value<bool> isActive;
   final Value<int> rowid;
   const CategoryDefinitionsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.examples = const Value.absent(),
     this.isActive = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CategoryDefinitionsCompanion.insert({
     required String id,
     required String name,
+    this.examples = const Value.absent(),
     this.isActive = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -949,12 +984,14 @@ class CategoryDefinitionsCompanion extends UpdateCompanion<CategoryDefinition> {
   static Insertable<CategoryDefinition> custom({
     Expression<String>? id,
     Expression<String>? name,
+    Expression<String>? examples,
     Expression<bool>? isActive,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (examples != null) 'examples': examples,
       if (isActive != null) 'is_active': isActive,
       if (rowid != null) 'rowid': rowid,
     });
@@ -963,11 +1000,13 @@ class CategoryDefinitionsCompanion extends UpdateCompanion<CategoryDefinition> {
   CategoryDefinitionsCompanion copyWith(
       {Value<String>? id,
       Value<String>? name,
+      Value<String?>? examples,
       Value<bool>? isActive,
       Value<int>? rowid}) {
     return CategoryDefinitionsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      examples: examples ?? this.examples,
       isActive: isActive ?? this.isActive,
       rowid: rowid ?? this.rowid,
     );
@@ -981,6 +1020,9 @@ class CategoryDefinitionsCompanion extends UpdateCompanion<CategoryDefinition> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (examples.present) {
+      map['examples'] = Variable<String>(examples.value);
     }
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
@@ -996,6 +1038,7 @@ class CategoryDefinitionsCompanion extends UpdateCompanion<CategoryDefinition> {
     return (StringBuffer('CategoryDefinitionsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('examples: $examples, ')
           ..write('isActive: $isActive, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -3546,6 +3589,7 @@ typedef $$CategoryDefinitionsTableCreateCompanionBuilder
     = CategoryDefinitionsCompanion Function({
   required String id,
   required String name,
+  Value<String?> examples,
   Value<bool> isActive,
   Value<int> rowid,
 });
@@ -3553,6 +3597,7 @@ typedef $$CategoryDefinitionsTableUpdateCompanionBuilder
     = CategoryDefinitionsCompanion Function({
   Value<String> id,
   Value<String> name,
+  Value<String?> examples,
   Value<bool> isActive,
   Value<int> rowid,
 });
@@ -3613,6 +3658,9 @@ class $$CategoryDefinitionsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get examples => $composableBuilder(
+      column: $table.examples, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isActive => $composableBuilder(
       column: $table.isActive, builder: (column) => ColumnFilters(column));
@@ -3677,6 +3725,9 @@ class $$CategoryDefinitionsTableOrderingComposer
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get examples => $composableBuilder(
+      column: $table.examples, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get isActive => $composableBuilder(
       column: $table.isActive, builder: (column) => ColumnOrderings(column));
 }
@@ -3695,6 +3746,9 @@ class $$CategoryDefinitionsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get examples =>
+      $composableBuilder(column: $table.examples, builder: (column) => column);
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
@@ -3773,24 +3827,28 @@ class $$CategoryDefinitionsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<String> name = const Value.absent(),
+            Value<String?> examples = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CategoryDefinitionsCompanion(
             id: id,
             name: name,
+            examples: examples,
             isActive: isActive,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
             required String name,
+            Value<String?> examples = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CategoryDefinitionsCompanion.insert(
             id: id,
             name: name,
+            examples: examples,
             isActive: isActive,
             rowid: rowid,
           ),
