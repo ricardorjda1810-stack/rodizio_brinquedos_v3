@@ -322,12 +322,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .bodySmall,
                                       ),
                                       const SizedBox(height: UiTokens.spacingMd),
-                                      AspectRatio(
-                                        aspectRatio: 1,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            UiTokens.radiusCard,
-                                          ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          UiTokens.radiusCard,
+                                        ),
+                                        child: AspectRatio(
+                                          aspectRatio: 1.28,
                                           child: _photoPreview(),
                                         ),
                                       ),
@@ -443,64 +443,85 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .bodySmall,
                                       ),
                                       const SizedBox(height: UiTokens.spacingMd),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: DropdownButtonFormField<String?>(
-                                              initialValue: _selectedBoxSelection,
-                                              decoration: InputDecoration(
-                                                labelText: 'Caixa',
-                                                errorText:
-                                                    _boxSelectionTouched &&
-                                                            !_hasExplicitBoxSelection
-                                                        ? _locationRequiredMessage
-                                                        : null,
-                                              ),
-                                              items: <DropdownMenuItem<String?>>[
-                                                const DropdownMenuItem<String?>(
-                                                  value: null,
-                                                  child: Text(
-                                                    'Selecione uma caixa ou "Sem caixa"',
+                                      LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          final compact =
+                                              constraints.maxWidth < 420;
+
+                                          return Wrap(
+                                            spacing: UiTokens.s,
+                                            runSpacing: UiTokens.s,
+                                            children: [
+                                              SizedBox(
+                                                width: compact
+                                                    ? constraints.maxWidth
+                                                    : constraints.maxWidth - 118,
+                                                child: DropdownButtonFormField<String?>(
+                                                  initialValue:
+                                                      _selectedBoxSelection,
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Caixa',
+                                                    helperText:
+                                                        'Escolha uma caixa ou marque "Sem caixa".',
+                                                    errorText:
+                                                        _boxSelectionTouched &&
+                                                                !_hasExplicitBoxSelection
+                                                            ? _locationRequiredMessage
+                                                            : null,
                                                   ),
-                                                ),
-                                                const DropdownMenuItem<String?>(
-                                                  value: _noBoxOptionValue,
-                                                  child: Text('Sem caixa'),
-                                                ),
-                                                ...boxes.map(
-                                                  (b) => DropdownMenuItem<String?>(
-                                                    value: b.id,
-                                                    child: Text(
-                                                      'Caixa ${b.number} - ${b.local}',
+                                                  items: <DropdownMenuItem<String?>>[
+                                                    const DropdownMenuItem<String?>(
+                                                      value: null,
+                                                      child: Text(
+                                                        'Selecione uma caixa ou "Sem caixa"',
+                                                      ),
                                                     ),
-                                                  ),
+                                                    const DropdownMenuItem<String?>(
+                                                      value: _noBoxOptionValue,
+                                                      child: Text('Sem caixa'),
+                                                    ),
+                                                    ...boxes.map(
+                                                      (b) =>
+                                                          DropdownMenuItem<String?>(
+                                                        value: b.id,
+                                                        child: Text(
+                                                          'Caixa ${b.number} - ${b.local}',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  onChanged: _saving
+                                                      ? null
+                                                      : (v) => setState(() {
+                                                            _selectedBoxSelection =
+                                                                v;
+                                                            _boxSelectionTouched =
+                                                                true;
+                                                            if (!_isWithoutBoxSelected) {
+                                                              _selectedLooseLocation =
+                                                                  null;
+                                                            }
+                                                          }),
                                                 ),
-                                              ],
-                                              onChanged: _saving
-                                                  ? null
-                                                  : (v) => setState(() {
-                                                        _selectedBoxSelection = v;
-                                                        _boxSelectionTouched = true;
-                                                        if (!_isWithoutBoxSelected) {
-                                                          _selectedLooseLocation =
-                                                              null;
-                                                        }
-                                                      }),
-                                            ),
-                                          ),
-                                          const SizedBox(width: UiTokens.s),
-                                          FilledButton.tonalIcon(
-                                            onPressed: _saving
-                                                ? null
-                                                : () async {
-                                                    await _createBox();
-                                                  },
-                                            icon: const Icon(
-                                              Icons.add_box_outlined,
-                                            ),
-                                            label: const Text('Nova'),
-                                          ),
-                                        ],
+                                              ),
+                                              SizedBox(
+                                                width:
+                                                    compact ? constraints.maxWidth : 110,
+                                                child: FilledButton.tonalIcon(
+                                                  onPressed: _saving
+                                                      ? null
+                                                      : () async {
+                                                          await _createBox();
+                                                        },
+                                                  icon: const Icon(
+                                                    Icons.add_box_outlined,
+                                                  ),
+                                                  label: const Text('Nova'),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                       AnimatedSize(
                                         duration: _localFieldAnimationDuration,
@@ -582,35 +603,56 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                           SafeArea(
                             top: false,
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 52,
-                                      child: FilledButton.icon(
-                                        onPressed: _saving ? null : _save,
-                                        icon: const Icon(Icons.save_outlined),
-                                        label: Text(
-                                          _saving ? 'Salvando...' : 'Salvar',
+                              padding: const EdgeInsets.only(top: UiTokens.s),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final stacked = constraints.maxWidth < 380;
+
+                                  final saveButton = SizedBox(
+                                    height: 50,
+                                    child: FilledButton.icon(
+                                      onPressed: _saving ? null : _save,
+                                      icon: const Icon(Icons.save_outlined),
+                                      label: Text(
+                                        _saving ? 'Salvando...' : 'Salvar',
+                                      ),
+                                    ),
+                                  );
+
+                                  final saveAnotherButton = SizedBox(
+                                    height: 50,
+                                    child: FilledButton.tonalIcon(
+                                      onPressed:
+                                          _saving ? null : _saveAndAddAnother,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Salvar e outro'),
+                                    ),
+                                  );
+
+                                  if (stacked) {
+                                    return Column(
+                                      children: [
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: saveButton,
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: UiTokens.s),
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: 52,
-                                      child: FilledButton.tonalIcon(
-                                        onPressed: _saving
-                                            ? null
-                                            : _saveAndAddAnother,
-                                        icon: const Icon(Icons.add),
-                                        label: const Text('Salvar e outro'),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                        const SizedBox(height: UiTokens.s),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: saveAnotherButton,
+                                        ),
+                                      ],
+                                    );
+                                  }
+
+                                  return Row(
+                                    children: [
+                                      Expanded(child: saveButton),
+                                      const SizedBox(width: UiTokens.s),
+                                      Expanded(child: saveAnotherButton),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ),

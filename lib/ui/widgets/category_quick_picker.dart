@@ -36,7 +36,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: UiTokens.spacingSm,
         mainAxisSpacing: UiTokens.spacingSm,
-        mainAxisExtent: 104,
+        mainAxisExtent: 90,
       ),
       itemBuilder: (context, i) {
         final category = categories[i];
@@ -83,7 +83,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
         onTap: disabled ? null : onTap,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
         child: Ink(
-          padding: const EdgeInsets.all(UiTokens.spacingMd),
+          padding: const EdgeInsets.all(UiTokens.spacingSm),
           decoration: BoxDecoration(
             color: selected ? UiTokens.primarySoft : UiTokens.surface,
             borderRadius: BorderRadius.circular(UiTokens.radiusMd),
@@ -130,7 +130,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: Text(
                   subtitle,
-                  maxLines: 4,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
                     color: UiTokens.textSecondary,

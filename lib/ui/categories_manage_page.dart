@@ -147,6 +147,7 @@ class CategoriesManagePage extends StatelessWidget {
             }
 
             return ListView(
+              padding: const EdgeInsets.only(bottom: 104),
               children: [
                 AppSurfaceCard(
                   padding: const EdgeInsets.all(UiTokens.spacingLg),

@@ -65,7 +65,7 @@ class FilterBar extends StatelessWidget {
         onLocationChanged != null;
 
     return AppSurfaceCard(
-      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      padding: const EdgeInsets.all(UiTokens.spacingSm),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final maxWidth = constraints.maxWidth;
@@ -85,7 +85,7 @@ class FilterBar extends StatelessWidget {
                 'Organize por categoria, caixa e local sem poluir a tela.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: UiTokens.spacingMd),
+              const SizedBox(height: UiTokens.spacingSm),
               Wrap(
                 spacing: gap,
                 runSpacing: gap,
@@ -120,7 +120,7 @@ class FilterBar extends StatelessWidget {
                     ),
                   SizedBox(
                     width: compact ? dropdownWidth : 120,
-                    height: 52,
+                    height: 48,
                     child: FilledButton.tonalIcon(
                       onPressed: onSearchTap,
                       icon: const Icon(Icons.search),
@@ -130,7 +130,7 @@ class FilterBar extends StatelessWidget {
                   if (showClear)
                     SizedBox(
                       width: compact ? dropdownWidth : 120,
-                      height: 52,
+                      height: 48,
                       child: OutlinedButton.icon(
                         onPressed: onClear,
                         icon: const Icon(Icons.close),
@@ -176,7 +176,7 @@ class _ProDropdown extends StatelessWidget {
     );
 
     return Container(
-      height: 52,
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,

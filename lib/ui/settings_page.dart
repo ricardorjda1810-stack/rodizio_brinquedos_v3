@@ -135,7 +135,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Configuracoes salvas.')),
+      const SnackBar(content: Text('Configurações salvas.')),
     );
   }
 
@@ -215,7 +215,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Quantidade',
-                  helperText: 'Minimo 0, maximo $maxValue',
+                  helperText: 'Mínimo 0, máximo $maxValue',
                   errorText: errorText,
                 ),
               ),
@@ -229,17 +229,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     final parsed = int.tryParse(controller.text.trim());
                     if (parsed == null) {
                       setLocalState(
-                        () => errorText = 'Digite um numero inteiro.',
+                        () => errorText = 'Digite um número inteiro.',
                       );
                       return;
                     }
                     if (parsed < 0) {
-                      setLocalState(() => errorText = 'O valor minimo e 0.');
+                      setLocalState(() => errorText = 'O valor mínimo é 0.');
                       return;
                     }
                     if (parsed > maxValue) {
                       setLocalState(
-                        () => errorText = 'O valor maximo e $maxValue.',
+                        () => errorText = 'O valor máximo é $maxValue.',
                       );
                       return;
                     }
@@ -295,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (maxSelectable == 0)
                     const Padding(
                       padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      child: Text('Nenhum disponivel nesta categoria'),
+                      child: Text('Nenhum disponível nesta categoria'),
                     ),
                   ListTile(
                     title: const Text('0'),
@@ -421,8 +421,8 @@ class _SettingsPageState extends State<SettingsPage> {
               final enabled = snapshot.data ?? true;
               return SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Vibracao (haptic)'),
-                subtitle: const Text('Toques leves nas acoes principais'),
+                title: const Text('Vibração (haptic)'),
+                subtitle: const Text('Toques leves nas ações principais'),
                 value: enabled,
                 onChanged: widget.settingsRepository.setHapticEnabled,
               );
@@ -454,7 +454,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       backgroundColor: UiTokens.bg,
       appBar: AppBar(
-        title: const Text('Configuracoes'),
+        title: const Text('Configurações'),
         actions: [
           PopupMenuButton<String>(
             tooltip: 'Gerenciar',
@@ -546,7 +546,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                             const SizedBox(height: UiTokens.spacingSm),
                             Text(
-                              'Disponiveis no catalogo: $availableTotal',
+                              'Disponíveis no catálogo: $availableTotal',
                               style: textTheme.bodySmall,
                             ),
                             const SizedBox(height: UiTokens.spacingXs),
@@ -600,8 +600,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                               ),
                                               Text(
                                                 !row.category.isActive
-                                                    ? 'Disponiveis: $available - Categoria inativa'
-                                                    : 'Disponiveis: $available',
+                                                    ? 'Disponíveis: $available - Categoria inativa'
+                                                    : 'Disponíveis: $available',
                                                 style: textTheme.bodySmall,
                                               ),
                                             ],
@@ -655,12 +655,12 @@ class _SettingsPageState extends State<SettingsPage> {
                             const SizedBox(height: UiTokens.spacingSm),
                             FilledButton(
                               onPressed: _save,
-                              child: const Text('Salvar configuracoes'),
+                              child: const Text('Salvar configurações'),
                             ),
                             const SizedBox(height: UiTokens.spacingSm),
                             OutlinedButton(
                               onPressed: _restoreRoundDefaults,
-                              child: const Text('Restaurar padrao'),
+                              child: const Text('Restaurar padrão'),
                             ),
                           ],
                         );

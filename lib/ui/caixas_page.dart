@@ -675,7 +675,7 @@ class _CaixasPageState extends State<CaixasPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openAddBoxPage(context),
         icon: const Icon(Icons.add),
-        label: const Text('Nova caixa'),
+        label: const Text('Criar caixa'),
       ),
     );
   }

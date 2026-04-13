@@ -160,7 +160,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(UiTokens.radiusCard),
         child: AspectRatio(
-          aspectRatio: 1,
+          aspectRatio: 1.35,
           child: path.isEmpty
               ? Container(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -244,7 +244,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                     padding: const EdgeInsets.only(bottom: UiTokens.spacingLg),
                     children: [
                       AppSurfaceCard(
-                        padding: const EdgeInsets.all(UiTokens.spacingLg),
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
                         color: UiTokens.primarySoft,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +283,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                               'Opcional, mas ajuda muito na identifica\u00e7\u00e3o visual.',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
-                            const SizedBox(height: UiTokens.spacingMd),
+                            const SizedBox(height: UiTokens.spacingSm),
                             _buildPhotoArea(),
                           ],
                         ),
@@ -335,24 +335,35 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                                         ),
                               ),
                             if (locations.isNotEmpty)
-                              const SizedBox(height: UiTokens.s),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: OutlinedButton(
-                                onPressed: _saving
-                                    ? null
-                                    : () => setState(
-                                          () => _showExtraLocal = !_showExtraLocal,
-                                        ),
-                                child: Text(
-                                  _showExtraLocal
-                                      ? 'Ocultar local extra'
-                                      : 'Local extra',
+                              const SizedBox(height: UiTokens.spacingSm),
+                            Wrap(
+                              spacing: UiTokens.spacingSm,
+                              runSpacing: UiTokens.spacingSm,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                OutlinedButton(
+                                  onPressed: _saving
+                                      ? null
+                                      : () => setState(
+                                            () =>
+                                                _showExtraLocal = !_showExtraLocal,
+                                          ),
+                                  child: Text(
+                                    _showExtraLocal
+                                        ? 'Ocultar local extra'
+                                        : 'Local extra',
+                                  ),
                                 ),
-                              ),
+                                if (locations.isNotEmpty)
+                                  Text(
+                                    'Ou use um local j\u00e1 cadastrado.',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                              ],
                             ),
                             if (_showExtraLocal) ...[
-                              const SizedBox(height: UiTokens.s),
+                              const SizedBox(height: UiTokens.spacingSm),
                               TextField(
                                 controller: _extraLocalController,
                                 enabled: !_saving,
@@ -363,7 +374,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                                 onChanged: (_) => setState(() {}),
                               ),
                             ],
-                            const SizedBox(height: UiTokens.s),
+                            const SizedBox(height: UiTokens.spacingSm),
                             TextField(
                               controller: _notesController,
                               enabled: !_saving,
@@ -432,7 +443,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: UiTokens.spacingMd),
+                      const SizedBox(height: UiTokens.spacingSm),
                       FilledButton.icon(
                         onPressed: canSave ? () => _save(locations) : null,
                         icon: const Icon(Icons.save_outlined),

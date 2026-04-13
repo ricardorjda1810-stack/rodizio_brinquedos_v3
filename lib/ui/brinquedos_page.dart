@@ -808,7 +808,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                   showClear: showClear,
                   onClear: _clearFilters,
                 ),
-                const SizedBox(height: UiTokens.s),
+                const SizedBox(height: UiTokens.spacingXs),
                 Expanded(
                   child: Builder(
                     builder: (context) {
@@ -839,7 +839,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                       }
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: UiTokens.m),
+                        padding: const EdgeInsets.only(
+                          bottom: UiTokens.spacingLg + 20,
+                        ),
                         child: _buildToyList(
                           context,
                           visibleItems,
