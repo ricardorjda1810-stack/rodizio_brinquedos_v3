@@ -43,7 +43,7 @@ workflows:
         script: xcode-project use-profiles
 
       - name: Analyze
-        script: flutter analyze
+        script: flutter analyze --no-pub lib test
 
       - name: Test
         script: |
@@ -53,9 +53,8 @@ workflows:
             echo "No tests directory found. Skipping flutter test."
           fi
 
-      - name: Build iOS
+      - name: Build IPA
         script: |
-          flutter build ios --release --no-codesign
           xcode-project build-ipa \
             --workspace ios/Runner.xcworkspace \
             --scheme Runner
