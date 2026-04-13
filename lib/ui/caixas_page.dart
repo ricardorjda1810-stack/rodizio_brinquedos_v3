@@ -13,6 +13,8 @@ import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 
 class CaixasPage extends StatefulWidget {
   final ToyRepository toyRepository;
@@ -359,174 +361,194 @@ class _CaixasPageState extends State<CaixasPage> {
     final subtitle = notes.isEmpty ? toyCountLabel : '$toyCountLabel\n$notes';
     final isExpanded = _expandedBoxId == box.id;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: () => _toggleExpandedBox(box.id),
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  (box.photoPath ?? '').trim().isEmpty
-                      ? Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(Icons.inventory_2_outlined),
-                          ),
-                        )
-                      : Image.file(
-                          File((box.photoPath ?? '').trim()),
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
+    return AppSurfaceCard(
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            InkWell(
+              onTap: () => _toggleExpandedBox(box.id),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    (box.photoPath ?? '').trim().isEmpty
+                        ? Container(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
                             child: const Center(
-                              child: Icon(Icons.inventory_2_outlined),
+                              child: Icon(Icons.inventory_2_outlined, size: 28),
+                            ),
+                          )
+                        : Image.file(
+                            File((box.photoPath ?? '').trim()),
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                              child: const Center(
+                                child: Icon(Icons.inventory_2_outlined, size: 28),
+                              ),
                             ),
                           ),
-                        ),
-                  Positioned(
-                    left: UiTokens.xs,
-                    right: UiTokens.xs,
-                    bottom: UiTokens.xs,
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: UiTokens.s,
-                          vertical: UiTokens.xs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surface.withValues(alpha: 0.9),
-                          borderRadius: BorderRadius.circular(
-                            UiTokens.radiusButton,
+                    Positioned(
+                      left: UiTokens.spacingSm,
+                      right: UiTokens.spacingSm,
+                      bottom: UiTokens.spacingSm,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: UiTokens.s,
+                            vertical: UiTokens.xs,
                           ),
-                        ),
-                        child: Text(
-                          isExpanded ? 'Ocultar brinquedos' : 'Ver brinquedos',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: UiTokens.xs,
-                    top: UiTokens.xs,
-                    child: PopupMenuButton<String>(
-                      tooltip: 'Acoes da caixa',
-                      onSelected: (value) async {
-                        if (value == 'edit_local') {
-                          await _editBoxLocal(context, box);
-                          return;
-                        }
-                        if (value == 'photo') {
-                          await _pickBoxPhoto(context, box);
-                          return;
-                        }
-                        if (value == 'edit_notes') {
-                          await _editBoxNotes(context, box);
-                          return;
-                        }
-                        if (value == 'open_toys') {
-                          widget.onOpenBrinquedosForBox(box.id);
-                          return;
-                        }
-                        if (value == 'delete') {
-                          await _confirmDelete(context, box.id, title);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        const PopupMenuItem<String>(
-                          value: 'edit_local',
-                          child: Text('Editar local'),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'photo',
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withValues(alpha: 0.92),
+                            borderRadius:
+                                BorderRadius.circular(UiTokens.radiusButton),
+                          ),
                           child: Text(
-                            hasPhoto ? 'Trocar foto' : 'Adicionar foto',
+                            isExpanded ? 'Ocultar brinquedos' : 'Ver brinquedos',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                         ),
-                        const PopupMenuItem<String>(
-                          value: 'edit_notes',
-                          child: Text('Editar informacoes'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'open_toys',
-                          child: Text('Abrir em Brinquedos'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Text('Excluir'),
-                        ),
-                      ],
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surface.withValues(alpha: 0.92),
-                          borderRadius: BorderRadius.circular(
-                            UiTokens.radiusButton,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(2),
-                        child: const Icon(Icons.more_vert, size: 18),
                       ),
                     ),
+                    Positioned(
+                      right: UiTokens.spacingSm,
+                      top: UiTokens.spacingSm,
+                      child: PopupMenuButton<String>(
+                        tooltip: 'A\u00e7\u00f5es da caixa',
+                        onSelected: (value) async {
+                          if (value == 'edit_local') {
+                            await _editBoxLocal(context, box);
+                            return;
+                          }
+                          if (value == 'photo') {
+                            await _pickBoxPhoto(context, box);
+                            return;
+                          }
+                          if (value == 'edit_notes') {
+                            await _editBoxNotes(context, box);
+                            return;
+                          }
+                          if (value == 'open_toys') {
+                            widget.onOpenBrinquedosForBox(box.id);
+                            return;
+                          }
+                          if (value == 'delete') {
+                            await _confirmDelete(context, box.id, title);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem<String>(
+                            value: 'edit_local',
+                            child: Text('Editar local'),
+                          ),
+                          PopupMenuItem<String>(
+                            value: 'photo',
+                            child: Text(
+                              hasPhoto ? 'Trocar foto' : 'Adicionar foto',
+                            ),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'edit_notes',
+                            child: Text('Editar informa\u00e7\u00f5es'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'open_toys',
+                            child: Text('Abrir em Brinquedos'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'delete',
+                            child: Text('Excluir'),
+                          ),
+                        ],
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surface
+                                .withValues(alpha: 0.92),
+                            borderRadius:
+                                BorderRadius.circular(UiTokens.radiusButton),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: const Icon(Icons.more_vert, size: 18),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                UiTokens.spacingMd,
+                UiTokens.spacingMd,
+                UiTokens.spacingMd,
+                UiTokens.spacingXs,
+              ),
+              child: Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: UiTokens.spacingMd),
+              child: Text(
+                subtitle,
+                maxLines: isExpanded ? 3 : 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                UiTokens.spacingMd,
+                UiTokens.spacingSm,
+                UiTokens.spacingMd,
+                UiTokens.spacingSm,
+              ),
+              child: Wrap(
+                spacing: UiTokens.spacingXs,
+                runSpacing: UiTokens.spacingXs,
+                children: [
+                  _BoxMetaChip(
+                    icon: Icons.location_on_outlined,
+                    label: box.local.trim().isEmpty ? 'Sem local' : box.local.trim(),
+                  ),
+                  _BoxMetaChip(
+                    icon: Icons.toys_outlined,
+                    label: toyCountLabel,
                   ),
                 ],
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              UiTokens.s,
-              UiTokens.xs,
-              UiTokens.s,
-              2,
+            AnimatedCrossFade(
+              firstChild: const SizedBox.shrink(),
+              secondChild: _buildToyList(boxItems),
+              crossFadeState: isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 180),
             ),
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              UiTokens.s,
-              0,
-              UiTokens.s,
-              UiTokens.xs,
-            ),
-            child: Text(
-              subtitle,
-              maxLines: isExpanded ? 3 : 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: _buildToyList(boxItems),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 180),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -534,6 +556,7 @@ class _CaixasPageState extends State<CaixasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(UiTokens.m),
@@ -547,20 +570,13 @@ class _CaixasPageState extends State<CaixasPage> {
               }
 
               if (boxes.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Nenhuma caixa cadastrada. Crie sua primeira caixa.',
-                      ),
-                      const SizedBox(height: UiTokens.s),
-                      FilledButton(
-                        onPressed: () => _openAddBoxPage(context),
-                        child: const Text('Criar caixa'),
-                      ),
-                    ],
-                  ),
+                return EmptyState(
+                  icon: Icons.inventory_2_outlined,
+                  title: 'Nenhuma caixa cadastrada',
+                  message:
+                      'Crie a primeira caixa para organizar os brinquedos da casa com mais leveza.',
+                  actionLabel: 'Criar caixa',
+                  onAction: () => _openAddBoxPage(context),
                 );
               }
 
@@ -597,24 +613,55 @@ class _CaixasPageState extends State<CaixasPage> {
 
                       return SingleChildScrollView(
                         padding: const EdgeInsets.only(bottom: 96),
-                        child: Wrap(
-                          spacing: UiTokens.s,
-                          runSpacing: UiTokens.s,
-                          children: List<Widget>.generate(boxes.length, (i) {
-                            final box = boxes[i];
-                            final count = toyCountByBoxId[box.id] ?? 0;
-                            final boxItems =
-                                toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
-                            return SizedBox(
-                              width: tileWidth,
-                              child: _buildBoxCard(
-                                context,
-                                box: box,
-                                count: count,
-                                boxItems: boxItems,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppSurfaceCard(
+                              padding: const EdgeInsets.all(UiTokens.spacingMd),
+                              color: UiTokens.primarySoft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Caixas da casa',
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: UiTokens.spacingXs),
+                                  Text(
+                                    'Visualize onde cada grupo est\u00e1 guardado e abra os brinquedos de forma mais organizada.',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
                               ),
-                            );
-                          }),
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            Wrap(
+                              spacing: UiTokens.s,
+                              runSpacing: UiTokens.s,
+                              children: List<Widget>.generate(boxes.length, (i) {
+                                final box = boxes[i];
+                                final count = toyCountByBoxId[box.id] ?? 0;
+                                final boxItems =
+                                    toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
+                                return SizedBox(
+                                  width: tileWidth,
+                                  child: _buildBoxCard(
+                                    context,
+                                    box: box,
+                                    count: count,
+                                    boxItems: boxItems,
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -629,6 +676,43 @@ class _CaixasPageState extends State<CaixasPage> {
         onPressed: () => _openAddBoxPage(context),
         icon: const Icon(Icons.add),
         label: const Text('Nova caixa'),
+      ),
+    );
+  }
+}
+
+class _BoxMetaChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _BoxMetaChip({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: UiTokens.spacingSm,
+        vertical: UiTokens.spacingXs,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: UiTokens.primaryStrong),
+          const SizedBox(width: UiTokens.spacingXs),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+        ],
       ),
     );
   }

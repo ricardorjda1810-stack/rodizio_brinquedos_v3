@@ -4,6 +4,8 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 
 class LocationsManagePage extends StatelessWidget {
   final ToyRepository toyRepository;
@@ -111,10 +113,12 @@ class LocationsManagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(title: const Text('Gerenciar locais')),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDialog(context),
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Novo local'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(UiTokens.m),
@@ -122,39 +126,115 @@ class LocationsManagePage extends StatelessWidget {
           stream: toyRepository.watchLocations(),
           builder: (context, snapshot) {
             final locations = snapshot.data ?? const <LocationDefinition>[];
-            if (snapshot.connectionState == ConnectionState.waiting && locations.isEmpty) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                locations.isEmpty) {
               return const Center(child: CircularProgressIndicator());
             }
             if (locations.isEmpty) {
-              return const Center(child: Text('Nenhum local.'));
+              return EmptyState(
+                icon: Icons.place_outlined,
+                title: 'Nenhum local cadastrado',
+                message:
+                    'Crie locais para deixar a organiza\u00e7\u00e3o da casa mais clara no cadastro das caixas e brinquedos.',
+                actionLabel: 'Novo local',
+                onAction: () => _showAddDialog(context),
+              );
             }
 
-            return ListView.separated(
-              itemCount: locations.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, index) {
-                final l = locations[index];
-                return ListTile(
-                  title: Text(l.name),
-                  subtitle: Text(l.id),
-                  trailing: Wrap(
-                    spacing: 4,
+            return ListView(
+              children: [
+                AppSurfaceCard(
+                  padding: const EdgeInsets.all(UiTokens.spacingLg),
+                  color: UiTokens.primarySoft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        tooltip: 'Editar',
-                        onPressed: () => _showRenameDialog(context, l),
-                        icon: const Icon(Icons.edit_outlined),
+                      Text(
+                        'Locais da casa',
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      IconButton(
-                        tooltip: 'Remover',
-                        onPressed: () => _remove(context, l),
-                        color: UiTokens.danger,
-                        icon: const Icon(Icons.delete_outline),
+                      const SizedBox(height: UiTokens.spacingXs),
+                      Text(
+                        'Use nomes simples e f\u00e1ceis de reconhecer para manter caixas e brinquedos sempre bem localizados.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: UiTokens.spacingMd),
+                ...locations.map((location) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: UiTokens.spacingSm),
+                    child: AppSurfaceCard(
+                      padding: const EdgeInsets.all(UiTokens.spacingMd),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: UiTokens.primarySoft,
+                              borderRadius:
+                                  BorderRadius.circular(UiTokens.radiusLg),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(
+                              Icons.place_outlined,
+                              color: UiTokens.primaryStrong,
+                            ),
+                          ),
+                          const SizedBox(width: UiTokens.spacingMd),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  location.name,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall,
+                                ),
+                                const SizedBox(height: UiTokens.spacingXs),
+                                Text(
+                                  'Sugest\u00e3o usada em caixas e brinquedos sem caixa.',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            tooltip: 'A\u00e7\u00f5es do local',
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showRenameDialog(context, location);
+                                return;
+                              }
+                              if (value == 'delete') {
+                                _remove(context, location);
+                              }
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem<String>(
+                                value: 'edit',
+                                child: Text('Editar'),
+                              ),
+                              PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Text('Remover'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
             );
           },
         ),

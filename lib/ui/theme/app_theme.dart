@@ -9,31 +9,31 @@ class AppTheme {
       brightness: Brightness.light,
       primary: UiTokens.primary,
       onPrimary: UiTokens.surface,
-      primaryContainer: Color(0xFFEAF3FC),
+      primaryContainer: UiTokens.primarySoft,
       onPrimaryContainer: UiTokens.textPrimary,
-      secondary: UiTokens.textSecondary,
+      secondary: UiTokens.primaryStrong,
       onSecondary: UiTokens.surface,
-      secondaryContainer: Color(0xFFEDE7DC),
+      secondaryContainer: UiTokens.secondarySoft,
       onSecondaryContainer: UiTokens.textPrimary,
-      tertiary: UiTokens.primary,
+      tertiary: UiTokens.warning,
       onTertiary: UiTokens.surface,
-      tertiaryContainer: Color(0xFFEAF3FC),
+      tertiaryContainer: Color(0xFFF7EFD9),
       onTertiaryContainer: UiTokens.textPrimary,
       error: UiTokens.danger,
       onError: UiTokens.surface,
-      errorContainer: Color(0xFFF9E3E1),
+      errorContainer: Color(0xFFF8EBE8),
       onErrorContainer: UiTokens.danger,
       surface: UiTokens.surface,
       onSurface: UiTokens.textPrimary,
-      surfaceContainerHighest: Color(0xFFF3EFE7),
+      surfaceContainerHighest: Color(0xFFF1F2EC),
       onSurfaceVariant: UiTokens.textSecondary,
       outline: UiTokens.border,
       outlineVariant: UiTokens.border,
-      shadow: Color(0x1A1E2630),
-      scrim: Color(0x661E2630),
+      shadow: UiTokens.shadow,
+      scrim: Color(0x66303A33),
       inverseSurface: UiTokens.textPrimary,
       onInverseSurface: UiTokens.surface,
-      inversePrimary: Color(0xFF9BC0EB),
+      inversePrimary: UiTokens.primarySoft,
     );
 
     final base = ThemeData(
@@ -51,7 +51,7 @@ class AppTheme {
     return base.copyWith(
       textTheme: textTheme,
       appBarTheme: const AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         backgroundColor: UiTokens.bg,
         foregroundColor: UiTokens.textPrimary,
         elevation: 0,
@@ -70,7 +70,6 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(UiTokens.radiusCard),
-          side: const BorderSide(color: UiTokens.border),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -85,11 +84,11 @@ class AppTheme {
       ),
       dividerTheme: const DividerThemeData(
         color: UiTokens.border,
-        thickness: 1,
+        thickness: 0.8,
         space: 1,
       ),
       inputDecorationTheme: InputDecorationTheme(
-        isDense: true,
+        isDense: false,
         filled: true,
         fillColor: scheme.surfaceContainerHighest,
         labelStyle: textTheme.bodySmall,
@@ -98,11 +97,11 @@ class AppTheme {
         errorStyle: textTheme.bodySmall?.copyWith(color: UiTokens.danger),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(UiTokens.radiusInput),
-          borderSide: const BorderSide(color: UiTokens.border),
+          borderSide: const BorderSide(color: UiTokens.border, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(UiTokens.radiusInput),
-          borderSide: const BorderSide(color: UiTokens.primary),
+          borderSide: const BorderSide(color: UiTokens.primaryStrong, width: 1.2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(UiTokens.radiusInput),
@@ -116,22 +115,26 @@ class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: UiTokens.textPrimary,
         contentTextStyle: textTheme.bodyMedium?.copyWith(color: UiTokens.surface),
-        actionTextColor: UiTokens.primary,
+        actionTextColor: UiTokens.primarySoft,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: UiTokens.primary,
+          backgroundColor: UiTokens.primaryStrong,
           foregroundColor: UiTokens.surface,
           disabledBackgroundColor: UiTokens.border,
           disabledForegroundColor: UiTokens.textSecondary,
           textStyle: UiTokens.textButton,
+          elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiTokens.radiusButton),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.l,
-            vertical: UiTokens.m,
+            vertical: 16,
           ),
         ),
       ),
@@ -147,7 +150,26 @@ class AppTheme {
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.l,
-            vertical: UiTokens.m,
+            vertical: 16,
+          ),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return UiTokens.primarySoft;
+            }
+            return UiTokens.surface;
+          }),
+          foregroundColor: WidgetStateProperty.all(UiTokens.textPrimary),
+          side: WidgetStateProperty.all(
+            const BorderSide(color: UiTokens.border),
+          ),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+            ),
           ),
         ),
       ),
@@ -161,7 +183,7 @@ class AppTheme {
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.l,
-            vertical: UiTokens.m,
+            vertical: 16,
           ),
         ),
       ),
@@ -178,6 +200,7 @@ class AppTheme {
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
           foregroundColor: UiTokens.textPrimary,
+          backgroundColor: UiTokens.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiTokens.radiusButton),
           ),
@@ -219,11 +242,11 @@ class AppTheme {
         textColor: UiTokens.textPrimary,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: UiTokens.surface,
-        selectedItemColor: UiTokens.primary,
+        backgroundColor: Colors.transparent,
+        selectedItemColor: UiTokens.primaryStrong,
         unselectedItemColor: UiTokens.textSecondary,
         type: BottomNavigationBarType.fixed,
-        elevation: 6,
+        elevation: 0,
       ),
     );
   }
@@ -328,13 +351,13 @@ class AppTheme {
       titleLarge: base.titleLarge?.copyWith(
         fontSize: UiTokens.appBarTitle,
         height: 1.2,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: UiTokens.textPrimary,
       ),
       titleMedium: base.titleMedium?.copyWith(
-        fontSize: UiTokens.cardTitle,
+        fontSize: 18,
         height: 1.2,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         color: UiTokens.textPrimary,
       ),
       titleSmall: base.titleSmall?.copyWith(

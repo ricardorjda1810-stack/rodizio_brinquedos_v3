@@ -72,7 +72,8 @@ class ToyRowItem extends StatelessWidget {
         if (showDivider)
           Container(
             height: 1,
-            color: UiTokens.border,
+            margin: const EdgeInsets.only(left: 64),
+            color: UiTokens.border.withValues(alpha: 0.7),
           ),
       ],
     );
@@ -97,7 +98,7 @@ class _ToyThumbnail extends StatelessWidget {
         width: thumbnailSize,
         height: thumbnailSize,
         decoration: BoxDecoration(
-          color: UiTokens.border.withValues(alpha: 0.35),
+          color: UiTokens.primarySoft,
           borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
         ),
         alignment: Alignment.center,
@@ -122,7 +123,7 @@ class _ToyThumbnail extends StatelessWidget {
             width: thumbnailSize,
             height: thumbnailSize,
             decoration: BoxDecoration(
-              color: UiTokens.border.withValues(alpha: 0.35),
+              color: UiTokens.primarySoft,
               borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
             ),
             alignment: Alignment.center,

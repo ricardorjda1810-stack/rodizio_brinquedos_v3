@@ -4,6 +4,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/toy_row_item.dart';
 
 class RodadaPage extends StatefulWidget {
@@ -27,7 +28,6 @@ class RodadaPage extends StatefulWidget {
 }
 
 class _RodadaPageState extends State<RodadaPage> {
-  static const double _radiusLg = 16.0;
   bool _startingRound = false;
 
   void _openToyDetail(String toyId) {
@@ -87,83 +87,119 @@ class _RodadaPageState extends State<RodadaPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: UiTokens.bg,
-      appBar: AppBar(
-        toolbarHeight: 56,
-        backgroundColor: UiTokens.bg.withValues(alpha: 0.96),
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        titleSpacing: UiTokens.spacingMd,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: colorScheme.outlineVariant,
-          ),
-        ),
-        title: Text(
-          'Rod\u00edzio',
-          style: UiTokens.textTitle.copyWith(
-            color: colorScheme.onSurface,
-          ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            tooltip: 'Mais op\u00e7\u00f5es',
-            onSelected: (value) {
-              if (value == 'toys') {
-                widget.onOpenBrinquedosTab();
-                return;
-              }
-              if (value == 'settings') {
-                widget.onOpenSettings();
-              }
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem<String>(
-                value: 'toys',
-                child: Text('Ver brinquedos'),
-              ),
-              PopupMenuItem<String>(
-                value: 'settings',
-                child: Text('Configura\u00e7\u00f5es'),
-              ),
-            ],
-            icon: Icon(
-              Icons.more_vert,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: StreamBuilder<List<RoundToyWithBox>>(
-          stream: widget.roundRepository.watchActiveRoundToysWithBox(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return StreamBuilder<List<RoundToyWithBox>>(
+      stream: widget.roundRepository.watchActiveRoundToysWithBox(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            final items = snapshot.data ?? const <RoundToyWithBox>[];
+        final items = snapshot.data ?? const <RoundToyWithBox>[];
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                UiTokens.spacingMd,
-                12,
-                UiTokens.spacingMd,
-                UiTokens.spacingMd,
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(
+            UiTokens.spacingMd,
+            0,
+            UiTokens.spacingMd,
+            UiTokens.spacing2xl + 88,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _HomeStatCard(
+                      icon: Icons.play_circle_outline,
+                      label: 'Rodada ativa',
+                      value: '${items.length}',
+                      helper: items.isEmpty ? 'nenhum item agora' : 'itens dispon\u00edveis',
+                    ),
+                  ),
+                  const SizedBox(width: UiTokens.spacingSm),
+                  Expanded(
+                    child: _HomeStatCard(
+                      icon: Icons.auto_awesome_outlined,
+                      label: 'Clima do dia',
+                      value: items.isEmpty ? 'Livre' : 'Pronto',
+                      helper: items.isEmpty ? 'organize com calma' : 'tudo separado',
+                    ),
+                  ),
+                ],
               ),
-              child: _RodadaMainCard(
-                radius: _radiusLg,
+              const SizedBox(height: UiTokens.spacingMd),
+              AppSurfaceCard(
+                padding: const EdgeInsets.all(UiTokens.spacingMd),
+                color: colorScheme.surface,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Rodada do momento',
+                            style: UiTokens.textSectionTitle.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: UiTokens.spacingXs),
+                          Text(
+                            items.isEmpty
+                                ? 'Escolha os brinquedos dispon\u00edveis e monte uma rodada simples para o dia.'
+                                : 'Abra a rodada, veja os itens ativos e acompanhe com toque leve.',
+                            style: UiTokens.textBody.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: UiTokens.spacingSm),
+                    PopupMenuButton<String>(
+                      tooltip: 'Mais op\u00e7\u00f5es',
+                      onSelected: (value) {
+                        if (value == 'toys') {
+                          widget.onOpenBrinquedosTab();
+                          return;
+                        }
+                        if (value == 'settings') {
+                          widget.onOpenSettings();
+                        }
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem<String>(
+                          value: 'toys',
+                          child: Text('Ver brinquedos'),
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'settings',
+                          child: Text('Configura\u00e7\u00f5es'),
+                        ),
+                      ],
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: UiTokens.primarySoft,
+                          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.more_horiz,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: UiTokens.spacingMd),
+              _RodadaMainCard(
                 itemCount: items.length,
                 child: items.isEmpty
                     ? _RodadaEmptyState(
-                        radius: _radiusLg,
                         onAction: _startingRound ? null : _startRound,
                         actionText: 'Criar rodada',
                       )
@@ -183,21 +219,83 @@ class _RodadaPageState extends State<RodadaPage> {
                         }),
                       ),
               ),
-            );
-          },
-        ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _HomeStatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final String helper;
+
+  const _HomeStatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.helper,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: UiTokens.primarySoft,
+              borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              icon,
+              size: 20,
+              color: UiTokens.primaryStrong,
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingMd),
+          Text(
+            label,
+            style: UiTokens.textCaption.copyWith(
+              color: colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Text(
+            value,
+            style: UiTokens.textTitle.copyWith(
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Text(
+            helper,
+            style: UiTokens.textCaption.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _RodadaMainCard extends StatelessWidget {
-  final double radius;
   final int itemCount;
   final Widget child;
 
   const _RodadaMainCard({
-    required this.radius,
     required this.itemCount,
     required this.child,
   });
@@ -207,76 +305,62 @@ class _RodadaMainCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Material(
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
       color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(radius),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(radius),
-          border: Border.all(color: colorScheme.outlineVariant),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.3 : 0.05,
-              ),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Rodada ativa',
-                    style: UiTokens.textBody.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: colorScheme.onSurface,
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Lista da rodada',
+                  style: UiTokens.textSectionTitle.copyWith(
+                    color: colorScheme.onSurface,
                   ),
                 ),
-                Text(
-                  '$itemCount ITENS',
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: UiTokens.spacingSm,
+                  vertical: UiTokens.spacingXs,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+                ),
+                child: Text(
+                  '$itemCount itens',
                   style: UiTokens.textCaption.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: UiTokens.spacingXs),
-            Text(
-              'Toque para ver detalhes.',
-              style: UiTokens.textBody.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: colorScheme.onSurfaceVariant,
               ),
+            ],
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Text(
+            'Tudo em uma lista limpa para consultar rapidinho.',
+            style: UiTokens.textBody.copyWith(
+              fontSize: 14,
+              color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 12),
-            child,
-          ],
-        ),
+          ),
+          const SizedBox(height: UiTokens.spacingMd),
+          child,
+        ],
       ),
     );
   }
 }
 
 class _RodadaEmptyState extends StatelessWidget {
-  final double radius;
   final VoidCallback? onAction;
   final String actionText;
 
   const _RodadaEmptyState({
-    required this.radius,
     required this.onAction,
     required this.actionText,
   });
@@ -291,36 +375,32 @@ class _RodadaEmptyState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
-              color: colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(radius),
+              color: UiTokens.primarySoft,
+              borderRadius: BorderRadius.circular(UiTokens.radiusLg),
             ),
             alignment: Alignment.center,
-            child: Icon(
+            child: const Icon(
               Icons.toys_outlined,
-              size: 28,
-              color: colorScheme.onSecondaryContainer,
+              size: 30,
+              color: UiTokens.primaryStrong,
             ),
           ),
           const SizedBox(height: UiTokens.spacingMd),
           Text(
             'Nenhuma rodada ativa',
             textAlign: TextAlign.center,
-            style: UiTokens.textBody.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            style: UiTokens.textSectionTitle.copyWith(
               color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: UiTokens.spacingSm),
           Text(
-            'Crie uma rodada para come\u00e7ar.',
+            'Crie uma rodada para come\u00e7ar com os brinquedos dispon\u00edveis.',
             textAlign: TextAlign.center,
-            style: UiTokens.textButton.copyWith(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
+            style: UiTokens.textBody.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),

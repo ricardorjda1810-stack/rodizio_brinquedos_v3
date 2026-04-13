@@ -10,6 +10,7 @@ import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 class BoxCreatePage extends StatefulWidget {
   final ToyRepository toyRepository;
@@ -90,8 +91,8 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
 
   String _previewName(int nextNumber, List<LocationDefinition> locations) {
     final localName = _resolveLocalToSave(locations);
-    if (localName.isEmpty) return 'Sera criada: Caixa $nextNumber';
-    return 'Sera criada: Caixa $nextNumber — $localName';
+    if (localName.isEmpty) return 'Ser\u00e1 criada: Caixa $nextNumber';
+    return 'Ser\u00e1 criada: Caixa $nextNumber - $localName';
   }
 
   Future<void> _pickPhoto(ImageSource source) async {
@@ -156,31 +157,36 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
     return InkWell(
       borderRadius: BorderRadius.circular(UiTokens.radiusCard),
       onTap: _saving ? null : _openPhotoOptions,
-      child: Card(
-        margin: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(UiTokens.radiusCard),
         child: AspectRatio(
           aspectRatio: 1,
           child: path.isEmpty
-              ? const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.photo_camera_outlined),
-                    SizedBox(height: UiTokens.xs),
-                    Text('Adicionar foto (opcional)'),
-                  ],
+              ? Container(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.photo_camera_outlined),
+                      SizedBox(height: UiTokens.xs),
+                      Text('Adicionar foto (opcional)'),
+                    ],
+                  ),
                 )
               : Image.file(
                   File(path),
                   fit: BoxFit.cover,
                   gaplessPlayback: true,
-                  errorBuilder: (_, __, ___) => const Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.broken_image_outlined),
-                      SizedBox(height: UiTokens.xs),
-                      Text('Falha ao carregar a foto'),
-                    ],
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.broken_image_outlined),
+                        SizedBox(height: UiTokens.xs),
+                        Text('Falha ao carregar a foto'),
+                      ],
+                    ),
                   ),
                 ),
         ),
@@ -191,6 +197,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(title: const Text('Nova caixa')),
       body: SafeArea(
         child: Padding(
@@ -214,139 +221,218 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
               return StreamBuilder<List<LocationDefinition>>(
                 stream: widget.toyRepository.watchLocations(),
                 builder: (context, snapshot) {
-                  final locations =
-                      snapshot.data ?? const <LocationDefinition>[];
+                  final locations = snapshot.data ?? const <LocationDefinition>[];
 
                   final selectedLocationId =
                       _selectedLocationId != null &&
-                          locations.any((l) => l.id == _selectedLocationId)
-                      ? _selectedLocationId
-                      : null;
+                              locations.any((l) => l.id == _selectedLocationId)
+                          ? _selectedLocationId
+                          : null;
                   if (selectedLocationId == null &&
                       _selectedLocationId != null) {
                     _selectedLocationId = null;
                   }
 
-                  final extraLocalFilled = _extraLocalController.text
-                      .trim()
-                      .isNotEmpty;
-                  final canSave =
-                      !_saving &&
+                  final extraLocalFilled =
+                      _extraLocalController.text.trim().isNotEmpty;
+                  final canSave = !_saving &&
                       (locations.isEmpty ||
                           extraLocalFilled ||
                           _selectedLocationId != null);
 
                   return ListView(
+                    padding: const EdgeInsets.only(bottom: UiTokens.spacingLg),
                     children: [
-                      _buildPhotoArea(),
-                      const SizedBox(height: UiTokens.m),
-                      TextFormField(
-                        initialValue: 'Caixa $nextNumber',
-                        readOnly: true,
-                        decoration: const InputDecoration(labelText: 'Nome'),
-                      ),
-                      const SizedBox(height: UiTokens.xs),
-                      Text(
-                        _previewName(nextNumber, locations),
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(height: UiTokens.m),
-                      if (locations.isNotEmpty)
-                        DropdownButtonFormField<String>(
-                          key: ValueKey(selectedLocationId),
-                          initialValue: selectedLocationId,
-                          decoration: const InputDecoration(
-                            labelText: 'Localizacao da Caixa',
-                            hintText: 'Selecione um local',
-                          ),
-                          items: locations
-                              .map(
-                                (l) => DropdownMenuItem<String>(
-                                  value: l.id,
-                                  child: Text(l.name),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: _saving
-                              ? null
-                              : (value) =>
-                                    setState(() => _selectedLocationId = value),
-                        ),
-                      if (locations.isNotEmpty)
-                        const SizedBox(height: UiTokens.s),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: OutlinedButton(
-                          onPressed: _saving
-                              ? null
-                              : () => setState(
-                                  () => _showExtraLocal = !_showExtraLocal,
-                                ),
-                          child: Text(
-                            _showExtraLocal
-                                ? 'Ocultar local extra'
-                                : 'Local extra',
-                          ),
-                        ),
-                      ),
-                      if (_showExtraLocal) ...[
-                        const SizedBox(height: UiTokens.s),
-                        TextField(
-                          controller: _extraLocalController,
-                          enabled: !_saving,
-                          decoration: const InputDecoration(
-                            labelText: 'Local extra (manual)',
-                            hintText: 'Ex.: Sala do fundo',
-                          ),
-                          onChanged: (_) => setState(() {}),
-                        ),
-                      ],
-                      const SizedBox(height: UiTokens.s),
-                      TextField(
-                        controller: _notesController,
-                        enabled: !_saving,
-                        minLines: 2,
-                        maxLines: 4,
-                        maxLength: 120,
-                        inputFormatters: [
-                          LengthLimitingTextInputFormatter(120),
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: 'Informacoes importantes (opcional)',
-                          hintText: 'Ex.: pecas pequenas na parte de cima',
-                        ),
-                      ),
-                      const SizedBox(height: UiTokens.s),
-                      if (locations.isEmpty)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingLg),
+                        color: UiTokens.primarySoft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Nenhum local cadastrado. Voce pode salvar sem local ou cadastrar locais nas Configuracoes.',
+                            Text(
+                              'Organizar uma nova caixa',
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                            const SizedBox(height: UiTokens.s),
-                            OutlinedButton.icon(
-                              onPressed: _saving
-                                  ? null
-                                  : () async {
-                                      await Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => LocationsManagePage(
-                                            toyRepository: widget.toyRepository,
-                                            settingsRepository:
-                                                widget.settingsRepository,
-                                          ),
-                                        ),
-                                      );
-                                      if (!mounted) return;
-                                      setState(() {});
-                                    },
-                              icon: const Icon(Icons.place_outlined),
-                              label: const Text('Gerenciar locais'),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              'Defina foto, local e observa\u00e7\u00f5es para manter a organiza\u00e7\u00e3o da casa simples e clara.',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ),
-                      const SizedBox(height: UiTokens.m),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Foto da caixa',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              'Opcional, mas ajuda muito na identifica\u00e7\u00e3o visual.',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            _buildPhotoArea(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Dados principais',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            TextFormField(
+                              initialValue: 'Caixa $nextNumber',
+                              readOnly: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Nome',
+                              ),
+                            ),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              _previewName(nextNumber, locations),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            if (locations.isNotEmpty)
+                              DropdownButtonFormField<String>(
+                                key: ValueKey(selectedLocationId),
+                                initialValue: selectedLocationId,
+                                decoration: const InputDecoration(
+                                  labelText: 'Localiza\u00e7\u00e3o da caixa',
+                                  hintText: 'Selecione um local',
+                                ),
+                                items: locations
+                                    .map(
+                                      (l) => DropdownMenuItem<String>(
+                                        value: l.id,
+                                        child: Text(l.name),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: _saving
+                                    ? null
+                                    : (value) => setState(
+                                          () => _selectedLocationId = value,
+                                        ),
+                              ),
+                            if (locations.isNotEmpty)
+                              const SizedBox(height: UiTokens.s),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: OutlinedButton(
+                                onPressed: _saving
+                                    ? null
+                                    : () => setState(
+                                          () => _showExtraLocal = !_showExtraLocal,
+                                        ),
+                                child: Text(
+                                  _showExtraLocal
+                                      ? 'Ocultar local extra'
+                                      : 'Local extra',
+                                ),
+                              ),
+                            ),
+                            if (_showExtraLocal) ...[
+                              const SizedBox(height: UiTokens.s),
+                              TextField(
+                                controller: _extraLocalController,
+                                enabled: !_saving,
+                                decoration: const InputDecoration(
+                                  labelText: 'Local extra (manual)',
+                                  hintText: 'Ex.: Sala do fundo',
+                                ),
+                                onChanged: (_) => setState(() {}),
+                              ),
+                            ],
+                            const SizedBox(height: UiTokens.s),
+                            TextField(
+                              controller: _notesController,
+                              enabled: !_saving,
+                              minLines: 2,
+                              maxLines: 4,
+                              maxLength: 120,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(120),
+                              ],
+                              decoration: const InputDecoration(
+                                labelText: 'Informacoes importantes (opcional)',
+                                hintText: 'Ex.: pecas pequenas na parte de cima',
+                              ),
+                            ),
+                            if (locations.isEmpty) ...[
+                              const SizedBox(height: UiTokens.spacingSm),
+                              Container(
+                                padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  borderRadius:
+                                      BorderRadius.circular(UiTokens.radiusLg),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Nenhum local cadastrado',
+                                      style:
+                                          Theme.of(context).textTheme.titleSmall,
+                                    ),
+                                    const SizedBox(height: UiTokens.spacingXs),
+                                    Text(
+                                      'Voc\u00ea pode salvar sem local ou cadastrar locais nas Configura\u00e7\u00f5es.',
+                                      style:
+                                          Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                    const SizedBox(height: UiTokens.spacingSm),
+                                    OutlinedButton.icon(
+                                      onPressed: _saving
+                                          ? null
+                                          : () async {
+                                              await Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      LocationsManagePage(
+                                                    toyRepository:
+                                                        widget.toyRepository,
+                                                    settingsRepository:
+                                                        widget.settingsRepository,
+                                                  ),
+                                                ),
+                                              );
+                                              if (!mounted) return;
+                                              setState(() {});
+                                            },
+                                      icon: const Icon(Icons.place_outlined),
+                                      label: const Text('Gerenciar locais'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
                       FilledButton.icon(
                         onPressed: canSave ? () => _save(locations) : null,
                         icon: const Icon(Icons.save_outlined),

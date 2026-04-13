@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_shell_header.dart';
 import 'brinquedos_page.dart' as brinquedos;
 import 'caixas_page.dart';
 import 'rodada_page.dart';
@@ -30,9 +33,9 @@ class _MainShellState extends State<MainShell> {
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
   static const List<String> _titles = <String>[
-    'Rodizio',
+    'Rod\u00edzio',
     'Brinquedos',
-    'Caixas'
+    'Caixas',
   ];
 
   void _goTo(int index) {
@@ -63,40 +66,74 @@ class _MainShellState extends State<MainShell> {
     return DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(DateTime.now());
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _currentIndex == 0
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(_titles[_currentIndex]),
-                  Text(
-                    _currentDatePtBr(),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              )
-            : Text(_titles[_currentIndex]),
-        actions: [
-          IconButton(
-            tooltip: 'Configuracoes',
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: _openSettings,
+  Widget _buildHomeHeader() {
+    return AppShellHeader(
+      eyebrow: 'ROTINA DA CASA',
+      title: 'Tudo pronto para brincar com calma',
+      subtitle:
+          'Organize a rodada do dia, acompanhe os brinquedos ativos e mantenha a casa leve para usar.',
+      actions: [
+        AppShellHeaderAction(
+          icon: Icons.settings_outlined,
+          tooltip: 'Configura\u00e7\u00f5es',
+          onTap: _openSettings,
+        ),
+      ],
+      bottom: Wrap(
+        spacing: UiTokens.spacingSm,
+        runSpacing: UiTokens.spacingSm,
+        children: [
+          _HeaderChip(
+            icon: Icons.calendar_today_outlined,
+            label: _currentDatePtBr(),
+          ),
+          const _HeaderChip(
+            icon: Icons.favorite_border,
+            label: 'Visual simples e acolhedor',
           ),
         ],
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildStandardAppBar(BuildContext context) {
+    return AppBar(
+      title: Text(_titles[_currentIndex]),
+      actions: [
+        IconButton(
+          tooltip: 'Configura\u00e7\u00f5es',
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: _openSettings,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: UiTokens.bg,
+      extendBody: true,
+      appBar: _currentIndex == 0 ? null : _buildStandardAppBar(context),
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          RodadaPage(
-            roundRepository: widget.roundRepository,
-            toyRepository: widget.toyRepository,
-            onOpenRodizioTab: () => _goTo(0),
-            onOpenBrinquedosTab: () => _goTo(1),
-            onOpenSettings: _openSettings,
+          SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                _buildHomeHeader(),
+                Expanded(
+                  child: RodadaPage(
+                    roundRepository: widget.roundRepository,
+                    toyRepository: widget.toyRepository,
+                    onOpenRodizioTab: () => _goTo(0),
+                    onOpenBrinquedosTab: () => _goTo(1),
+                    onOpenSettings: _openSettings,
+                  ),
+                ),
+              ],
+            ),
           ),
           brinquedos.BrinquedosPage(
             toyRepository: widget.toyRepository,
@@ -113,21 +150,49 @@ class _MainShellState extends State<MainShell> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: AppBottomNavigation(
         currentIndex: _currentIndex,
         onTap: _goTo,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
+      ),
+    );
+  }
+}
+
+class _HeaderChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _HeaderChip({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: UiTokens.spacingSm,
+        vertical: UiTokens.spacingSm,
+      ),
+      decoration: BoxDecoration(
+        color: UiTokens.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: UiTokens.primaryStrong,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.toys_outlined),
-            label: 'Brinquedos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2_outlined),
-            label: 'Caixas',
+          const SizedBox(width: UiTokens.spacingXs),
+          Text(
+            label,
+            style: UiTokens.textCaption.copyWith(
+              color: UiTokens.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+
 typedef CategoryIdGetter<T> = String Function(T category);
 typedef CategoryNameGetter<T> = String Function(T category);
 typedef CategoryExamplesGetter<T> = String? Function(T category);
@@ -34,7 +36,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: UiTokens.spacingSm,
         mainAxisSpacing: UiTokens.spacingSm,
-        mainAxisExtent: 88,
+        mainAxisExtent: 104,
       ),
       itemBuilder: (context, i) {
         final category = categories[i];
@@ -72,7 +74,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalizedExamples = (examplesText ?? '').trim();
     final subtitle = normalizedExamples.isEmpty
-        ? 'Exemplos nÃ£o definidos.'
+        ? 'Exemplos ainda n\u00e3o definidos.'
         : 'Ex.: $normalizedExamples';
 
     return Material(
@@ -83,10 +85,19 @@ class _CategoryQuickPickerCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(UiTokens.spacingMd),
           decoration: BoxDecoration(
-            color: selected ? UiTokens.playfulSoft : UiTokens.surface,
+            color: selected ? UiTokens.primarySoft : UiTokens.surface,
             borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+            boxShadow: selected
+                ? const [
+                    BoxShadow(
+                      color: UiTokens.shadow,
+                      blurRadius: 14,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
             border: Border.all(
-              color: selected ? UiTokens.primary : UiTokens.border,
+              color: selected ? UiTokens.primaryStrong : UiTokens.border,
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -110,7 +121,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                     const Icon(
                       Icons.check_circle,
                       size: 18,
-                      color: UiTokens.primary,
+                      color: UiTokens.primaryStrong,
                     ),
                 ],
               ),

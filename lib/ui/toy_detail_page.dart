@@ -1,4 +1,3 @@
-// lib/ui/toy_detail_page.dart
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 const String _toyBoxNoSelectionValue = '__sem_selecao_caixa__';
 const String _toyBoxWithoutBoxValue = '__sem_caixa__';
@@ -243,9 +243,7 @@ class ToyDetailPage extends StatelessWidget {
               ],
               onChanged: (value) {
                 setDialogState(
-                  () =>
-                      selectedBoxSelection =
-                          value ?? _toyBoxNoSelectionValue,
+                  () => selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
                 );
               },
             ),
@@ -360,7 +358,7 @@ class ToyDetailPage extends StatelessWidget {
     final p = (path ?? '').trim();
     if (p.isEmpty) {
       return Container(
-        color: UiTokens.playfulSoft,
+        color: UiTokens.primarySoft,
         child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
       );
     }
@@ -371,7 +369,7 @@ class ToyDetailPage extends StatelessWidget {
       gaplessPlayback: true,
       errorBuilder: (_, __, ___) {
         return Container(
-          color: UiTokens.playfulSoft,
+          color: UiTokens.primarySoft,
           child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
         );
       },
@@ -380,13 +378,10 @@ class ToyDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return StreamBuilder<List<CategoryDefinition>>(
       stream: toyRepository.watchCategories(),
       builder: (context, categoriesSnapshot) {
-        final categories =
-            categoriesSnapshot.data ?? const <CategoryDefinition>[];
+        final categories = categoriesSnapshot.data ?? const <CategoryDefinition>[];
 
         return StreamBuilder<ToyWithBox?>(
           stream: toyRepository.watchToyWithBox(toyId: toyId),
@@ -404,8 +399,7 @@ class ToyDetailPage extends StatelessWidget {
                 : 'Caixa ${box.number} - ${box.local}';
             final locationText = (data?.toy.locationText ?? '').trim();
             final categoryId = (data?.toy.categoryId ?? '').trim();
-            final categoryLabel =
-                categories
+            final categoryLabel = categories
                     .where((c) => c.id == categoryId)
                     .map((c) => c.name.trim())
                     .cast<String?>()
@@ -417,11 +411,11 @@ class ToyDetailPage extends StatelessWidget {
             final effectiveLocationLabel = box != null
                 ? (box.local.trim().isEmpty ? 'Sem local' : box.local.trim())
                 : (locationText.isEmpty ? 'Sem local' : locationText);
-            final locationFieldLabel = box != null
-                ? 'Local da caixa'
-                : 'Local fora da caixa';
+            final locationFieldLabel =
+                box != null ? 'Local da caixa' : 'Local fora da caixa';
 
             return Scaffold(
+              backgroundColor: UiTokens.bg,
               appBar: AppBar(title: Text(title)),
               body: SafeArea(
                 child: SingleChildScrollView(
@@ -429,190 +423,216 @@ class ToyDetailPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: Card(
-                          child: InkWell(
-                            onTap: photoPath == null || photoPath.trim().isEmpty
-                                ? null
-                                : () => _openPhotoViewer(
-                                    context,
-                                    photoPath: photoPath,
-                                    title: title,
-                                    boxLabel: boxLabel,
-                                    categoryLabel: categoryLabel,
-                                    locationFieldLabel: locationFieldLabel,
-                                    locationLabel: effectiveLocationLabel,
-                                  ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                UiTokens.radiusCard,
-                              ),
-                              child: _photoOrPlaceholder(context, photoPath),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: UiTokens.m),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(UiTokens.m),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Nome', style: textTheme.bodySmall),
-                              const SizedBox(height: UiTokens.xs),
-                              Row(
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingLg),
+                        color: UiTokens.primarySoft,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      title,
-                                      style: textTheme.bodyMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                  Text(
+                                    title,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
-                                  PopupMenuButton<String>(
-                                    tooltip: 'Acoes do brinquedo',
-                                    onSelected: (value) {
-                                      if (data == null) return;
-                                      if (value == _detailsMenuRename) {
-                                        _renameToy(context, data.toy.name);
-                                        return;
-                                      }
-                                      if (value == _detailsMenuCategory) {
-                                        _editToyCategory(
-                                          context,
-                                          currentCategoryId: data.toy.categoryId,
-                                        );
-                                        return;
-                                      }
-                                      if (value == _detailsMenuBox) {
-                                        _editToyBox(
-                                          context,
-                                          currentBoxId: data.toy.boxId,
-                                        );
-                                        return;
-                                      }
-                                      if (value == _detailsMenuDelete) {
-                                        _deleteToy(context);
-                                      }
-                                    },
-                                    itemBuilder: (context) => const [
-                                      PopupMenuItem<String>(
-                                        value: _detailsMenuRename,
-                                        child: Text('Editar nome'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: _detailsMenuCategory,
-                                        child: Text('Editar categoria'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: _detailsMenuBox,
-                                        child: Text('Editar caixa'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: _detailsMenuDelete,
-                                        child: Text('Excluir brinquedo'),
-                                      ),
-                                    ],
+                                  const SizedBox(height: UiTokens.spacingXs),
+                                  Text(
+                                    'Uma vis\u00e3o simples e organizada das informa\u00e7\u00f5es principais.',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: UiTokens.m),
-                              Text('Caixa', style: textTheme.bodySmall),
-                              const SizedBox(height: UiTokens.xs),
-                              Text(
-                                boxLabel,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: UiTokens.textMuted,
+                            ),
+                            const SizedBox(width: UiTokens.spacingSm),
+                            PopupMenuButton<String>(
+                              tooltip: 'A\u00e7\u00f5es do brinquedo',
+                              onSelected: (value) {
+                                if (data == null) return;
+                                if (value == _detailsMenuRename) {
+                                  _renameToy(context, data.toy.name);
+                                  return;
+                                }
+                                if (value == _detailsMenuCategory) {
+                                  _editToyCategory(
+                                    context,
+                                    currentCategoryId: data.toy.categoryId,
+                                  );
+                                  return;
+                                }
+                                if (value == _detailsMenuBox) {
+                                  _editToyBox(
+                                    context,
+                                    currentBoxId: data.toy.boxId,
+                                  );
+                                  return;
+                                }
+                                if (value == _detailsMenuDelete) {
+                                  _deleteToy(context);
+                                }
+                              },
+                              itemBuilder: (context) => const [
+                                PopupMenuItem<String>(
+                                  value: _detailsMenuRename,
+                                  child: Text('Editar nome'),
                                 ),
-                              ),
-                              const SizedBox(height: UiTokens.m),
-                              Text('Categoria', style: textTheme.bodySmall),
-                              const SizedBox(height: UiTokens.xs),
-                              Text(
-                                categoryLabel,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: UiTokens.textMuted,
+                                PopupMenuItem<String>(
+                                  value: _detailsMenuCategory,
+                                  child: Text('Editar categoria'),
                                 ),
-                              ),
-                              const SizedBox(height: UiTokens.m),
-                              Text(
-                                box != null
-                                    ? 'Local da caixa'
-                                    : 'Local sem caixa',
-                                style: textTheme.bodySmall,
-                              ),
-                              const SizedBox(height: UiTokens.xs),
-                              Text(
-                                effectiveLocationLabel,
-                                style: textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: UiTokens.textMuted,
+                                PopupMenuItem<String>(
+                                  value: _detailsMenuBox,
+                                  child: Text('Editar caixa'),
                                 ),
+                                PopupMenuItem<String>(
+                                  value: _detailsMenuDelete,
+                                  child: Text('Excluir brinquedo'),
+                                ),
+                              ],
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: UiTokens.surface.withValues(alpha: 0.8),
+                                  borderRadius:
+                                      BorderRadius.circular(UiTokens.radiusLg),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.more_horiz),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: UiTokens.m),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(UiTokens.m),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'Foto',
-                                      style: textTheme.titleMedium,
+                      const SizedBox(height: UiTokens.spacingMd),
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Foto',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            AspectRatio(
+                              aspectRatio: 1,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  UiTokens.radiusCard,
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: photoPath == null || photoPath.trim().isEmpty
+                                        ? null
+                                        : () => _openPhotoViewer(
+                                              context,
+                                              photoPath: photoPath,
+                                              title: title,
+                                              boxLabel: boxLabel,
+                                              categoryLabel: categoryLabel,
+                                              locationFieldLabel:
+                                                  locationFieldLabel,
+                                              locationLabel:
+                                                  effectiveLocationLabel,
+                                            ),
+                                    child: _photoOrPlaceholder(
+                                      context,
+                                      photoPath,
                                     ),
                                   ),
-                                  PopupMenuButton<String>(
-                                    tooltip: 'Acoes da foto',
-                                    onSelected: (value) {
-                                      if (value == _photoMenuCamera) {
-                                        _pick(context, ImageSource.camera);
-                                        return;
-                                      }
-                                      if (value == _photoMenuGallery) {
-                                        _pick(context, ImageSource.gallery);
-                                        return;
-                                      }
-                                      if (value == _photoMenuRemove) {
-                                        _remove(context);
-                                      }
-                                    },
-                                    itemBuilder: (context) => const [
-                                      PopupMenuItem<String>(
-                                        value: _photoMenuCamera,
-                                        child: Text('Tirar foto'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: _photoMenuGallery,
-                                        child: Text('Escolher da galeria'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: _photoMenuRemove,
-                                        child: Text('Remover foto'),
-                                      ),
-                                    ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: UiTokens.spacingSm),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Toque na foto para abrir em destaque.',
+                                    style: Theme.of(context).textTheme.bodySmall,
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: UiTokens.xs),
-                              Text(
-                                'Use o menu para tirar, trocar ou remover a foto do brinquedo.',
-                                style: textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
+                                ),
+                                PopupMenuButton<String>(
+                                  tooltip: 'A\u00e7\u00f5es da foto',
+                                  onSelected: (value) {
+                                    if (value == _photoMenuCamera) {
+                                      _pick(context, ImageSource.camera);
+                                      return;
+                                    }
+                                    if (value == _photoMenuGallery) {
+                                      _pick(context, ImageSource.gallery);
+                                      return;
+                                    }
+                                    if (value == _photoMenuRemove) {
+                                      _remove(context);
+                                    }
+                                  },
+                                  itemBuilder: (context) => const [
+                                    PopupMenuItem<String>(
+                                      value: _photoMenuCamera,
+                                      child: Text('Tirar foto'),
+                                    ),
+                                    PopupMenuItem<String>(
+                                      value: _photoMenuGallery,
+                                      child: Text('Escolher da galeria'),
+                                    ),
+                                    PopupMenuItem<String>(
+                                      value: _photoMenuRemove,
+                                      child: Text('Remover foto'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Informa\u00e7\u00f5es',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            _InfoBlock(
+                              label: 'Nome',
+                              value: title,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            _InfoBlock(
+                              label: 'Caixa',
+                              value: boxLabel,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            _InfoBlock(
+                              label: 'Categoria',
+                              value: categoryLabel,
+                              accent: true,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            _InfoBlock(
+                              label: box != null
+                                  ? 'Local da caixa'
+                                  : 'Local sem caixa',
+                              value: effectiveLocationLabel,
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -623,6 +643,49 @@ class ToyDetailPage extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _InfoBlock extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool accent;
+
+  const _InfoBlock({
+    required this.label,
+    required this.value,
+    this.accent = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: UiTokens.spacingXs),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(UiTokens.spacingMd),
+          decoration: BoxDecoration(
+            color: accent ? UiTokens.primarySoft : colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+          ),
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: accent ? UiTokens.primaryStrong : colorScheme.onSurface,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/category_quick_picker.dart';
 
 class ToyCreatePage extends StatefulWidget {
@@ -34,6 +35,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   static const String _locationRequiredMessage =
       'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
   static String? _lastCategoryId;
+
   String? _selectedCategoryId;
   String? _selectedBoxSelection;
   String? _selectedLooseLocation;
@@ -200,8 +202,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   @override
   Widget build(BuildContext context) {
     final showLocal = _isWithoutBoxSelected;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(title: const Text('Novo brinquedo')),
       body: SafeArea(
         child: Padding(
@@ -273,206 +277,303 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 bottom: UiTokens.m,
                               ),
                               children: [
-                                AspectRatio(
-                                  aspectRatio: 1,
-                                  child: Card(
-                                    clipBehavior: Clip.antiAlias,
-                                    child: _photoPreview(),
-                                  ),
-                                ),
-                                const SizedBox(height: UiTokens.s),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: _saving
-                                            ? null
-                                            : () async {
-                                                await HapticFeedback.selectionClick();
-                                                await _pickImage(
-                                                  ImageSource.camera,
-                                                );
-                                              },
-                                        icon: const Icon(
-                                          Icons.photo_camera_outlined,
-                                        ),
-                                        label: const Text('Câmera'),
+                                AppSurfaceCard(
+                                  padding: const EdgeInsets.all(UiTokens.spacingLg),
+                                  color: UiTokens.primarySoft,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Cadastrar com calma',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium,
                                       ),
-                                    ),
-                                    const SizedBox(width: UiTokens.s),
-                                    Expanded(
-                                      child: OutlinedButton.icon(
-                                        onPressed: _saving
-                                            ? null
-                                            : () async {
-                                                await HapticFeedback.selectionClick();
-                                                await _pickImage(
-                                                  ImageSource.gallery,
-                                                );
-                                              },
-                                        icon: const Icon(
-                                          Icons.photo_library_outlined,
-                                        ),
-                                        label: const Text('Galeria'),
+                                      const SizedBox(height: UiTokens.spacingXs),
+                                      Text(
+                                        'Escolha a foto, marque a categoria principal e indique onde o brinquedo fica guardado.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              color: colorScheme.onSurfaceVariant,
+                                            ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: UiTokens.m),
-                                Text(
-                                  'Qual o estímulo principal?',
-                                  style: UiTokens.textBody.copyWith(
-                                    fontWeight: FontWeight.w600,
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: UiTokens.spacingXs),
-                                Text(
-                                  'Dica: escolha só 1 (o mais forte).',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                const SizedBox(height: UiTokens.spacingSm),
-                                CategoryQuickPicker<CategoryDefinition>(
-                                  categories: categoriesSorted,
-                                  selectedId: _selectedCategoryId,
-                                  disabled: _saving,
-                                  getId: (c) => c.id,
-                                  getName: (c) => c.name,
-                                  getExamples: (c) => c.examples,
-                                  onSelected: (id) =>
-                                      setState(() => _selectedCategoryId = id),
-                                ),
-                                if (_selectedCategoryId == null) ...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Obrigatório.',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
-                                  ),
-                                ],
-                                const SizedBox(height: UiTokens.m),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: DropdownButtonFormField<String?>(
-                                        initialValue: _selectedBoxSelection,
-                                        decoration: InputDecoration(
-                                          labelText: 'Caixa',
-                                          errorText:
-                                              _boxSelectionTouched &&
-                                                  !_hasExplicitBoxSelection
-                                              ? _locationRequiredMessage
-                                              : null,
+                                const SizedBox(height: UiTokens.spacingMd),
+                                AppSurfaceCard(
+                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Foto do brinquedo',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingXs),
+                                      Text(
+                                        'A foto aparece primeiro e ajuda a reconhecer tudo mais r\u00e1pido.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingMd),
+                                      AspectRatio(
+                                        aspectRatio: 1,
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            UiTokens.radiusCard,
+                                          ),
+                                          child: _photoPreview(),
                                         ),
-                                        items: <DropdownMenuItem<String?>>[
-                                          const DropdownMenuItem<String?>(
-                                            value: null,
-                                            child: Text(
-                                              'Selecione uma caixa ou "Sem caixa"',
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingSm),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: OutlinedButton.icon(
+                                              onPressed: _saving
+                                                  ? null
+                                                  : () async {
+                                                      await HapticFeedback
+                                                          .selectionClick();
+                                                      await _pickImage(
+                                                        ImageSource.camera,
+                                                      );
+                                                    },
+                                              icon: const Icon(
+                                                Icons.photo_camera_outlined,
+                                              ),
+                                              label:
+                                                  const Text('C\u00e2mera'),
                                             ),
                                           ),
-                                          const DropdownMenuItem<String?>(
-                                            value: _noBoxOptionValue,
-                                            child: Text('Sem caixa'),
-                                          ),
-                                          ...boxes.map(
-                                            (b) => DropdownMenuItem<String?>(
-                                              value: b.id,
-                                              child: Text(
-                                                'Caixa ${b.number} - ${b.local}',
+                                          const SizedBox(width: UiTokens.s),
+                                          Expanded(
+                                            child: OutlinedButton.icon(
+                                              onPressed: _saving
+                                                  ? null
+                                                  : () async {
+                                                      await HapticFeedback
+                                                          .selectionClick();
+                                                      await _pickImage(
+                                                        ImageSource.gallery,
+                                                      );
+                                                    },
+                                              icon: const Icon(
+                                                Icons.photo_library_outlined,
                                               ),
+                                              label:
+                                                  const Text('Galeria'),
                                             ),
                                           ),
                                         ],
-                                        onChanged: _saving
-                                            ? null
-                                            : (v) => setState(
-                                                () {
-                                                  _selectedBoxSelection = v;
-                                                  _boxSelectionTouched = true;
-                                                  if (!_isWithoutBoxSelected) {
-                                                    _selectedLooseLocation =
-                                                        null;
-                                                  }
-                                                },
-                                              ),
                                       ),
-                                    ),
-                                    const SizedBox(width: UiTokens.s),
-                                    IconButton(
-                                      tooltip: 'Criar caixa',
-                                      onPressed: _saving
-                                          ? null
-                                          : () async {
-                                              await _createBox();
-                                            },
-                                      icon: const Icon(Icons.add_box_outlined),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                                AnimatedSize(
-                                  duration: _localFieldAnimationDuration,
-                                  curve: Curves.easeOut,
-                                  alignment: Alignment.topCenter,
-                                  child: AnimatedSwitcher(
-                                    duration: _localFieldAnimationDuration,
-                                    switchInCurve: Curves.easeOut,
-                                    switchOutCurve: Curves.easeOut,
-                                    transitionBuilder: (child, animation) {
-                                      final offset = Tween<Offset>(
-                                        begin: const Offset(0, -0.03),
-                                        end: Offset.zero,
-                                      ).animate(animation);
-                                      return FadeTransition(
-                                        opacity: animation,
-                                        child: SlideTransition(
-                                          position: offset,
-                                          child: child,
+                                const SizedBox(height: UiTokens.spacingMd),
+                                AppSurfaceCard(
+                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Categoria principal',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingXs),
+                                      Text(
+                                        'Escolha s\u00f3 uma: a que melhor representa o est\u00edmulo principal.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingMd),
+                                      CategoryQuickPicker<CategoryDefinition>(
+                                        categories: categoriesSorted,
+                                        selectedId: _selectedCategoryId,
+                                        disabled: _saving,
+                                        getId: (c) => c.id,
+                                        getName: (c) => c.name,
+                                        getExamples: (c) => c.examples,
+                                        onSelected: (id) => setState(
+                                          () => _selectedCategoryId = id,
                                         ),
-                                      );
-                                    },
-                                    child: showLocal
-                                        ? Padding(
-                                            key: const ValueKey('local-field'),
-                                            padding: const EdgeInsets.only(
-                                              top: UiTokens.m,
-                                            ),
-                                            child: DropdownButtonFormField<String?>(
-                                              initialValue:
-                                                  _selectedLooseLocation,
-                                              decoration: const InputDecoration(
-                                                labelText: 'Local',
+                                      ),
+                                      if (_selectedCategoryId == null) ...[
+                                        const SizedBox(height: UiTokens.spacingSm),
+                                        Text(
+                                          'Obrigat\u00f3rio.',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: UiTokens.warning,
+                                                fontWeight: FontWeight.w700,
                                               ),
-                                              items:
-                                                  <DropdownMenuItem<String?>>[
-                                                    const DropdownMenuItem<
-                                                      String?
-                                                    >(
-                                                      value: null,
-                                                      child: Text('Sem local'),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: UiTokens.spacingMd),
+                                AppSurfaceCard(
+                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Onde guardar',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingXs),
+                                      Text(
+                                        'Voc\u00ea pode deixar em uma caixa ou marcar como item sem caixa.',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
+                                      ),
+                                      const SizedBox(height: UiTokens.spacingMd),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: DropdownButtonFormField<String?>(
+                                              initialValue: _selectedBoxSelection,
+                                              decoration: InputDecoration(
+                                                labelText: 'Caixa',
+                                                errorText:
+                                                    _boxSelectionTouched &&
+                                                            !_hasExplicitBoxSelection
+                                                        ? _locationRequiredMessage
+                                                        : null,
+                                              ),
+                                              items: <DropdownMenuItem<String?>>[
+                                                const DropdownMenuItem<String?>(
+                                                  value: null,
+                                                  child: Text(
+                                                    'Selecione uma caixa ou "Sem caixa"',
+                                                  ),
+                                                ),
+                                                const DropdownMenuItem<String?>(
+                                                  value: _noBoxOptionValue,
+                                                  child: Text('Sem caixa'),
+                                                ),
+                                                ...boxes.map(
+                                                  (b) => DropdownMenuItem<String?>(
+                                                    value: b.id,
+                                                    child: Text(
+                                                      'Caixa ${b.number} - ${b.local}',
                                                     ),
-                                                    ...locations.map(
-                                                      (l) =>
-                                                          DropdownMenuItem<
-                                                            String?
-                                                          >(
-                                                            value: l.name,
-                                                            child: Text(l.name),
-                                                          ),
-                                                    ),
-                                                  ],
+                                                  ),
+                                                ),
+                                              ],
                                               onChanged: _saving
                                                   ? null
-                                                  : (v) => setState(
-                                                      () =>
+                                                  : (v) => setState(() {
+                                                        _selectedBoxSelection = v;
+                                                        _boxSelectionTouched = true;
+                                                        if (!_isWithoutBoxSelected) {
                                                           _selectedLooseLocation =
-                                                              v,
-                                                    ),
+                                                              null;
+                                                        }
+                                                      }),
                                             ),
-                                          )
-                                        : const SizedBox.shrink(
-                                            key: ValueKey('local-field-hidden'),
                                           ),
+                                          const SizedBox(width: UiTokens.s),
+                                          FilledButton.tonalIcon(
+                                            onPressed: _saving
+                                                ? null
+                                                : () async {
+                                                    await _createBox();
+                                                  },
+                                            icon: const Icon(
+                                              Icons.add_box_outlined,
+                                            ),
+                                            label: const Text('Nova'),
+                                          ),
+                                        ],
+                                      ),
+                                      AnimatedSize(
+                                        duration: _localFieldAnimationDuration,
+                                        curve: Curves.easeOut,
+                                        alignment: Alignment.topCenter,
+                                        child: AnimatedSwitcher(
+                                          duration: _localFieldAnimationDuration,
+                                          switchInCurve: Curves.easeOut,
+                                          switchOutCurve: Curves.easeOut,
+                                          transitionBuilder: (child, animation) {
+                                            final offset = Tween<Offset>(
+                                              begin: const Offset(0, -0.03),
+                                              end: Offset.zero,
+                                            ).animate(animation);
+                                            return FadeTransition(
+                                              opacity: animation,
+                                              child: SlideTransition(
+                                                position: offset,
+                                                child: child,
+                                              ),
+                                            );
+                                          },
+                                          child: showLocal
+                                              ? Padding(
+                                                  key: const ValueKey(
+                                                    'local-field',
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    top: UiTokens.m,
+                                                  ),
+                                                  child:
+                                                      DropdownButtonFormField<String?>(
+                                                    initialValue:
+                                                        _selectedLooseLocation,
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      labelText: 'Local',
+                                                    ),
+                                                    items:
+                                                        <DropdownMenuItem<String?>>[
+                                                      const DropdownMenuItem<
+                                                          String?>(
+                                                        value: null,
+                                                        child: Text(
+                                                          'Sem local',
+                                                        ),
+                                                      ),
+                                                      ...locations.map(
+                                                        (l) => DropdownMenuItem<
+                                                            String?>(
+                                                          value: l.name,
+                                                          child: Text(l.name),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                    onChanged: _saving
+                                                        ? null
+                                                        : (v) => setState(
+                                                              () =>
+                                                                  _selectedLooseLocation =
+                                                                      v,
+                                                            ),
+                                                  ),
+                                                )
+                                              : const SizedBox.shrink(
+                                                  key: ValueKey(
+                                                    'local-field-hidden',
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

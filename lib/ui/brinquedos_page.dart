@@ -10,6 +10,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/filter_bar.dart';
 
@@ -495,10 +496,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       onTap: () => _openToyDetail(context, item.toy.id),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: UiTokens.xs,
-          vertical: UiTokens.s,
+          horizontal: UiTokens.spacingSm,
+          vertical: UiTokens.spacingSm,
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             RoundToyThumb(path: item.toy.photoPath, dense: true),
             const SizedBox(width: UiTokens.s),
@@ -526,13 +528,15 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     categoryLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: UiTokens.primaryStrong,
                         ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: UiTokens.spacingXs),
             PopupMenuButton<String>(
               tooltip: 'Mais op\u00e7\u00f5es',
               onSelected: (value) {
@@ -583,19 +587,42 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     List<BrinquedosCatalogItem> items, {
     required Map<String, String> categoryById,
   }) {
-    return Card(
-      child: ListView.separated(
-        padding: const EdgeInsets.all(UiTokens.s),
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, thickness: 0.6),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return _buildToyRow(
-            context,
-            item,
-            categoryLabel: _categoryLabel(item, categoryById),
-          );
-        },
+    return AppSurfaceCard(
+      padding: const EdgeInsets.fromLTRB(
+        UiTokens.spacingMd,
+        UiTokens.spacingMd,
+        UiTokens.spacingMd,
+        UiTokens.spacingSm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Cat\u00e1logo de brinquedos',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Text(
+            '${items.length} itens nesta visualiza\u00e7\u00e3o',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: UiTokens.spacingMd),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: items.length,
+            separatorBuilder: (_, __) =>
+                const Divider(height: 1, thickness: 0.6),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return _buildToyRow(
+                context,
+                item,
+                categoryLabel: _categoryLabel(item, categoryById),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -709,36 +736,60 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             return Column(
               children: [
                 const SizedBox(height: UiTokens.m),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: _startingRound ? null : _startRound,
-                          icon: _startingRound
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2),
-                                )
-                              : const Icon(Icons.play_arrow),
-                          label: Text(
-                            _startingRound
-                                ? 'Iniciando...'
-                                : 'Iniciar rod\u00edzio',
-                          ),
-                        ),
+                AppSurfaceCard(
+                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                  color: UiTokens.primarySoft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Brinquedos da casa',
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
-                    const SizedBox(width: UiTokens.s),
-                    IconButton.filled(
-                      tooltip: 'Novo brinquedo',
-                      onPressed: () => _openToyCreate(context),
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
+                      const SizedBox(height: UiTokens.spacingXs),
+                      Text(
+                        'Veja tudo de forma clara, filtre com leveza e monte a rodada quando quiser.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton.icon(
+                              onPressed: _startingRound ? null : _startRound,
+                              icon: _startingRound
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(Icons.play_arrow),
+                              label: Text(
+                                _startingRound
+                                    ? 'Iniciando...'
+                                    : 'Iniciar rod\u00edzio',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: UiTokens.s),
+                          Tooltip(
+                            message: 'Novo brinquedo',
+                            child: FilledButton.tonalIcon(
+                              onPressed: () => _openToyCreate(context),
+                              icon: const Icon(Icons.add),
+                              label: const Text('Novo'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: UiTokens.m),
                 FilterBar(

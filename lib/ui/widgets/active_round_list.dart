@@ -6,6 +6,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 class ActiveRoundList extends StatelessWidget {
   static const double _categoryColumnWidth = 196;
@@ -248,102 +249,98 @@ class ActiveRoundList extends StatelessWidget {
 
             return Padding(
               padding: EdgeInsets.only(bottom: dense ? UiTokens.s : UiTokens.m),
-              child: Card(
-                margin: EdgeInsets.zero,
-                child: Padding(
-                  padding: EdgeInsets.all(dense ? UiTokens.s : UiTokens.m),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                      ),
-                      SizedBox(height: dense ? UiTokens.xs : UiTokens.s),
-                      _categoryHeaderRow(context),
-                      ...List<Widget>.generate(items.length, (index) {
-                        final item = items[index];
-                        final isPicked = pickedToyIds.contains(item.toy.id);
-                        final name = item.toy.name.trim().isEmpty
-                            ? 'Sem nome'
-                            : item.toy.name.trim();
+              child: AppSurfaceCard(
+                padding: EdgeInsets.all(dense ? UiTokens.s : UiTokens.m),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    SizedBox(height: dense ? UiTokens.xs : UiTokens.s),
+                    _categoryHeaderRow(context),
+                    ...List<Widget>.generate(items.length, (index) {
+                      final item = items[index];
+                      final isPicked = pickedToyIds.contains(item.toy.id);
+                      final name = item.toy.name.trim().isEmpty
+                          ? 'Sem nome'
+                          : item.toy.name.trim();
 
-                        return Column(
-                          children: [
-                            InkWell(
-                              borderRadius:
-                                  BorderRadius.circular(UiTokens.radiusButton),
-                              onTap: () => _openToyDetail(context, item.toy.id),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: dense ? UiTokens.xs : UiTokens.s,
-                                ),
-                                child: Row(
-                                  children: [
-                                    _thumb(
+                      return Column(
+                        children: [
+                          InkWell(
+                            borderRadius:
+                                BorderRadius.circular(UiTokens.radiusButton),
+                            onTap: () => _openToyDetail(context, item.toy.id),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: dense ? UiTokens.xs : UiTokens.s,
+                              ),
+                              child: Row(
+                                children: [
+                                  _thumb(
+                                    context,
+                                    item.toy.photoPath,
+                                    isPicked: isPicked,
+                                  ),
+                                  const SizedBox(width: UiTokens.s),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          _subtitle(item),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: _categoryColumnGap),
+                                  Expanded(
+                                    flex: 4,
+                                    child: _categoryInfo(
                                       context,
-                                      item.toy.photoPath,
-                                      isPicked: isPicked,
+                                      item,
+                                      categoryNamesById,
                                     ),
-                                    const SizedBox(width: UiTokens.s),
-                                    Expanded(
-                                      flex: 5,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            _subtitle(item),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall,
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  if (showPickupSwitch)
+                                    Checkbox(
+                                      value: isPicked,
+                                      onChanged: (_) =>
+                                          onTogglePicked?.call(item.toy.id),
                                     ),
-                                    const SizedBox(width: _categoryColumnGap),
-                                    Expanded(
-                                      flex: 4,
-                                      child: _categoryInfo(
-                                        context,
-                                        item,
-                                        categoryNamesById,
-                                      ),
-                                    ),
-                                    if (showPickupSwitch)
-                                      Checkbox(
-                                        value: isPicked,
-                                        onChanged: (_) =>
-                                            onTogglePicked?.call(item.toy.id),
-                                      ),
-                                  ],
-                                ),
+                                ],
                               ),
                             ),
-                            if (index < items.length - 1)
-                              const Divider(height: 1, thickness: 0.6),
-                          ],
-                        );
-                      }),
-                    ],
-                  ),
+                          ),
+                          if (index < items.length - 1)
+                            const Divider(height: 1, thickness: 0.6),
+                        ],
+                      );
+                    }),
+                  ],
                 ),
               ),
             );

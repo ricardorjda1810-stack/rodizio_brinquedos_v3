@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 class FilterOption {
   final String id;
@@ -59,85 +60,89 @@ class FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final showLocal = locations != null &&
         selectedLocationId != null &&
         onLocationChanged != null;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxWidth = constraints.maxWidth;
-        const gap = UiTokens.s;
-        const buttonWidth = 48.0;
-        final compact = maxWidth < 560;
-        final dropdownWidth = compact ? (maxWidth - gap) / 2 : 190.0;
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxWidth = constraints.maxWidth;
+          const gap = UiTokens.s;
+          final compact = maxWidth < 560;
+          final dropdownWidth = compact ? (maxWidth - gap) / 2 : 196.0;
 
-        return Wrap(
-          spacing: gap,
-          runSpacing: gap,
-          children: [
-            SizedBox(
-              width: dropdownWidth,
-              child: _ProDropdown(
-                title: 'Categoria',
-                valueId: selectedCategoryId,
-                items: categories,
-                onChanged: onCategoryChanged,
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Filtros do cat\u00e1logo',
+                style: Theme.of(context).textTheme.titleSmall,
               ),
-            ),
-            SizedBox(
-              width: dropdownWidth,
-              child: _ProDropdown(
-                title: 'Caixa',
-                valueId: selectedBoxId,
-                items: boxes,
-                onChanged: onBoxChanged,
+              const SizedBox(height: UiTokens.spacingXs),
+              Text(
+                'Organize por categoria, caixa e local sem poluir a tela.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-            ),
-            if (showLocal)
-              SizedBox(
-                width: dropdownWidth,
-                child: _ProDropdown(
-                  title: 'Local',
-                  valueId: selectedLocationId!,
-                  items: locations!,
-                  onChanged: onLocationChanged!,
-                ),
-              ),
-            SizedBox(
-              width: buttonWidth,
-              height: 44,
-              child: IconButton(
-                tooltip: 'Buscar',
-                onPressed: onSearchTap,
-                icon: const Icon(Icons.search),
-                style: IconButton.styleFrom(
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            if (showClear)
-              SizedBox(
-                width: buttonWidth,
-                height: 44,
-                child: IconButton(
-                  tooltip: 'Limpar filtros',
-                  onPressed: onClear,
-                  icon: const Icon(Icons.close),
-                  style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: UiTokens.spacingMd),
+              Wrap(
+                spacing: gap,
+                runSpacing: gap,
+                children: [
+                  SizedBox(
+                    width: dropdownWidth,
+                    child: _ProDropdown(
+                      title: 'Categoria',
+                      valueId: selectedCategoryId,
+                      items: categories,
+                      onChanged: onCategoryChanged,
                     ),
                   ),
-                ),
+                  SizedBox(
+                    width: dropdownWidth,
+                    child: _ProDropdown(
+                      title: 'Caixa',
+                      valueId: selectedBoxId,
+                      items: boxes,
+                      onChanged: onBoxChanged,
+                    ),
+                  ),
+                  if (showLocal)
+                    SizedBox(
+                      width: dropdownWidth,
+                      child: _ProDropdown(
+                        title: 'Local',
+                        valueId: selectedLocationId!,
+                        items: locations!,
+                        onChanged: onLocationChanged!,
+                      ),
+                    ),
+                  SizedBox(
+                    width: compact ? dropdownWidth : 120,
+                    height: 52,
+                    child: FilledButton.tonalIcon(
+                      onPressed: onSearchTap,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Buscar'),
+                    ),
+                  ),
+                  if (showClear)
+                    SizedBox(
+                      width: compact ? dropdownWidth : 120,
+                      height: 52,
+                      child: OutlinedButton.icon(
+                        onPressed: onClear,
+                        icon: const Icon(Icons.close),
+                        label: const Text('Limpar'),
+                      ),
+                    ),
+                ],
               ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -171,18 +176,18 @@ class _ProDropdown extends StatelessWidget {
     );
 
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: safeValue,
           isExpanded: true,
           icon: const Icon(Icons.arrow_drop_down),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           style: theme.textTheme.bodyMedium,
           selectedItemBuilder: (context) {
             return items.map((it) {

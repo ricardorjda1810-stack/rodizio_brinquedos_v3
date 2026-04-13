@@ -5,6 +5,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 class SettingsPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
@@ -141,8 +142,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _openCategories() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            CategoriesManagePage(
+        builder: (_) => CategoriesManagePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
         ),
@@ -153,8 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void _openLocations() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            LocationsManagePage(
+        builder: (_) => LocationsManagePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
         ),
@@ -230,7 +229,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     final parsed = int.tryParse(controller.text.trim());
                     if (parsed == null) {
                       setLocalState(
-                          () => errorText = 'Digite um numero inteiro.');
+                        () => errorText = 'Digite um numero inteiro.',
+                      );
                       return;
                     }
                     if (parsed < 0) {
@@ -239,7 +239,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     }
                     if (parsed > maxValue) {
                       setLocalState(
-                          () => errorText = 'O valor maximo e $maxValue.');
+                        () => errorText = 'O valor maximo e $maxValue.',
+                      );
                       return;
                     }
 
@@ -360,93 +361,88 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildManageCard(TextTheme textTheme) {
-    return Card(
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-                UiTokens.m, UiTokens.m, UiTokens.m, UiTokens.s),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Gerenciar',
-                style: textTheme.titleMedium,
-              ),
-            ),
+          Text(
+            'Organiza\u00e7\u00e3o da casa',
+            style: textTheme.titleSmall,
           ),
-          ListTile(
-            leading: const Icon(Icons.category_outlined),
-            title: const Text('Gerenciar categorias'),
-            subtitle: const Text('Editar, adicionar e inativar categorias'),
+          const SizedBox(height: UiTokens.spacingSm),
+          _SettingsTile(
+            icon: Icons.category_outlined,
+            title: 'Gerenciar categorias',
+            subtitle: 'Editar, adicionar e inativar categorias',
             onTap: _openCategories,
           ),
-          const Divider(height: 1),
-          ListTile(
-            leading: const Icon(Icons.place_outlined),
-            title: const Text('Gerenciar locais'),
-            subtitle: const Text('Editar e adicionar locais sugeridos'),
+          const SizedBox(height: UiTokens.spacingSm),
+          _SettingsTile(
+            icon: Icons.place_outlined,
+            title: 'Gerenciar locais',
+            subtitle: 'Editar e adicionar locais sugeridos',
             onTap: _openLocations,
           ),
-          const SizedBox(height: UiTokens.s),
         ],
       ),
     );
   }
 
   Widget _buildFeedbackCard(TextTheme textTheme) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(UiTokens.m),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Feedback do app',
-              style: textTheme.titleMedium,
-            ),
-            const SizedBox(height: UiTokens.s),
-            StreamBuilder<bool>(
-              stream: widget.settingsRepository.watchDarkModeEnabled(),
-              initialData: widget.settingsRepository.darkModeEnabled,
-              builder: (context, snapshot) {
-                final enabled = snapshot.data ?? false;
-                return SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Modo escuro'),
-                  value: enabled,
-                  onChanged: widget.settingsRepository.setDarkModeEnabled,
-                );
-              },
-            ),
-            const SizedBox(height: UiTokens.s),
-            StreamBuilder<bool>(
-              stream: widget.settingsRepository.watchHapticEnabled(),
-              initialData: widget.settingsRepository.hapticEnabled,
-              builder: (context, snapshot) {
-                final enabled = snapshot.data ?? true;
-                return SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Vibracao (haptic)'),
-                  value: enabled,
-                  onChanged: widget.settingsRepository.setHapticEnabled,
-                );
-              },
-            ),
-            StreamBuilder<bool>(
-              stream: widget.settingsRepository.watchSoundEnabled(),
-              initialData: widget.settingsRepository.soundEnabled,
-              builder: (context, snapshot) {
-                final enabled = snapshot.data ?? false;
-                return SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Sons do app'),
-                  value: enabled,
-                  onChanged: widget.settingsRepository.setSoundEnabled,
-                );
-              },
-            ),
-          ],
-        ),
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Prefer\u00eancias do app',
+            style: textTheme.titleSmall,
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          StreamBuilder<bool>(
+            stream: widget.settingsRepository.watchDarkModeEnabled(),
+            initialData: widget.settingsRepository.darkModeEnabled,
+            builder: (context, snapshot) {
+              final enabled = snapshot.data ?? false;
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Modo escuro'),
+                subtitle: const Text('Altera apenas a aparencia do app'),
+                value: enabled,
+                onChanged: widget.settingsRepository.setDarkModeEnabled,
+              );
+            },
+          ),
+          StreamBuilder<bool>(
+            stream: widget.settingsRepository.watchHapticEnabled(),
+            initialData: widget.settingsRepository.hapticEnabled,
+            builder: (context, snapshot) {
+              final enabled = snapshot.data ?? true;
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Vibracao (haptic)'),
+                subtitle: const Text('Toques leves nas acoes principais'),
+                value: enabled,
+                onChanged: widget.settingsRepository.setHapticEnabled,
+              );
+            },
+          ),
+          StreamBuilder<bool>(
+            stream: widget.settingsRepository.watchSoundEnabled(),
+            initialData: widget.settingsRepository.soundEnabled,
+            builder: (context, snapshot) {
+              final enabled = snapshot.data ?? false;
+              return SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Sons do app'),
+                subtitle: const Text('Feedback sonoro em eventos do app'),
+                value: enabled,
+                onChanged: widget.settingsRepository.setSoundEnabled,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -456,6 +452,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(
         title: const Text('Configuracoes'),
         actions: [
@@ -488,102 +485,156 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: const EdgeInsets.all(UiTokens.m),
           child: ListView(
             children: [
+              AppSurfaceCard(
+                padding: const EdgeInsets.all(UiTokens.spacingLg),
+                color: UiTokens.primarySoft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Configura\u00e7\u00f5es do app',
+                      style: textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: UiTokens.spacingXs),
+                    Text(
+                      'Ajuste prefer\u00eancias e a composi\u00e7\u00e3o da rodada de forma simples e organizada.',
+                      style: textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: UiTokens.s),
               _buildManageCard(textTheme),
               const SizedBox(height: UiTokens.s),
               _buildFeedbackCard(textTheme),
               const SizedBox(height: UiTokens.s),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(UiTokens.m),
-                  child: StreamBuilder<Map<String, int>>(
-                    stream:
-                        widget.toyRepository.watchAvailableToyCountByCategory(),
-                    builder: (context, availableSnapshot) {
-                      final availableCounts =
-                          availableSnapshot.data ?? const <String, int>{};
+              AppSurfaceCard(
+                padding: const EdgeInsets.all(UiTokens.spacingMd),
+                child: StreamBuilder<Map<String, int>>(
+                  stream: widget.toyRepository.watchAvailableToyCountByCategory(),
+                  builder: (context, availableSnapshot) {
+                    final availableCounts =
+                        availableSnapshot.data ?? const <String, int>{};
 
-                      return StreamBuilder<List<RoundCategorySettingRow>>(
-                        stream:
-                            widget.toyRepository.watchRoundCategorySettings(),
-                        builder: (context, snapshot) {
-                          final rows = snapshot.data ??
-                              const <RoundCategorySettingRow>[];
-                          _latestRows = rows;
+                    return StreamBuilder<List<RoundCategorySettingRow>>(
+                      stream: widget.toyRepository.watchRoundCategorySettings(),
+                      builder: (context, snapshot) {
+                        final rows =
+                            snapshot.data ?? const <RoundCategorySettingRow>[];
+                        _latestRows = rows;
 
-                          _initializeDraftIfNeeded(rows, availableCounts);
-                          _syncDraftWithAvailability(rows, availableCounts);
+                        _initializeDraftIfNeeded(rows, availableCounts);
+                        _syncDraftWithAvailability(rows, availableCounts);
 
-                          final availableTotal = rows.fold<int>(
-                            0,
-                            (sum, row) =>
-                                sum + (availableCounts[row.category.id] ?? 0),
-                          );
+                        final availableTotal = rows.fold<int>(
+                          0,
+                          (sum, row) => sum + (availableCounts[row.category.id] ?? 0),
+                        );
 
-                          final totalSelected = _currentTotal();
+                        final totalSelected = _currentTotal();
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                'Rodizio',
-                                style: textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              Text(
-                                'Categorias do rodizio',
-                                style: textTheme.titleSmall,
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              Text('Disponiveis no catalogo: $availableTotal'),
-                              const SizedBox(height: UiTokens.xs),
-                              Text(
-                                  'Total desta rodada: $totalSelected brinquedos'),
-                              const SizedBox(height: UiTokens.s),
-                              if (rows.isEmpty)
-                                const Text('Nenhuma categoria encontrada.')
-                              else
-                                ...rows.map((row) {
-                                  final id = row.category.id;
-                                  final included =
-                                      _includedDraft[id] ?? row.isIncluded;
-                                  final quota = _quotaDraft[id] ??
-                                      (row.quota < 0 ? 0 : row.quota);
-                                  final available = availableCounts[id] ?? 0;
-                                  final enabledColor = Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer;
-                                  final disabledColor = Theme.of(context)
-                                      .disabledColor
-                                      .withValues(alpha: 0.2);
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              'Composi\u00e7\u00e3o da rodada',
+                              style: textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingSm),
+                            Text(
+                              'Disponiveis no catalogo: $availableTotal',
+                              style: textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              'Total desta rodada: $totalSelected brinquedos',
+                              style: textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingMd),
+                            if (rows.isEmpty)
+                              const Text('Nenhuma categoria encontrada.')
+                            else
+                              ...rows.map((row) {
+                                final id = row.category.id;
+                                final included = _includedDraft[id] ?? row.isIncluded;
+                                final quota = _quotaDraft[id] ??
+                                    (row.quota < 0 ? 0 : row.quota);
+                                final available = availableCounts[id] ?? 0;
 
-                                  var subtitle = 'Disponiveis: $available';
-                                  if (!row.category.isActive) {
-                                    subtitle = '$subtitle - Categoria inativa';
-                                  }
-
-                                  return ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(row.category.name),
-                                    subtitle: Text(subtitle),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: UiTokens.spacingSm,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(
+                                      UiTokens.spacingMd,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(
+                                        UiTokens.radiusLg,
+                                      ),
+                                    ),
+                                    child: Row(
                                       children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                row.category.name,
+                                                style: textTheme.bodyMedium
+                                                    ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: UiTokens.spacingXs,
+                                              ),
+                                              Text(
+                                                !row.category.isActive
+                                                    ? 'Disponiveis: $available - Categoria inativa'
+                                                    : 'Disponiveis: $available',
+                                                style: textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: UiTokens.spacingSm),
                                         InkWell(
                                           borderRadius:
                                               BorderRadius.circular(999),
-                                          onTap: () =>
-                                              _selectQuota(row, available),
+                                          onTap: () => _selectQuota(row, available),
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 6),
+                                              horizontal: 12,
+                                              vertical: 8,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: included
-                                                  ? enabledColor
-                                                  : disabledColor,
+                                                  ? UiTokens.primarySoft
+                                                  : Theme.of(context)
+                                                      .disabledColor
+                                                      .withValues(alpha: 0.18),
                                               borderRadius:
                                                   BorderRadius.circular(999),
                                             ),
-                                            child: Text('$quota'),
+                                            child: Text(
+                                              '$quota',
+                                              style: textTheme.labelMedium
+                                                  ?.copyWith(
+                                                color: included
+                                                    ? UiTokens.primaryStrong
+                                                    : UiTokens.textSecondary,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(width: UiTokens.s),
@@ -591,30 +642,103 @@ class _SettingsPageState extends State<SettingsPage> {
                                           value: included,
                                           onChanged: (value) =>
                                               _onSwitchChanged(
-                                                  row, value, available),
+                                            row,
+                                            value,
+                                            available,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  );
-                                }),
-                              const SizedBox(height: UiTokens.s),
-                              FilledButton(
-                                onPressed: _save,
-                                child: const Text('Salvar configuracoes'),
-                              ),
-                              const SizedBox(height: UiTokens.s),
-                              OutlinedButton(
-                                onPressed: _restoreRoundDefaults,
-                                child: const Text('Restaurar padrao'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
+                                  ),
+                                );
+                              }),
+                            const SizedBox(height: UiTokens.spacingSm),
+                            FilledButton(
+                              onPressed: _save,
+                              child: const Text('Salvar configuracoes'),
+                            ),
+                            const SizedBox(height: UiTokens.spacingSm),
+                            OutlinedButton(
+                              onPressed: _restoreRoundDefaults,
+                              child: const Text('Restaurar padrao'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        child: Ink(
+          padding: const EdgeInsets.all(UiTokens.spacingMd),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: UiTokens.primarySoft,
+                  borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: UiTokens.primaryStrong,
+                ),
+              ),
+              const SizedBox(width: UiTokens.spacingMd),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                    const SizedBox(height: UiTokens.spacingXs),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
             ],
           ),
         ),

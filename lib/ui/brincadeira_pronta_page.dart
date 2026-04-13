@@ -4,6 +4,8 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 
 class BrincadeiraProntaPage extends StatefulWidget {
   final ToyRepository toyRepository;
@@ -85,8 +87,8 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
                 return const Padding(
                   padding: EdgeInsets.all(UiTokens.m),
                   child: Center(
-                      child:
-                          Text('Nenhum brinquedo disponivel para adicionar.')),
+                    child: Text('Nenhum brinquedo disponivel para adicionar.'),
+                  ),
                 );
               }
 
@@ -127,14 +129,16 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
 
   void _removeToy(String toyId) {
     setState(
-        () => _selected = _selected.where((it) => it.toy.id != toyId).toList());
+      () => _selected = _selected.where((it) => it.toy.id != toyId).toList(),
+    );
   }
 
   Future<void> _save() async {
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Adicione ao menos 1 brinquedo para salvar.')),
+          content: Text('Adicione ao menos 1 brinquedo para salvar.'),
+        ),
       );
       return;
     }
@@ -157,8 +161,9 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: UiTokens.bg,
       appBar: AppBar(
-        title: const Text('Brincadeira pronta ✅'),
+        title: const Text('Brincadeira pronta'),
       ),
       body: SafeArea(
         child: Padding(
@@ -166,69 +171,102 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Use estes brinquedos agora. Guarde o resto.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: UiTokens.xs),
-              Text(
-                'Faixa etaria: ${widget.ageLabel} (recomendado: ${widget.recommendedText})',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              if (_outsideRecommended) ...[
-                const SizedBox(height: UiTokens.xs),
-                Text(
-                  'Aviso: a quantidade atual esta fora do recomendado para a faixa.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.error,
+              AppSurfaceCard(
+                padding: const EdgeInsets.all(UiTokens.spacingLg),
+                color: UiTokens.primarySoft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Use estes brinquedos agora',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: UiTokens.spacingXs),
+                    Text(
+                      'Faixa et\u00e1ria: ${widget.ageLabel} (recomendado: ${widget.recommendedText})',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                    ),
+                    if (_outsideRecommended) ...[
+                      const SizedBox(height: UiTokens.spacingSm),
+                      Text(
+                        'Aviso: a quantidade atual est\u00e1 fora do recomendado para a faixa.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
-                ),
-              ],
-              const SizedBox(height: UiTokens.s),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: _addToy,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Adicionar brinquedo'),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(height: UiTokens.s),
+              const SizedBox(height: UiTokens.spacingMd),
+              AppSurfaceCard(
+                padding: const EdgeInsets.all(UiTokens.spacingMd),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${_selected.length} brinquedos selecionados',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                    ),
+                    FilledButton.tonalIcon(
+                      onPressed: _addToy,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Adicionar'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: UiTokens.spacingMd),
               Expanded(
                 child: _selected.isEmpty
-                    ? const Center(
-                        child: Text('Nenhum brinquedo no conjunto.'),
+                    ? EmptyState(
+                        icon: Icons.toys_outlined,
+                        title: 'Nenhum brinquedo no conjunto',
+                        message:
+                            'Adicione ao menos um brinquedo para montar a brincadeira pronta.',
+                        actionLabel: 'Adicionar',
+                        onAction: _addToy,
                       )
-                    : ListView.separated(
-                        itemCount: _selected.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final item = _selected[index];
-                          final title = item.toy.name.trim().isEmpty
-                              ? 'Sem nome'
-                              : item.toy.name.trim();
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: RoundToyThumb(path: item.toy.photoPath),
-                            title: Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(
-                              _subtitle(item),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: UiTokens.danger,
+                    : AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        child: ListView.separated(
+                          itemCount: _selected.length,
+                          separatorBuilder: (_, __) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final item = _selected[index];
+                            final title = item.toy.name.trim().isEmpty
+                                ? 'Sem nome'
+                                : item.toy.name.trim();
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: RoundToyThumb(path: item.toy.photoPath),
+                              title: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              onPressed: () => _removeToy(item.toy.id),
-                              child: const Text('Remover'),
-                            ),
-                          );
-                        },
+                              subtitle: Text(
+                                _subtitle(item),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: UiTokens.danger,
+                                ),
+                                onPressed: () => _removeToy(item.toy.id),
+                                child: const Text('Remover'),
+                              ),
+                            );
+                          },
+                        ),
                       ),
               ),
             ],
@@ -237,7 +275,11 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(
-            UiTokens.m, UiTokens.xs, UiTokens.m, UiTokens.m),
+          UiTokens.m,
+          UiTokens.xs,
+          UiTokens.m,
+          UiTokens.m,
+        ),
         child: Row(
           children: [
             Expanded(
