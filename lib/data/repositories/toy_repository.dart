@@ -1,3 +1,4 @@
+﻿import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -69,30 +70,67 @@ class ToyRepository {
     'artes': 'giz, tinta, colagem, massinha',
     'musica': 'tambor, chocalho, teclado, violÃ£o',
     'banho': 'patinho, barquinho, copinhos, esguicho',
-    'outros': 'quebra-cabeÃ§a, lupa, imÃ£, surpresa',
+    'outros': 'quebra-cabeÃ§a, lupa, Ã­mÃ£, surpresa',
   };
 
   static const List<CategorySeed> defaultCategories = [
-    CategorySeed('veiculos', 'Veículos'),
+    CategorySeed('veiculos', 'VeÃ­culos'),
     CategorySeed('bonecos', 'Bonecos'),
     CategorySeed('montagem', 'Montagem'),
     CategorySeed('livros', 'Livros'),
     CategorySeed('jogos', 'Jogos'),
     CategorySeed('faz_de_conta', 'Faz de conta'),
     CategorySeed('artes', 'Artes'),
-    CategorySeed('musica', 'Música'),
+    CategorySeed('musica', 'MÃºsica'),
     CategorySeed('banho', 'Banho'),
     CategorySeed('outros', 'Outros'),
   ];
 
   static const List<LocationSeed> defaultLocations = [
     LocationSeed('sala', 'Sala'),
-    LocationSeed('quarto_da_crianca', 'Quarto da criança'),
+    LocationSeed('quarto_da_crianca', 'Quarto da crianÃ§a'),
     LocationSeed('quarto', 'Quarto'),
     LocationSeed('cozinha', 'Cozinha'),
     LocationSeed('banheiro', 'Banheiro'),
     LocationSeed('varanda', 'Varanda'),
-    LocationSeed('area_de_servico', 'Área de serviço'),
+    LocationSeed('area_de_servico', 'Ãrea de serviÃ§o'),
+    LocationSeed('corredor', 'Corredor'),
+  ];
+
+  static const Map<String, String> correctedDefaultCategoryExamplesById = {
+    'veiculos': 'carrinho, caminh\u00E3o, trenzinho, \u00F4nibus',
+    'bonecos': 'boneca, ursinho, personagem, fantoche',
+    'montagem': 'blocos, lego, encaixe, engrenagens',
+    'livros': 'hist\u00F3rias, figuras, sons, toque',
+    'jogos': 'mem\u00F3ria, domin\u00F3, cartas, trilhas',
+    'faz_de_conta': 'cozinha, m\u00E9dico, mercado, ferramentas',
+    'artes': 'giz, tinta, colagem, massinha',
+    'musica': 'tambor, chocalho, teclado, viol\u00E3o',
+    'banho': 'patinho, barquinho, copinhos, esguicho',
+    'outros': 'quebra-cabe\u00E7a, lupa, \u00EDm\u00E3, surpresa',
+  };
+
+  static const List<CategorySeed> correctedDefaultCategories = [
+    CategorySeed('veiculos', 'Ve\u00EDculos'),
+    CategorySeed('bonecos', 'Bonecos'),
+    CategorySeed('montagem', 'Montagem'),
+    CategorySeed('livros', 'Livros'),
+    CategorySeed('jogos', 'Jogos'),
+    CategorySeed('faz_de_conta', 'Faz de conta'),
+    CategorySeed('artes', 'Artes'),
+    CategorySeed('musica', 'M\u00FAsica'),
+    CategorySeed('banho', 'Banho'),
+    CategorySeed('outros', 'Outros'),
+  ];
+
+  static const List<LocationSeed> correctedDefaultLocations = [
+    LocationSeed('sala', 'Sala'),
+    LocationSeed('quarto_da_crianca', 'Quarto da crian\u00E7a'),
+    LocationSeed('quarto', 'Quarto'),
+    LocationSeed('cozinha', 'Cozinha'),
+    LocationSeed('banheiro', 'Banheiro'),
+    LocationSeed('varanda', 'Varanda'),
+    LocationSeed('area_de_servico', '\u00C1rea de servi\u00E7o'),
     LocationSeed('corredor', 'Corredor'),
   ];
 
@@ -101,7 +139,7 @@ class ToyRepository {
     if (d == null) return;
 
     await d.transaction(() async {
-      for (final c in defaultCategories) {
+      for (final c in correctedDefaultCategories) {
         await d
             .into(d.categoryDefinitions)
             .insert(
@@ -109,7 +147,7 @@ class ToyRepository {
                 id: c.id,
                 name: c.name,
                 examples: Value(
-                  _normalizeNullable(defaultCategoryExamplesById[c.id]),
+                  _normalizeNullable(correctedDefaultCategoryExamplesById[c.id]),
                 ),
                 isActive: const Value(true),
               ),
@@ -138,26 +176,41 @@ class ToyRepository {
             );
       }
 
-      for (final loc in defaultLocations) {
-        await d
-            .into(d.locationDefinitions)
-            .insert(
-              LocationDefinitionsCompanion.insert(id: loc.id, name: loc.name),
-              mode: InsertMode.insertOrIgnore,
-            );
-      }
+      for (final loc in correctedDefaultLocations) {
+          await d
+              .into(d.locationDefinitions)
+              .insert(
+                LocationDefinitionsCompanion.insert(id: loc.id, name: loc.name),
+                mode: InsertMode.insertOrIgnore,
+              );
+        }
 
       final categories = await d.select(d.categoryDefinitions).get();
       for (final c in categories) {
-        final seededExamples = defaultCategoryExamplesById[c.id];
-        if (seededExamples != null && (c.examples ?? '').trim().isEmpty) {
+        final seededExamples = correctedDefaultCategoryExamplesById[c.id];
+        if (seededExamples != null &&
+            ((c.examples ?? '').trim().isEmpty ||
+                _looksMisencodedSafely(c.examples))) {
           await (d.update(d.categoryDefinitions)
                 ..where((row) => row.id.equals(c.id)))
               .write(
-                CategoryDefinitionsCompanion(
-                  examples: Value(seededExamples),
-                ),
-              );
+            CategoryDefinitionsCompanion(
+              examples: Value(seededExamples),
+            ),
+          );
+        }
+
+        final seededCategory = correctedDefaultCategories
+            .where((seed) => seed.id == c.id)
+            .firstOrNull;
+        if (seededCategory != null && _looksMisencodedSafely(c.name)) {
+          await (d.update(d.categoryDefinitions)
+                ..where((row) => row.id.equals(c.id)))
+              .write(
+            CategoryDefinitionsCompanion(
+              name: Value(seededCategory.name),
+            ),
+          );
         }
 
         await d
@@ -179,6 +232,22 @@ class ToyRepository {
               ),
               mode: InsertMode.insertOrIgnore,
             );
+      }
+
+      final locations = await d.select(d.locationDefinitions).get();
+      for (final location in locations) {
+        final seededLocation = correctedDefaultLocations
+            .where((seed) => seed.id == location.id)
+            .firstOrNull;
+        if (seededLocation != null && _looksMisencodedSafely(location.name)) {
+          await (d.update(d.locationDefinitions)
+                ..where((row) => row.id.equals(location.id)))
+              .write(
+            LocationDefinitionsCompanion(
+              name: Value(seededLocation.name),
+            ),
+          );
+        }
       }
 
       final existingBoxes = await d.select(d.boxes).get();
@@ -438,7 +507,7 @@ class ToyRepository {
 
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
-      throw StateError('Nome do brinquedo é obrigatório.');
+      throw StateError('Nome do brinquedo Ã© obrigatÃ³rio.');
     }
 
     final normalizedBoxId = _normalizeNullable(boxId);
@@ -486,7 +555,7 @@ class ToyRepository {
         d.categoryDefinitions,
       )..where((c) => c.id.equals(categoryId))).getSingleOrNull();
       if (category == null) {
-        throw StateError('Categoria inválida.');
+        throw StateError('Categoria invÃ¡lida.');
       }
 
       final resolvedName =
@@ -670,12 +739,12 @@ class ToyRepository {
     }
 
     if (number <= 0) {
-      throw StateError('Número da caixa deve ser maior que zero.');
+      throw StateError('NÃºmero da caixa deve ser maior que zero.');
     }
 
     final normalizedLocal = local.trim();
     if (normalizedLocal.isEmpty) {
-      throw StateError('Local da caixa é obrigatório.');
+      throw StateError('Local da caixa Ã© obrigatÃ³rio.');
     }
 
     final existing = await (d.select(
@@ -1231,37 +1300,51 @@ class ToyRepository {
 
   String? _normalizeNullable(String? input) {
     if (input == null) return null;
-    final trimmed = input.trim();
+    final trimmed = _repairTextSafely(input).trim();
     if (trimmed.isEmpty) return null;
     return trimmed;
+  }
+
+  bool _looksMisencodedSafely(String? input) {
+    if (input == null || input.isEmpty) return false;
+    return input.contains('\u00c3') || input.contains('\u00c2');
+  }
+
+  String _repairTextSafely(String input) {
+    if (!_looksMisencodedSafely(input)) return input;
+    try {
+      return utf8.decode(latin1.encode(input));
+    } catch (_) {
+      return input;
+    }
   }
 
   String _slugify(String value) {
     final lower = value.toLowerCase().trim();
     final withoutAccents = lower
-        .replaceAll('á', 'a')
-        .replaceAll('à', 'a')
-        .replaceAll('â', 'a')
-        .replaceAll('ã', 'a')
-        .replaceAll('ä', 'a')
-        .replaceAll('é', 'e')
-        .replaceAll('ê', 'e')
-        .replaceAll('è', 'e')
-        .replaceAll('ë', 'e')
-        .replaceAll('í', 'i')
-        .replaceAll('ì', 'i')
-        .replaceAll('î', 'i')
-        .replaceAll('ï', 'i')
-        .replaceAll('ó', 'o')
-        .replaceAll('ò', 'o')
-        .replaceAll('ô', 'o')
-        .replaceAll('õ', 'o')
-        .replaceAll('ö', 'o')
-        .replaceAll('ú', 'u')
-        .replaceAll('ù', 'u')
-        .replaceAll('û', 'u')
-        .replaceAll('ü', 'u')
-        .replaceAll('ç', 'c');
+        .replaceAll('Ã¡', 'a')
+        .replaceAll('Ã ', 'a')
+        .replaceAll('Ã¢', 'a')
+        .replaceAll('Ã£', 'a')
+        .replaceAll('Ã¤', 'a')
+        .replaceAll('Ã©', 'e')
+        .replaceAll('Ãª', 'e')
+        .replaceAll('Ã¨', 'e')
+        .replaceAll('Ã«', 'e')
+        .replaceAll('Ã­', 'i')
+        .replaceAll('Ã¬', 'i')
+        .replaceAll('Ã®', 'i')
+        .replaceAll('Ã¯', 'i')
+        .replaceAll('Ã³', 'o')
+        .replaceAll('Ã²', 'o')
+        .replaceAll('Ã´', 'o')
+        .replaceAll('Ãµ', 'o')
+        .replaceAll('Ã¶', 'o')
+        .replaceAll('Ãº', 'u')
+        .replaceAll('Ã¹', 'u')
+        .replaceAll('Ã»', 'u')
+        .replaceAll('Ã¼', 'u')
+        .replaceAll('Ã§', 'c');
 
     final cleaned = withoutAccents.replaceAll(RegExp(r'[^a-z0-9]+'), '_');
     final normalized = cleaned
@@ -1305,7 +1388,7 @@ class ToyRepository {
     }
     final nextNumber = maxSeq + 1;
 
-    // Mantém o contador em sincronia para compatibilidade com dados legados.
+    // MantÃ©m o contador em sincronia para compatibilidade com dados legados.
     await d
         .into(d.toyAutoNameCounters)
         .insertOnConflictUpdate(
@@ -1330,8 +1413,9 @@ class ToyRepository {
       d.boxes,
     )..where((b) => b.id.equals(boxId))).getSingleOrNull();
     if (box == null) {
-      throw StateError('Caixa inválida.');
+      throw StateError('Caixa invÃ¡lida.');
     }
     return box.number;
   }
 }
+

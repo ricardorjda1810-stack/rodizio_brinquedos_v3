@@ -278,7 +278,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                               ),
                               children: [
                                 AppSurfaceCard(
-                                  padding: const EdgeInsets.all(UiTokens.spacingLg),
+                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
                                   color: UiTokens.primarySoft,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,13 +321,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .bodySmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingMd),
+                                      const SizedBox(height: UiTokens.spacingSm),
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(
                                           UiTokens.radiusCard,
                                         ),
                                         child: AspectRatio(
-                                          aspectRatio: 1.28,
+                                          aspectRatio: 1.42,
                                           child: _photoPreview(),
                                         ),
                                       ),
@@ -395,7 +395,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .bodySmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingMd),
+                                      const SizedBox(height: UiTokens.spacingSm),
                                       CategoryQuickPicker<CategoryDefinition>(
                                         categories: categoriesSorted,
                                         selectedId: _selectedCategoryId,

@@ -733,9 +733,37 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             final visibleItems = _applyLocalFilter(baseItems);
             final showClear = _hasActiveFilters(state);
 
-            return Column(
+            if (state.loading && state.totalItemsCount == 0) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state.totalItemsCount == 0) {
+              return EmptyState(
+                icon: Icons.toys,
+                title: 'Nenhum brinquedo cadastrado',
+                message:
+                    'Adicione brinquedos para montar seu catálogo visual.',
+                actionLabel: 'Novo brinquedo',
+                onAction: () => _openToyCreate(context),
+              );
+            }
+
+            if (visibleItems.isEmpty) {
+              return EmptyState(
+                icon: Icons.search_off,
+                title: 'Nenhum resultado',
+                message: 'Ajuste busca e filtros para encontrar brinquedos.',
+                actionLabel: 'Limpar',
+                onAction: _clearFilters,
+              );
+            }
+
+            return ListView(
+              padding: const EdgeInsets.only(
+                top: UiTokens.m,
+                bottom: UiTokens.spacingXl + 36,
+              ),
               children: [
-                const SizedBox(height: UiTokens.m),
                 AppSurfaceCard(
                   padding: const EdgeInsets.all(UiTokens.spacingMd),
                   color: UiTokens.primarySoft,
@@ -755,10 +783,15 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                   .onSurfaceVariant,
                             ),
                       ),
-                      const SizedBox(height: UiTokens.spacingMd),
-                      Row(
+                      const SizedBox(height: UiTokens.spacingSm),
+                      Wrap(
+                        spacing: UiTokens.s,
+                        runSpacing: UiTokens.s,
                         children: [
-                          Expanded(
+                          SizedBox(
+                            width: MediaQuery.sizeOf(context).width < 560
+                                ? double.infinity
+                                : 240,
                             child: FilledButton.icon(
                               onPressed: _startingRound ? null : _startRound,
                               icon: _startingRound
@@ -777,13 +810,17 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: UiTokens.s),
-                          Tooltip(
-                            message: 'Novo brinquedo',
-                            child: FilledButton.tonalIcon(
-                              onPressed: () => _openToyCreate(context),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Novo'),
+                          SizedBox(
+                            width: MediaQuery.sizeOf(context).width < 560
+                                ? double.infinity
+                                : 132,
+                            child: Tooltip(
+                              message: 'Novo brinquedo',
+                              child: FilledButton.tonalIcon(
+                                onPressed: () => _openToyCreate(context),
+                                icon: const Icon(Icons.add),
+                                label: const Text('Novo'),
+                              ),
                             ),
                           ),
                         ],
@@ -791,7 +828,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: UiTokens.m),
+                const SizedBox(height: UiTokens.spacingMd),
                 FilterBar(
                   boxes: _boxOptions(state),
                   categories: _categoryOptions(state),
@@ -808,48 +845,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                   showClear: showClear,
                   onClear: _clearFilters,
                 ),
-                const SizedBox(height: UiTokens.spacingXs),
-                Expanded(
-                  child: Builder(
-                    builder: (context) {
-                      if (state.loading && state.totalItemsCount == 0) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (state.totalItemsCount == 0) {
-                        return EmptyState(
-                          icon: Icons.toys,
-                          title: 'Nenhum brinquedo cadastrado',
-                          message:
-                              'Adicione brinquedos para montar seu cat\u00e1logo visual.',
-                          actionLabel: 'Novo brinquedo',
-                          onAction: () => _openToyCreate(context),
-                        );
-                      }
-
-                      if (visibleItems.isEmpty) {
-                        return EmptyState(
-                          icon: Icons.search_off,
-                          title: 'Nenhum resultado',
-                          message:
-                              'Ajuste busca e filtros para encontrar brinquedos.',
-                          actionLabel: 'Limpar',
-                          onAction: _clearFilters,
-                        );
-                      }
-
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: UiTokens.spacingLg + 20,
-                        ),
-                        child: _buildToyList(
-                          context,
-                          visibleItems,
-                          categoryById: categoryById,
-                        ),
-                      );
-                    },
-                  ),
+                const SizedBox(height: UiTokens.spacingSm),
+                _buildToyList(
+                  context,
+                  visibleItems,
+                  categoryById: categoryById,
                 ),
               ],
             );

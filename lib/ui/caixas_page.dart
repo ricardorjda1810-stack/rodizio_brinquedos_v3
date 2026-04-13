@@ -602,17 +602,16 @@ class _CaixasPageState extends State<CaixasPage> {
                         .add(item);
                   }
 
-                  final width = MediaQuery.sizeOf(context).width;
-                  final cols = width < 600 ? 2 : 4;
-
                   return LayoutBuilder(
                     builder: (context, constraints) {
+                      final cols =
+                          (constraints.maxWidth / 240).floor().clamp(1, 3);
                       final tileWidth =
                           (constraints.maxWidth - (UiTokens.s * (cols - 1))) /
                           cols;
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.only(bottom: 96),
+                        padding: const EdgeInsets.only(bottom: 110),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

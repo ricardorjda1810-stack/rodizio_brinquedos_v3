@@ -1,3 +1,5 @@
+﻿import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -70,12 +72,23 @@ class _CategoryQuickPickerCard extends StatelessWidget {
     required this.onTap,
   });
 
+  String _decodeDisplayText(String input) {
+    if (!(input.contains('\u00c3') || input.contains('\u00c2'))) return input;
+    try {
+      return utf8.decode(latin1.encode(input));
+    } catch (_) {
+      return input;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final normalizedExamples = (examplesText ?? '').trim();
+    final normalizedExamples =
+        _decodeDisplayText((examplesText ?? '').trim());
     final subtitle = normalizedExamples.isEmpty
         ? 'Exemplos ainda n\u00e3o definidos.'
         : 'Ex.: $normalizedExamples';
+    final displayName = _decodeDisplayText(name);
 
     return Material(
       color: Colors.transparent,
@@ -108,7 +121,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      name,
+                      displayName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textBody.copyWith(
@@ -144,3 +157,5 @@ class _CategoryQuickPickerCard extends StatelessWidget {
     );
   }
 }
+
+

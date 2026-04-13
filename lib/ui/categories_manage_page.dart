@@ -1,3 +1,5 @@
+﻿import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
@@ -16,6 +18,15 @@ class CategoriesManagePage extends StatelessWidget {
     required this.toyRepository,
     this.settingsRepository,
   });
+
+  String _decodeDisplayText(String input) {
+    if (!(input.contains('\u00c3') || input.contains('\u00c2'))) return input;
+    try {
+      return utf8.decode(latin1.encode(input));
+    } catch (_) {
+      return input;
+    }
+  }
 
   Future<void> _showCategoryDialog(
     BuildContext context, {
@@ -173,7 +184,8 @@ class CategoriesManagePage extends StatelessWidget {
                 ),
                 const SizedBox(height: UiTokens.spacingMd),
                 ...categories.map((c) {
-                  final examples = (c.examples ?? '').trim();
+                  final examples =
+                      _decodeDisplayText((c.examples ?? '').trim());
                   final statusSuffix = c.isActive ? 'Ativa' : 'Inativa';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: UiTokens.spacingSm),
@@ -190,7 +202,7 @@ class CategoriesManagePage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      c.name,
+                                      _decodeDisplayText(c.name),
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall,
@@ -290,3 +302,5 @@ class CategoriesManagePage extends StatelessWidget {
     );
   }
 }
+
+
