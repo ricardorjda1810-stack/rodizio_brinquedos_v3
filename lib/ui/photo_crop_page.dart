@@ -29,7 +29,7 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
     try {
       final croppedPath = await PhotoCropperService.cropToSquare(
         sourcePath: widget.sourcePath,
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 60));
       if (!mounted) return;
 
       if (croppedPath == null) {

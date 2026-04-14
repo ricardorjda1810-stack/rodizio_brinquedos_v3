@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Rodízio Brinquedos V3</string>
+	<string>Rod&#237;zio Brinquedos V3</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconName</key>
@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Este app usa a câmera para tirar fotos dos brinquedos.</string>
+	<string>Este app usa a c&#226;mera para tirar fotos dos brinquedos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Este app pode salvar fotos relacionadas aos brinquedos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

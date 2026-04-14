@@ -329,6 +329,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       selectedLocation = null;
     }
 
+    var confirmed = false;
     final result = await showDialog<String?>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -362,7 +363,10 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                 child: const Text('Cancelar'),
               ),
               FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(selectedLocation),
+                onPressed: () {
+                  confirmed = true;
+                  Navigator.of(ctx).pop(selectedLocation);
+                },
                 child: const Text('Salvar'),
               ),
             ],
@@ -371,6 +375,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       ),
     );
 
+    if (!confirmed) return;
     if (result == (item.toy.locationText ?? '').trim()) return;
 
     try {
@@ -399,6 +404,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     if (!context.mounted) return;
 
     String selectedBoxSelection = item.toy.boxId ?? _toyBoxNoSelectionValue;
+    var confirmed = false;
     if (item.toy.boxId != null && !boxes.any((b) => b.id == item.toy.boxId)) {
       selectedBoxSelection = _toyBoxNoSelectionValue;
     }
@@ -450,6 +456,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     return;
                   }
 
+                  confirmed = true;
                   Navigator.of(ctx).pop(
                     selectedBoxSelection == _toyBoxWithoutBoxValue
                         ? null
@@ -464,6 +471,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       ),
     );
 
+    if (!confirmed) return;
     if (result == item.toy.boxId) return;
 
     try {
@@ -587,6 +595,21 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     List<BrinquedosCatalogItem> items, {
     required Map<String, String> categoryById,
   }) {
+    final children = <Widget>[];
+    for (var index = 0; index < items.length; index++) {
+      final item = items[index];
+      children.add(
+        _buildToyRow(
+          context,
+          item,
+          categoryLabel: _categoryLabel(item, categoryById),
+        ),
+      );
+      if (index < items.length - 1) {
+        children.add(const Divider(height: 1, thickness: 0.6));
+      }
+    }
+
     return AppSurfaceCard(
       padding: const EdgeInsets.fromLTRB(
         UiTokens.spacingMd,
@@ -607,21 +630,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: UiTokens.spacingMd),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: items.length,
-            separatorBuilder: (_, __) =>
-                const Divider(height: 1, thickness: 0.6),
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _buildToyRow(
-                context,
-                item,
-                categoryLabel: _categoryLabel(item, categoryById),
-              );
-            },
-          ),
+          Column(children: children),
         ],
       ),
     );
@@ -759,9 +768,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             }
 
             return ListView(
-              padding: const EdgeInsets.only(
+              padding: EdgeInsets.only(
                 top: UiTokens.m,
-                bottom: UiTokens.spacingXl + 36,
+                bottom: UiTokens.spacingXl +
+                    MediaQuery.paddingOf(context).bottom +
+                    88,
               ),
               children: [
                 AppSurfaceCard(

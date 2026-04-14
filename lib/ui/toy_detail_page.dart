@@ -212,6 +212,7 @@ class ToyDetailPage extends StatelessWidget {
     if (!context.mounted) return;
 
     String selectedBoxSelection = currentBoxId ?? _toyBoxNoSelectionValue;
+    var confirmed = false;
     if (currentBoxId != null && !boxes.any((b) => b.id == currentBoxId)) {
       selectedBoxSelection = _toyBoxNoSelectionValue;
     }
@@ -261,6 +262,7 @@ class ToyDetailPage extends StatelessWidget {
                     return;
                   }
 
+                  confirmed = true;
                   Navigator.of(ctx).pop(
                     selectedBoxSelection == _toyBoxWithoutBoxValue
                         ? null
@@ -275,6 +277,7 @@ class ToyDetailPage extends StatelessWidget {
       ),
     );
 
+    if (!confirmed) return;
     if (result == currentBoxId) return;
 
     try {
