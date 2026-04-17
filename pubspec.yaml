@@ -2,7 +2,7 @@
 description: Rodízio de Brinquedos 2.1 (rebuild v3)
 publish_to: 'none'
 
-version: 1.0.0+25
+version: 1.0.0+26
 environment:
   sdk: ">=3.3.0 <4.0.0"
 
@@ -12,6 +12,7 @@ dependencies:
 
   intl: ^0.19.0
   uuid: ^4.4.0
+yy
 
   image_picker: ^1.0.7
   image_cropper: ^9.1.0

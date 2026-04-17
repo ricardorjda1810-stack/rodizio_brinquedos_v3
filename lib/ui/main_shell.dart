@@ -113,7 +113,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: UiTokens.bg,
-      extendBody: true,
+      extendBody: false,
       appBar: _currentIndex == 0 ? null : _buildStandardAppBar(context),
       body: IndexedStack(
         index: _currentIndex,

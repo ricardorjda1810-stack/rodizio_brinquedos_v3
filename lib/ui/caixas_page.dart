@@ -13,6 +13,7 @@ import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 
@@ -34,6 +35,12 @@ class CaixasPage extends StatefulWidget {
 
 class _CaixasPageState extends State<CaixasPage> {
   String? _expandedBoxId;
+
+  int _responsiveColumnCount(double maxWidth) {
+    if (maxWidth >= 1080) return 3;
+    if (maxWidth >= 560) return 2;
+    return 1;
+  }
 
   String _boxTitle(Boxe box) {
     final local = box.local.trim();
@@ -555,6 +562,9 @@ class _CaixasPageState extends State<CaixasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomNavigationReserve =
+        AppBottomNavigation.reservedScrollPadding(context);
+
     return Scaffold(
       backgroundColor: UiTokens.bg,
       body: SafeArea(
@@ -605,13 +615,13 @@ class _CaixasPageState extends State<CaixasPage> {
                   return LayoutBuilder(
                     builder: (context, constraints) {
                       final cols =
-                          (constraints.maxWidth / 240).floor().clamp(1, 3);
+                          _responsiveColumnCount(constraints.maxWidth);
+                      final totalSpacing = UiTokens.s * (cols - 1);
                       final tileWidth =
-                          (constraints.maxWidth - (UiTokens.s * (cols - 1))) /
-                          cols;
+                          (constraints.maxWidth - totalSpacing) / cols;
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.only(bottom: 110),
+                        padding: EdgeInsets.only(bottom: bottomNavigationReserve),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

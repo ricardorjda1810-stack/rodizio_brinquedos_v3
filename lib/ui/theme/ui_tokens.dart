@@ -41,19 +41,19 @@ class UiTokens {
   static const double secondary = 13;
 
   // RDB 2.1 canonical color tokens
-  static const Color primary = Color(0xFF4F8FEA);
-  static const Color primaryStrong = Color(0xFF2F6FD1);
-  static const Color primarySoft = Color(0xFFE7F0FF);
-  static const Color secondarySoft = Color(0xFFF0F5FF);
+  static const Color primary = Color(0xFF7AA68A);
+  static const Color primaryStrong = Color(0xFF5B8B6A);
+  static const Color primarySoft = Color(0xFFE9F3EB);
+  static const Color secondarySoft = Color(0xFFF3F0E7);
   static const Color bg = Color(0xFFF7F6F1);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF2E3947);
-  static const Color textSecondary = Color(0xFF6F7C8C);
-  static const Color border = Color(0xFFE3E8EF);
-  static const Color success = Color(0xFF5B97C2);
+  static const Color textPrimary = Color(0xFF2F3A33);
+  static const Color textSecondary = Color(0xFF758178);
+  static const Color border = Color(0xFFE6E7DE);
+  static const Color success = Color(0xFF6E9B7C);
   static const Color warning = Color(0xFFD2A65A);
   static const Color danger = Color(0xFFC77C73);
-  static const Color shadow = Color(0x18203D73);
+  static const Color shadow = Color(0x140C1A12);
 
   // Backwards-compatible aliases
   static const Color card = surface;

@@ -4,6 +4,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/toy_row_item.dart';
 
@@ -86,6 +87,8 @@ class _RodadaPageState extends State<RodadaPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final bottomNavigationReserve =
+        AppBottomNavigation.reservedScrollPadding(context) + UiTokens.spacingLg;
 
     return StreamBuilder<List<RoundToyWithBox>>(
       stream: widget.roundRepository.watchActiveRoundToysWithBox(),
@@ -98,11 +101,11 @@ class _RodadaPageState extends State<RodadaPage> {
         final items = snapshot.data ?? const <RoundToyWithBox>[];
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             UiTokens.spacingMd,
             0,
             UiTokens.spacingMd,
-            UiTokens.spacing2xl + 88,
+            bottomNavigationReserve,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
