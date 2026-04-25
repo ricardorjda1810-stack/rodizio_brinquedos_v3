@@ -5,7 +5,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PurchaseService extends ChangeNotifier {
-  static const String productId = 'com.rodiziobrinquedos.premium.mensal';
+  static const String productId = 'com.rodiziobrinquedos.premium.monthly';
   static const String _premiumStorageKey = 'premium_active';
   static const Object _noValue = Object();
 
