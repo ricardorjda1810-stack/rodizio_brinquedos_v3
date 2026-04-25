@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
@@ -11,6 +15,7 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/toy_row_item.dart';
 class RodadaPage extends StatefulWidget {
   final RoundRepository roundRepository;
   final ToyRepository toyRepository;
+  final PurchaseService purchaseService;
   final VoidCallback onOpenRodizioTab;
   final VoidCallback onOpenBrinquedosTab;
   final VoidCallback onOpenSettings;
@@ -19,6 +24,7 @@ class RodadaPage extends StatefulWidget {
     super.key,
     required this.roundRepository,
     required this.toyRepository,
+    required this.purchaseService,
     required this.onOpenRodizioTab,
     required this.onOpenBrinquedosTab,
     required this.onOpenSettings,
@@ -29,7 +35,12 @@ class RodadaPage extends StatefulWidget {
 }
 
 class _RodadaPageState extends State<RodadaPage> {
+  static const String _paywallSeenAfterFirstRoundKey =
+      'paywall_seen_after_first_round';
+
   bool _startingRound = false;
+  bool _checkingAutoPaywall = false;
+  bool _autoPaywallQueued = false;
 
   void _openToyDetail(String toyId) {
     Navigator.of(context).push(
@@ -37,6 +48,7 @@ class _RodadaPageState extends State<RodadaPage> {
         builder: (_) => ToyDetailPage(
           toyId: toyId,
           toyRepository: widget.toyRepository,
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
@@ -44,6 +56,11 @@ class _RodadaPageState extends State<RodadaPage> {
 
   Future<void> _startRound() async {
     if (_startingRound) return;
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
 
     setState(() => _startingRound = true);
     try {
@@ -63,7 +80,8 @@ class _RodadaPageState extends State<RodadaPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Rodada criada com ${result.selectedCount} brinquedos.'),
+          content:
+              Text('Rodada criada com ${result.selectedCount} brinquedos.'),
         ),
       );
       widget.onOpenRodizioTab();
@@ -83,6 +101,43 @@ class _RodadaPageState extends State<RodadaPage> {
     }
   }
 
+  void _schedulePaywallAfterFirstRound() {
+    if (_autoPaywallQueued || _checkingAutoPaywall) return;
+    if (widget.purchaseService.isPremium) return;
+
+    _autoPaywallQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showPaywallAfterFirstRoundIfNeeded();
+    });
+  }
+
+  Future<void> _showPaywallAfterFirstRoundIfNeeded() async {
+    if (!mounted || _checkingAutoPaywall) return;
+    if (widget.purchaseService.isPremium) return;
+
+    _checkingAutoPaywall = true;
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final hasSeen =
+          preferences.getBool(_paywallSeenAfterFirstRoundKey) ?? false;
+
+      if (hasSeen || widget.purchaseService.isPremium) return;
+
+      await preferences.setBool(_paywallSeenAfterFirstRoundKey, true);
+
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PaywallPage(
+            purchaseService: widget.purchaseService,
+          ),
+        ),
+      );
+    } finally {
+      _checkingAutoPaywall = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -99,6 +154,9 @@ class _RodadaPageState extends State<RodadaPage> {
         }
 
         final items = snapshot.data ?? const <RoundToyWithBox>[];
+        if (items.isNotEmpty) {
+          _schedulePaywallAfterFirstRound();
+        }
 
         return SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
@@ -117,7 +175,9 @@ class _RodadaPageState extends State<RodadaPage> {
                       icon: Icons.play_circle_outline,
                       label: 'Rodada ativa',
                       value: '${items.length}',
-                      helper: items.isEmpty ? 'nenhum item agora' : 'itens dispon\u00edveis',
+                      helper: items.isEmpty
+                          ? 'nenhum item agora'
+                          : 'itens dispon\u00edveis',
                     ),
                   ),
                   const SizedBox(width: UiTokens.spacingSm),
@@ -126,7 +186,9 @@ class _RodadaPageState extends State<RodadaPage> {
                       icon: Icons.auto_awesome_outlined,
                       label: 'Clima do dia',
                       value: items.isEmpty ? 'Livre' : 'Pronto',
-                      helper: items.isEmpty ? 'organize com calma' : 'tudo separado',
+                      helper: items.isEmpty
+                          ? 'organize com calma'
+                          : 'tudo separado',
                     ),
                   ),
                 ],
@@ -186,7 +248,8 @@ class _RodadaPageState extends State<RodadaPage> {
                         height: 44,
                         decoration: BoxDecoration(
                           color: UiTokens.primarySoft,
-                          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+                          borderRadius:
+                              BorderRadius.circular(UiTokens.radiusLg),
                         ),
                         alignment: Alignment.center,
                         child: Icon(

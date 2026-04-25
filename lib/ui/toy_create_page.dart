@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
@@ -16,11 +18,13 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/category_quick_picker.dart';
 class ToyCreatePage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository? settingsRepository;
+  final PurchaseService? purchaseService;
 
   const ToyCreatePage({
     super.key,
     required this.toyRepository,
     this.settingsRepository,
+    this.purchaseService,
   });
 
   @override
@@ -98,6 +102,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _createBox() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     await HapticFeedback.selectionClick();
     if (!mounted) return;
     final navigator = Navigator.of(context);
@@ -106,6 +116,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         builder: (_) => BoxCreatePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
@@ -116,6 +127,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _save() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();
@@ -140,6 +157,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _saveAndAddAnother() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();
@@ -234,8 +257,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                     builder: (context, locationsSnap) {
                       final locations =
                           locationsSnap.data ?? const <LocationDefinition>[];
-                      final categoriesSorted = [...categories]
-                        ..sort((a, b) {
+                      final categoriesSorted = [...categories]..sort((a, b) {
                           int rank(String name) {
                             final n = name.toLowerCase();
                             if (n.contains('veic')) return 0;
@@ -278,10 +300,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                               ),
                               children: [
                                 AppSurfaceCard(
-                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding:
+                                      const EdgeInsets.all(UiTokens.spacingMd),
                                   color: UiTokens.primarySoft,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Cadastrar com calma',
@@ -289,14 +313,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .titleMedium,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingXs),
+                                      const SizedBox(
+                                          height: UiTokens.spacingXs),
                                       Text(
                                         'Escolha a foto, marque a categoria principal e indique onde o brinquedo fica guardado.',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium
                                             ?.copyWith(
-                                              color: colorScheme.onSurfaceVariant,
+                                              color:
+                                                  colorScheme.onSurfaceVariant,
                                             ),
                                       ),
                                     ],
@@ -304,9 +330,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding:
+                                      const EdgeInsets.all(UiTokens.spacingMd),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Foto do brinquedo',
@@ -314,14 +342,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .titleSmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingXs),
+                                      const SizedBox(
+                                          height: UiTokens.spacingXs),
                                       Text(
                                         'A foto aparece primeiro e ajuda a reconhecer tudo mais r\u00e1pido.',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingSm),
+                                      const SizedBox(
+                                          height: UiTokens.spacingSm),
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(
                                           UiTokens.radiusCard,
@@ -331,7 +361,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           child: _photoPreview(),
                                         ),
                                       ),
-                                      const SizedBox(height: UiTokens.spacingSm),
+                                      const SizedBox(
+                                          height: UiTokens.spacingSm),
                                       Row(
                                         children: [
                                           Expanded(
@@ -348,8 +379,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                               icon: const Icon(
                                                 Icons.photo_camera_outlined,
                                               ),
-                                              label:
-                                                  const Text('C\u00e2mera'),
+                                              label: const Text('C\u00e2mera'),
                                             ),
                                           ),
                                           const SizedBox(width: UiTokens.s),
@@ -367,8 +397,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                               icon: const Icon(
                                                 Icons.photo_library_outlined,
                                               ),
-                                              label:
-                                                  const Text('Galeria'),
+                                              label: const Text('Galeria'),
                                             ),
                                           ),
                                         ],
@@ -378,9 +407,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding:
+                                      const EdgeInsets.all(UiTokens.spacingMd),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Categoria principal',
@@ -388,14 +419,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .titleSmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingXs),
+                                      const SizedBox(
+                                          height: UiTokens.spacingXs),
                                       Text(
                                         'Escolha s\u00f3 uma: a que melhor representa o est\u00edmulo principal.',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingSm),
+                                      const SizedBox(
+                                          height: UiTokens.spacingSm),
                                       CategoryQuickPicker<CategoryDefinition>(
                                         categories: categoriesSorted,
                                         selectedId: _selectedCategoryId,
@@ -408,7 +441,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         ),
                                       ),
                                       if (_selectedCategoryId == null) ...[
-                                        const SizedBox(height: UiTokens.spacingSm),
+                                        const SizedBox(
+                                            height: UiTokens.spacingSm),
                                         Text(
                                           'Obrigat\u00f3rio.',
                                           style: Theme.of(context)
@@ -425,9 +459,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding:
+                                      const EdgeInsets.all(UiTokens.spacingMd),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Onde guardar',
@@ -435,14 +471,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                             .textTheme
                                             .titleSmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingXs),
+                                      const SizedBox(
+                                          height: UiTokens.spacingXs),
                                       Text(
                                         'Voc\u00ea pode deixar em uma caixa ou marcar como item sem caixa.',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall,
                                       ),
-                                      const SizedBox(height: UiTokens.spacingMd),
+                                      const SizedBox(
+                                          height: UiTokens.spacingMd),
                                       LayoutBuilder(
                                         builder: (context, constraints) {
                                           final compact =
@@ -455,34 +493,38 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                               SizedBox(
                                                 width: compact
                                                     ? constraints.maxWidth
-                                                    : constraints.maxWidth - 118,
-                                                child: DropdownButtonFormField<String?>(
+                                                    : constraints.maxWidth -
+                                                        118,
+                                                child: DropdownButtonFormField<
+                                                    String?>(
                                                   initialValue:
                                                       _selectedBoxSelection,
                                                   decoration: InputDecoration(
                                                     labelText: 'Caixa',
                                                     helperText:
                                                         'Escolha uma caixa ou marque "Sem caixa".',
-                                                    errorText:
-                                                        _boxSelectionTouched &&
-                                                                !_hasExplicitBoxSelection
-                                                            ? _locationRequiredMessage
-                                                            : null,
+                                                    errorText: _boxSelectionTouched &&
+                                                            !_hasExplicitBoxSelection
+                                                        ? _locationRequiredMessage
+                                                        : null,
                                                   ),
-                                                  items: <DropdownMenuItem<String?>>[
-                                                    const DropdownMenuItem<String?>(
+                                                  items: <DropdownMenuItem<
+                                                      String?>>[
+                                                    const DropdownMenuItem<
+                                                        String?>(
                                                       value: null,
                                                       child: Text(
                                                         'Selecione uma caixa ou "Sem caixa"',
                                                       ),
                                                     ),
-                                                    const DropdownMenuItem<String?>(
+                                                    const DropdownMenuItem<
+                                                        String?>(
                                                       value: _noBoxOptionValue,
                                                       child: Text('Sem caixa'),
                                                     ),
                                                     ...boxes.map(
-                                                      (b) =>
-                                                          DropdownMenuItem<String?>(
+                                                      (b) => DropdownMenuItem<
+                                                          String?>(
                                                         value: b.id,
                                                         child: Text(
                                                           'Caixa ${b.number} - ${b.local}',
@@ -505,8 +547,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width:
-                                                    compact ? constraints.maxWidth : 110,
+                                                width: compact
+                                                    ? constraints.maxWidth
+                                                    : 110,
                                                 child: FilledButton.tonalIcon(
                                                   onPressed: _saving
                                                       ? null
@@ -528,10 +571,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         curve: Curves.easeOut,
                                         alignment: Alignment.topCenter,
                                         child: AnimatedSwitcher(
-                                          duration: _localFieldAnimationDuration,
+                                          duration:
+                                              _localFieldAnimationDuration,
                                           switchInCurve: Curves.easeOut,
                                           switchOutCurve: Curves.easeOut,
-                                          transitionBuilder: (child, animation) {
+                                          transitionBuilder:
+                                              (child, animation) {
                                             final offset = Tween<Offset>(
                                               begin: const Offset(0, -0.03),
                                               end: Offset.zero,
@@ -554,15 +599,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                     top: UiTokens.m,
                                                   ),
                                                   child:
-                                                      DropdownButtonFormField<String?>(
+                                                      DropdownButtonFormField<
+                                                          String?>(
                                                     initialValue:
                                                         _selectedLooseLocation,
                                                     decoration:
                                                         const InputDecoration(
                                                       labelText: 'Local',
                                                     ),
-                                                    items:
-                                                        <DropdownMenuItem<String?>>[
+                                                    items: <DropdownMenuItem<
+                                                        String?>>[
                                                       const DropdownMenuItem<
                                                           String?>(
                                                         value: null,

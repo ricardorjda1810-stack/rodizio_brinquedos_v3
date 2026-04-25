@@ -1,9 +1,11 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
@@ -12,11 +14,13 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 class CategoriesManagePage extends StatelessWidget {
   final ToyRepository toyRepository;
   final SettingsRepository? settingsRepository;
+  final PurchaseService? purchaseService;
 
   const CategoriesManagePage({
     super.key,
     required this.toyRepository,
     this.settingsRepository,
+    this.purchaseService,
   });
 
   String _decodeDisplayText(String input) {
@@ -32,6 +36,13 @@ class CategoriesManagePage extends StatelessWidget {
     BuildContext context, {
     CategoryDefinition? category,
   }) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final nameController = TextEditingController(text: category?.name ?? '');
     final examplesController = TextEditingController(
       text: category?.examples ?? '',
@@ -91,7 +102,15 @@ class CategoriesManagePage extends StatelessWidget {
     );
   }
 
-  Future<void> _remove(BuildContext context, CategoryDefinition category) async {
+  Future<void> _remove(
+      BuildContext context, CategoryDefinition category) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -122,6 +141,19 @@ class CategoriesManagePage extends StatelessWidget {
       }
       await toyRepository.removeCategory(categoryId: category.id);
     }
+  }
+
+  Future<void> _reactivate(
+    BuildContext context,
+    CategoryDefinition category,
+  ) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+
+    await toyRepository.reactivateCategory(categoryId: category.id);
   }
 
   @override
@@ -250,9 +282,7 @@ class CategoriesManagePage extends StatelessWidget {
                                     return;
                                   }
                                   if (value == 'reactivate') {
-                                    toyRepository.reactivateCategory(
-                                      categoryId: c.id,
-                                    );
+                                    _reactivate(context, c);
                                     return;
                                   }
                                   if (value == 'delete') {
@@ -302,5 +332,3 @@ class CategoriesManagePage extends StatelessWidget {
     );
   }
 }
-
-

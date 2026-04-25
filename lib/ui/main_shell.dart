@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_shell_header.dart';
@@ -16,12 +17,14 @@ class MainShell extends StatefulWidget {
   final ToyRepository toyRepository;
   final RoundRepository roundRepository;
   final SettingsRepository settingsRepository;
+  final PurchaseService purchaseService;
 
   const MainShell({
     super.key,
     required this.toyRepository,
     required this.roundRepository,
     required this.settingsRepository,
+    required this.purchaseService,
   });
 
   @override
@@ -57,6 +60,7 @@ class _MainShellState extends State<MainShell> {
         builder: (_) => SettingsPage(
           settingsRepository: widget.settingsRepository,
           toyRepository: widget.toyRepository,
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
@@ -127,6 +131,7 @@ class _MainShellState extends State<MainShell> {
                   child: RodadaPage(
                     roundRepository: widget.roundRepository,
                     toyRepository: widget.toyRepository,
+                    purchaseService: widget.purchaseService,
                     onOpenRodizioTab: () => _goTo(0),
                     onOpenBrinquedosTab: () => _goTo(1),
                     onOpenSettings: _openSettings,
@@ -139,6 +144,7 @@ class _MainShellState extends State<MainShell> {
             toyRepository: widget.toyRepository,
             roundRepository: widget.roundRepository,
             settingsRepository: widget.settingsRepository,
+            purchaseService: widget.purchaseService,
             onOpenRodizioTab: () => _goTo(0),
             requestedBoxFilterId: _requestedBoxFilterId,
             requestedBoxFilterVersion: _requestedBoxFilterVersion,
@@ -146,6 +152,7 @@ class _MainShellState extends State<MainShell> {
           CaixasPage(
             toyRepository: widget.toyRepository,
             settingsRepository: widget.settingsRepository,
+            purchaseService: widget.purchaseService,
             onOpenBrinquedosForBox: _openBrinquedosForBox,
           ),
         ],

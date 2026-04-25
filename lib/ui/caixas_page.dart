@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
@@ -20,12 +22,14 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 class CaixasPage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository settingsRepository;
+  final PurchaseService? purchaseService;
   final void Function(String boxId) onOpenBrinquedosForBox;
 
   const CaixasPage({
     super.key,
     required this.toyRepository,
     required this.settingsRepository,
+    this.purchaseService,
     required this.onOpenBrinquedosForBox,
   });
 
@@ -49,11 +53,18 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _openAddBoxPage(BuildContext context) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed || !context.mounted) return;
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BoxCreatePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
@@ -64,6 +75,13 @@ class _CaixasPageState extends State<CaixasPage> {
     String boxId,
     String label,
   ) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -99,6 +117,13 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _pickBoxPhoto(BuildContext context, Boxe box) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
@@ -149,6 +174,13 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _editBoxLocal(BuildContext context, Boxe box) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final locations = await widget.toyRepository.watchLocations().first;
     if (!context.mounted) return;
     if (locations.isEmpty) {
@@ -216,6 +248,13 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _editBoxNotes(BuildContext context, Boxe box) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final controller = TextEditingController(text: box.notes ?? '');
     final result = await showDialog<String>(
       context: context,
@@ -266,8 +305,11 @@ class _CaixasPageState extends State<CaixasPage> {
   void _openToyDetail(BuildContext context, String toyId) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            ToyDetailPage(toyId: toyId, toyRepository: widget.toyRepository),
+        builder: (_) => ToyDetailPage(
+          toyId: toyId,
+          toyRepository: widget.toyRepository,
+          purchaseService: widget.purchaseService,
+        ),
       ),
     );
   }
@@ -298,9 +340,8 @@ class _CaixasPageState extends State<CaixasPage> {
       child: Column(
         children: List<Widget>.generate(boxItems.length, (index) {
           final item = boxItems[index];
-          final toyName = item.toy.name.trim().isEmpty
-              ? 'Sem nome'
-              : item.toy.name.trim();
+          final toyName =
+              item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
           final categoryName = item.category?.name.trim();
           final subtitle = (categoryName == null || categoryName.isEmpty)
               ? 'Brinquedo da caixa'
@@ -328,7 +369,9 @@ class _CaixasPageState extends State<CaixasPage> {
                               toyName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyMedium
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 2),
@@ -400,7 +443,8 @@ class _CaixasPageState extends State<CaixasPage> {
                                   .colorScheme
                                   .surfaceContainerHighest,
                               child: const Center(
-                                child: Icon(Icons.inventory_2_outlined, size: 28),
+                                child:
+                                    Icon(Icons.inventory_2_outlined, size: 28),
                               ),
                             ),
                           ),
@@ -424,7 +468,9 @@ class _CaixasPageState extends State<CaixasPage> {
                                 BorderRadius.circular(UiTokens.radiusButton),
                           ),
                           child: Text(
-                            isExpanded ? 'Ocultar brinquedos' : 'Ver brinquedos',
+                            isExpanded
+                                ? 'Ocultar brinquedos'
+                                : 'Ver brinquedos',
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
@@ -516,7 +562,8 @@ class _CaixasPageState extends State<CaixasPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: UiTokens.spacingMd),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: UiTokens.spacingMd),
               child: Text(
                 subtitle,
                 maxLines: isExpanded ? 3 : 2,
@@ -537,7 +584,9 @@ class _CaixasPageState extends State<CaixasPage> {
                 children: [
                   _BoxMetaChip(
                     icon: Icons.location_on_outlined,
-                    label: box.local.trim().isEmpty ? 'Sem local' : box.local.trim(),
+                    label: box.local.trim().isEmpty
+                        ? 'Sem local'
+                        : box.local.trim(),
                   ),
                   _BoxMetaChip(
                     icon: Icons.toys_outlined,
@@ -614,14 +663,14 @@ class _CaixasPageState extends State<CaixasPage> {
 
                   return LayoutBuilder(
                     builder: (context, constraints) {
-                      final cols =
-                          _responsiveColumnCount(constraints.maxWidth);
+                      final cols = _responsiveColumnCount(constraints.maxWidth);
                       final totalSpacing = UiTokens.s * (cols - 1);
                       final tileWidth =
                           (constraints.maxWidth - totalSpacing) / cols;
 
                       return SingleChildScrollView(
-                        padding: EdgeInsets.only(bottom: bottomNavigationReserve),
+                        padding:
+                            EdgeInsets.only(bottom: bottomNavigationReserve),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -633,7 +682,8 @@ class _CaixasPageState extends State<CaixasPage> {
                                 children: [
                                   Text(
                                     'Caixas da casa',
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                   const SizedBox(height: UiTokens.spacingXs),
                                   Text(
@@ -654,11 +704,12 @@ class _CaixasPageState extends State<CaixasPage> {
                             Wrap(
                               spacing: UiTokens.s,
                               runSpacing: UiTokens.s,
-                              children: List<Widget>.generate(boxes.length, (i) {
+                              children:
+                                  List<Widget>.generate(boxes.length, (i) {
                                 final box = boxes[i];
                                 final count = toyCountByBoxId[box.id] ?? 0;
-                                final boxItems =
-                                    toysByBoxId[box.id] ?? const <ToyCatalogItem>[];
+                                final boxItems = toysByBoxId[box.id] ??
+                                    const <ToyCatalogItem>[];
                                 return SizedBox(
                                   width: tileWidth,
                                   child: _buildBoxCard(

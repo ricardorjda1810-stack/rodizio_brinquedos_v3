@@ -6,6 +6,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
 class Bootstrap extends StatefulWidget {
   const Bootstrap({super.key});
@@ -19,6 +20,7 @@ class _BootstrapState extends State<Bootstrap> {
   late final ToyRepository _toyRepository;
   late final RoundRepository _roundRepository;
   late final SettingsRepository _settingsRepository;
+  PurchaseService? _purchaseService;
   late Future<void> _initFuture;
 
   @override
@@ -33,7 +35,8 @@ class _BootstrapState extends State<Bootstrap> {
 
   @override
   void dispose() {
-    _settingsRepository.dispose(); // ✅ fecha streams
+    _purchaseService?.dispose();
+    _settingsRepository.dispose();
     _db.close();
     super.dispose();
   }
@@ -53,7 +56,8 @@ class _BootstrapState extends State<Bootstrap> {
           );
         }
 
-        if (!snapshot.hasData && snapshot.connectionState != ConnectionState.done) {
+        if (!snapshot.hasData &&
+            snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
@@ -77,6 +81,7 @@ class _BootstrapState extends State<Bootstrap> {
           toyRepository: _toyRepository,
           roundRepository: _roundRepository,
           settingsRepository: _settingsRepository,
+          purchaseService: _purchaseService!,
         );
       },
     );
@@ -85,6 +90,7 @@ class _BootstrapState extends State<Bootstrap> {
   Future<void> _runInitialization() async {
     await _toyRepository.ensureSeedData();
     await _settingsRepository.load();
+    _purchaseService = await PurchaseService.create();
   }
 }
 
@@ -142,4 +148,3 @@ class _BootstrapErrorScreen extends StatelessWidget {
     );
   }
 }
-

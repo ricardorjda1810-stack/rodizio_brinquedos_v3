@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
@@ -15,6 +17,7 @@ class BrincadeiraProntaPage extends StatefulWidget {
   final String recommendedText;
   final int recommendedMin;
   final int recommendedMax;
+  final PurchaseService? purchaseService;
 
   const BrincadeiraProntaPage({
     super.key,
@@ -25,6 +28,7 @@ class BrincadeiraProntaPage extends StatefulWidget {
     required this.recommendedText,
     required this.recommendedMin,
     required this.recommendedMax,
+    this.purchaseService,
   });
 
   @override
@@ -63,6 +67,13 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
   }
 
   Future<void> _addToy() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!mounted) return;
+
     if (_selected.length >= _maxSelected) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Limite de 12 brinquedos no conjunto.')),
@@ -127,13 +138,27 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
     setState(() => _selected = [..._selected, picked]);
   }
 
-  void _removeToy(String toyId) {
+  Future<void> _removeToy(String toyId) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!mounted) return;
+
     setState(
       () => _selected = _selected.where((it) => it.toy.id != toyId).toList(),
     );
   }
 
   Future<void> _save() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+    if (!mounted) return;
+
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -185,9 +210,8 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
                     Text(
                       'Faixa et\u00e1ria: ${widget.ageLabel} (recomendado: ${widget.recommendedText})',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     if (_outsideRecommended) ...[
@@ -237,8 +261,7 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
                         padding: const EdgeInsets.all(UiTokens.spacingMd),
                         child: ListView.separated(
                           itemCount: _selected.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(height: 1),
+                          separatorBuilder: (_, __) => const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final item = _selected[index];
                             final title = item.toy.name.trim().isEmpty

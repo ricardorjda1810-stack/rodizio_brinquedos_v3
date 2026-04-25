@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -10,11 +13,13 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 class SettingsPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final ToyRepository toyRepository;
+  final PurchaseService purchaseService;
 
   const SettingsPage({
     super.key,
     required this.settingsRepository,
     required this.toyRepository,
+    required this.purchaseService,
   });
 
   @override
@@ -102,6 +107,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _persistAutoClamp(Map<String, int> values) async {
+    if (!widget.purchaseService.isPremium) return;
+
     for (final entry in values.entries) {
       if (_autoClampPending.contains(entry.key)) continue;
       _autoClampPending.add(entry.key);
@@ -118,6 +125,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _save() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     for (final row in _latestRows) {
       final id = row.category.id;
       final included = _includedDraft[id] ?? row.isIncluded;
@@ -145,6 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (_) => CategoriesManagePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
@@ -156,12 +170,29 @@ class _SettingsPageState extends State<SettingsPage> {
         builder: (_) => LocationsManagePage(
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
+          purchaseService: widget.purchaseService,
+        ),
+      ),
+    );
+  }
+
+  void _openPaywall() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PaywallPage(
+          purchaseService: widget.purchaseService,
         ),
       ),
     );
   }
 
   Future<void> _restoreRoundDefaults() async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     await widget.toyRepository.restoreRoundCategoryDefaults();
 
     if (!mounted) return;
@@ -308,10 +339,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     return ListTile(
                       enabled: enabled,
                       title: Text('$value'),
-                      trailing:
-                          currentQuota == value ? const Icon(Icons.check) : null,
-                      onTap:
-                          enabled ? () => Navigator.of(context).pop(value) : null,
+                      trailing: currentQuota == value
+                          ? const Icon(Icons.check)
+                          : null,
+                      onTap: enabled
+                          ? () => Navigator.of(context).pop(value)
+                          : null,
                     );
                   }),
                   ListTile(
@@ -447,6 +480,30 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildPremiumCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Premium',
+            style: textTheme.titleSmall,
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          _SettingsTile(
+            icon: Icons.workspace_premium_outlined,
+            title: 'Teste o Premium',
+            subtitle: widget.purchaseService.isPremium
+                ? 'Assinatura ativa neste aparelho'
+                : 'Abrir tela de assinatura para testes',
+            onTap: _openPaywall,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -499,10 +556,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text(
                       'Ajuste prefer\u00eancias e a composi\u00e7\u00e3o da rodada de forma simples e organizada.',
                       style: textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -512,10 +567,13 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: UiTokens.s),
               _buildFeedbackCard(textTheme),
               const SizedBox(height: UiTokens.s),
+              _buildPremiumCard(textTheme),
+              const SizedBox(height: UiTokens.s),
               AppSurfaceCard(
                 padding: const EdgeInsets.all(UiTokens.spacingMd),
                 child: StreamBuilder<Map<String, int>>(
-                  stream: widget.toyRepository.watchAvailableToyCountByCategory(),
+                  stream:
+                      widget.toyRepository.watchAvailableToyCountByCategory(),
                   builder: (context, availableSnapshot) {
                     final availableCounts =
                         availableSnapshot.data ?? const <String, int>{};
@@ -532,7 +590,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
                         final availableTotal = rows.fold<int>(
                           0,
-                          (sum, row) => sum + (availableCounts[row.category.id] ?? 0),
+                          (sum, row) =>
+                              sum + (availableCounts[row.category.id] ?? 0),
                         );
 
                         final totalSelected = _currentTotal();
@@ -560,7 +619,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             else
                               ...rows.map((row) {
                                 final id = row.category.id;
-                                final included = _includedDraft[id] ?? row.isIncluded;
+                                final included =
+                                    _includedDraft[id] ?? row.isIncluded;
                                 final quota = _quotaDraft[id] ??
                                     (row.quota < 0 ? 0 : row.quota);
                                 final available = availableCounts[id] ?? 0;
@@ -607,11 +667,13 @@ class _SettingsPageState extends State<SettingsPage> {
                                             ],
                                           ),
                                         ),
-                                        const SizedBox(width: UiTokens.spacingSm),
+                                        const SizedBox(
+                                            width: UiTokens.spacingSm),
                                         InkWell(
                                           borderRadius:
                                               BorderRadius.circular(999),
-                                          onTap: () => _selectQuota(row, available),
+                                          onTap: () =>
+                                              _selectQuota(row, available),
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 12,

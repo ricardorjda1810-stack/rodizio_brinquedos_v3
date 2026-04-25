@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
@@ -15,11 +17,13 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 class BoxCreatePage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository? settingsRepository;
+  final PurchaseService? purchaseService;
 
   const BoxCreatePage({
     super.key,
     required this.toyRepository,
     this.settingsRepository,
+    this.purchaseService,
   });
 
   @override
@@ -50,6 +54,12 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
   }
 
   Future<void> _save(List<LocationDefinition> locations) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed) return;
+
     final localToSave = _resolveLocalToSave(locations);
 
     setState(() => _saving = true);
@@ -178,7 +188,8 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                   fit: BoxFit.cover,
                   gaplessPlayback: true,
                   errorBuilder: (_, __, ___) => Container(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -221,13 +232,13 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
               return StreamBuilder<List<LocationDefinition>>(
                 stream: widget.toyRepository.watchLocations(),
                 builder: (context, snapshot) {
-                  final locations = snapshot.data ?? const <LocationDefinition>[];
+                  final locations =
+                      snapshot.data ?? const <LocationDefinition>[];
 
-                  final selectedLocationId =
-                      _selectedLocationId != null &&
-                              locations.any((l) => l.id == _selectedLocationId)
-                          ? _selectedLocationId
-                          : null;
+                  final selectedLocationId = _selectedLocationId != null &&
+                          locations.any((l) => l.id == _selectedLocationId)
+                      ? _selectedLocationId
+                      : null;
                   if (selectedLocationId == null &&
                       _selectedLocationId != null) {
                     _selectedLocationId = null;
@@ -345,8 +356,8 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                                   onPressed: _saving
                                       ? null
                                       : () => setState(
-                                            () =>
-                                                _showExtraLocal = !_showExtraLocal,
+                                            () => _showExtraLocal =
+                                                !_showExtraLocal,
                                           ),
                                   child: Text(
                                     _showExtraLocal
@@ -386,13 +397,15 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                               ],
                               decoration: const InputDecoration(
                                 labelText: 'Informacoes importantes (opcional)',
-                                hintText: 'Ex.: pecas pequenas na parte de cima',
+                                hintText:
+                                    'Ex.: pecas pequenas na parte de cima',
                               ),
                             ),
                             if (locations.isEmpty) ...[
                               const SizedBox(height: UiTokens.spacingSm),
                               Container(
-                                padding: const EdgeInsets.all(UiTokens.spacingMd),
+                                padding:
+                                    const EdgeInsets.all(UiTokens.spacingMd),
                                 decoration: BoxDecoration(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -405,8 +418,9 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                                   children: [
                                     Text(
                                       'Nenhum local cadastrado',
-                                      style:
-                                          Theme.of(context).textTheme.titleSmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall,
                                     ),
                                     const SizedBox(height: UiTokens.spacingXs),
                                     Text(
@@ -425,8 +439,10 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                                                       LocationsManagePage(
                                                     toyRepository:
                                                         widget.toyRepository,
-                                                    settingsRepository:
-                                                        widget.settingsRepository,
+                                                    settingsRepository: widget
+                                                        .settingsRepository,
+                                                    purchaseService:
+                                                        widget.purchaseService,
                                                   ),
                                                 ),
                                               );

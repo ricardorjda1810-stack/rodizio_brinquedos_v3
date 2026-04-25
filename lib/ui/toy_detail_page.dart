@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -26,14 +28,23 @@ class ToyDetailPage extends StatelessWidget {
 
   final String toyId;
   final ToyRepository toyRepository;
+  final PurchaseService? purchaseService;
 
   const ToyDetailPage({
     super.key,
     required this.toyId,
     required this.toyRepository,
+    this.purchaseService,
   });
 
   Future<void> _pick(BuildContext context, ImageSource source) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final messenger = ScaffoldMessenger.of(context);
     try {
       final picker = ImagePicker();
@@ -59,6 +70,13 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _remove(BuildContext context) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final messenger = ScaffoldMessenger.of(context);
     try {
       await toyRepository.removeToyPhoto(toyId: toyId);
@@ -71,6 +89,13 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _renameToy(BuildContext context, String currentName) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final controller = TextEditingController(text: currentName.trim());
     final messenger = ScaffoldMessenger.of(context);
 
@@ -123,6 +148,13 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String currentCategoryId,
   }) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final messenger = ScaffoldMessenger.of(context);
     final selectedCategoryId = await showDialog<String>(
       context: context,
@@ -207,6 +239,13 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String? currentBoxId,
   }) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final messenger = ScaffoldMessenger.of(context);
     final boxes = await toyRepository.watchBoxes().first;
     if (!context.mounted) return;
@@ -295,6 +334,13 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _deleteToy(BuildContext context) async {
+    final allowed = await PremiumGate.ensurePremium(
+      context: context,
+      purchaseService: purchaseService,
+    );
+    if (!allowed) return;
+    if (!context.mounted) return;
+
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -384,7 +430,8 @@ class ToyDetailPage extends StatelessWidget {
     return StreamBuilder<List<CategoryDefinition>>(
       stream: toyRepository.watchCategories(),
       builder: (context, categoriesSnapshot) {
-        final categories = categoriesSnapshot.data ?? const <CategoryDefinition>[];
+        final categories =
+            categoriesSnapshot.data ?? const <CategoryDefinition>[];
 
         return StreamBuilder<ToyWithBox?>(
           stream: toyRepository.watchToyWithBox(toyId: toyId),
@@ -438,9 +485,8 @@ class ToyDetailPage extends StatelessWidget {
                                 children: [
                                   Text(
                                     title,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
                                   ),
                                   const SizedBox(height: UiTokens.spacingXs),
                                   Text(
@@ -506,7 +552,8 @@ class ToyDetailPage extends StatelessWidget {
                                 width: 44,
                                 height: 44,
                                 decoration: BoxDecoration(
-                                  color: UiTokens.surface.withValues(alpha: 0.8),
+                                  color:
+                                      UiTokens.surface.withValues(alpha: 0.8),
                                   borderRadius:
                                       BorderRadius.circular(UiTokens.radiusLg),
                                 ),
@@ -537,7 +584,8 @@ class ToyDetailPage extends StatelessWidget {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: photoPath == null || photoPath.trim().isEmpty
+                                    onTap: photoPath == null ||
+                                            photoPath.trim().isEmpty
                                         ? null
                                         : () => _openPhotoViewer(
                                               context,
@@ -564,7 +612,8 @@ class ToyDetailPage extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     'Toque na foto para abrir em destaque.',
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),
                                 PopupMenuButton<String>(
@@ -677,14 +726,17 @@ class _InfoBlock extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(UiTokens.spacingMd),
           decoration: BoxDecoration(
-            color: accent ? UiTokens.primarySoft : colorScheme.surfaceContainerHighest,
+            color: accent
+                ? UiTokens.primarySoft
+                : colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           ),
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: accent ? UiTokens.primaryStrong : colorScheme.onSurface,
+                  color:
+                      accent ? UiTokens.primaryStrong : colorScheme.onSurface,
                 ),
           ),
         ),
