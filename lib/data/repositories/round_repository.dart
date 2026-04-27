@@ -4,6 +4,8 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
+import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
+import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 
 class RoundToyWithBox {
   final Toy toy;
@@ -157,8 +159,9 @@ class _ToyCandidate {
 
 class RoundRepository {
   final AppDatabase? db;
+  final WeeklyPlanningRepository? _weeklyPlanningRepository;
 
-  RoundRepository(this.db);
+  RoundRepository(this.db, [this._weeklyPlanningRepository]);
 
   static const String insufficientTotalReason = 'insufficient_total';
   static const String noDominantOrLowReason = 'no_dominant_or_low';
@@ -348,7 +351,8 @@ class RoundRepository {
   }
 
   // `size` remains only as an explicit override for compatibility/test flows.
-  // The current app behavior derives the effective round size from category quotas.
+  // The current app behavior derives the effective round size from the weekly
+  // planning repository.
   Future<StartRoundResult> startRound({int? size}) async {
     final d = db;
     if (d == null) {
@@ -406,12 +410,13 @@ class RoundRepository {
       return const StartRoundResult.notCreated();
     }
 
-    final resolvedSize = size ?? await _deriveRoundSizeFromCategoryQuotas(d);
+    final resolvedSize =
+        size ?? await _resolveRoundSizeForDate(DateTime.now(), d);
     final requestedSize = resolvedSize <= 0 ? 0 : resolvedSize;
     final now = DateTime.now().millisecondsSinceEpoch;
     final newRoundId = const Uuid().v4();
     final finalSelection =
-        size != null && requestedSize > 0 && selected.length > requestedSize
+        requestedSize > 0 && selected.length > requestedSize
             ? selected.take(requestedSize).toList(growable: false)
             : selected;
 
@@ -440,17 +445,18 @@ class RoundRepository {
     return StartRoundResult.createdWithCount(finalSelection.length);
   }
 
-  Future<int> _deriveRoundSizeFromCategoryQuotas(AppDatabase d) async {
-    final rows = await _loadIncludedActiveCategoryRows(d);
-
-    var total = 0;
-    for (final row in rows) {
-      final quota = row.readTable(d.roundCategorySettings).quota;
-      if (quota > 0) {
-        total += quota;
-      }
+  Future<int> _resolveRoundSizeForDate(DateTime date, AppDatabase d) async {
+    final weeklyPlanningRepository = _weeklyPlanningRepository;
+    if (weeklyPlanningRepository != null) {
+      return weeklyPlanningRepository.resolveRoundSizeForDate(date);
     }
-    return total;
+
+    final settingsRepository = SettingsRepository(d);
+    await settingsRepository.load();
+    return WeeklyPlanningRepository(
+      db: d,
+      settingsRepository: settingsRepository,
+    ).resolveRoundSizeForDate(date);
   }
 
   Future<List<TypedResult>> _loadIncludedActiveCategoryRows(AppDatabase d) {

@@ -63,10 +63,20 @@ class RoundUiSettings extends Table {
   IntColumn get perCategoryLimit => integer().withDefault(const Constant(12))();
   BoolColumn get hapticEnabled => boolean().withDefault(const Constant(true))();
   BoolColumn get soundEnabled => boolean().withDefault(const Constant(false))();
-  BoolColumn get darkModeEnabled => boolean().withDefault(const Constant(false))();
+  BoolColumn get darkModeEnabled =>
+      boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+class WeeklyPlanningSettings extends Table {
+  IntColumn get weekday => integer()();
+  BoolColumn get useDefault => boolean().withDefault(const Constant(true))();
+  IntColumn get customSize => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {weekday};
 }
 
 class ToyAutoNameCounters extends Table {
@@ -118,6 +128,7 @@ class HistoryEvents extends Table {
     CategoryCounters,
     RoundCategorySettings,
     RoundUiSettings,
+    WeeklyPlanningSettings,
     ToyAutoNameCounters,
     LocationDefinitions,
     Rounds,
@@ -129,12 +140,13 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
+          await _seedWeeklyPlanningSettings();
         },
         onUpgrade: (m, from, to) async {
           if (from < 2) {
@@ -227,7 +239,8 @@ class AppDatabase extends _$AppDatabase {
           }
 
           if (from < 12) {
-            await m.addColumn(categoryDefinitions, categoryDefinitions.examples);
+            await m.addColumn(
+                categoryDefinitions, categoryDefinitions.examples);
 
             Future<void> seedExamples(
               String categoryId,
@@ -284,6 +297,30 @@ class AppDatabase extends _$AppDatabase {
               'quebra-cabeça, lupa, imã, surpresa',
             );
           }
+
+          if (from < 13) {
+            await m.createTable(weeklyPlanningSettings);
+            await _seedWeeklyPlanningSettings();
+          }
         },
       );
+
+  Future<void> _seedWeeklyPlanningSettings() async {
+    await (delete(weeklyPlanningSettings)
+          ..where((row) =>
+              row.weekday.isSmallerThanValue(1) |
+              row.weekday.isBiggerThanValue(7)))
+        .go();
+
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      await into(weeklyPlanningSettings).insert(
+        WeeklyPlanningSettingsCompanion.insert(
+          weekday: Value(weekday),
+          useDefault: const Value(true),
+          customSize: const Value(null),
+        ),
+        mode: InsertMode.insertOrIgnore,
+      );
+    }
+  }
 }

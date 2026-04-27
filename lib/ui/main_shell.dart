@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -8,6 +9,8 @@ import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_shell_header.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_card.dart';
+import 'weekly_planning_page.dart';
 import 'brinquedos_page.dart' as brinquedos;
 import 'caixas_page.dart';
 import 'rodada_page.dart';
@@ -35,11 +38,24 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
+  WeeklyPlanningRepository? _weeklyPlanningRepository;
   static const List<String> _titles = <String>[
     'Rod\u00edzio',
     'Brinquedos',
     'Caixas',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final db = widget.roundRepository.db;
+    if (db != null) {
+      _weeklyPlanningRepository = WeeklyPlanningRepository(
+        db: db,
+        settingsRepository: widget.settingsRepository,
+      );
+    }
+  }
 
   void _goTo(int index) {
     if (_currentIndex == index) return;
@@ -63,6 +79,51 @@ class _MainShellState extends State<MainShell> {
           purchaseService: widget.purchaseService,
         ),
       ),
+    );
+  }
+
+  void _openWeeklyPlanning() {
+    final weeklyPlanningRepository = _weeklyPlanningRepository;
+    if (weeklyPlanningRepository == null) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => WeeklyPlanningPage(
+          settingsRepository: widget.settingsRepository,
+          weeklyPlanningRepository: weeklyPlanningRepository,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeeklyPlanningCard() {
+    final weeklyPlanningRepository = _weeklyPlanningRepository;
+    if (weeklyPlanningRepository == null) return const SizedBox.shrink();
+
+    return StreamBuilder<bool>(
+      stream: widget.settingsRepository.watchWeeklyPlanningEnabled(),
+      initialData: widget.settingsRepository.weeklyPlanningEnabled,
+      builder: (context, enabledSnapshot) {
+        return StreamBuilder<List<WeeklyPlanningDayConfig>>(
+          stream: weeklyPlanningRepository.watchAll(),
+          initialData: const <WeeklyPlanningDayConfig>[],
+          builder: (context, daysSnapshot) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                UiTokens.m,
+                0,
+                UiTokens.m,
+                UiTokens.s,
+              ),
+              child: WeeklyPlanningCard(
+                enabled: enabledSnapshot.data ?? false,
+                days: daysSnapshot.data ?? const <WeeklyPlanningDayConfig>[],
+                onEdit: _openWeeklyPlanning,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -127,6 +188,7 @@ class _MainShellState extends State<MainShell> {
             child: Column(
               children: [
                 _buildHomeHeader(),
+                _buildWeeklyPlanningCard(),
                 Expanded(
                   child: RodadaPage(
                     roundRepository: widget.roundRepository,

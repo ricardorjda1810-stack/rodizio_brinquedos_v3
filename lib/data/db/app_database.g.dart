@@ -1807,6 +1807,237 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
   }
 }
 
+class $WeeklyPlanningSettingsTable extends WeeklyPlanningSettings
+    with TableInfo<$WeeklyPlanningSettingsTable, WeeklyPlanningSetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeeklyPlanningSettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _weekdayMeta =
+      const VerificationMeta('weekday');
+  @override
+  late final GeneratedColumn<int> weekday = GeneratedColumn<int>(
+      'weekday', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _useDefaultMeta =
+      const VerificationMeta('useDefault');
+  @override
+  late final GeneratedColumn<bool> useDefault = GeneratedColumn<bool>(
+      'use_default', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("use_default" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _customSizeMeta =
+      const VerificationMeta('customSize');
+  @override
+  late final GeneratedColumn<int> customSize = GeneratedColumn<int>(
+      'custom_size', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [weekday, useDefault, customSize];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weekly_planning_settings';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<WeeklyPlanningSetting> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('weekday')) {
+      context.handle(_weekdayMeta,
+          weekday.isAcceptableOrUnknown(data['weekday']!, _weekdayMeta));
+    }
+    if (data.containsKey('use_default')) {
+      context.handle(
+          _useDefaultMeta,
+          useDefault.isAcceptableOrUnknown(
+              data['use_default']!, _useDefaultMeta));
+    }
+    if (data.containsKey('custom_size')) {
+      context.handle(
+          _customSizeMeta,
+          customSize.isAcceptableOrUnknown(
+              data['custom_size']!, _customSizeMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {weekday};
+  @override
+  WeeklyPlanningSetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeeklyPlanningSetting(
+      weekday: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}weekday'])!,
+      useDefault: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}use_default'])!,
+      customSize: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}custom_size']),
+    );
+  }
+
+  @override
+  $WeeklyPlanningSettingsTable createAlias(String alias) {
+    return $WeeklyPlanningSettingsTable(attachedDatabase, alias);
+  }
+}
+
+class WeeklyPlanningSetting extends DataClass
+    implements Insertable<WeeklyPlanningSetting> {
+  final int weekday;
+  final bool useDefault;
+  final int? customSize;
+  const WeeklyPlanningSetting(
+      {required this.weekday, required this.useDefault, this.customSize});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['weekday'] = Variable<int>(weekday);
+    map['use_default'] = Variable<bool>(useDefault);
+    if (!nullToAbsent || customSize != null) {
+      map['custom_size'] = Variable<int>(customSize);
+    }
+    return map;
+  }
+
+  WeeklyPlanningSettingsCompanion toCompanion(bool nullToAbsent) {
+    return WeeklyPlanningSettingsCompanion(
+      weekday: Value(weekday),
+      useDefault: Value(useDefault),
+      customSize: customSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customSize),
+    );
+  }
+
+  factory WeeklyPlanningSetting.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeeklyPlanningSetting(
+      weekday: serializer.fromJson<int>(json['weekday']),
+      useDefault: serializer.fromJson<bool>(json['useDefault']),
+      customSize: serializer.fromJson<int?>(json['customSize']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'weekday': serializer.toJson<int>(weekday),
+      'useDefault': serializer.toJson<bool>(useDefault),
+      'customSize': serializer.toJson<int?>(customSize),
+    };
+  }
+
+  WeeklyPlanningSetting copyWith(
+          {int? weekday,
+          bool? useDefault,
+          Value<int?> customSize = const Value.absent()}) =>
+      WeeklyPlanningSetting(
+        weekday: weekday ?? this.weekday,
+        useDefault: useDefault ?? this.useDefault,
+        customSize: customSize.present ? customSize.value : this.customSize,
+      );
+  WeeklyPlanningSetting copyWithCompanion(
+      WeeklyPlanningSettingsCompanion data) {
+    return WeeklyPlanningSetting(
+      weekday: data.weekday.present ? data.weekday.value : this.weekday,
+      useDefault:
+          data.useDefault.present ? data.useDefault.value : this.useDefault,
+      customSize:
+          data.customSize.present ? data.customSize.value : this.customSize,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeeklyPlanningSetting(')
+          ..write('weekday: $weekday, ')
+          ..write('useDefault: $useDefault, ')
+          ..write('customSize: $customSize')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(weekday, useDefault, customSize);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeeklyPlanningSetting &&
+          other.weekday == this.weekday &&
+          other.useDefault == this.useDefault &&
+          other.customSize == this.customSize);
+}
+
+class WeeklyPlanningSettingsCompanion
+    extends UpdateCompanion<WeeklyPlanningSetting> {
+  final Value<int> weekday;
+  final Value<bool> useDefault;
+  final Value<int?> customSize;
+  const WeeklyPlanningSettingsCompanion({
+    this.weekday = const Value.absent(),
+    this.useDefault = const Value.absent(),
+    this.customSize = const Value.absent(),
+  });
+  WeeklyPlanningSettingsCompanion.insert({
+    this.weekday = const Value.absent(),
+    this.useDefault = const Value.absent(),
+    this.customSize = const Value.absent(),
+  });
+  static Insertable<WeeklyPlanningSetting> custom({
+    Expression<int>? weekday,
+    Expression<bool>? useDefault,
+    Expression<int>? customSize,
+  }) {
+    return RawValuesInsertable({
+      if (weekday != null) 'weekday': weekday,
+      if (useDefault != null) 'use_default': useDefault,
+      if (customSize != null) 'custom_size': customSize,
+    });
+  }
+
+  WeeklyPlanningSettingsCompanion copyWith(
+      {Value<int>? weekday, Value<bool>? useDefault, Value<int?>? customSize}) {
+    return WeeklyPlanningSettingsCompanion(
+      weekday: weekday ?? this.weekday,
+      useDefault: useDefault ?? this.useDefault,
+      customSize: customSize ?? this.customSize,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (weekday.present) {
+      map['weekday'] = Variable<int>(weekday.value);
+    }
+    if (useDefault.present) {
+      map['use_default'] = Variable<bool>(useDefault.value);
+    }
+    if (customSize.present) {
+      map['custom_size'] = Variable<int>(customSize.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeeklyPlanningSettingsCompanion(')
+          ..write('weekday: $weekday, ')
+          ..write('useDefault: $useDefault, ')
+          ..write('customSize: $customSize')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ToyAutoNameCountersTable extends ToyAutoNameCounters
     with TableInfo<$ToyAutoNameCountersTable, ToyAutoNameCounter> {
   @override
@@ -2917,6 +3148,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RoundCategorySettingsTable(this);
   late final $RoundUiSettingsTable roundUiSettings =
       $RoundUiSettingsTable(this);
+  late final $WeeklyPlanningSettingsTable weeklyPlanningSettings =
+      $WeeklyPlanningSettingsTable(this);
   late final $ToyAutoNameCountersTable toyAutoNameCounters =
       $ToyAutoNameCountersTable(this);
   late final $LocationDefinitionsTable locationDefinitions =
@@ -2935,6 +3168,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         categoryCounters,
         roundCategorySettings,
         roundUiSettings,
+        weeklyPlanningSettings,
         toyAutoNameCounters,
         locationDefinitions,
         rounds,
@@ -4581,6 +4815,150 @@ typedef $$RoundUiSettingsTableProcessedTableManager = ProcessedTableManager<
     ),
     RoundUiSetting,
     PrefetchHooks Function()>;
+typedef $$WeeklyPlanningSettingsTableCreateCompanionBuilder
+    = WeeklyPlanningSettingsCompanion Function({
+  Value<int> weekday,
+  Value<bool> useDefault,
+  Value<int?> customSize,
+});
+typedef $$WeeklyPlanningSettingsTableUpdateCompanionBuilder
+    = WeeklyPlanningSettingsCompanion Function({
+  Value<int> weekday,
+  Value<bool> useDefault,
+  Value<int?> customSize,
+});
+
+class $$WeeklyPlanningSettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningSettingsTable> {
+  $$WeeklyPlanningSettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get weekday => $composableBuilder(
+      column: $table.weekday, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get useDefault => $composableBuilder(
+      column: $table.useDefault, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get customSize => $composableBuilder(
+      column: $table.customSize, builder: (column) => ColumnFilters(column));
+}
+
+class $$WeeklyPlanningSettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningSettingsTable> {
+  $$WeeklyPlanningSettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get weekday => $composableBuilder(
+      column: $table.weekday, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get useDefault => $composableBuilder(
+      column: $table.useDefault, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get customSize => $composableBuilder(
+      column: $table.customSize, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WeeklyPlanningSettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningSettingsTable> {
+  $$WeeklyPlanningSettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get weekday =>
+      $composableBuilder(column: $table.weekday, builder: (column) => column);
+
+  GeneratedColumn<bool> get useDefault => $composableBuilder(
+      column: $table.useDefault, builder: (column) => column);
+
+  GeneratedColumn<int> get customSize => $composableBuilder(
+      column: $table.customSize, builder: (column) => column);
+}
+
+class $$WeeklyPlanningSettingsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $WeeklyPlanningSettingsTable,
+    WeeklyPlanningSetting,
+    $$WeeklyPlanningSettingsTableFilterComposer,
+    $$WeeklyPlanningSettingsTableOrderingComposer,
+    $$WeeklyPlanningSettingsTableAnnotationComposer,
+    $$WeeklyPlanningSettingsTableCreateCompanionBuilder,
+    $$WeeklyPlanningSettingsTableUpdateCompanionBuilder,
+    (
+      WeeklyPlanningSetting,
+      BaseReferences<_$AppDatabase, $WeeklyPlanningSettingsTable,
+          WeeklyPlanningSetting>
+    ),
+    WeeklyPlanningSetting,
+    PrefetchHooks Function()> {
+  $$WeeklyPlanningSettingsTableTableManager(
+      _$AppDatabase db, $WeeklyPlanningSettingsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WeeklyPlanningSettingsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WeeklyPlanningSettingsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WeeklyPlanningSettingsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> weekday = const Value.absent(),
+            Value<bool> useDefault = const Value.absent(),
+            Value<int?> customSize = const Value.absent(),
+          }) =>
+              WeeklyPlanningSettingsCompanion(
+            weekday: weekday,
+            useDefault: useDefault,
+            customSize: customSize,
+          ),
+          createCompanionCallback: ({
+            Value<int> weekday = const Value.absent(),
+            Value<bool> useDefault = const Value.absent(),
+            Value<int?> customSize = const Value.absent(),
+          }) =>
+              WeeklyPlanningSettingsCompanion.insert(
+            weekday: weekday,
+            useDefault: useDefault,
+            customSize: customSize,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WeeklyPlanningSettingsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $WeeklyPlanningSettingsTable,
+        WeeklyPlanningSetting,
+        $$WeeklyPlanningSettingsTableFilterComposer,
+        $$WeeklyPlanningSettingsTableOrderingComposer,
+        $$WeeklyPlanningSettingsTableAnnotationComposer,
+        $$WeeklyPlanningSettingsTableCreateCompanionBuilder,
+        $$WeeklyPlanningSettingsTableUpdateCompanionBuilder,
+        (
+          WeeklyPlanningSetting,
+          BaseReferences<_$AppDatabase, $WeeklyPlanningSettingsTable,
+              WeeklyPlanningSetting>
+        ),
+        WeeklyPlanningSetting,
+        PrefetchHooks Function()>;
 typedef $$ToyAutoNameCountersTableCreateCompanionBuilder
     = ToyAutoNameCountersCompanion Function({
   Value<int> boxIndex,
@@ -5543,6 +5921,9 @@ class $AppDatabaseManager {
       $$RoundCategorySettingsTableTableManager(_db, _db.roundCategorySettings);
   $$RoundUiSettingsTableTableManager get roundUiSettings =>
       $$RoundUiSettingsTableTableManager(_db, _db.roundUiSettings);
+  $$WeeklyPlanningSettingsTableTableManager get weeklyPlanningSettings =>
+      $$WeeklyPlanningSettingsTableTableManager(
+          _db, _db.weeklyPlanningSettings);
   $$ToyAutoNameCountersTableTableManager get toyAutoNameCounters =>
       $$ToyAutoNameCountersTableTableManager(_db, _db.toyAutoNameCounters);
   $$LocationDefinitionsTableTableManager get locationDefinitions =>
