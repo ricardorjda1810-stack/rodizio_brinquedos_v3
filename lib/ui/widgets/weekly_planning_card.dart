@@ -21,6 +21,13 @@ class WeeklyPlanningCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final statusColor =
         enabled ? UiTokens.primaryStrong : UiTokens.textSecondary;
+    final today = _todayConfig(days);
+    final todayTotal = today?.total ?? 0;
+    final todayMode = !enabled
+        ? 'Planejamento semanal desativado'
+        : today?.useDefault ?? true
+            ? 'Hoje: usando configura\u00e7\u00e3o padr\u00e3o'
+            : 'Hoje: configura\u00e7\u00e3o pr\u00f3pria';
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -56,7 +63,7 @@ class WeeklyPlanningCard extends StatelessWidget {
               ),
               const SizedBox(width: UiTokens.spacingXs),
               Text(
-                enabled ? 'Ativado' : 'Desativado',
+                enabled ? 'Planejamento semanal ativo' : 'Desativado',
                 style: textTheme.bodySmall?.copyWith(
                   color: statusColor,
                   fontWeight: FontWeight.w700,
@@ -66,10 +73,18 @@ class WeeklyPlanningCard extends StatelessWidget {
           ),
           const SizedBox(height: UiTokens.spacingSm),
           Text(
-            _summaryText(days),
+            todayMode,
             style: textTheme.bodyMedium?.copyWith(
               color: UiTokens.textSecondary,
               height: 1.35,
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Text(
+            'Total de hoje: $todayTotal brinquedos',
+            style: textTheme.bodyMedium?.copyWith(
+              color: UiTokens.textSecondary,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -78,41 +93,10 @@ class WeeklyPlanningCard extends StatelessWidget {
   }
 }
 
-String _summaryText(List<WeeklyPlanningDayConfig> days) {
-  final byWeekday = {
-    for (final day in days)
-      if (day.weekday >= DateTime.monday && day.weekday <= DateTime.sunday)
-        day.weekday: day,
-  };
-
-  return List.generate(DateTime.daysPerWeek, (index) {
-    final weekday = DateTime.monday + index;
-    final config = byWeekday[weekday];
-    final value =
-        config == null || config.useDefault || !config.hasValidCustomSize
-            ? 'P'
-            : '${config.customSize}';
-    return '${_weekdayLabel(weekday)} $value';
-  }).join(' \u00b7 ');
-}
-
-String _weekdayLabel(int weekday) {
-  switch (weekday) {
-    case DateTime.monday:
-      return 'Seg';
-    case DateTime.tuesday:
-      return 'Ter';
-    case DateTime.wednesday:
-      return 'Qua';
-    case DateTime.thursday:
-      return 'Qui';
-    case DateTime.friday:
-      return 'Sex';
-    case DateTime.saturday:
-      return 'Sab';
-    case DateTime.sunday:
-      return 'Dom';
-    default:
-      return '';
+WeeklyPlanningDayConfig? _todayConfig(List<WeeklyPlanningDayConfig> days) {
+  final weekday = DateTime.now().weekday;
+  for (final day in days) {
+    if (day.weekday == weekday) return day;
   }
+  return null;
 }

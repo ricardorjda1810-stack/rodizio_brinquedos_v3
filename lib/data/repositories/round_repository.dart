@@ -350,46 +350,43 @@ class RoundRepository {
     );
   }
 
-  // `size` remains only as an explicit override for compatibility/test flows.
-  // The current app behavior derives the effective round size from the weekly
-  // planning repository.
+  // `size` remains in the public API for compatibility. The effective round
+  // size is derived from the sum of included category quotas.
   Future<StartRoundResult> startRound({int? size}) async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
     }
 
-    final categoryRows = await _loadIncludedActiveCategoryRows(d);
-    if (categoryRows.isEmpty) {
+    final categoryConfigs =
+        await _resolveRoundCategoryConfigsForDate(DateTime.now(), d);
+    final includedConfigs = categoryConfigs
+        .where((config) => config.isIncluded && config.safeQuota > 0)
+        .toList(growable: false);
+    if (includedConfigs.isEmpty) {
       return const StartRoundResult.notCreated();
     }
 
     final selected = <Toy>[];
     final selectedIds = <String>{};
 
-    for (final row in categoryRows) {
-      final category = row.readTable(d.categoryDefinitions);
-      final setting = row.readTable(d.roundCategorySettings);
-      final quota = setting.quota < 0 ? 0 : setting.quota;
-      if (quota == 0) continue;
-
+    for (final config in includedConfigs) {
       final toysForCategory = await _loadEligibleToysForCategory(
         d,
-        categoryId: category.id,
+        categoryId: config.categoryId,
       );
 
-      for (final toy in toysForCategory.take(quota)) {
+      for (final toy in toysForCategory.take(config.safeQuota)) {
         if (selectedIds.add(toy.id)) {
           selected.add(toy);
         }
       }
     }
 
-    for (final row in categoryRows) {
-      final category = row.readTable(d.categoryDefinitions);
+    for (final config in includedConfigs) {
       final toysForCategory = await _loadEligibleToysForCategory(
         d,
-        categoryId: category.id,
+        categoryId: config.categoryId,
       );
 
       for (final toy in toysForCategory) {
@@ -399,20 +396,15 @@ class RoundRepository {
       }
     }
 
-    final allToys = await _loadAllToysOrdered(d);
-    for (final toy in allToys) {
-      if (selectedIds.add(toy.id)) {
-        selected.add(toy);
-      }
-    }
-
     if (selected.isEmpty) {
       return const StartRoundResult.notCreated();
     }
 
-    final resolvedSize =
-        size ?? await _resolveRoundSizeForDate(DateTime.now(), d);
-    final requestedSize = resolvedSize <= 0 ? 0 : resolvedSize;
+    final totalFromCategories = includedConfigs.fold<int>(
+      0,
+      (sum, config) => sum + config.safeQuota,
+    );
+    final requestedSize = totalFromCategories;
     final now = DateTime.now().millisecondsSinceEpoch;
     final newRoundId = const Uuid().v4();
     final finalSelection =
@@ -445,10 +437,13 @@ class RoundRepository {
     return StartRoundResult.createdWithCount(finalSelection.length);
   }
 
-  Future<int> _resolveRoundSizeForDate(DateTime date, AppDatabase d) async {
+  Future<List<WeeklyPlanningCategoryConfig>> _resolveRoundCategoryConfigsForDate(
+    DateTime date,
+    AppDatabase d,
+  ) async {
     final weeklyPlanningRepository = _weeklyPlanningRepository;
     if (weeklyPlanningRepository != null) {
-      return weeklyPlanningRepository.resolveRoundSizeForDate(date);
+      return weeklyPlanningRepository.resolveCategoryConfigForDate(date);
     }
 
     final settingsRepository = SettingsRepository(d);
@@ -456,21 +451,7 @@ class RoundRepository {
     return WeeklyPlanningRepository(
       db: d,
       settingsRepository: settingsRepository,
-    ).resolveRoundSizeForDate(date);
-  }
-
-  Future<List<TypedResult>> _loadIncludedActiveCategoryRows(AppDatabase d) {
-    return (d.select(d.categoryDefinitions).join([
-      innerJoin(
-        d.roundCategorySettings,
-        d.roundCategorySettings.categoryId
-                .equalsExp(d.categoryDefinitions.id) &
-            d.roundCategorySettings.isIncluded.equals(true),
-      ),
-    ])
-          ..where(d.categoryDefinitions.isActive.equals(true))
-          ..orderBy([OrderingTerm.asc(d.categoryDefinitions.name)]))
-        .get();
+    ).resolveCategoryConfigForDate(date);
   }
 
   Future<List<Toy>> _loadEligibleToysForCategory(
@@ -479,21 +460,6 @@ class RoundRepository {
   }) {
     return (d.select(d.toys)
           ..where((t) => t.categoryId.equals(categoryId))
-          ..orderBy([
-            (t) => OrderingTerm(
-                  expression: t.createdAt,
-                  mode: OrderingMode.asc,
-                ),
-            (t) => OrderingTerm(
-                  expression: t.id,
-                  mode: OrderingMode.asc,
-                ),
-          ]))
-        .get();
-  }
-
-  Future<List<Toy>> _loadAllToysOrdered(AppDatabase d) {
-    return (d.select(d.toys)
           ..orderBy([
             (t) => OrderingTerm(
                   expression: t.createdAt,

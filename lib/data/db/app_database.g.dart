@@ -2038,6 +2038,293 @@ class WeeklyPlanningSettingsCompanion
   }
 }
 
+class $WeeklyPlanningCategorySettingsTable
+    extends WeeklyPlanningCategorySettings
+    with
+        TableInfo<$WeeklyPlanningCategorySettingsTable,
+            WeeklyPlanningCategorySetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WeeklyPlanningCategorySettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _weekdayMeta =
+      const VerificationMeta('weekday');
+  @override
+  late final GeneratedColumn<int> weekday = GeneratedColumn<int>(
+      'weekday', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _categoryIdMeta =
+      const VerificationMeta('categoryId');
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+      'category_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES category_definitions (id)'));
+  static const VerificationMeta _isIncludedMeta =
+      const VerificationMeta('isIncluded');
+  @override
+  late final GeneratedColumn<bool> isIncluded = GeneratedColumn<bool>(
+      'is_included', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_included" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _quotaMeta = const VerificationMeta('quota');
+  @override
+  late final GeneratedColumn<int> quota = GeneratedColumn<int>(
+      'quota', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [weekday, categoryId, isIncluded, quota];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'weekly_planning_category_settings';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<WeeklyPlanningCategorySetting> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('weekday')) {
+      context.handle(_weekdayMeta,
+          weekday.isAcceptableOrUnknown(data['weekday']!, _weekdayMeta));
+    } else if (isInserting) {
+      context.missing(_weekdayMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+          _categoryIdMeta,
+          categoryId.isAcceptableOrUnknown(
+              data['category_id']!, _categoryIdMeta));
+    } else if (isInserting) {
+      context.missing(_categoryIdMeta);
+    }
+    if (data.containsKey('is_included')) {
+      context.handle(
+          _isIncludedMeta,
+          isIncluded.isAcceptableOrUnknown(
+              data['is_included']!, _isIncludedMeta));
+    }
+    if (data.containsKey('quota')) {
+      context.handle(
+          _quotaMeta, quota.isAcceptableOrUnknown(data['quota']!, _quotaMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {weekday, categoryId};
+  @override
+  WeeklyPlanningCategorySetting map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WeeklyPlanningCategorySetting(
+      weekday: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}weekday'])!,
+      categoryId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_id'])!,
+      isIncluded: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_included'])!,
+      quota: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quota'])!,
+    );
+  }
+
+  @override
+  $WeeklyPlanningCategorySettingsTable createAlias(String alias) {
+    return $WeeklyPlanningCategorySettingsTable(attachedDatabase, alias);
+  }
+}
+
+class WeeklyPlanningCategorySetting extends DataClass
+    implements Insertable<WeeklyPlanningCategorySetting> {
+  final int weekday;
+  final String categoryId;
+  final bool isIncluded;
+  final int quota;
+  const WeeklyPlanningCategorySetting(
+      {required this.weekday,
+      required this.categoryId,
+      required this.isIncluded,
+      required this.quota});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['weekday'] = Variable<int>(weekday);
+    map['category_id'] = Variable<String>(categoryId);
+    map['is_included'] = Variable<bool>(isIncluded);
+    map['quota'] = Variable<int>(quota);
+    return map;
+  }
+
+  WeeklyPlanningCategorySettingsCompanion toCompanion(bool nullToAbsent) {
+    return WeeklyPlanningCategorySettingsCompanion(
+      weekday: Value(weekday),
+      categoryId: Value(categoryId),
+      isIncluded: Value(isIncluded),
+      quota: Value(quota),
+    );
+  }
+
+  factory WeeklyPlanningCategorySetting.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WeeklyPlanningCategorySetting(
+      weekday: serializer.fromJson<int>(json['weekday']),
+      categoryId: serializer.fromJson<String>(json['categoryId']),
+      isIncluded: serializer.fromJson<bool>(json['isIncluded']),
+      quota: serializer.fromJson<int>(json['quota']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'weekday': serializer.toJson<int>(weekday),
+      'categoryId': serializer.toJson<String>(categoryId),
+      'isIncluded': serializer.toJson<bool>(isIncluded),
+      'quota': serializer.toJson<int>(quota),
+    };
+  }
+
+  WeeklyPlanningCategorySetting copyWith(
+          {int? weekday, String? categoryId, bool? isIncluded, int? quota}) =>
+      WeeklyPlanningCategorySetting(
+        weekday: weekday ?? this.weekday,
+        categoryId: categoryId ?? this.categoryId,
+        isIncluded: isIncluded ?? this.isIncluded,
+        quota: quota ?? this.quota,
+      );
+  WeeklyPlanningCategorySetting copyWithCompanion(
+      WeeklyPlanningCategorySettingsCompanion data) {
+    return WeeklyPlanningCategorySetting(
+      weekday: data.weekday.present ? data.weekday.value : this.weekday,
+      categoryId:
+          data.categoryId.present ? data.categoryId.value : this.categoryId,
+      isIncluded:
+          data.isIncluded.present ? data.isIncluded.value : this.isIncluded,
+      quota: data.quota.present ? data.quota.value : this.quota,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeeklyPlanningCategorySetting(')
+          ..write('weekday: $weekday, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('isIncluded: $isIncluded, ')
+          ..write('quota: $quota')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(weekday, categoryId, isIncluded, quota);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WeeklyPlanningCategorySetting &&
+          other.weekday == this.weekday &&
+          other.categoryId == this.categoryId &&
+          other.isIncluded == this.isIncluded &&
+          other.quota == this.quota);
+}
+
+class WeeklyPlanningCategorySettingsCompanion
+    extends UpdateCompanion<WeeklyPlanningCategorySetting> {
+  final Value<int> weekday;
+  final Value<String> categoryId;
+  final Value<bool> isIncluded;
+  final Value<int> quota;
+  final Value<int> rowid;
+  const WeeklyPlanningCategorySettingsCompanion({
+    this.weekday = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.isIncluded = const Value.absent(),
+    this.quota = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WeeklyPlanningCategorySettingsCompanion.insert({
+    required int weekday,
+    required String categoryId,
+    this.isIncluded = const Value.absent(),
+    this.quota = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : weekday = Value(weekday),
+        categoryId = Value(categoryId);
+  static Insertable<WeeklyPlanningCategorySetting> custom({
+    Expression<int>? weekday,
+    Expression<String>? categoryId,
+    Expression<bool>? isIncluded,
+    Expression<int>? quota,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (weekday != null) 'weekday': weekday,
+      if (categoryId != null) 'category_id': categoryId,
+      if (isIncluded != null) 'is_included': isIncluded,
+      if (quota != null) 'quota': quota,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WeeklyPlanningCategorySettingsCompanion copyWith(
+      {Value<int>? weekday,
+      Value<String>? categoryId,
+      Value<bool>? isIncluded,
+      Value<int>? quota,
+      Value<int>? rowid}) {
+    return WeeklyPlanningCategorySettingsCompanion(
+      weekday: weekday ?? this.weekday,
+      categoryId: categoryId ?? this.categoryId,
+      isIncluded: isIncluded ?? this.isIncluded,
+      quota: quota ?? this.quota,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (weekday.present) {
+      map['weekday'] = Variable<int>(weekday.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (isIncluded.present) {
+      map['is_included'] = Variable<bool>(isIncluded.value);
+    }
+    if (quota.present) {
+      map['quota'] = Variable<int>(quota.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WeeklyPlanningCategorySettingsCompanion(')
+          ..write('weekday: $weekday, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('isIncluded: $isIncluded, ')
+          ..write('quota: $quota, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $ToyAutoNameCountersTable extends ToyAutoNameCounters
     with TableInfo<$ToyAutoNameCountersTable, ToyAutoNameCounter> {
   @override
@@ -3150,6 +3437,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RoundUiSettingsTable(this);
   late final $WeeklyPlanningSettingsTable weeklyPlanningSettings =
       $WeeklyPlanningSettingsTable(this);
+  late final $WeeklyPlanningCategorySettingsTable
+      weeklyPlanningCategorySettings =
+      $WeeklyPlanningCategorySettingsTable(this);
   late final $ToyAutoNameCountersTable toyAutoNameCounters =
       $ToyAutoNameCountersTable(this);
   late final $LocationDefinitionsTable locationDefinitions =
@@ -3169,6 +3459,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         roundCategorySettings,
         roundUiSettings,
         weeklyPlanningSettings,
+        weeklyPlanningCategorySettings,
         toyAutoNameCounters,
         locationDefinitions,
         rounds,
@@ -3876,6 +4167,26 @@ final class $$CategoryDefinitionsTableReferences extends BaseReferences<
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$WeeklyPlanningCategorySettingsTable,
+          List<WeeklyPlanningCategorySetting>>
+      _weeklyPlanningCategorySettingsRefsTable(
+              _$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.weeklyPlanningCategorySettings,
+              aliasName: $_aliasNameGenerator(db.categoryDefinitions.id,
+                  db.weeklyPlanningCategorySettings.categoryId));
+
+  $$WeeklyPlanningCategorySettingsTableProcessedTableManager
+      get weeklyPlanningCategorySettingsRefs {
+    final manager = $$WeeklyPlanningCategorySettingsTableTableManager(
+            $_db, $_db.weeklyPlanningCategorySettings)
+        .filter((f) => f.categoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult
+        .readTableOrNull(_weeklyPlanningCategorySettingsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$CategoryDefinitionsTableFilterComposer
@@ -3935,6 +4246,30 @@ class $$CategoryDefinitionsTableFilterComposer
                 $$RoundCategorySettingsTableFilterComposer(
                   $db: $db,
                   $table: $db.roundCategorySettings,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+
+  Expression<bool> weeklyPlanningCategorySettingsRefs(
+      Expression<bool> Function(
+              $$WeeklyPlanningCategorySettingsTableFilterComposer f)
+          f) {
+    final $$WeeklyPlanningCategorySettingsTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.weeklyPlanningCategorySettings,
+            getReferencedColumn: (t) => t.categoryId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$WeeklyPlanningCategorySettingsTableFilterComposer(
+                  $db: $db,
+                  $table: $db.weeklyPlanningCategorySettings,
                   $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                   joinBuilder: joinBuilder,
                   $removeJoinBuilderFromRootComposer:
@@ -4030,6 +4365,30 @@ class $$CategoryDefinitionsTableAnnotationComposer
                 ));
     return f(composer);
   }
+
+  Expression<T> weeklyPlanningCategorySettingsRefs<T extends Object>(
+      Expression<T> Function(
+              $$WeeklyPlanningCategorySettingsTableAnnotationComposer a)
+          f) {
+    final $$WeeklyPlanningCategorySettingsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.weeklyPlanningCategorySettings,
+            getReferencedColumn: (t) => t.categoryId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$WeeklyPlanningCategorySettingsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.weeklyPlanningCategorySettings,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$CategoryDefinitionsTableTableManager extends RootTableManager<
@@ -4044,7 +4403,9 @@ class $$CategoryDefinitionsTableTableManager extends RootTableManager<
     (CategoryDefinition, $$CategoryDefinitionsTableReferences),
     CategoryDefinition,
     PrefetchHooks Function(
-        {bool categoryCountersRefs, bool roundCategorySettingsRefs})> {
+        {bool categoryCountersRefs,
+        bool roundCategorySettingsRefs,
+        bool weeklyPlanningCategorySettingsRefs})> {
   $$CategoryDefinitionsTableTableManager(
       _$AppDatabase db, $CategoryDefinitionsTable table)
       : super(TableManagerState(
@@ -4094,12 +4455,15 @@ class $$CategoryDefinitionsTableTableManager extends RootTableManager<
               .toList(),
           prefetchHooksCallback: (
               {categoryCountersRefs = false,
-              roundCategorySettingsRefs = false}) {
+              roundCategorySettingsRefs = false,
+              weeklyPlanningCategorySettingsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (categoryCountersRefs) db.categoryCounters,
-                if (roundCategorySettingsRefs) db.roundCategorySettings
+                if (roundCategorySettingsRefs) db.roundCategorySettings,
+                if (weeklyPlanningCategorySettingsRefs)
+                  db.weeklyPlanningCategorySettings
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4129,6 +4493,21 @@ class $$CategoryDefinitionsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.categoryId == item.id),
+                        typedResults: items),
+                  if (weeklyPlanningCategorySettingsRefs)
+                    await $_getPrefetchedData<
+                            CategoryDefinition,
+                            $CategoryDefinitionsTable,
+                            WeeklyPlanningCategorySetting>(
+                        currentTable: table,
+                        referencedTable: $$CategoryDefinitionsTableReferences
+                            ._weeklyPlanningCategorySettingsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CategoryDefinitionsTableReferences(db, table, p0)
+                                .weeklyPlanningCategorySettingsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.categoryId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4149,7 +4528,9 @@ typedef $$CategoryDefinitionsTableProcessedTableManager = ProcessedTableManager<
     (CategoryDefinition, $$CategoryDefinitionsTableReferences),
     CategoryDefinition,
     PrefetchHooks Function(
-        {bool categoryCountersRefs, bool roundCategorySettingsRefs})>;
+        {bool categoryCountersRefs,
+        bool roundCategorySettingsRefs,
+        bool weeklyPlanningCategorySettingsRefs})>;
 typedef $$CategoryCountersTableCreateCompanionBuilder
     = CategoryCountersCompanion Function({
   required String categoryId,
@@ -4959,6 +5340,288 @@ typedef $$WeeklyPlanningSettingsTableProcessedTableManager
         ),
         WeeklyPlanningSetting,
         PrefetchHooks Function()>;
+typedef $$WeeklyPlanningCategorySettingsTableCreateCompanionBuilder
+    = WeeklyPlanningCategorySettingsCompanion Function({
+  required int weekday,
+  required String categoryId,
+  Value<bool> isIncluded,
+  Value<int> quota,
+  Value<int> rowid,
+});
+typedef $$WeeklyPlanningCategorySettingsTableUpdateCompanionBuilder
+    = WeeklyPlanningCategorySettingsCompanion Function({
+  Value<int> weekday,
+  Value<String> categoryId,
+  Value<bool> isIncluded,
+  Value<int> quota,
+  Value<int> rowid,
+});
+
+final class $$WeeklyPlanningCategorySettingsTableReferences
+    extends BaseReferences<_$AppDatabase, $WeeklyPlanningCategorySettingsTable,
+        WeeklyPlanningCategorySetting> {
+  $$WeeklyPlanningCategorySettingsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $CategoryDefinitionsTable _categoryIdTable(_$AppDatabase db) =>
+      db.categoryDefinitions.createAlias($_aliasNameGenerator(
+          db.weeklyPlanningCategorySettings.categoryId,
+          db.categoryDefinitions.id));
+
+  $$CategoryDefinitionsTableProcessedTableManager get categoryId {
+    final $_column = $_itemColumn<String>('category_id')!;
+
+    final manager =
+        $$CategoryDefinitionsTableTableManager($_db, $_db.categoryDefinitions)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$WeeklyPlanningCategorySettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningCategorySettingsTable> {
+  $$WeeklyPlanningCategorySettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get weekday => $composableBuilder(
+      column: $table.weekday, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isIncluded => $composableBuilder(
+      column: $table.isIncluded, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quota => $composableBuilder(
+      column: $table.quota, builder: (column) => ColumnFilters(column));
+
+  $$CategoryDefinitionsTableFilterComposer get categoryId {
+    final $$CategoryDefinitionsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.categoryId,
+        referencedTable: $db.categoryDefinitions,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CategoryDefinitionsTableFilterComposer(
+              $db: $db,
+              $table: $db.categoryDefinitions,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$WeeklyPlanningCategorySettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningCategorySettingsTable> {
+  $$WeeklyPlanningCategorySettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get weekday => $composableBuilder(
+      column: $table.weekday, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isIncluded => $composableBuilder(
+      column: $table.isIncluded, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quota => $composableBuilder(
+      column: $table.quota, builder: (column) => ColumnOrderings(column));
+
+  $$CategoryDefinitionsTableOrderingComposer get categoryId {
+    final $$CategoryDefinitionsTableOrderingComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.categoryId,
+            referencedTable: $db.categoryDefinitions,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$CategoryDefinitionsTableOrderingComposer(
+                  $db: $db,
+                  $table: $db.categoryDefinitions,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$WeeklyPlanningCategorySettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WeeklyPlanningCategorySettingsTable> {
+  $$WeeklyPlanningCategorySettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get weekday =>
+      $composableBuilder(column: $table.weekday, builder: (column) => column);
+
+  GeneratedColumn<bool> get isIncluded => $composableBuilder(
+      column: $table.isIncluded, builder: (column) => column);
+
+  GeneratedColumn<int> get quota =>
+      $composableBuilder(column: $table.quota, builder: (column) => column);
+
+  $$CategoryDefinitionsTableAnnotationComposer get categoryId {
+    final $$CategoryDefinitionsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.categoryId,
+            referencedTable: $db.categoryDefinitions,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$CategoryDefinitionsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.categoryDefinitions,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$WeeklyPlanningCategorySettingsTableTableManager
+    extends RootTableManager<
+        _$AppDatabase,
+        $WeeklyPlanningCategorySettingsTable,
+        WeeklyPlanningCategorySetting,
+        $$WeeklyPlanningCategorySettingsTableFilterComposer,
+        $$WeeklyPlanningCategorySettingsTableOrderingComposer,
+        $$WeeklyPlanningCategorySettingsTableAnnotationComposer,
+        $$WeeklyPlanningCategorySettingsTableCreateCompanionBuilder,
+        $$WeeklyPlanningCategorySettingsTableUpdateCompanionBuilder,
+        (
+          WeeklyPlanningCategorySetting,
+          $$WeeklyPlanningCategorySettingsTableReferences
+        ),
+        WeeklyPlanningCategorySetting,
+        PrefetchHooks Function({bool categoryId})> {
+  $$WeeklyPlanningCategorySettingsTableTableManager(
+      _$AppDatabase db, $WeeklyPlanningCategorySettingsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WeeklyPlanningCategorySettingsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WeeklyPlanningCategorySettingsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WeeklyPlanningCategorySettingsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> weekday = const Value.absent(),
+            Value<String> categoryId = const Value.absent(),
+            Value<bool> isIncluded = const Value.absent(),
+            Value<int> quota = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WeeklyPlanningCategorySettingsCompanion(
+            weekday: weekday,
+            categoryId: categoryId,
+            isIncluded: isIncluded,
+            quota: quota,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int weekday,
+            required String categoryId,
+            Value<bool> isIncluded = const Value.absent(),
+            Value<int> quota = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              WeeklyPlanningCategorySettingsCompanion.insert(
+            weekday: weekday,
+            categoryId: categoryId,
+            isIncluded: isIncluded,
+            quota: quota,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$WeeklyPlanningCategorySettingsTableReferences(
+                        db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({categoryId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (categoryId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.categoryId,
+                    referencedTable:
+                        $$WeeklyPlanningCategorySettingsTableReferences
+                            ._categoryIdTable(db),
+                    referencedColumn:
+                        $$WeeklyPlanningCategorySettingsTableReferences
+                            ._categoryIdTable(db)
+                            .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$WeeklyPlanningCategorySettingsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $WeeklyPlanningCategorySettingsTable,
+        WeeklyPlanningCategorySetting,
+        $$WeeklyPlanningCategorySettingsTableFilterComposer,
+        $$WeeklyPlanningCategorySettingsTableOrderingComposer,
+        $$WeeklyPlanningCategorySettingsTableAnnotationComposer,
+        $$WeeklyPlanningCategorySettingsTableCreateCompanionBuilder,
+        $$WeeklyPlanningCategorySettingsTableUpdateCompanionBuilder,
+        (
+          WeeklyPlanningCategorySetting,
+          $$WeeklyPlanningCategorySettingsTableReferences
+        ),
+        WeeklyPlanningCategorySetting,
+        PrefetchHooks Function({bool categoryId})>;
 typedef $$ToyAutoNameCountersTableCreateCompanionBuilder
     = ToyAutoNameCountersCompanion Function({
   Value<int> boxIndex,
@@ -5924,6 +6587,10 @@ class $AppDatabaseManager {
   $$WeeklyPlanningSettingsTableTableManager get weeklyPlanningSettings =>
       $$WeeklyPlanningSettingsTableTableManager(
           _db, _db.weeklyPlanningSettings);
+  $$WeeklyPlanningCategorySettingsTableTableManager
+      get weeklyPlanningCategorySettings =>
+          $$WeeklyPlanningCategorySettingsTableTableManager(
+              _db, _db.weeklyPlanningCategorySettings);
   $$ToyAutoNameCountersTableTableManager get toyAutoNameCounters =>
       $$ToyAutoNameCountersTableTableManager(_db, _db.toyAutoNameCounters);
   $$LocationDefinitionsTableTableManager get locationDefinitions =>

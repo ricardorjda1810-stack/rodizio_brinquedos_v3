@@ -79,6 +79,16 @@ class WeeklyPlanningSettings extends Table {
   Set<Column> get primaryKey => {weekday};
 }
 
+class WeeklyPlanningCategorySettings extends Table {
+  IntColumn get weekday => integer()();
+  TextColumn get categoryId => text().references(CategoryDefinitions, #id)();
+  BoolColumn get isIncluded => boolean().withDefault(const Constant(true))();
+  IntColumn get quota => integer().withDefault(const Constant(1))();
+
+  @override
+  Set<Column> get primaryKey => {weekday, categoryId};
+}
+
 class ToyAutoNameCounters extends Table {
   IntColumn get boxIndex => integer()();
   IntColumn get nextNumber => integer().withDefault(const Constant(1))();
@@ -129,6 +139,7 @@ class HistoryEvents extends Table {
     RoundCategorySettings,
     RoundUiSettings,
     WeeklyPlanningSettings,
+    WeeklyPlanningCategorySettings,
     ToyAutoNameCounters,
     LocationDefinitions,
     Rounds,
@@ -140,7 +151,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -300,6 +311,11 @@ class AppDatabase extends _$AppDatabase {
 
           if (from < 13) {
             await m.createTable(weeklyPlanningSettings);
+            await _seedWeeklyPlanningSettings();
+          }
+
+          if (from < 14) {
+            await m.createTable(weeklyPlanningCategorySettings);
             await _seedWeeklyPlanningSettings();
           }
         },
