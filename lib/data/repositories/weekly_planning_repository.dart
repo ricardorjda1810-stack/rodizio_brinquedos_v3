@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
 
 class WeeklyPlanningCategoryConfig {
   final String categoryId;
@@ -80,6 +81,10 @@ class WeeklyPlanningRepository {
     return _watchPlanningChanges().asyncMap((_) => getAll());
   }
 
+  Stream<List<WeekDaySummary>> watchWeekSummary() {
+    return _watchPlanningChanges().asyncMap((_) => _buildWeekSummary());
+  }
+
   Future<WeeklyPlanningDayConfig?> getByWeekday(int weekday) async {
     if (!_isValidWeekday(weekday)) return null;
 
@@ -95,7 +100,8 @@ class WeeklyPlanningRepository {
     required bool useDefault,
   }) async {
     if (!_isValidWeekday(weekday)) {
-      throw ArgumentError.value(weekday, 'weekday', 'Use DateTime.weekday 1..7');
+      throw ArgumentError.value(
+          weekday, 'weekday', 'Use DateTime.weekday 1..7');
     }
 
     await ensureSeeded();
@@ -117,7 +123,8 @@ class WeeklyPlanningRepository {
     required int quota,
   }) async {
     if (!_isValidWeekday(weekday)) {
-      throw ArgumentError.value(weekday, 'weekday', 'Use DateTime.weekday 1..7');
+      throw ArgumentError.value(
+          weekday, 'weekday', 'Use DateTime.weekday 1..7');
     }
     final normalizedCategoryId = categoryId.trim();
     if (normalizedCategoryId.isEmpty) {
@@ -138,7 +145,9 @@ class WeeklyPlanningRepository {
   Future<List<WeeklyPlanningCategoryConfig>> getCategoriesForWeekday(
     int weekday,
   ) async {
-    if (!_isValidWeekday(weekday)) return const <WeeklyPlanningCategoryConfig>[];
+    if (!_isValidWeekday(weekday)) {
+      return const <WeeklyPlanningCategoryConfig>[];
+    }
 
     await ensureSeeded();
     await _ensureCategoryRowsForWeekday(weekday);
@@ -201,6 +210,9 @@ class WeeklyPlanningRepository {
         _db.select(_db.roundCategorySettings).watch().listen((_) => emit()),
       );
       subscriptions.add(
+        _db.select(_db.roundUiSettings).watch().listen((_) => emit()),
+      );
+      subscriptions.add(
         _db.select(_db.categoryDefinitions).watch().listen((_) => emit()),
       );
 
@@ -233,6 +245,39 @@ class WeeklyPlanningRepository {
       useDefault: row.useDefault,
       categories: categories,
     );
+  }
+
+  Future<List<WeekDaySummary>> _buildWeekSummary() async {
+    await ensureSeeded();
+    final defaultCategories = await _loadDefaultCategoryConfigs();
+    final defaultTotal = _sumIncludedQuotas(defaultCategories);
+    final today = DateTime.now().weekday;
+    final planningEnabled = _settingsRepository.weeklyPlanningEnabled;
+    final rows = await _orderedDayQuery().get();
+    final rowsByWeekday = <int, WeeklyPlanningSetting>{
+      for (final row in rows) row.weekday: row,
+    };
+
+    final result = <WeekDaySummary>[];
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      final row = rowsByWeekday[weekday];
+      final usesDefault = !planningEnabled || row == null || row.useDefault;
+      final total = usesDefault
+          ? defaultTotal
+          : _sumIncludedQuotas(await _loadCustomCategoryConfigs(weekday));
+
+      result.add(
+        WeekDaySummary(
+          weekday: weekday,
+          shortLabel: _shortWeekdayLabel(weekday),
+          fullLabel: _fullWeekdayLabel(weekday),
+          totalToys: total,
+          usesDefault: usesDefault,
+          isToday: weekday == today,
+        ),
+      );
+    }
+    return result;
   }
 
   Future<List<WeeklyPlanningCategoryConfig>> _loadDefaultCategoryConfigs() {
@@ -309,6 +354,57 @@ class WeeklyPlanningRepository {
       if (category.isIncluded && category.safeQuota > 0) return true;
     }
     return false;
+  }
+
+  int _sumIncludedQuotas(List<WeeklyPlanningCategoryConfig> categories) {
+    var total = 0;
+    for (final category in categories) {
+      if (!category.isIncluded) continue;
+      total += category.safeQuota;
+    }
+    return total;
+  }
+
+  String _shortWeekdayLabel(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Seg';
+      case DateTime.tuesday:
+        return 'Ter';
+      case DateTime.wednesday:
+        return 'Qua';
+      case DateTime.thursday:
+        return 'Qui';
+      case DateTime.friday:
+        return 'Sex';
+      case DateTime.saturday:
+        return 'Sáb';
+      case DateTime.sunday:
+        return 'Dom';
+      default:
+        return '';
+    }
+  }
+
+  String _fullWeekdayLabel(int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Segunda-feira';
+      case DateTime.tuesday:
+        return 'Terça-feira';
+      case DateTime.wednesday:
+        return 'Quarta-feira';
+      case DateTime.thursday:
+        return 'Quinta-feira';
+      case DateTime.friday:
+        return 'Sexta-feira';
+      case DateTime.saturday:
+        return 'Sábado';
+      case DateTime.sunday:
+        return 'Domingo';
+      default:
+        return '';
+    }
   }
 
   bool _isValidWeekday(int weekday) {

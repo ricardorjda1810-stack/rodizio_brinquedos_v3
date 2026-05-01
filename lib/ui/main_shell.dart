@@ -5,11 +5,13 @@ import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_reposito
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_shell_header.dart';
-import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_preview_card.dart';
 import 'weekly_planning_page.dart';
 import 'brinquedos_page.dart' as brinquedos;
 import 'caixas_page.dart';
@@ -100,30 +102,39 @@ class _MainShellState extends State<MainShell> {
     final weeklyPlanningRepository = _weeklyPlanningRepository;
     if (weeklyPlanningRepository == null) return const SizedBox.shrink();
 
-    return StreamBuilder<bool>(
-      stream: widget.settingsRepository.watchWeeklyPlanningEnabled(),
-      initialData: widget.settingsRepository.weeklyPlanningEnabled,
-      builder: (context, enabledSnapshot) {
-        return StreamBuilder<List<WeeklyPlanningDayConfig>>(
-          stream: weeklyPlanningRepository.watchAll(),
-          initialData: const <WeeklyPlanningDayConfig>[],
-          builder: (context, daysSnapshot) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(
-                UiTokens.m,
-                0,
-                UiTokens.m,
-                UiTokens.s,
-              ),
-              child: WeeklyPlanningCard(
-                enabled: enabledSnapshot.data ?? false,
-                days: daysSnapshot.data ?? const <WeeklyPlanningDayConfig>[],
-                onEdit: _openWeeklyPlanning,
-              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        UiTokens.m,
+        0,
+        UiTokens.m,
+        UiTokens.s,
+      ),
+      child: StreamBuilder<List<WeekDaySummary>>(
+        stream: weeklyPlanningRepository.watchWeekSummary(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const _WeeklyPlanningPreviewState(
+              message: 'Não foi possível carregar o planejamento semanal.',
             );
-          },
-        );
-      },
+          }
+
+          final summaries = snapshot.data ?? const <WeekDaySummary>[];
+          if (summaries.isEmpty) {
+            final waiting = snapshot.connectionState == ConnectionState.waiting;
+            return _WeeklyPlanningPreviewState(
+              message: waiting
+                  ? 'Carregando planejamento semanal...'
+                  : 'Nenhum planejamento semanal encontrado.',
+            );
+          }
+
+          return WeeklyPlanningPreviewCard(
+            summaries: summaries,
+            onTap: _openWeeklyPlanning,
+            onDayTap: (_) => _openWeeklyPlanning(),
+          );
+        },
+      ),
     );
   }
 
@@ -140,7 +151,7 @@ class _MainShellState extends State<MainShell> {
       actions: [
         AppShellHeaderAction(
           icon: Icons.settings_outlined,
-          tooltip: 'Configura\u00e7\u00f5es',
+          tooltip: 'Configurações',
           onTap: _openSettings,
         ),
       ],
@@ -222,6 +233,26 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: AppBottomNavigation(
         currentIndex: _currentIndex,
         onTap: _goTo,
+      ),
+    );
+  }
+}
+
+class _WeeklyPlanningPreviewState extends StatelessWidget {
+  final String message;
+
+  const _WeeklyPlanningPreviewState({
+    required this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSurfaceCard(
+      child: Text(
+        message,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: UiTokens.textSecondary,
+            ),
       ),
     );
   }
