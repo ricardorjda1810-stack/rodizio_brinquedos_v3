@@ -217,9 +217,9 @@ class _WeekDayMiniCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(UiTokens.radiusSm),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 96),
+          constraints: const BoxConstraints(minHeight: 72),
           padding: EdgeInsets.symmetric(
-            horizontal: compact ? UiTokens.spacingXs : UiTokens.spacingSm,
+            horizontal: compact ? 2 : UiTokens.spacingXs,
             vertical: UiTokens.spacingSm,
           ),
           decoration: BoxDecoration(
@@ -227,52 +227,42 @@ class _WeekDayMiniCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(UiTokens.radiusSm),
             border: Border.all(color: borderColor),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      summary.shortLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: textTheme.labelMedium?.copyWith(
-                        color: summary.isToday
-                            ? UiTokens.primaryStrong
-                            : UiTokens.textSecondary,
-                        fontWeight: FontWeight.w800,
+              Align(
+                alignment: Alignment.topRight,
+                child: _PlanningModeDot(usesDefault: summary.usesDefault),
+              ),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        summary.shortLabel,
+                        maxLines: 1,
+                        style: textTheme.labelMedium?.copyWith(
+                          color: summary.isToday
+                              ? UiTokens.primaryStrong
+                              : UiTokens.textSecondary,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: UiTokens.spacingXs),
-                  _PlanningModeDot(usesDefault: summary.usesDefault),
-                ],
-              ),
-              const SizedBox(height: UiTokens.spacingXs),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                child: Text(
-                  '${summary.totalToys}',
-                  key: ValueKey<int>(summary.totalToys),
-                  maxLines: 1,
-                  style: numberStyle,
-                ),
-              ),
-              const SizedBox(height: UiTokens.spacingXs),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  'brinquedos',
-                  maxLines: 1,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: UiTokens.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    const SizedBox(height: UiTokens.spacingXs),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      child: Text(
+                        '${summary.totalToys}',
+                        key: ValueKey<int>(summary.totalToys),
+                        maxLines: 1,
+                        style: numberStyle,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
