@@ -7,13 +7,11 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 class WeeklyPlanningPreviewCard extends StatelessWidget {
   final List<WeekDaySummary> summaries;
   final VoidCallback? onTap;
-  final ValueChanged<int>? onDayTap;
 
   const WeeklyPlanningPreviewCard({
     super.key,
     required this.summaries,
     this.onTap,
-    this.onDayTap,
   });
 
   @override
@@ -27,90 +25,167 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(UiTokens.radiusCard),
-          child: Padding(
-            padding: const EdgeInsets.all(UiTokens.spacingSm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Planejamento semanal',
-                            style: textTheme.titleSmall?.copyWith(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'Brinquedos programados por dia',
-                            style: textTheme.bodySmall?.copyWith(
-                              color: UiTokens.textSecondary,
-                              height: 1.35,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (onTap != null) ...[
-                      const SizedBox(width: UiTokens.spacingSm),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: UiTokens.textSecondary,
-                        size: 22,
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: UiTokens.spacingSm),
-                if (sortedSummaries.isEmpty)
-                  Text(
-                    'Nenhum planejamento encontrado.',
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: UiTokens.textSecondary,
-                    ),
-                  )
-                else ...[
-                  _TodayPlanningSummary(summary: todaySummary),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final compact = constraints.maxWidth < 380;
-                      return Row(
-                        children: [
-                          for (final summary in sortedSummaries)
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  right: summary == sortedSummaries.last
-                                      ? 0
-                                      : UiTokens.spacingXs,
-                                ),
-                                child: _WeekDayMiniCard(
-                                  summary: summary,
-                                  compact: compact,
-                                  onTap: onDayTap == null
-                                      ? onTap
-                                      : () => onDayTap!(summary.weekday),
-                                ),
+        child: Padding(
+          padding: const EdgeInsets.all(UiTokens.spacingSm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: UiTokens.spacingXs,
+                    vertical: UiTokens.spacingXs,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Planejamento semanal',
+                              style: textTheme.titleSmall?.copyWith(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
-                        ],
-                      );
-                    },
+                            Text(
+                              'Brinquedos programados por dia',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: UiTokens.textSecondary,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (onTap != null) ...[
+                        const SizedBox(width: UiTokens.spacingSm),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: UiTokens.textSecondary,
+                          size: 22,
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
+              ),
+              const SizedBox(height: UiTokens.spacingXs),
+              if (sortedSummaries.isEmpty)
+                Text(
+                  'Nenhum planejamento encontrado.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: UiTokens.textSecondary,
+                  ),
+                )
+              else ...[
+                _TodayPlanningSummary(summary: todaySummary),
+                const SizedBox(height: UiTokens.spacingSm),
+                _WeekSummaryStrip(summaries: sortedSummaries),
               ],
-            ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _WeekSummaryStrip extends StatelessWidget {
+  final List<WeekDaySummary> summaries;
+
+  const _WeekSummaryStrip({
+    required this.summaries,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: summaries
+          .map((summary) =>
+              '${summary.fullLabel}: ${summary.totalToys} brinquedos')
+          .join(', '),
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 54),
+        padding: const EdgeInsets.symmetric(
+          horizontal: UiTokens.spacingXs,
+          vertical: UiTokens.spacingXs,
+        ),
+        decoration: BoxDecoration(
+          color: UiTokens.secondarySoft,
+          borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+          border: Border.all(color: UiTokens.border),
+        ),
+        child: Row(
+          children: [
+            for (final summary in summaries)
+              Expanded(
+                child: _WeekSummaryCell(summary: summary),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WeekSummaryCell extends StatelessWidget {
+  final WeekDaySummary summary;
+
+  const _WeekSummaryCell({
+    required this.summary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final dayColor =
+        summary.isToday ? UiTokens.primaryStrong : UiTokens.textSecondary;
+    final numberColor =
+        summary.isToday ? UiTokens.primaryStrong : UiTokens.textPrimary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: UiTokens.spacingXs),
+      decoration: BoxDecoration(
+        color: summary.isToday ? UiTokens.primarySoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              summary.shortLabel,
+              maxLines: 1,
+              style: textTheme.labelMedium?.copyWith(
+                color: dayColor,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: Text(
+              '${summary.totalToys}',
+              key: ValueKey<int>(summary.totalToys),
+              maxLines: 1,
+              style: textTheme.titleMedium?.copyWith(
+                color: numberColor,
+                fontWeight: FontWeight.w800,
+                height: 1,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -192,124 +267,7 @@ class _TodayPlanningSummary extends StatelessWidget {
             ),
           ),
           const SizedBox(width: UiTokens.spacingSm),
-          _PlanningModeDot(usesDefault: summary.usesDefault, large: true),
         ],
-      ),
-    );
-  }
-}
-
-class _WeekDayMiniCard extends StatelessWidget {
-  final WeekDaySummary summary;
-  final bool compact;
-  final VoidCallback? onTap;
-
-  const _WeekDayMiniCard({
-    required this.summary,
-    required this.compact,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final background =
-        summary.isToday ? UiTokens.primarySoft : UiTokens.secondarySoft;
-    final borderColor =
-        summary.isToday ? UiTokens.primaryStrong : UiTokens.border;
-    final numberStyle =
-        (compact ? textTheme.titleMedium : textTheme.titleLarge)?.copyWith(
-      color: summary.isToday ? UiTokens.primaryStrong : UiTokens.textPrimary,
-      fontWeight: FontWeight.w800,
-      height: 1,
-    );
-
-    return Semantics(
-      button: onTap != null,
-      label:
-          '${summary.fullLabel}: ${summary.totalToys} brinquedos programados',
-      selected: summary.isToday,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 54),
-          padding: EdgeInsets.symmetric(
-            horizontal: compact ? 2 : UiTokens.spacingXs,
-            vertical: UiTokens.spacingXs,
-          ),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-            border: Border.all(color: borderColor),
-          ),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: _PlanningModeDot(usesDefault: summary.usesDefault),
-              ),
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        summary.shortLabel,
-                        maxLines: 1,
-                        style: textTheme.labelMedium?.copyWith(
-                          color: summary.isToday
-                              ? UiTokens.primaryStrong
-                              : UiTokens.textSecondary,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: UiTokens.spacingXs),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 220),
-                      switchInCurve: Curves.easeOut,
-                      switchOutCurve: Curves.easeIn,
-                      child: Text(
-                        '${summary.totalToys}',
-                        key: ValueKey<int>(summary.totalToys),
-                        maxLines: 1,
-                        style: numberStyle,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PlanningModeDot extends StatelessWidget {
-  final bool usesDefault;
-  final bool large;
-
-  const _PlanningModeDot({
-    required this.usesDefault,
-    this.large = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final size = large ? 12.0 : 7.0;
-    return Tooltip(
-      message: usesDefault ? 'Configuração padrão' : 'Configuração própria',
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: usesDefault ? UiTokens.border : UiTokens.primaryStrong,
-          shape: BoxShape.circle,
-        ),
       ),
     );
   }

@@ -130,7 +130,6 @@ class _MainShellState extends State<MainShell> {
           return WeeklyPlanningPreviewCard(
             summaries: summaries,
             onTap: _openWeeklyPlanning,
-            onDayTap: (_) => _openWeeklyPlanning(),
           );
         },
       ),
