@@ -143,7 +143,7 @@ class _MainShellState extends State<MainShell> {
 
   Widget _buildHomeHeader() {
     return _CompactHomeHeader(
-      title: 'Tudo pronto para brincar com calma',
+      title: 'Hora de brincar',
       dateLabel: _currentDatePtBr(),
       onSettingsTap: _openSettings,
     );
