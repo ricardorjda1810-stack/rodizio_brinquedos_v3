@@ -10,14 +10,28 @@ echo "== Rodizio Brinquedos - preparo iOS/TestFlight =="
 echo
 
 echo "== Git =="
-echo "Branch: $(git branch --show-current)"
+current_branch="$(git branch --show-current)"
+version_line="$(grep "^version:" pubspec.yaml)"
+echo "Branch: $current_branch"
 echo "Ultimo commit: $(git log -1 --oneline)"
-echo "Versao: $(grep "^version:" pubspec.yaml)"
+echo "Versao atual: $version_line"
 echo
+
+if [[ "$current_branch" != "main" ]]; then
+  echo "ATENCAO: branch atual nao e main."
+  echo "Branch atual: $current_branch"
+  echo
+fi
 
 echo "== Status =="
 git status
 echo
+
+if git status --short --branch | head -n 1 | grep -q "ahead"; then
+  echo "ATENCAO: existem commits locais ainda nao enviados para origin/main."
+  echo "Envie os commits antes de arquivar uma build para TestFlight."
+  echo
+fi
 
 unexpected_status="$(
   git status --short | awk '
@@ -42,6 +56,10 @@ else
   echo "Status local contem apenas arquivos esperados ou esta limpo."
   echo
 fi
+
+echo "== Flutter analyze =="
+flutter analyze
+echo
 
 echo "== Flutter clean =="
 flutter clean
@@ -69,4 +87,5 @@ echo "== Abrindo Xcode =="
 open ios/Runner.xcworkspace
 echo
 
+echo "Pronto para Archive no Xcode"
 echo "No Xcode, confira Version/Build, selecione Any iOS Device (arm64), depois Product > Archive."
