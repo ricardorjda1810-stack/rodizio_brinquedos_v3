@@ -514,7 +514,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                         String?>(
                                                       value: null,
                                                       child: Text(
-                                                        'Selecione uma caixa ou "Sem caixa"',
+                                                        'Selecione uma caixa',
                                                       ),
                                                     ),
                                                     const DropdownMenuItem<
