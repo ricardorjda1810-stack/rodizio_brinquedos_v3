@@ -172,7 +172,7 @@ class _RodadaPageState extends State<RodadaPage> {
               builder: (context, constraints) {
                 final screenHeight = MediaQuery.sizeOf(context).height;
                 final maxGridHeight = math.min(
-                  screenHeight * 0.5,
+                  screenHeight * 0.49,
                   constraints.maxHeight * 0.56,
                 );
 
@@ -185,32 +185,6 @@ class _RodadaPageState extends State<RodadaPage> {
                   ),
                   child: Column(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _HomeStatCard(
-                              icon: Icons.play_circle_outline,
-                              label: 'Rodada ativa',
-                              value: '${items.length}',
-                              helper: items.isEmpty
-                                  ? 'nenhum item agora'
-                                  : 'itens dispon\u00edveis',
-                            ),
-                          ),
-                          const SizedBox(width: UiTokens.spacingSm),
-                          Expanded(
-                            child: _HomeStatCard(
-                              icon: Icons.auto_awesome_outlined,
-                              label: 'Clima do dia',
-                              value: items.isEmpty ? 'Livre' : 'Pronto',
-                              helper: items.isEmpty
-                                  ? 'organize com calma'
-                                  : 'tudo separado',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: UiTokens.spacingSm),
                       _RoundMomentCard(
                         itemCount: items.length,
                         onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
@@ -257,71 +231,6 @@ class _RodadaPageState extends State<RodadaPage> {
   }
 }
 
-class _HomeStatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final String helper;
-
-  const _HomeStatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.helper,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return AppSurfaceCard(
-      padding: const EdgeInsets.all(UiTokens.spacingSm),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: UiTokens.primarySoft,
-              borderRadius: BorderRadius.circular(UiTokens.radiusLg),
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              icon,
-              size: 20,
-              color: UiTokens.primaryStrong,
-            ),
-          ),
-          const SizedBox(height: UiTokens.spacingSm),
-          Text(
-            label,
-            style: UiTokens.textCaption.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: UiTokens.spacingXs),
-          Text(
-            value,
-            style: UiTokens.textSectionTitle.copyWith(
-              color: colorScheme.onSurface,
-            ),
-          ),
-          Text(
-            helper,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _RoundMomentCard extends StatelessWidget {
   final int itemCount;
   final VoidCallback onOpenBrinquedosTab;
@@ -362,7 +271,7 @@ class _RoundMomentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Rodada do momento',
+                  'Brincadeira da semana',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textSectionTitle.copyWith(
@@ -373,7 +282,7 @@ class _RoundMomentCard extends StatelessWidget {
                 Text(
                   itemCount == 0
                       ? 'Crie uma rodada para come\u00e7ar.'
-                      : '$itemCount brinquedos prontos para brincar.',
+                      : '$itemCount brinquedos dispon\u00edveis.',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
