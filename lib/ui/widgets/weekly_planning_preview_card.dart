@@ -31,7 +31,7 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(UiTokens.radiusCard),
           child: Padding(
-            padding: const EdgeInsets.all(UiTokens.spacingMd),
+            padding: const EdgeInsets.all(UiTokens.spacingSm),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -45,10 +45,10 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
                           Text(
                             'Planejamento semanal',
                             style: textTheme.titleSmall?.copyWith(
+                              fontSize: 15,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: UiTokens.spacingXs),
                           Text(
                             'Brinquedos programados por dia',
                             style: textTheme.bodySmall?.copyWith(
@@ -69,7 +69,7 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
                     ],
                   ],
                 ),
-                const SizedBox(height: UiTokens.spacingMd),
+                const SizedBox(height: UiTokens.spacingSm),
                 if (sortedSummaries.isEmpty)
                   Text(
                     'Nenhum planejamento encontrado.',
@@ -79,7 +79,7 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
                   )
                 else ...[
                   _TodayPlanningSummary(summary: todaySummary),
-                  const SizedBox(height: UiTokens.spacingMd),
+                  const SizedBox(height: UiTokens.spacingSm),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final compact = constraints.maxWidth < 380;
@@ -129,18 +129,23 @@ class _TodayPlanningSummary extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      padding: const EdgeInsets.symmetric(
+        horizontal: UiTokens.spacingSm,
+        vertical: UiTokens.spacingXs,
+      ),
       decoration: BoxDecoration(
         color: UiTokens.primarySoft,
-        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        borderRadius: BorderRadius.circular(UiTokens.radiusMd),
         border:
             Border.all(color: UiTokens.primaryStrong.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: UiTokens.spacingXs,
+              runSpacing: 2,
               children: [
                 Text(
                   'HOJE',
@@ -149,7 +154,13 @@ class _TodayPlanningSummary extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: UiTokens.spacingXs),
+                Text(
+                  '·',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: UiTokens.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 220),
                   switchInCurve: Curves.easeOut,
@@ -157,14 +168,19 @@ class _TodayPlanningSummary extends StatelessWidget {
                   child: Text(
                     _formatToyCount(summary.totalToys),
                     key: ValueKey<int>(summary.totalToys),
-                    style: textTheme.headlineSmall?.copyWith(
+                    style: textTheme.bodyMedium?.copyWith(
                       color: UiTokens.textPrimary,
                       fontWeight: FontWeight.w800,
-                      height: 1.1,
                     ),
                   ),
                 ),
-                const SizedBox(height: UiTokens.spacingXs),
+                Text(
+                  '·',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: UiTokens.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 Text(
                   _planningMoodLabel(summary.totalToys),
                   style: textTheme.bodySmall?.copyWith(
@@ -175,7 +191,7 @@ class _TodayPlanningSummary extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: UiTokens.spacingMd),
+          const SizedBox(width: UiTokens.spacingSm),
           _PlanningModeDot(usesDefault: summary.usesDefault, large: true),
         ],
       ),
@@ -217,10 +233,10 @@ class _WeekDayMiniCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(UiTokens.radiusSm),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 72),
+          constraints: const BoxConstraints(minHeight: 54),
           padding: EdgeInsets.symmetric(
             horizontal: compact ? 2 : UiTokens.spacingXs,
-            vertical: UiTokens.spacingSm,
+            vertical: UiTokens.spacingXs,
           ),
           decoration: BoxDecoration(
             color: background,

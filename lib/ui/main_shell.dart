@@ -9,7 +9,6 @@ import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.da
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
-import 'package:rodizio_brinquedos_v3/ui/widgets/app_shell_header.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_preview_card.dart';
 import 'weekly_planning_page.dart';
@@ -143,32 +142,10 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildHomeHeader() {
-    return AppShellHeader(
-      eyebrow: 'ROTINA DA CASA',
+    return _CompactHomeHeader(
       title: 'Tudo pronto para brincar com calma',
-      subtitle:
-          'Organize a rodada do dia, acompanhe os brinquedos ativos e mantenha a casa leve para usar.',
-      actions: [
-        AppShellHeaderAction(
-          icon: Icons.settings_outlined,
-          tooltip: 'Configurações',
-          onTap: _openSettings,
-        ),
-      ],
-      bottom: Wrap(
-        spacing: UiTokens.spacingSm,
-        runSpacing: UiTokens.spacingSm,
-        children: [
-          _HeaderChip(
-            icon: Icons.calendar_today_outlined,
-            label: _currentDatePtBr(),
-          ),
-          const _HeaderChip(
-            icon: Icons.favorite_border,
-            label: 'Visual simples e acolhedor',
-          ),
-        ],
-      ),
+      dateLabel: _currentDatePtBr(),
+      onSettingsTap: _openSettings,
     );
   }
 
@@ -258,41 +235,78 @@ class _WeeklyPlanningPreviewState extends StatelessWidget {
   }
 }
 
-class _HeaderChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
+class _CompactHomeHeader extends StatelessWidget {
+  final String title;
+  final String dateLabel;
+  final VoidCallback onSettingsTap;
 
-  const _HeaderChip({
-    required this.icon,
-    required this.label,
+  const _CompactHomeHeader({
+    required this.title,
+    required this.dateLabel,
+    required this.onSettingsTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.fromLTRB(
+        UiTokens.spacingMd,
+        UiTokens.spacingSm,
+        UiTokens.spacingMd,
+        UiTokens.spacingSm,
+      ),
       padding: const EdgeInsets.symmetric(
-        horizontal: UiTokens.spacingSm,
+        horizontal: UiTokens.spacingMd,
         vertical: UiTokens.spacingSm,
       ),
       decoration: BoxDecoration(
-        color: UiTokens.surface.withValues(alpha: 0.72),
+        color: UiTokens.primarySoft,
         borderRadius: BorderRadius.circular(UiTokens.radiusLg),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: UiTokens.primaryStrong,
-          ),
-          const SizedBox(width: UiTokens.spacingXs),
-          Text(
-            label,
-            style: UiTokens.textCaption.copyWith(
-              color: UiTokens.textPrimary,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textSectionTitle.copyWith(
+                    color: UiTokens.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: UiTokens.spacingXs),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 14,
+                      color: UiTokens.primaryStrong,
+                    ),
+                    const SizedBox(width: UiTokens.spacingXs),
+                    Flexible(
+                      child: Text(
+                        dateLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: UiTokens.textCaption.copyWith(
+                          color: UiTokens.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
+          ),
+          const SizedBox(width: UiTokens.spacingSm),
+          IconButton.filledTonal(
+            tooltip: 'Configurações',
+            onPressed: onSettingsTap,
+            icon: const Icon(Icons.settings_outlined, size: 20),
           ),
         ],
       ),
