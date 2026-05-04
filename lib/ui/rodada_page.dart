@@ -171,9 +171,30 @@ class _RodadaPageState extends State<RodadaPage> {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final screenHeight = MediaQuery.sizeOf(context).height;
+                const gridColumns = 4;
+                const gridSpacing = 12.0;
+                const gridChildAspectRatio = 0.56;
+                const gridCardPadding = 14.0;
+                const gridHeaderReserve = 32.0;
+                final availableGridWidth = math.max(
+                  0.0,
+                  constraints.maxWidth -
+                      (UiTokens.spacingMd * 2) -
+                      (gridCardPadding * 2),
+                );
+                final tileWidth =
+                    (availableGridWidth - (gridSpacing * (gridColumns - 1))) /
+                        gridColumns;
+                final tileHeight = tileWidth / gridChildAspectRatio;
+                final twoRowsGridHeight =
+                    UiTokens.spacingXs + (tileHeight * 2) + gridSpacing;
+                final desiredGridCardHeight = (gridCardPadding * 2) +
+                    gridHeaderReserve +
+                    UiTokens.spacingSm +
+                    twoRowsGridHeight;
                 final maxGridHeight = math.min(
                   screenHeight * 0.49,
-                  constraints.maxHeight * 0.56,
+                  constraints.maxHeight,
                 );
 
                 return Padding(
@@ -196,7 +217,10 @@ class _RodadaPageState extends State<RodadaPage> {
                           builder: (context, gridConstraints) {
                             final gridHeight = math.min(
                               maxGridHeight,
-                              gridConstraints.maxHeight,
+                              math.min(
+                                desiredGridCardHeight,
+                                gridConstraints.maxHeight,
+                              ),
                             );
 
                             return Align(
