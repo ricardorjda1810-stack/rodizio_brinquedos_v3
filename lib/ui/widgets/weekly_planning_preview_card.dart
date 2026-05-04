@@ -150,6 +150,8 @@ class _WeekSummaryCell extends StatelessWidget {
         summary.isToday ? UiTokens.primaryStrong : UiTokens.textSecondary;
     final numberColor =
         summary.isToday ? UiTokens.primaryStrong : UiTokens.textPrimary;
+    final dayWeight = summary.isToday ? FontWeight.w900 : FontWeight.w700;
+    final numberWeight = summary.isToday ? FontWeight.w900 : FontWeight.w800;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -161,7 +163,7 @@ class _WeekSummaryCell extends StatelessWidget {
             maxLines: 1,
             style: textTheme.labelMedium?.copyWith(
               color: dayColor,
-              fontWeight: FontWeight.w800,
+              fontWeight: dayWeight,
             ),
           ),
         ),
@@ -176,8 +178,20 @@ class _WeekSummaryCell extends StatelessWidget {
             maxLines: 1,
             style: textTheme.titleMedium?.copyWith(
               color: numberColor,
-              fontWeight: FontWeight.w800,
+              fontWeight: numberWeight,
               height: 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: UiTokens.spacingXs),
+        SizedBox(
+          height: 3,
+          width: 18,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color:
+                  summary.isToday ? UiTokens.primaryStrong : Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
             ),
           ),
         ),
