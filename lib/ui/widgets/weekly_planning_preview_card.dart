@@ -123,10 +123,12 @@ class _WeekSummaryStrip extends StatelessWidget {
         ),
         child: Row(
           children: [
-            for (final summary in summaries)
+            for (var index = 0; index < summaries.length; index++) ...[
+              if (index > 0) const SizedBox(width: UiTokens.spacingXs),
               Expanded(
-                child: _WeekSummaryCell(summary: summary),
+                child: _WeekSummaryCell(summary: summaries[index]),
               ),
+            ],
           ],
         ),
       ),
@@ -149,44 +151,37 @@ class _WeekSummaryCell extends StatelessWidget {
     final numberColor =
         summary.isToday ? UiTokens.primaryStrong : UiTokens.textPrimary;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: UiTokens.spacingXs),
-      decoration: BoxDecoration(
-        color: summary.isToday ? UiTokens.primarySoft : Colors.transparent,
-        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              summary.shortLabel,
-              maxLines: 1,
-              style: textTheme.labelMedium?.copyWith(
-                color: dayColor,
-                fontWeight: FontWeight.w800,
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            summary.shortLabel,
+            maxLines: 1,
+            style: textTheme.labelMedium?.copyWith(
+              color: dayColor,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: UiTokens.spacingXs),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: Text(
-              '${summary.totalToys}',
-              key: ValueKey<int>(summary.totalToys),
-              maxLines: 1,
-              style: textTheme.titleMedium?.copyWith(
-                color: numberColor,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
+        ),
+        const SizedBox(height: UiTokens.spacingXs),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: Text(
+            '${summary.totalToys}',
+            key: ValueKey<int>(summary.totalToys),
+            maxLines: 1,
+            style: textTheme.titleMedium?.copyWith(
+              color: numberColor,
+              fontWeight: FontWeight.w800,
+              height: 1,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
