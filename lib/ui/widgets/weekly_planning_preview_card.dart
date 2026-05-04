@@ -152,8 +152,7 @@ class _WeekSummaryCell extends StatelessWidget {
         summary.isToday ? UiTokens.primaryStrong : UiTokens.textPrimary;
     final dayWeight = summary.isToday ? FontWeight.w900 : FontWeight.w700;
     final numberWeight = summary.isToday ? FontWeight.w900 : FontWeight.w800;
-
-    return Column(
+    final content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         FittedBox(
@@ -183,19 +182,25 @@ class _WeekSummaryCell extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: UiTokens.spacingXs),
-        SizedBox(
-          height: 3,
-          width: 18,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color:
-                  summary.isToday ? UiTokens.primaryStrong : Colors.transparent,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-        ),
       ],
+    );
+
+    if (!summary.isToday) return content;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: UiTokens.spacingXs,
+        vertical: UiTokens.spacingXs,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+        border: Border.all(
+          color: UiTokens.primaryStrong.withValues(alpha: 0.6),
+          width: 1,
+        ),
+      ),
+      child: content,
     );
   }
 }
