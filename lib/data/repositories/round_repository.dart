@@ -454,6 +454,53 @@ class RoundRepository {
     ).resolveCategoryConfigForDate(date);
   }
 
+  Future<List<Toy>> suggestRoundForToday() async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final categoryConfigs =
+        await _resolveRoundCategoryConfigsForDate(DateTime.now(), d);
+    final includedConfigs = categoryConfigs
+        .where((config) => config.isIncluded && config.safeQuota > 0)
+        .toList(growable: false);
+    final lastRoundToyIds = await _loadMostRecentRoundToyIds(d);
+    final selected = <Toy>[];
+    final selectedIds = <String>{};
+
+    if (categoryConfigs.isEmpty) {
+      final settingsRepository = SettingsRepository(d);
+      await settingsRepository.load();
+      final toys = await _loadEligibleToys(d);
+      return _prioritizeToysOutsideLastRound(toys, lastRoundToyIds)
+          .take(settingsRepository.roundSize)
+          .toList(growable: false);
+    }
+
+    for (final config in includedConfigs) {
+      final toysForCategory = await _loadEligibleToysForCategory(
+        d,
+        categoryId: config.categoryId,
+      );
+      final orderedToys = _prioritizeToysOutsideLastRound(
+        toysForCategory,
+        lastRoundToyIds,
+      );
+      final targetCount = config.safeQuota < orderedToys.length
+          ? config.safeQuota
+          : orderedToys.length;
+
+      for (final toy in orderedToys.take(targetCount)) {
+        if (selectedIds.add(toy.id)) {
+          selected.add(toy);
+        }
+      }
+    }
+
+    return selected;
+  }
+
   Future<List<Toy>> _loadEligibleToysForCategory(
     AppDatabase d, {
     required String categoryId,
@@ -471,6 +518,55 @@ class RoundRepository {
                 ),
           ]))
         .get();
+  }
+
+  Future<List<Toy>> _loadEligibleToys(AppDatabase d) {
+    return (d.select(d.toys)
+          ..orderBy([
+            (t) => OrderingTerm(
+                  expression: t.createdAt,
+                  mode: OrderingMode.asc,
+                ),
+            (t) => OrderingTerm(
+                  expression: t.id,
+                  mode: OrderingMode.asc,
+                ),
+          ]))
+        .get();
+  }
+
+  Future<Set<String>> _loadMostRecentRoundToyIds(AppDatabase d) async {
+    final latestRound = await (d.select(d.rounds)
+          ..orderBy([
+            (r) => OrderingTerm(
+                  expression: r.startAt,
+                  mode: OrderingMode.desc,
+                ),
+            (r) => OrderingTerm(
+                  expression: r.id,
+                  mode: OrderingMode.asc,
+                ),
+          ])
+          ..limit(1))
+        .getSingleOrNull();
+    if (latestRound == null) return const <String>{};
+
+    final rows = await (d.select(d.roundToys)
+          ..where((rt) => rt.roundId.equals(latestRound.id)))
+        .get();
+    return {for (final row in rows) row.toyId};
+  }
+
+  List<Toy> _prioritizeToysOutsideLastRound(
+    List<Toy> toys,
+    Set<String> lastRoundToyIds,
+  ) {
+    if (lastRoundToyIds.isEmpty) return toys;
+
+    return <Toy>[
+      ...toys.where((toy) => !lastRoundToyIds.contains(toy.id)),
+      ...toys.where((toy) => lastRoundToyIds.contains(toy.id)),
+    ];
   }
 
   Future<void> endActiveRound() async {

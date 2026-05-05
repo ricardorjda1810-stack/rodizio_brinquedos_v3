@@ -14,6 +14,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/round_suggestion_sheet.dart';
 
 class RodadaPage extends StatefulWidget {
   final RoundRepository roundRepository;
@@ -44,6 +45,7 @@ class _RodadaPageState extends State<RodadaPage> {
   bool _startingRound = false;
   bool _checkingAutoPaywall = false;
   bool _autoPaywallQueued = false;
+  bool _loadingSuggestion = false;
 
   void _openToyDetail(String toyId) {
     Navigator.of(context).push(
@@ -100,6 +102,55 @@ class _RodadaPageState extends State<RodadaPage> {
     } finally {
       if (mounted) {
         setState(() => _startingRound = false);
+      }
+    }
+  }
+
+  Future<void> _openRoundSuggestionSheet(
+    Map<String, String> categoryNamesById,
+  ) async {
+    if (_loadingSuggestion) return;
+
+    setState(() => _loadingSuggestion = true);
+    try {
+      final suggestedToys = await widget.roundRepository.suggestRoundForToday();
+      final boxes = await widget.toyRepository.watchBoxes().first;
+      if (!mounted) return;
+
+      final selectedToys = await showModalBottomSheet<List<Toy>>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => RoundSuggestionSheet(
+          toys: suggestedToys,
+          categoryNamesById: categoryNamesById,
+          boxesById: {for (final box in boxes) box.id: box},
+        ),
+      );
+      if (selectedToys == null || selectedToys.isEmpty) return;
+
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        selectedToys.map((toy) => toy.id).toList(growable: false),
+      );
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Rodada atualizada com ${selectedToys.length} brinquedos.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('N\u00e3o foi poss\u00edvel sugerir a rodada: $e'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _loadingSuggestion = false);
       }
     }
   }
@@ -208,6 +259,10 @@ class _RodadaPageState extends State<RodadaPage> {
                     children: [
                       _RoundMomentCard(
                         itemCount: items.length,
+                        loadingSuggestion: _loadingSuggestion,
+                        onSuggestRound: () => _openRoundSuggestionSheet(
+                          categoryNamesById,
+                        ),
                         onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
                         onOpenSettings: widget.onOpenSettings,
                       ),
@@ -257,11 +312,15 @@ class _RodadaPageState extends State<RodadaPage> {
 
 class _RoundMomentCard extends StatelessWidget {
   final int itemCount;
+  final bool loadingSuggestion;
+  final VoidCallback onSuggestRound;
   final VoidCallback onOpenBrinquedosTab;
   final VoidCallback onOpenSettings;
 
   const _RoundMomentCard({
     required this.itemCount,
+    required this.loadingSuggestion,
+    required this.onSuggestRound,
     required this.onOpenBrinquedosTab,
     required this.onOpenSettings,
   });
@@ -314,6 +373,25 @@ class _RoundMomentCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: UiTokens.spacingSm),
+          OutlinedButton.icon(
+            onPressed: loadingSuggestion ? null : onSuggestRound,
+            icon: loadingSuggestion
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.auto_awesome_outlined, size: 18),
+            label: const Text('Sugerir rodada'),
+            style: OutlinedButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiTokens.spacingSm,
+              ),
+              textStyle: UiTokens.textButton.copyWith(fontSize: 13),
             ),
           ),
           const SizedBox(width: UiTokens.spacingXs),
