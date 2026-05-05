@@ -6,6 +6,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
 class Bootstrap extends StatefulWidget {
@@ -89,6 +90,7 @@ class _BootstrapState extends State<Bootstrap> {
 
   Future<void> _runInitialization() async {
     await _toyRepository.ensureSeedData();
+    await DemoDataLoader.load(_db);
     await _settingsRepository.load();
     _purchaseService = await PurchaseService.create();
   }
