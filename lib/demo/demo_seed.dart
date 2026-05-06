@@ -45,15 +45,15 @@ class DemoToySeed {
 class DemoSeed {
   static const categories = <DemoCategorySeed>[
     DemoCategorySeed(
-      id: 'montessori',
-      name: 'Montessori',
-      examples: 'torres, permanencia, pinos, classificacao',
+      id: 'coordenacao',
+      name: 'Coordenacao',
+      examples: 'encaixe, pinos, quebra-cabeca, classificacao',
       quota: 1,
     ),
     DemoCategorySeed(
-      id: 'movimento',
-      name: 'Movimento',
-      examples: 'bolas, rampas, carrinhos, tapetes',
+      id: 'construcao',
+      name: 'Construcao',
+      examples: 'blocos, torres, pecas magneticas, encaixes',
       quota: 1,
     ),
     DemoCategorySeed(
@@ -63,34 +63,28 @@ class DemoSeed {
       quota: 1,
     ),
     DemoCategorySeed(
-      id: 'musica',
-      name: 'Musica',
-      examples: 'tambor, chocalho, xilofone, instrumentos',
-      quota: 1,
-    ),
-    DemoCategorySeed(
-      id: 'encaixe',
-      name: 'Encaixe',
-      examples: 'blocos, formas, caminhoes, pecas magneticas',
-      quota: 1,
-    ),
-    DemoCategorySeed(
       id: 'livros',
       name: 'Livros',
       examples: 'animais, cores, tecido, primeiros livros',
       quota: 1,
     ),
     DemoCategorySeed(
-      id: 'sensorial',
-      name: 'Sensorial',
-      examples: 'texturas, bolas, tapetes, arcos',
+      id: 'movimento',
+      name: 'Movimento',
+      examples: 'bolas, rampas, carrinhos, tapetes',
       quota: 1,
     ),
     DemoCategorySeed(
-      id: 'coordenacao_motora',
-      name: 'Coordenacao motora',
-      examples: 'quebra-cabeca, memoria, pinos, trilhos',
-      quota: 0,
+      id: 'musica',
+      name: 'Musica',
+      examples: 'tambor, chocalho, xilofone, instrumentos',
+      quota: 1,
+    ),
+    DemoCategorySeed(
+      id: 'artes',
+      name: 'Artes',
+      examples: 'desenho, pintura, massinha, composicoes',
+      quota: 1,
     ),
   ];
 
@@ -115,14 +109,14 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_torre_de_argolas',
       name: 'Torre de argolas',
-      categoryId: 'montessori',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/torre_de_argolas.png',
       boxId: 'demo_box_montessori',
     ),
     DemoToySeed(
       id: 'demo_toy_blocos_de_madeira',
       name: 'Blocos de madeira',
-      categoryId: 'encaixe',
+      categoryId: 'construcao',
       photoAssetPath: 'assets/demo/toys/blocos_de_madeira.png',
       boxId: 'demo_box_semana',
     ),
@@ -150,7 +144,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_cubo_de_formas',
       name: 'Cubo de formas',
-      categoryId: 'encaixe',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/cubo_de_formas.png',
       boxId: 'demo_box_montessori',
     ),
@@ -164,21 +158,21 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_bola_sensorial',
       name: 'Bola sensorial',
-      categoryId: 'sensorial',
+      categoryId: 'movimento',
       photoAssetPath: 'assets/demo/toys/bola_sensorial.png',
       boxId: 'demo_box_cesto_sala',
     ),
     DemoToySeed(
       id: 'demo_toy_arco_iris_de_madeira',
       name: 'Arco-iris de madeira',
-      categoryId: 'sensorial',
+      categoryId: 'artes',
       photoAssetPath: 'assets/demo/toys/arco_iris_de_madeira.png',
       boxId: 'demo_box_montessori',
     ),
     DemoToySeed(
       id: 'demo_toy_quebra_cabeca',
       name: 'Quebra-cabeca',
-      categoryId: 'coordenacao_motora',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/quebra_cabeca.png',
       boxId: 'demo_box_armario_quarto',
     ),
@@ -227,7 +221,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_caminhao_de_encaixe',
       name: 'Caminhao de encaixe',
-      categoryId: 'encaixe',
+      categoryId: 'construcao',
       photoAssetPath: 'assets/demo/toys/caminhao_de_encaixe.png',
       boxId: 'demo_box_brinquedos_grandes',
     ),
@@ -248,21 +242,21 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_torre_de_copos',
       name: 'Torre de copos',
-      categoryId: 'montessori',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/torre_de_copos.png',
       boxId: 'demo_box_montessori',
     ),
     DemoToySeed(
       id: 'demo_toy_caixa_de_permanencia',
       name: 'Caixa de permanencia',
-      categoryId: 'montessori',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/caixa_de_permanencia.png',
       boxId: 'demo_box_montessori',
     ),
     DemoToySeed(
       id: 'demo_toy_prancha_de_pinos',
       name: 'Prancha de pinos',
-      categoryId: 'coordenacao_motora',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/prancha_de_pinos.png',
       boxId: 'demo_box_montessori',
     ),
@@ -277,7 +271,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_jogo_de_memoria_infantil',
       name: 'Jogo de memoria infantil',
-      categoryId: 'coordenacao_motora',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/jogo_de_memoria_infantil.png',
       boxId: 'demo_box_armario_quarto',
     ),
@@ -305,7 +299,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_tapete_sensorial',
       name: 'Tapete sensorial',
-      categoryId: 'sensorial',
+      categoryId: 'movimento',
       photoAssetPath: 'assets/demo/toys/tapete_sensorial.png',
       boxId: null,
       locationText: 'Tapete da sala',
@@ -313,7 +307,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_pecas_magneticas_grandes',
       name: 'Pecas magneticas grandes',
-      categoryId: 'encaixe',
+      categoryId: 'construcao',
       photoAssetPath: 'assets/demo/toys/pecas_magneticas_grandes.png',
       boxId: 'demo_box_brinquedos_grandes',
     ),

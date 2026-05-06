@@ -28,15 +28,15 @@ void main() {
 
   test('restaurar planejamento deixa todos os dias com 7 brinquedos', () async {
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'veiculos',
+      categoryId: 'coordenacao',
       quota: 5,
     );
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'bonecos',
+      categoryId: 'construcao',
       quota: 5,
     );
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'montagem',
+      categoryId: 'faz_de_conta',
       quota: 5,
     );
     await weeklyPlanningRepository.setUseDefault(
@@ -45,13 +45,13 @@ void main() {
     );
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.monday,
-      categoryId: 'veiculos',
+      categoryId: 'coordenacao',
       isIncluded: true,
       quota: 3,
     );
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.monday,
-      categoryId: 'bonecos',
+      categoryId: 'construcao',
       isIncluded: true,
       quota: 3,
     );

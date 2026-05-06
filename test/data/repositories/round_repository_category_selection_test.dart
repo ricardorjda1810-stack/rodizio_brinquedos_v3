@@ -21,15 +21,18 @@ void main() {
     await db.close();
   });
 
-  test('startRound respeita cotas por categoria ativa sem complemento geral', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: true, quota: 2);
+  test('startRound respeita cotas por categoria ativa sem complemento geral',
+      () async {
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: true, quota: 2);
     await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos', 'livros'});
+    await _setAllOthersExcluded(
+        toyRepository, const {'faz_de_conta', 'livros'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'bonecos', createdAt: 100);
-    await _insertToy(db, id: 'b2', categoryId: 'bonecos', createdAt: 200);
+    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
+    await _insertToy(db, id: 'b2', categoryId: 'faz_de_conta', createdAt: 200);
     await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 150);
-    await _insertToy(db, id: 'j1', categoryId: 'jogos', createdAt: 50);
+    await _insertToy(db, id: 'j1', categoryId: 'construcao', createdAt: 50);
 
     await roundRepository.startRound(size: 99);
 
@@ -37,13 +40,16 @@ void main() {
     expect(selectedIds, ['b1', 'b2', 'l1']);
   });
 
-  test('startRound tolera falta sem buscar brinquedos fora das categorias', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: true, quota: 3);
+  test('startRound tolera falta sem buscar brinquedos fora das categorias',
+      () async {
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: true, quota: 3);
     await _setCategoryState(toyRepository, 'livros', included: true, quota: 2);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos', 'livros'});
+    await _setAllOthersExcluded(
+        toyRepository, const {'faz_de_conta', 'livros'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'bonecos', createdAt: 100);
-    await _insertToy(db, id: 'j1', categoryId: 'jogos', createdAt: 50);
+    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
+    await _insertToy(db, id: 'j1', categoryId: 'construcao', createdAt: 50);
 
     await roundRepository.startRound(size: 99);
 
@@ -52,11 +58,13 @@ void main() {
   });
 
   test('categoria com switch off fica fora da rodada', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: false, quota: 3);
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: false, quota: 3);
     await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos', 'livros'});
+    await _setAllOthersExcluded(
+        toyRepository, const {'faz_de_conta', 'livros'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'bonecos', createdAt: 100);
+    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
     await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 100);
 
     await roundRepository.startRound(size: 99);
@@ -66,12 +74,14 @@ void main() {
   });
 
   test('startRound limita o total pela soma das cotas incluidas', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: true, quota: 1);
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: true, quota: 1);
     await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos', 'livros'});
+    await _setAllOthersExcluded(
+        toyRepository, const {'faz_de_conta', 'livros'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'bonecos', createdAt: 100);
-    await _insertToy(db, id: 'b2', categoryId: 'bonecos', createdAt: 200);
+    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
+    await _insertToy(db, id: 'b2', categoryId: 'faz_de_conta', createdAt: 200);
     await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 150);
     await _insertToy(db, id: 'l2', categoryId: 'livros', createdAt: 250);
     await _insertToy(db, id: 'l3', categoryId: 'livros', createdAt: 350);
@@ -85,23 +95,28 @@ void main() {
     expect(selectedIds, ['b1', 'l1']);
   });
 
-  test('startRound nao cria rodada quando nao ha brinquedos cadastrados', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: true, quota: 2);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos'});
+  test('startRound nao cria rodada quando nao ha brinquedos cadastrados',
+      () async {
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: true, quota: 2);
+    await _setAllOthersExcluded(toyRepository, const {'faz_de_conta'});
 
     final result = await roundRepository.startRound(size: 99);
 
     expect(result.created, isFalse);
     expect(result.selectedCount, 0);
 
-    final activeRound =
-        await (db.select(db.rounds)..where((r) => r.endAt.isNull())).getSingleOrNull();
+    final activeRound = await (db.select(db.rounds)
+          ..where((r) => r.endAt.isNull()))
+        .getSingleOrNull();
     expect(activeRound, isNull);
   });
 
-  test('startRound nao cria rodada apenas com brinquedo fora das categorias', () async {
-    await _setCategoryState(toyRepository, 'bonecos', included: true, quota: 2);
-    await _setAllOthersExcluded(toyRepository, const {'bonecos'});
+  test('startRound nao cria rodada apenas com brinquedo fora das categorias',
+      () async {
+    await _setCategoryState(toyRepository, 'faz_de_conta',
+        included: true, quota: 2);
+    await _setAllOthersExcluded(toyRepository, const {'faz_de_conta'});
 
     await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 100);
 
@@ -110,9 +125,9 @@ void main() {
     expect(result.created, isFalse);
     expect(result.selectedCount, 0);
 
-    final activeRound =
-        await (db.select(db.rounds)..where((r) => r.endAt.isNull()))
-            .getSingleOrNull();
+    final activeRound = await (db.select(db.rounds)
+          ..where((r) => r.endAt.isNull()))
+        .getSingleOrNull();
     expect(activeRound, isNull);
   });
 }

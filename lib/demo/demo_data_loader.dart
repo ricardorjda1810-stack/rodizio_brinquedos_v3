@@ -47,6 +47,10 @@ class DemoDataLoader {
     await db.delete(db.rounds).go();
     await db.delete(db.toys).go();
     await db.delete(db.boxes).go();
+    await db.delete(db.weeklyPlanningCategorySettings).go();
+    await db.delete(db.roundCategorySettings).go();
+    await db.delete(db.categoryCounters).go();
+    await db.delete(db.categoryDefinitions).go();
     await _clearDemoToyPhotos();
   }
 

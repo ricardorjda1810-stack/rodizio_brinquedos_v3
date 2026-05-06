@@ -375,16 +375,13 @@ class WeeklyPlanningRepository {
 
   Future<void> _restoreRoundCategoryDefaults() async {
     const defaultQuotas = <String, int>{
-      'veiculos': 1,
-      'bonecos': 1,
-      'montagem': 1,
-      'livros': 1,
-      'jogos': 1,
+      'coordenacao': 1,
+      'construcao': 1,
       'faz_de_conta': 1,
+      'livros': 1,
+      'movimento': 1,
+      'musica': 1,
       'artes': 1,
-      'musica': 0,
-      'banho': 0,
-      'outros': 0,
     };
 
     final categories = await _db.select(_db.categoryDefinitions).get();

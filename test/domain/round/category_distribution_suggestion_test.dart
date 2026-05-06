@@ -4,14 +4,14 @@ import 'package:rodizio_brinquedos_v3/domain/round/category_distribution_suggest
 void main() {
   test('distribui 6 brinquedos entre categorias existentes', () {
     final suggestion = buildDistribution(6, const [
-      'Montagem',
+      'Coordenação',
       'Livros',
       'Faz de conta',
     ]);
 
     expect(suggestion.total, 6);
     expect(suggestion.distribution, {
-      'Montagem': 2,
+      'Coordenação': 2,
       'Livros': 2,
       'Faz de conta': 2,
     });
@@ -20,7 +20,7 @@ void main() {
 
   test('distribui 7 brinquedos de forma equilibrada', () {
     final suggestion = buildDistribution(7, const [
-      'Montagem',
+      'Coordenação',
       'Livros',
       'Faz de conta',
       'Artes',
@@ -28,7 +28,7 @@ void main() {
 
     expect(suggestion.total, 7);
     expect(suggestion.distribution, {
-      'Montagem': 2,
+      'Coordenação': 2,
       'Livros': 2,
       'Faz de conta': 2,
       'Artes': 1,
@@ -38,25 +38,25 @@ void main() {
 
   test('distribui 8 brinquedos sem depender de nomes fixos', () {
     final suggestion = buildDistribution(8, const [
-      'Veiculos',
-      'Bonecos',
-      'Banho',
-      'Outros',
+      'Coordenação',
+      'Construção',
+      'Movimento',
+      'Música',
     ]);
 
     expect(suggestion.total, 8);
     expect(suggestion.distribution, {
-      'Veiculos': 2,
-      'Bonecos': 2,
-      'Banho': 2,
-      'Outros': 2,
+      'Coordenação': 2,
+      'Construção': 2,
+      'Movimento': 2,
+      'Música': 2,
     });
     expect(_sum(suggestion.distribution), 8);
   });
 
   test('limita sugestao generica a 8 brinquedos', () {
     final suggestion = buildDistribution(12, const [
-      'Montagem',
+      'Coordenação',
       'Livros',
       'Faz de conta',
       'Artes',

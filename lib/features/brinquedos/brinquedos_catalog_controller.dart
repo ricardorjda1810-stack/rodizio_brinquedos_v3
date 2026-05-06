@@ -26,17 +26,15 @@ class BrinquedosCatalogController {
 
   Stream<BrinquedosCatalogState> get stream => _stateController.stream;
 
-  static const List<CategoryFilterOption> _defaultCategories = <CategoryFilterOption>[
-    CategoryFilterOption(id: 'veiculos', label: 'Veículos'),
-    CategoryFilterOption(id: 'bonecos', label: 'Bonecos'),
-    CategoryFilterOption(id: 'montagem', label: 'Montagem'),
-    CategoryFilterOption(id: 'livros', label: 'Livros'),
-    CategoryFilterOption(id: 'jogos', label: 'Jogos'),
+  static const List<CategoryFilterOption> _defaultCategories =
+      <CategoryFilterOption>[
+    CategoryFilterOption(id: 'coordenacao', label: 'Coordenação'),
+    CategoryFilterOption(id: 'construcao', label: 'Construção'),
     CategoryFilterOption(id: 'faz_de_conta', label: 'Faz de conta'),
-    CategoryFilterOption(id: 'artes', label: 'Artes'),
+    CategoryFilterOption(id: 'livros', label: 'Livros'),
+    CategoryFilterOption(id: 'movimento', label: 'Movimento'),
     CategoryFilterOption(id: 'musica', label: 'Música'),
-    CategoryFilterOption(id: 'banho', label: 'Banho'),
-    CategoryFilterOption(id: 'outros', label: 'Outros'),
+    CategoryFilterOption(id: 'artes', label: 'Artes'),
   ];
 
   void init() {
@@ -52,7 +50,8 @@ class BrinquedosCatalogController {
       _emit();
     });
 
-    _categoriesSub = _toyRepository.watchCategories(activeOnly: false).listen((items) {
+    _categoriesSub =
+        _toyRepository.watchCategories(activeOnly: false).listen((items) {
       _latestCategories = items;
       _emit();
     });
@@ -87,7 +86,8 @@ class BrinquedosCatalogController {
     if (_stateController.isClosed) return;
 
     final categories = _buildCategories();
-    if (_selectedCategoryId != null && !categories.any((c) => c.id == _selectedCategoryId)) {
+    if (_selectedCategoryId != null &&
+        !categories.any((c) => c.id == _selectedCategoryId)) {
       _selectedCategoryId = null;
     }
 
@@ -109,7 +109,9 @@ class BrinquedosCatalogController {
 
     _stateController.add(
       BrinquedosCatalogState(
-        loading: _latestToys.isEmpty && _latestBoxes.isEmpty && _latestCategories.isEmpty,
+        loading: _latestToys.isEmpty &&
+            _latestBoxes.isEmpty &&
+            _latestCategories.isEmpty,
         queryText: _queryText,
         selectedBoxFilter: _selectedBoxFilter,
         selectedCategoryId: _selectedCategoryId,
@@ -136,7 +138,8 @@ class BrinquedosCatalogController {
     final options = byId.entries
         .map((e) => CategoryFilterOption(id: e.key, label: e.value))
         .toList();
-    options.sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+    options
+        .sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
     return options;
   }
 

@@ -2,9 +2,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_seed.dart';
 
 void main() {
+  const officialCategoryIds = <String>{
+    'coordenacao',
+    'construcao',
+    'faz_de_conta',
+    'livros',
+    'movimento',
+    'musica',
+    'artes',
+  };
+
   test('demo seed tem 30 brinquedos com fotos e rodada ativa de 7', () {
     expect(DemoSeed.toys, hasLength(30));
     expect(DemoSeed.activeRoundToyIds, hasLength(7));
+    expect(DemoSeed.categories, hasLength(7));
+    expect(
+      DemoSeed.categories.map((category) => category.id).toSet(),
+      officialCategoryIds,
+    );
 
     final toyIds = DemoSeed.toys.map((toy) => toy.id).toSet();
     final photoAssetPaths =
@@ -14,7 +29,7 @@ void main() {
     expect(photoAssetPaths, hasLength(30));
     for (final toy in DemoSeed.toys) {
       expect(toy.name.trim(), isNotEmpty);
-      expect(toy.categoryId.trim(), isNotEmpty);
+      expect(officialCategoryIds, contains(toy.categoryId));
       expect(toy.photoAssetPath, startsWith('assets/demo/toys/'));
       expect(toy.photoAssetPath, endsWith('.png'));
     }

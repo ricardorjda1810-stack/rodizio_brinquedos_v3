@@ -44,16 +44,13 @@ class DevSeed {
     if (boxesWithPhoto.isEmpty) return;
 
     const categoryIds = <String>[
-      'veiculos',
-      'bonecos',
-      'montagem',
-      'livros',
-      'jogos',
+      'coordenacao',
+      'construcao',
       'faz_de_conta',
-      'artes',
+      'livros',
+      'movimento',
       'musica',
-      'banho',
-      'outros',
+      'artes',
     ];
 
     const locations = <String>[
@@ -113,14 +110,16 @@ class DevSeed {
     final existingToys = await toyRepository.getAllToysOnce();
     final currentCount = existingToys.length;
 
-    final targetCount = currentCount < names.length ? names.length : names.length * 2;
+    final targetCount =
+        currentCount < names.length ? names.length : names.length * 2;
     if (currentCount >= targetCount) return;
 
     for (var i = currentCount; i < targetCount; i++) {
       final name = names[i % names.length];
       final categoryId = categoryIds[i % categoryIds.length];
       final hasBox = i % 6 != 0;
-      final boxId = hasBox ? boxesWithPhoto[i % boxesWithPhoto.length].id : null;
+      final boxId =
+          hasBox ? boxesWithPhoto[i % boxesWithPhoto.length].id : null;
       final locationText = i % 9 == 0 ? null : locations[i % locations.length];
 
       await toyRepository.addToyWithGeneratedName(
