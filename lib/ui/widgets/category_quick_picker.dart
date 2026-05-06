@@ -33,30 +33,29 @@ class CategoryQuickPicker<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      itemCount: categories.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: UiTokens.spacingSm,
-        mainAxisSpacing: UiTokens.spacingSm,
-        mainAxisExtent: 112,
-      ),
-      itemBuilder: (context, i) {
-        final category = categories[i];
-        return _CategoryQuickPickerCard(
-          name: getName(category),
-          examplesText: getExamples(category),
-          aspectText: getDevelopmentAspect?.call(category),
-          selected: selectedId == getId(category),
-          disabled: disabled,
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            onSelected(getId(category));
-          },
-        );
-      },
+    return Column(
+      children: [
+        for (var i = 0; i < categories.length; i++) ...[
+          Builder(
+            builder: (context) {
+              final category = categories[i];
+              return _CategoryQuickPickerCard(
+                name: getName(category),
+                examplesText: getExamples(category),
+                aspectText: getDevelopmentAspect?.call(category),
+                selected: selectedId == getId(category),
+                disabled: disabled,
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                  onSelected(getId(category));
+                },
+              );
+            },
+          ),
+          if (i < categories.length - 1)
+            const SizedBox(height: UiTokens.spacingSm),
+        ],
+      ],
     );
   }
 }
@@ -91,9 +90,12 @@ class _CategoryQuickPickerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalizedExamples = _decodeDisplayText((examplesText ?? '').trim());
     final normalizedAspect = _decodeDisplayText((aspectText ?? '').trim());
-    final subtitle = normalizedExamples.isEmpty
+    final examples = normalizedExamples.isEmpty
         ? 'Exemplos ainda n\u00e3o definidos.'
-        : 'Ex.: $normalizedExamples';
+        : normalizedExamples;
+    final aspect = normalizedAspect.isEmpty
+        ? 'Aspecto do desenvolvimento ainda n\u00e3o definido.'
+        : normalizedAspect;
     final displayName = _decodeDisplayText(name);
 
     return Material(
@@ -102,7 +104,10 @@ class _CategoryQuickPickerCard extends StatelessWidget {
         onTap: disabled ? null : onTap,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
         child: Ink(
-          padding: const EdgeInsets.all(UiTokens.spacingSm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiTokens.spacingMd,
+            vertical: UiTokens.spacingSm,
+          ),
           decoration: BoxDecoration(
             color: selected ? UiTokens.primarySoft : UiTokens.surface,
             borderRadius: BorderRadius.circular(UiTokens.radiusMd),
@@ -124,6 +129,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
@@ -132,7 +138,8 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textBody.copyWith(
                         color: UiTokens.textPrimary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        height: 1.2,
                       ),
                     ),
                   ),
@@ -144,30 +151,26 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: UiTokens.spacingSm),
-              Flexible(
-                fit: FlexFit.loose,
-                child: Text(
-                  subtitle,
-                  maxLines: normalizedAspect.isEmpty ? 3 : 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    color: UiTokens.textSecondary,
-                  ),
+              const SizedBox(height: UiTokens.spacingXs),
+              Text(
+                aspect,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textCaption.copyWith(
+                  color: UiTokens.textSecondary,
+                  height: 1.25,
                 ),
               ),
-              if (normalizedAspect.isNotEmpty) ...[
-                const SizedBox(height: UiTokens.spacingXs),
-                Text(
-                  normalizedAspect,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    color: UiTokens.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+              const SizedBox(height: UiTokens.spacingXs),
+              Text(
+                examples,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textCaption.copyWith(
+                  color: UiTokens.textPrimary.withValues(alpha: 0.82),
+                  height: 1.25,
                 ),
-              ],
+              ),
             ],
           ),
         ),
