@@ -244,7 +244,7 @@ class _RodadaPageState extends State<RodadaPage> {
               builder: (context, constraints) {
                 final screenHeight = MediaQuery.sizeOf(context).height;
                 const gridSpacing = 12.0;
-                const gridTileHeight = 124.0;
+                const gridTileHeight = 132.0;
                 const gridCardPadding = 14.0;
                 const gridHeaderReserve = 32.0;
                 const twoRowsGridHeight =
@@ -303,7 +303,6 @@ class _RodadaPageState extends State<RodadaPage> {
                                 height: gridHeight,
                                 child: _AvailableToysGridCard(
                                   items: items,
-                                  categoryNamesById: categoryNamesById,
                                   onOpenToy: _openToyDetail,
                                   emptyTitle: 'Sugest\u00e3o para hoje',
                                   emptyCounterText: 'at\u00e9 7',
@@ -467,7 +466,6 @@ class _RoundMomentCard extends StatelessWidget {
 
 class _AvailableToysGridCard extends StatelessWidget {
   final List<RoundToyWithBox> items;
-  final Map<String, String> categoryNamesById;
   final ValueChanged<String> onOpenToy;
   final Widget emptyState;
   final String emptyTitle;
@@ -475,7 +473,6 @@ class _AvailableToysGridCard extends StatelessWidget {
 
   const _AvailableToysGridCard({
     required this.items,
-    required this.categoryNamesById,
     required this.onOpenToy,
     required this.emptyState,
     required this.emptyTitle,
@@ -532,24 +529,27 @@ class _AvailableToysGridCard extends StatelessWidget {
           Expanded(
             child: items.isEmpty
                 ? emptyState
-                : GridView.builder(
-                    padding: const EdgeInsets.only(top: UiTokens.spacingXs),
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      mainAxisExtent: 124,
-                    ),
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      return _RoundToyGridItem(
-                        item: item,
-                        categoryLabel: _categoryLabelFor(item),
-                        boxLabel: _boxLabelFor(item),
-                        onTap: () => onOpenToy(item.toy.id),
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth < 390 ? 3 : 4;
+
+                      return GridView.builder(
+                        padding: const EdgeInsets.only(top: UiTokens.spacingXs),
+                        physics: const BouncingScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: 132,
+                        ),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return _RoundToyGridItem(
+                            item: item,
+                            onTap: () => onOpenToy(item.toy.id),
+                          );
+                        },
                       );
                     },
                   ),
@@ -558,32 +558,14 @@ class _AvailableToysGridCard extends StatelessWidget {
       ),
     );
   }
-
-  String _categoryLabelFor(RoundToyWithBox item) {
-    final categoryId = item.toy.categoryId.trim();
-    final label = categoryNamesById[categoryId]?.trim();
-    if (label == null || label.isEmpty) return 'Outros';
-    return label;
-  }
-
-  String _boxLabelFor(RoundToyWithBox item) {
-    final box = item.box;
-    if (box == null) return 'Sem caixa';
-
-    return 'Caixa ${box.number}';
-  }
 }
 
 class _RoundToyGridItem extends StatelessWidget {
   final RoundToyWithBox item;
-  final String categoryLabel;
-  final String boxLabel;
   final VoidCallback onTap;
 
   const _RoundToyGridItem({
     required this.item,
-    required this.categoryLabel,
-    required this.boxLabel,
     required this.onTap,
   });
 
@@ -610,67 +592,22 @@ class _RoundToyGridItem extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(UiTokens.spacingXs),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _GridToyPhoto(imagePath: item.toy.photoPath),
-              const SizedBox(height: 5),
+              const SizedBox(height: UiTokens.spacingXs),
               Text(
                 name,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: UiTokens.textMicro.copyWith(
                   fontSize: 13,
-                  height: 1.12,
+                  height: 1.2,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
-              ),
-              const SizedBox(height: 3),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: UiTokens.primarySoft,
-                  borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-                ),
-                child: Text(
-                  categoryLabel,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
-                    fontSize: 11,
-                    height: 1.15,
-                    fontWeight: FontWeight.w600,
-                    color: UiTokens.primaryStrong,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.inventory_2_outlined,
-                    size: 11,
-                    color: UiTokens.textSecondary,
-                  ),
-                  const SizedBox(width: 3),
-                  Expanded(
-                    child: Text(
-                      boxLabel,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
-                        fontSize: 11,
-                        height: 1.1,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),

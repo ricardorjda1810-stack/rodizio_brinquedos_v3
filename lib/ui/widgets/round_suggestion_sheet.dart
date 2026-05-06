@@ -73,23 +73,25 @@ class RoundSuggestionSheet extends StatelessWidget {
               Expanded(
                 child: toys.isEmpty
                     ? const _EmptySuggestionState()
-                    : GridView.builder(
-                        padding: EdgeInsets.zero,
-                        physics: const BouncingScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: 124,
-                        ),
-                        itemCount: toys.length,
-                        itemBuilder: (context, index) {
-                          final toy = toys[index];
-                          return _SuggestedToyCard(
-                            toy: toy,
-                            categoryLabel: _categoryLabelFor(toy),
-                            boxLabel: _boxLabelFor(toy),
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          final columns = constraints.maxWidth < 390 ? 3 : 4;
+
+                          return GridView.builder(
+                            padding: EdgeInsets.zero,
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              mainAxisExtent: 132,
+                            ),
+                            itemCount: toys.length,
+                            itemBuilder: (context, index) {
+                              final toy = toys[index];
+                              return _SuggestedToyCard(toy: toy);
+                            },
                           );
                         },
                       ),
@@ -119,22 +121,6 @@ class RoundSuggestionSheet extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _categoryLabelFor(Toy toy) {
-    final categoryId = toy.categoryId.trim();
-    final label = categoryNamesById[categoryId]?.trim();
-    if (label == null || label.isEmpty) return 'Outros';
-    return label;
-  }
-
-  String _boxLabelFor(Toy toy) {
-    final boxId = toy.boxId?.trim();
-    if (boxId == null || boxId.isEmpty) return 'Sem caixa';
-
-    final box = boxesById[boxId];
-    if (box == null) return 'Sem caixa';
-    return 'Caixa ${box.number}';
   }
 }
 
@@ -168,14 +154,8 @@ class _SuggestionSummary extends StatelessWidget {
 
 class _SuggestedToyCard extends StatelessWidget {
   final Toy toy;
-  final String categoryLabel;
-  final String boxLabel;
 
-  const _SuggestedToyCard({
-    required this.toy,
-    required this.categoryLabel,
-    required this.boxLabel,
-  });
+  const _SuggestedToyCard({required this.toy});
 
   @override
   Widget build(BuildContext context) {
@@ -194,44 +174,21 @@ class _SuggestedToyCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(UiTokens.spacingXs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _SuggestionToyPhoto(imagePath: toy.photoPath),
-          const SizedBox(height: 5),
+          const SizedBox(height: UiTokens.spacingXs),
           Text(
             name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
-              fontSize: 13,
-              height: 1.12,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            categoryLabel,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
-              fontSize: 11,
-              height: 1.15,
-              fontWeight: FontWeight.w600,
-              color: UiTokens.primaryStrong,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            boxLabel,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
-              fontSize: 11,
-              height: 1.1,
-              color: colorScheme.onSurfaceVariant,
+              fontSize: 13,
+              height: 1.2,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
             ),
           ),
         ],
