@@ -72,7 +72,7 @@ class DemoDataLoader {
       await db.into(db.roundCategorySettings).insertOnConflictUpdate(
             RoundCategorySettingsCompanion.insert(
               categoryId: category.id,
-              isIncluded: const Value(true),
+              isIncluded: Value(category.quota > 0),
               quota: Value(category.quota),
             ),
           );
@@ -165,7 +165,7 @@ class DemoDataLoader {
     await db.into(db.roundUiSettings).insert(
           RoundUiSettingsCompanion.insert(
             id: const Value(1),
-            perCategoryLimit: const Value(9),
+            perCategoryLimit: const Value(7),
             hapticEnabled: const Value(true),
             soundEnabled: const Value(false),
             darkModeEnabled: const Value(false),
@@ -186,21 +186,18 @@ class DemoDataLoader {
       await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
             WeeklyPlanningSettingsCompanion.insert(
               weekday: Value(weekday),
-              useDefault: Value(weekday != DateTime.friday),
+              useDefault: const Value(true),
               customSize: const Value(null),
             ),
           );
 
       for (final category in DemoSeed.categories) {
-        final quota = weekday == DateTime.friday
-            ? (category.quota + (category.id == 'faz_de_conta' ? 1 : 0))
-            : category.quota;
         await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
               WeeklyPlanningCategorySettingsCompanion.insert(
                 weekday: weekday,
                 categoryId: category.id,
-                isIncluded: const Value(true),
-                quota: Value(quota),
+                isIncluded: Value(category.quota > 0),
+                quota: Value(category.quota),
               ),
             );
       }

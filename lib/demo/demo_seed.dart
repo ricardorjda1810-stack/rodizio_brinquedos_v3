@@ -48,31 +48,31 @@ class DemoSeed {
       id: 'montessori',
       name: 'Montessori',
       examples: 'torres, permanencia, pinos, classificacao',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'movimento',
       name: 'Movimento',
       examples: 'bolas, rampas, carrinhos, tapetes',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'faz_de_conta',
       name: 'Faz de conta',
       examples: 'panelinhas, medico, bonecos, frutas',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'musica',
       name: 'Musica',
       examples: 'tambor, chocalho, xilofone, instrumentos',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'encaixe',
       name: 'Encaixe',
       examples: 'blocos, formas, caminhoes, pecas magneticas',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'livros',
@@ -84,13 +84,13 @@ class DemoSeed {
       id: 'sensorial',
       name: 'Sensorial',
       examples: 'texturas, bolas, tapetes, arcos',
-      quota: 2,
+      quota: 1,
     ),
     DemoCategorySeed(
       id: 'coordenacao_motora',
       name: 'Coordenacao motora',
       examples: 'quebra-cabeca, memoria, pinos, trilhos',
-      quota: 2,
+      quota: 0,
     ),
   ];
 
@@ -334,7 +334,5 @@ class DemoSeed {
     'demo_toy_livro_dos_animais',
     'demo_toy_cubo_de_formas',
     'demo_toy_bola_sensorial',
-    'demo_toy_arco_iris_de_madeira',
-    'demo_toy_cestinha_de_brinquedos',
   ];
 }
