@@ -47,6 +47,8 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
                           children: [
                             Text(
                               'Planejamento semanal',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: textTheme.titleSmall?.copyWith(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
@@ -54,6 +56,8 @@ class WeeklyPlanningPreviewCard extends StatelessWidget {
                             ),
                             Text(
                               'Brinquedos programados por dia',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: textTheme.bodySmall?.copyWith(
                                 color: UiTokens.textSecondary,
                                 height: 1.35,
@@ -238,6 +242,7 @@ class _TodayPlanningSummary extends StatelessWidget {
               children: [
                 Text(
                   'HOJE',
+                  maxLines: 1,
                   style: UiTokens.textMicro.copyWith(
                     color: UiTokens.primaryStrong,
                     fontWeight: FontWeight.w800,
@@ -257,6 +262,8 @@ class _TodayPlanningSummary extends StatelessWidget {
                   child: Text(
                     _formatToyCount(summary.totalToys),
                     key: ValueKey<int>(summary.totalToys),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: textTheme.bodyMedium?.copyWith(
                       color: UiTokens.textPrimary,
                       fontWeight: FontWeight.w800,
@@ -272,6 +279,8 @@ class _TodayPlanningSummary extends StatelessWidget {
                 ),
                 Text(
                   _planningMoodLabel(summary.totalToys),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(
                     color: UiTokens.textSecondary,
                     fontWeight: FontWeight.w700,

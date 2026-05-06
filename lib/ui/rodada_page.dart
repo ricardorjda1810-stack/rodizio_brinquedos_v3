@@ -243,24 +243,13 @@ class _RodadaPageState extends State<RodadaPage> {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final screenHeight = MediaQuery.sizeOf(context).height;
-                const gridColumns = 4;
                 const gridSpacing = 12.0;
-                const gridChildAspectRatio = 0.56;
+                const gridTileHeight = 124.0;
                 const gridCardPadding = 14.0;
                 const gridHeaderReserve = 32.0;
-                final availableGridWidth = math.max(
-                  0.0,
-                  constraints.maxWidth -
-                      (UiTokens.spacingMd * 2) -
-                      (gridCardPadding * 2),
-                );
-                final tileWidth =
-                    (availableGridWidth - (gridSpacing * (gridColumns - 1))) /
-                        gridColumns;
-                final tileHeight = tileWidth / gridChildAspectRatio;
-                final twoRowsGridHeight =
-                    UiTokens.spacingXs + (tileHeight * 2) + gridSpacing;
-                final desiredGridCardHeight = (gridCardPadding * 2) +
+                const twoRowsGridHeight =
+                    UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
+                const desiredGridCardHeight = (gridCardPadding * 2) +
                     gridHeaderReserve +
                     UiTokens.spacingSm +
                     twoRowsGridHeight;
@@ -420,9 +409,14 @@ class _RoundMomentCard extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.auto_awesome_outlined, size: 18),
-            label: const Text('Sugerir rodada'),
+            label: const Text(
+              'Sugerir rodada',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             style: OutlinedButton.styleFrom(
               visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 38),
               padding: const EdgeInsets.symmetric(
                 horizontal: UiTokens.spacingSm,
               ),
@@ -504,6 +498,8 @@ class _AvailableToysGridCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   items.isEmpty ? emptyTitle : 'Brinquedos dispon\u00edveis',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: UiTokens.textTitle.copyWith(
                     fontSize: 21,
                     fontWeight: FontWeight.w800,
@@ -522,6 +518,8 @@ class _AvailableToysGridCard extends StatelessWidget {
                 ),
                 child: Text(
                   items.isEmpty ? emptyCounterText : '${items.length} itens',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
                     fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
@@ -542,7 +540,7 @@ class _AvailableToysGridCard extends StatelessWidget {
                       crossAxisCount: 4,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 0.56,
+                      mainAxisExtent: 124,
                     ),
                     itemCount: items.length,
                     itemBuilder: (context, index) {
@@ -641,11 +639,11 @@ class _RoundToyGridItem extends StatelessWidget {
                 ),
                 child: Text(
                   categoryLabel,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
-                    fontSize: 12,
-                    height: 1.1,
+                    fontSize: 11,
+                    height: 1.15,
                     fontWeight: FontWeight.w600,
                     color: UiTokens.primaryStrong,
                   ),

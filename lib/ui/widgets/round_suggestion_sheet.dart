@@ -81,7 +81,7 @@ class RoundSuggestionSheet extends StatelessWidget {
                           crossAxisCount: 4,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
-                          childAspectRatio: 0.56,
+                          mainAxisExtent: 124,
                         ),
                         itemCount: toys.length,
                         itemBuilder: (context, index) {
@@ -214,11 +214,11 @@ class _SuggestedToyCard extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             categoryLabel,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
-              fontSize: 12,
-              height: 1.1,
+              fontSize: 11,
+              height: 1.15,
               fontWeight: FontWeight.w600,
               color: UiTokens.primaryStrong,
             ),
