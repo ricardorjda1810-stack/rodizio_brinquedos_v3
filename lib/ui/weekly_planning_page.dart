@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/round/category_distribution_suggestion.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
@@ -276,6 +277,17 @@ class _WeekdayTile extends StatelessWidget {
           ),
           if (!config.useDefault) ...[
             const SizedBox(height: UiTokens.spacingMd),
+            _DistributionSuggestionBlock(
+              total: total,
+              categories: config.categories,
+              onApply: (category) => onCategoryChanged(
+                weekday: config.weekday,
+                categoryId: category.categoryId,
+                isIncluded: category.isIncluded,
+                quota: category.quota,
+              ),
+            ),
+            const SizedBox(height: UiTokens.spacingMd),
             for (final category in config.categories) ...[
               _CategoryRow(
                 weekday: config.weekday,
@@ -298,6 +310,95 @@ class _WeekdayTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _DistributionSuggestionBlock extends StatelessWidget {
+  final int total;
+  final List<WeeklyPlanningCategoryConfig> categories;
+  final Future<void> Function(_CategorySuggestionApplyItem category) onApply;
+
+  const _DistributionSuggestionBlock({
+    required this.total,
+    required this.categories,
+    required this.onApply,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final suggestion = buildDistribution(total);
+    final applicableCategories = _applicableSuggestionCategories(
+      categories,
+      suggestion.distribution,
+    );
+    final visibleEntries = suggestion.distribution.entries
+        .where((entry) => entry.value > 0)
+        .toList(growable: false);
+
+    return Container(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Distribui\u00E7\u00E3o sugerida',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+              ),
+              TextButton(
+                onPressed: applicableCategories.isEmpty
+                    ? null
+                    : () async {
+                        for (final category in applicableCategories) {
+                          await onApply(category);
+                        }
+                      },
+                child: const Text('Usar sugest\u00E3o'),
+              ),
+            ],
+          ),
+          const SizedBox(height: UiTokens.spacingXs),
+          Wrap(
+            spacing: UiTokens.spacingSm,
+            runSpacing: UiTokens.spacingXs,
+            children: [
+              for (final entry in visibleEntries)
+                Text(
+                  '${entry.key}: ${entry.value}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: UiTokens.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategorySuggestionApplyItem {
+  final String categoryId;
+  final bool isIncluded;
+  final int quota;
+
+  const _CategorySuggestionApplyItem({
+    required this.categoryId,
+    required this.isIncluded,
+    required this.quota,
+  });
 }
 
 class _CategoryRow extends StatelessWidget {
@@ -436,6 +537,97 @@ int _totalFor(List<WeeklyPlanningCategoryConfig> categories) {
 }
 
 int _clampQuantity(int value) => value.clamp(0, 15).toInt();
+
+List<_CategorySuggestionApplyItem> _applicableSuggestionCategories(
+  List<WeeklyPlanningCategoryConfig> categories,
+  Map<String, int> distribution,
+) {
+  final categoriesBySuggestionKey = <String, WeeklyPlanningCategoryConfig>{};
+  for (final category in categories) {
+    final suggestionKey = _suggestionKeyForCategory(category);
+    if (suggestionKey == null) continue;
+    categoriesBySuggestionKey.putIfAbsent(suggestionKey, () => category);
+  }
+
+  return distribution.entries
+      .map((entry) {
+        final category = categoriesBySuggestionKey[entry.key];
+        if (category == null) return null;
+        return _CategorySuggestionApplyItem(
+          categoryId: category.categoryId,
+          isIncluded: entry.value > 0,
+          quota: entry.value,
+        );
+      })
+      .whereType<_CategorySuggestionApplyItem>()
+      .toList(growable: false);
+}
+
+String? _suggestionKeyForCategory(WeeklyPlanningCategoryConfig category) {
+  final normalizedId = _normalizeCategoryText(category.categoryId);
+  final normalizedName = _normalizeCategoryText(category.categoryName);
+
+  if (_matchesAny(normalizedId, normalizedName, const [
+    'coordenacao',
+    'coordenacao motora',
+    'coordenacao_motora',
+  ])) {
+    return 'Coordena\u00E7\u00E3o';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const [
+    'construcao',
+    'montagem',
+    'encaixe',
+    'construcao_montagem',
+  ])) {
+    return 'Constru\u00E7\u00E3o';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const [
+    'faz de conta',
+    'faz_de_conta',
+  ])) {
+    return 'Faz de conta';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const ['livros'])) {
+    return 'Livros';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const ['movimento'])) {
+    return 'Movimento';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const ['musica'])) {
+    return 'M\u00FAsica';
+  }
+  if (_matchesAny(normalizedId, normalizedName, const ['artes'])) {
+    return 'Artes';
+  }
+
+  return null;
+}
+
+bool _matchesAny(String id, String name, List<String> values) {
+  return values.contains(id) || values.contains(name);
+}
+
+String _normalizeCategoryText(String value) {
+  return value
+      .trim()
+      .toLowerCase()
+      .replaceAll('_', ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .replaceAll('\u00E1', 'a')
+      .replaceAll('\u00E0', 'a')
+      .replaceAll('\u00E2', 'a')
+      .replaceAll('\u00E3', 'a')
+      .replaceAll('\u00E7', 'c')
+      .replaceAll('\u00E9', 'e')
+      .replaceAll('\u00EA', 'e')
+      .replaceAll('\u00ED', 'i')
+      .replaceAll('\u00F3', 'o')
+      .replaceAll('\u00F4', 'o')
+      .replaceAll('\u00F5', 'o')
+      .replaceAll('\u00FA', 'u')
+      .replaceAll('\u00FC', 'u');
+}
 
 String _categorySummary(List<WeeklyPlanningCategoryConfig> categories) {
   final included = categories
