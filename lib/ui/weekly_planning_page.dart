@@ -178,6 +178,14 @@ class _WeekDaysCard extends StatelessWidget {
                       color: UiTokens.textSecondary,
                     ),
               ),
+              const SizedBox(height: UiTokens.spacingSm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton(
+                  onPressed: weeklyPlanningRepository.restoreDefaultWeek,
+                  child: const Text('Restaurar'),
+                ),
+              ),
               const SizedBox(height: UiTokens.spacingMd),
               for (var weekday = DateTime.monday;
                   weekday <= DateTime.sunday;

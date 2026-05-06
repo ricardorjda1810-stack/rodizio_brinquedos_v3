@@ -989,9 +989,9 @@ class ToyRepository {
     }
 
     const defaultQuotas = <String, int>{
-      'veiculos': 2,
-      'bonecos': 2,
-      'montagem': 2,
+      'veiculos': 1,
+      'bonecos': 1,
+      'montagem': 1,
       'livros': 1,
       'jogos': 1,
       'faz_de_conta': 1,
@@ -1418,4 +1418,3 @@ class ToyRepository {
     return box.number;
   }
 }
-

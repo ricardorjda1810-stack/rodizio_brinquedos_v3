@@ -57,5 +57,15 @@ void main() {
     expect(moved.name, 'Brinquedo 5.1');
     expect(moved.boxId, box2.id);
   });
-}
 
+  test('restaurar padrao deixa total do rodizio em 7 brinquedos', () async {
+    await repository.restoreRoundCategoryDefaults();
+
+    final settings = await db.select(db.roundCategorySettings).get();
+    final total = settings
+        .where((setting) => setting.isIncluded)
+        .fold<int>(0, (sum, setting) => sum + setting.quota);
+
+    expect(total, 7);
+  });
+}

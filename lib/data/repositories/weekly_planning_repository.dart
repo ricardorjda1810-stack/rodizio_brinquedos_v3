@@ -142,6 +142,39 @@ class WeeklyPlanningRepository {
         );
   }
 
+  Future<void> restoreDefaultWeek() async {
+    await ensureSeeded();
+    final defaults = await _loadDefaultCategoryConfigs();
+
+    await _db.transaction(() async {
+      for (var weekday = DateTime.monday;
+          weekday <= DateTime.sunday;
+          weekday++) {
+        await (_db.update(_db.weeklyPlanningSettings)
+              ..where((table) => table.weekday.equals(weekday)))
+            .write(
+          const WeeklyPlanningSettingsCompanion(
+            useDefault: Value(true),
+            customSize: Value(null),
+          ),
+        );
+
+        for (final category in defaults) {
+          await _db
+              .into(_db.weeklyPlanningCategorySettings)
+              .insertOnConflictUpdate(
+                WeeklyPlanningCategorySettingsCompanion.insert(
+                  weekday: weekday,
+                  categoryId: category.categoryId,
+                  isIncluded: Value(category.isIncluded),
+                  quota: Value(category.safeQuota),
+                ),
+              );
+        }
+      }
+    });
+  }
+
   Future<List<WeeklyPlanningCategoryConfig>> getCategoriesForWeekday(
     int weekday,
   ) async {
