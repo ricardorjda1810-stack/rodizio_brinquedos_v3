@@ -144,9 +144,10 @@ class WeeklyPlanningRepository {
 
   Future<void> restoreDefaultWeek() async {
     await ensureSeeded();
-    final defaults = await _loadDefaultCategoryConfigs();
 
     await _db.transaction(() async {
+      await _restoreRoundCategoryDefaults();
+
       for (var weekday = DateTime.monday;
           weekday <= DateTime.sunday;
           weekday++) {
@@ -158,19 +159,9 @@ class WeeklyPlanningRepository {
             customSize: Value(null),
           ),
         );
-
-        for (final category in defaults) {
-          await _db
-              .into(_db.weeklyPlanningCategorySettings)
-              .insertOnConflictUpdate(
-                WeeklyPlanningCategorySettingsCompanion.insert(
-                  weekday: weekday,
-                  categoryId: category.categoryId,
-                  isIncluded: Value(category.isIncluded),
-                  quota: Value(category.safeQuota),
-                ),
-              );
-        }
+        await (_db.delete(_db.weeklyPlanningCategorySettings)
+              ..where((table) => table.weekday.equals(weekday)))
+            .go();
       }
     });
   }
@@ -378,6 +369,33 @@ class WeeklyPlanningRepository {
               quota: Value(category.safeQuota),
             ),
             mode: InsertMode.insertOrIgnore,
+          );
+    }
+  }
+
+  Future<void> _restoreRoundCategoryDefaults() async {
+    const defaultQuotas = <String, int>{
+      'veiculos': 1,
+      'bonecos': 1,
+      'montagem': 1,
+      'livros': 1,
+      'jogos': 1,
+      'faz_de_conta': 1,
+      'artes': 1,
+      'musica': 0,
+      'banho': 0,
+      'outros': 0,
+    };
+
+    final categories = await _db.select(_db.categoryDefinitions).get();
+    for (final category in categories) {
+      final quota = defaultQuotas[category.id] ?? 0;
+      await _db.into(_db.roundCategorySettings).insertOnConflictUpdate(
+            RoundCategorySettingsCompanion.insert(
+              categoryId: category.id,
+              isIncluded: Value(quota > 0),
+              quota: Value(quota),
+            ),
           );
     }
   }

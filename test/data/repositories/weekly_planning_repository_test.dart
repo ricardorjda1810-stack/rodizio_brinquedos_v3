@@ -27,6 +27,18 @@ void main() {
   });
 
   test('restaurar planejamento deixa todos os dias com 7 brinquedos', () async {
+    await toyRepository.setCategoryQuotaInRound(
+      categoryId: 'veiculos',
+      quota: 5,
+    );
+    await toyRepository.setCategoryQuotaInRound(
+      categoryId: 'bonecos',
+      quota: 5,
+    );
+    await toyRepository.setCategoryQuotaInRound(
+      categoryId: 'montagem',
+      quota: 5,
+    );
     await weeklyPlanningRepository.setUseDefault(
       weekday: DateTime.monday,
       useDefault: false,
@@ -53,12 +65,19 @@ void main() {
 
     await weeklyPlanningRepository.restoreDefaultWeek();
 
+    final weeklyCategoryRows =
+        await db.select(db.weeklyPlanningCategorySettings).get();
     final days = await weeklyPlanningRepository.getAll();
+    final summary = await weeklyPlanningRepository.watchWeekSummary().first;
 
+    expect(weeklyCategoryRows, isEmpty);
     expect(days, hasLength(7));
     for (final day in days) {
       expect(day.useDefault, isTrue);
       expect(day.total, 7);
+    }
+    for (final day in summary) {
+      expect(day.totalToys, 7);
     }
   });
 }
