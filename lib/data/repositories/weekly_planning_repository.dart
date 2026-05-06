@@ -43,6 +43,22 @@ class WeeklyPlanningDayConfig {
   }
 }
 
+class CategoryBalanceAdjustmentSuggestion {
+  final String categoryId;
+  final String categoryName;
+  final String message;
+  final int targetWeekday;
+  final int deltaQuota;
+
+  const CategoryBalanceAdjustmentSuggestion({
+    required this.categoryId,
+    required this.categoryName,
+    required this.message,
+    required this.targetWeekday,
+    this.deltaQuota = 1,
+  });
+}
+
 class WeeklyPlanningRepository {
   final AppDatabase _db;
   final SettingsRepository _settingsRepository;
@@ -132,14 +148,12 @@ class WeeklyPlanningRepository {
     }
 
     await ensureSeeded();
-    await _db.into(_db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
-          WeeklyPlanningCategorySettingsCompanion.insert(
-            weekday: weekday,
-            categoryId: normalizedCategoryId,
-            isIncluded: Value(isIncluded),
-            quota: Value(quota < 0 ? 0 : quota),
-          ),
-        );
+    await _writeWeeklyCategoryConfig(
+      weekday: weekday,
+      categoryId: normalizedCategoryId,
+      isIncluded: isIncluded,
+      quota: quota,
+    );
   }
 
   Future<void> restoreDefaultWeek() async {
@@ -162,6 +176,144 @@ class WeeklyPlanningRepository {
         await (_db.delete(_db.weeklyPlanningCategorySettings)
               ..where((table) => table.weekday.equals(weekday)))
             .go();
+      }
+    });
+  }
+
+  Future<CategoryBalanceAdjustmentSuggestion?>
+      suggestCategoryBalanceAdjustment({
+    DateTime? now,
+  }) async {
+    await ensureSeeded();
+
+    final reference = now ?? DateTime.now();
+    final cutoff =
+        reference.subtract(const Duration(days: 7)).millisecondsSinceEpoch;
+
+    final categories = await (_db.select(_db.categoryDefinitions)
+          ..where((category) => category.isActive.equals(true))
+          ..orderBy([
+            (category) => OrderingTerm.asc(category.sortOrder),
+            (category) => OrderingTerm.asc(category.name),
+          ]))
+        .get();
+    if (categories.length < 2) return null;
+
+    final availableCounts = <String, int>{};
+    final toys = await _db.select(_db.toys).get();
+    for (final toy in toys) {
+      final categoryId = toy.categoryId.trim();
+      if (categoryId.isEmpty) continue;
+      availableCounts[categoryId] = (availableCounts[categoryId] ?? 0) + 1;
+    }
+
+    final eligibleCategories = categories
+        .where((category) => (availableCounts[category.id] ?? 0) > 0)
+        .toList(growable: false);
+    if (eligibleCategories.length < 2) return null;
+
+    final recentCounts = <String, int>{
+      for (final category in eligibleCategories) category.id: 0,
+    };
+    final r = _db.rounds;
+    final rt = _db.roundToys;
+    final t = _db.toys;
+    final recentRows = await (_db.select(rt).join([
+      innerJoin(r, r.id.equalsExp(rt.roundId)),
+      innerJoin(t, t.id.equalsExp(rt.toyId)),
+    ])
+          ..where(r.startAt.isBiggerOrEqualValue(cutoff)))
+        .get();
+
+    for (final row in recentRows) {
+      final toy = row.readTable(t);
+      final categoryId = toy.categoryId.trim();
+      if (!recentCounts.containsKey(categoryId)) continue;
+      recentCounts[categoryId] = (recentCounts[categoryId] ?? 0) + 1;
+    }
+
+    final sortedByPresence = eligibleCategories.toList(growable: false)
+      ..sort((a, b) {
+        final byCount =
+            (recentCounts[a.id] ?? 0).compareTo(recentCounts[b.id] ?? 0);
+        if (byCount != 0) return byCount;
+        final byOrder = a.sortOrder.compareTo(b.sortOrder);
+        if (byOrder != 0) return byOrder;
+        return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+      });
+
+    final leastPresent = sortedByPresence.first;
+    final minCount = recentCounts[leastPresent.id] ?? 0;
+    final maxCount = recentCounts.values.fold<int>(
+      0,
+      (currentMax, count) => count > currentMax ? count : currentMax,
+    );
+    if (minCount == maxCount) return null;
+
+    final categoryName = leastPresent.name.trim();
+    return CategoryBalanceAdjustmentSuggestion(
+      categoryId: leastPresent.id,
+      categoryName: categoryName,
+      targetWeekday: _nextWeekday(reference.weekday),
+      message:
+          '$categoryName apareceu pouco esta semana. Deseja incluir mais 1 brinquedo de $categoryName no planejamento de amanh\u00E3?',
+    );
+  }
+
+  Future<void> applyCategoryBalanceAdjustment(
+    CategoryBalanceAdjustmentSuggestion suggestion,
+  ) async {
+    if (!_isValidWeekday(suggestion.targetWeekday)) return;
+
+    await ensureSeeded();
+    await _ensureCategoryRowsForWeekday(suggestion.targetWeekday);
+    final configs = await _loadCustomCategoryConfigs(suggestion.targetWeekday);
+    final target = configs.where((category) {
+      return category.categoryId == suggestion.categoryId;
+    }).firstOrNull;
+    if (target == null) return;
+
+    final total = _sumIncludedQuotas(configs);
+    final reducers = configs.where((category) {
+      return category.categoryId != suggestion.categoryId &&
+          category.isIncluded &&
+          category.safeQuota > 0;
+    }).toList(growable: false)
+      ..sort((a, b) {
+        final byQuota = b.safeQuota.compareTo(a.safeQuota);
+        if (byQuota != 0) return byQuota;
+        return a.categoryName.toLowerCase().compareTo(
+              b.categoryName.toLowerCase(),
+            );
+      });
+
+    final reducer = total >= 7 && reducers.isNotEmpty ? reducers.first : null;
+
+    await _db.transaction(() async {
+      await (_db.update(_db.weeklyPlanningSettings)
+            ..where((table) => table.weekday.equals(suggestion.targetWeekday)))
+          .write(
+        const WeeklyPlanningSettingsCompanion(
+          useDefault: Value(false),
+          customSize: Value(null),
+        ),
+      );
+
+      await _writeWeeklyCategoryConfig(
+        weekday: suggestion.targetWeekday,
+        categoryId: target.categoryId,
+        isIncluded: true,
+        quota: target.safeQuota + suggestion.deltaQuota,
+      );
+
+      if (reducer != null) {
+        final nextQuota = reducer.safeQuota - 1;
+        await _writeWeeklyCategoryConfig(
+          weekday: suggestion.targetWeekday,
+          categoryId: reducer.categoryId,
+          isIncluded: nextQuota > 0,
+          quota: nextQuota < 0 ? 0 : nextQuota,
+        );
       }
     });
   }
@@ -312,7 +464,10 @@ class WeeklyPlanningRepository {
       leftOuterJoin(s, s.categoryId.equalsExp(c.id)),
     ])
       ..where(c.isActive.equals(true))
-      ..orderBy([OrderingTerm.asc(c.name)]);
+      ..orderBy([
+        OrderingTerm.asc(c.sortOrder),
+        OrderingTerm.asc(c.name),
+      ]);
 
     return query.get().then(
           (rows) => rows.map((row) {
@@ -343,7 +498,10 @@ class WeeklyPlanningRepository {
       ),
     ])
       ..where(c.isActive.equals(true))
-      ..orderBy([OrderingTerm.asc(c.name)]);
+      ..orderBy([
+        OrderingTerm.asc(c.sortOrder),
+        OrderingTerm.asc(c.name),
+      ]);
 
     final rows = await query.get();
     return rows.map((row) {
@@ -373,15 +531,29 @@ class WeeklyPlanningRepository {
     }
   }
 
+  Future<void> _writeWeeklyCategoryConfig({
+    required int weekday,
+    required String categoryId,
+    required bool isIncluded,
+    required int quota,
+  }) {
+    return _db.into(_db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+          WeeklyPlanningCategorySettingsCompanion.insert(
+            weekday: weekday,
+            categoryId: categoryId,
+            isIncluded: Value(isIncluded),
+            quota: Value(quota < 0 ? 0 : quota),
+          ),
+        );
+  }
+
   Future<void> _restoreRoundCategoryDefaults() async {
     const defaultQuotas = <String, int>{
-      'coordenacao': 1,
-      'construcao': 1,
-      'faz_de_conta': 1,
       'livros': 1,
+      'construcao': 2,
+      'faz_de_conta': 1,
       'movimento': 1,
-      'musica': 1,
-      'artes': 1,
+      'coordenacao': 2,
     };
 
     final categories = await _db.select(_db.categoryDefinitions).get();
@@ -457,5 +629,10 @@ class WeeklyPlanningRepository {
 
   bool _isValidWeekday(int weekday) {
     return weekday >= DateTime.monday && weekday <= DateTime.sunday;
+  }
+
+  int _nextWeekday(int weekday) {
+    if (!_isValidWeekday(weekday)) return DateTime.monday;
+    return weekday == DateTime.sunday ? DateTime.monday : weekday + 1;
   }
 }

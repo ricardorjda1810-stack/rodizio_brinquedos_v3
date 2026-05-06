@@ -2,12 +2,16 @@ class DemoCategorySeed {
   final String id;
   final String name;
   final String examples;
+  final String developmentAspect;
+  final int sortOrder;
   final int quota;
 
   const DemoCategorySeed({
     required this.id,
     required this.name,
     required this.examples,
+    required this.developmentAspect,
+    required this.sortOrder,
     required this.quota,
   });
 }
@@ -45,46 +49,45 @@ class DemoToySeed {
 class DemoSeed {
   static const categories = <DemoCategorySeed>[
     DemoCategorySeed(
-      id: 'coordenacao',
-      name: 'Coordenacao',
-      examples: 'encaixe, pinos, quebra-cabeca, classificacao',
+      id: 'livros',
+      name: 'Historias e Linguagem',
+      examples: 'livros, fantoches, cartoes e brinquedos com palavras',
+      developmentAspect: 'Linguagem, escuta e narrativa',
+      sortOrder: 1,
       quota: 1,
     ),
     DemoCategorySeed(
       id: 'construcao',
-      name: 'Construcao',
-      examples: 'blocos, torres, pecas magneticas, encaixes',
-      quota: 1,
+      name: 'Montar e Raciocinar',
+      examples: 'blocos, encaixes, quebra-cabecas e torres',
+      developmentAspect: 'Raciocinio, concentracao e coordenacao olho-mao',
+      sortOrder: 2,
+      quota: 2,
     ),
     DemoCategorySeed(
       id: 'faz_de_conta',
-      name: 'Faz de conta',
-      examples: 'panelinhas, medico, bonecos, frutas',
-      quota: 1,
-    ),
-    DemoCategorySeed(
-      id: 'livros',
-      name: 'Livros',
-      examples: 'animais, cores, tecido, primeiros livros',
+      name: 'Faz de Conta',
+      examples: 'bonecas, carrinhos, panelinhas e animais',
+      developmentAspect: 'Imaginacao, imitacao e vida pratica',
+      sortOrder: 3,
       quota: 1,
     ),
     DemoCategorySeed(
       id: 'movimento',
       name: 'Movimento',
-      examples: 'bolas, rampas, carrinhos, tapetes',
+      examples: 'bolas, brinquedos de empurrar, tunel e argolas',
+      developmentAspect: 'Coordenacao ampla, equilibrio e exploracao do espaco',
+      sortOrder: 4,
       quota: 1,
     ),
     DemoCategorySeed(
-      id: 'musica',
-      name: 'Musica',
-      examples: 'tambor, chocalho, xilofone, instrumentos',
-      quota: 1,
-    ),
-    DemoCategorySeed(
-      id: 'artes',
-      name: 'Artes',
-      examples: 'desenho, pintura, massinha, composicoes',
-      quota: 1,
+      id: 'coordenacao',
+      name: 'Sensorial e Coordenacao',
+      examples: 'massinha, chocalhos, texturas e instrumentos',
+      developmentAspect:
+          'Tato, audicao, coordenacao fina e exploracao sensorial',
+      sortOrder: 5,
+      quota: 2,
     ),
   ];
 
@@ -130,7 +133,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_tambor_infantil',
       name: 'Tambor infantil',
-      categoryId: 'musica',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/tambor_infantil.png',
       boxId: 'demo_box_armario_quarto',
     ),
@@ -165,7 +168,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_arco_iris_de_madeira',
       name: 'Arco-iris de madeira',
-      categoryId: 'artes',
+      categoryId: 'construcao',
       photoAssetPath: 'assets/demo/toys/arco_iris_de_madeira.png',
       boxId: 'demo_box_montessori',
     ),
@@ -179,7 +182,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_chocalho',
       name: 'Chocalho',
-      categoryId: 'musica',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/chocalho.png',
       boxId: 'demo_box_semana',
     ),
@@ -200,7 +203,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_xilofone_infantil',
       name: 'Xilofone infantil',
-      categoryId: 'musica',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/xilofone_infantil.png',
       boxId: 'demo_box_armario_quarto',
     ),
@@ -285,7 +288,7 @@ class DemoSeed {
     DemoToySeed(
       id: 'demo_toy_cesta_de_instrumentos',
       name: 'Cesta de instrumentos',
-      categoryId: 'musica',
+      categoryId: 'coordenacao',
       photoAssetPath: 'assets/demo/toys/cesta_de_instrumentos.png',
       boxId: 'demo_box_cesto_sala',
     ),

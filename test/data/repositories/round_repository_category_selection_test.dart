@@ -37,7 +37,7 @@ void main() {
     await roundRepository.startRound(size: 99);
 
     final selectedIds = await _selectedToyIdsByPosition(db);
-    expect(selectedIds, ['b1', 'b2', 'l1']);
+    expect(selectedIds, ['l1', 'b1', 'b2']);
   });
 
   test('startRound tolera falta sem buscar brinquedos fora das categorias',
@@ -92,7 +92,7 @@ void main() {
     expect(result.selectedCount, 2);
 
     final selectedIds = await _selectedToyIdsByPosition(db);
-    expect(selectedIds, ['b1', 'l1']);
+    expect(selectedIds, ['l1', 'b1']);
   });
 
   test('startRound nao cria rodada quando nao ha brinquedos cadastrados',

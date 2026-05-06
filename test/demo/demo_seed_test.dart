@@ -3,19 +3,17 @@ import 'package:rodizio_brinquedos_v3/demo/demo_seed.dart';
 
 void main() {
   const officialCategoryIds = <String>{
-    'coordenacao',
+    'livros',
     'construcao',
     'faz_de_conta',
-    'livros',
     'movimento',
-    'musica',
-    'artes',
+    'coordenacao',
   };
 
   test('demo seed tem 30 brinquedos com fotos e rodada ativa de 7', () {
     expect(DemoSeed.toys, hasLength(30));
     expect(DemoSeed.activeRoundToyIds, hasLength(7));
-    expect(DemoSeed.categories, hasLength(7));
+    expect(DemoSeed.categories, hasLength(5));
     expect(
       DemoSeed.categories.map((category) => category.id).toSet(),
       officialCategoryIds,

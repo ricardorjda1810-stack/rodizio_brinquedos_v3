@@ -32,7 +32,11 @@ class Toys extends Table {
 class CategoryDefinitions extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
+  TextColumn get description => text().nullable()();
   TextColumn get examples => text().nullable()();
+  TextColumn get developmentAspect => text().nullable()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(999))();
+  BoolColumn get isDefault => boolean().withDefault(const Constant(false))();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
 
   @override
@@ -151,7 +155,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -317,6 +321,25 @@ class AppDatabase extends _$AppDatabase {
           if (from < 14) {
             await m.createTable(weeklyPlanningCategorySettings);
             await _seedWeeklyPlanningSettings();
+          }
+
+          if (from < 15) {
+            await m.addColumn(
+              categoryDefinitions,
+              categoryDefinitions.description,
+            );
+            await m.addColumn(
+              categoryDefinitions,
+              categoryDefinitions.developmentAspect,
+            );
+            await m.addColumn(
+              categoryDefinitions,
+              categoryDefinitions.sortOrder,
+            );
+            await m.addColumn(
+              categoryDefinitions,
+              categoryDefinitions.isDefault,
+            );
           }
         },
       );

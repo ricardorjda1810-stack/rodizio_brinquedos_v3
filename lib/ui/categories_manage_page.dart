@@ -218,6 +218,9 @@ class CategoriesManagePage extends StatelessWidget {
                 ...categories.map((c) {
                   final examples =
                       _decodeDisplayText((c.examples ?? '').trim());
+                  final aspect = _decodeDisplayText(
+                    (c.developmentAspect ?? '').trim(),
+                  );
                   final statusSuffix = c.isActive ? 'Ativa' : 'Inativa';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: UiTokens.spacingSm),
@@ -319,6 +322,24 @@ class CategoriesManagePage extends StatelessWidget {
                                 : examples,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
+                          if (aspect.isNotEmpty) ...[
+                            const SizedBox(height: UiTokens.spacingSm),
+                            Text(
+                              'Aspecto',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              aspect,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: UiTokens.textSecondary,
+                                    height: 1.3,
+                                  ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

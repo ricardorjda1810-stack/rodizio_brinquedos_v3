@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
@@ -7,6 +7,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 typedef CategoryIdGetter<T> = String Function(T category);
 typedef CategoryNameGetter<T> = String Function(T category);
 typedef CategoryExamplesGetter<T> = String? Function(T category);
+typedef CategoryAspectGetter<T> = String? Function(T category);
 
 class CategoryQuickPicker<T> extends StatelessWidget {
   final List<T> categories;
@@ -15,6 +16,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
   final CategoryIdGetter<T> getId;
   final CategoryNameGetter<T> getName;
   final CategoryExamplesGetter<T> getExamples;
+  final CategoryAspectGetter<T>? getDevelopmentAspect;
   final ValueChanged<String> onSelected;
 
   const CategoryQuickPicker({
@@ -25,6 +27,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
     required this.getId,
     required this.getName,
     required this.getExamples,
+    this.getDevelopmentAspect,
     required this.onSelected,
   });
 
@@ -38,13 +41,14 @@ class CategoryQuickPicker<T> extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: UiTokens.spacingSm,
         mainAxisSpacing: UiTokens.spacingSm,
-        mainAxisExtent: 90,
+        mainAxisExtent: 112,
       ),
       itemBuilder: (context, i) {
         final category = categories[i];
         return _CategoryQuickPickerCard(
           name: getName(category),
           examplesText: getExamples(category),
+          aspectText: getDevelopmentAspect?.call(category),
           selected: selectedId == getId(category),
           disabled: disabled,
           onTap: () {
@@ -60,6 +64,7 @@ class CategoryQuickPicker<T> extends StatelessWidget {
 class _CategoryQuickPickerCard extends StatelessWidget {
   final String name;
   final String? examplesText;
+  final String? aspectText;
   final bool selected;
   final bool disabled;
   final VoidCallback onTap;
@@ -67,6 +72,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
   const _CategoryQuickPickerCard({
     required this.name,
     required this.examplesText,
+    required this.aspectText,
     required this.selected,
     required this.disabled,
     required this.onTap,
@@ -83,8 +89,8 @@ class _CategoryQuickPickerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final normalizedExamples =
-        _decodeDisplayText((examplesText ?? '').trim());
+    final normalizedExamples = _decodeDisplayText((examplesText ?? '').trim());
+    final normalizedAspect = _decodeDisplayText((aspectText ?? '').trim());
     final subtitle = normalizedExamples.isEmpty
         ? 'Exemplos ainda n\u00e3o definidos.'
         : 'Ex.: $normalizedExamples';
@@ -143,13 +149,25 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: Text(
                   subtitle,
-                  maxLines: 3,
+                  maxLines: normalizedAspect.isEmpty ? 3 : 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
                     color: UiTokens.textSecondary,
                   ),
                 ),
               ),
+              if (normalizedAspect.isNotEmpty) ...[
+                const SizedBox(height: UiTokens.spacingXs),
+                Text(
+                  normalizedAspect,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textCaption.copyWith(
+                    color: UiTokens.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -157,5 +175,3 @@ class _CategoryQuickPickerCard extends StatelessWidget {
     );
   }
 }
-
-

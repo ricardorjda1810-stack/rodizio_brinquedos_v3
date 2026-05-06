@@ -186,6 +186,9 @@ class _WeekDaysCard extends StatelessWidget {
                   child: const Text('Restaurar'),
                 ),
               ),
+              _BalanceSuggestionCard(
+                weeklyPlanningRepository: weeklyPlanningRepository,
+              ),
               const SizedBox(height: UiTokens.spacingMd),
               for (var weekday = DateTime.monday;
                   weekday <= DateTime.sunday;
@@ -212,6 +215,106 @@ class _WeekDaysCard extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _BalanceSuggestionCard extends StatefulWidget {
+  final WeeklyPlanningRepository weeklyPlanningRepository;
+
+  const _BalanceSuggestionCard({required this.weeklyPlanningRepository});
+
+  @override
+  State<_BalanceSuggestionCard> createState() => _BalanceSuggestionCardState();
+}
+
+class _BalanceSuggestionCardState extends State<_BalanceSuggestionCard> {
+  late Future<CategoryBalanceAdjustmentSuggestion?> _future;
+  bool _dismissed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _future =
+        widget.weeklyPlanningRepository.suggestCategoryBalanceAdjustment();
+  }
+
+  void _reload() {
+    setState(() {
+      _dismissed = false;
+      _future =
+          widget.weeklyPlanningRepository.suggestCategoryBalanceAdjustment();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dismissed) return const SizedBox.shrink();
+
+    return FutureBuilder<CategoryBalanceAdjustmentSuggestion?>(
+      future: _future,
+      builder: (context, snapshot) {
+        final suggestion = snapshot.data;
+        if (suggestion == null) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: UiTokens.spacingMd),
+          child: Container(
+            padding: const EdgeInsets.all(UiTokens.spacingMd),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Equilibrar a brincadeira',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                ),
+                const SizedBox(height: UiTokens.spacingXs),
+                Text(
+                  suggestion.message,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: UiTokens.textSecondary,
+                        height: 1.35,
+                      ),
+                ),
+                const SizedBox(height: UiTokens.spacingSm),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => setState(() => _dismissed = true),
+                      child: const Text('N\u00E3o'),
+                    ),
+                    const SizedBox(width: UiTokens.spacingXs),
+                    FilledButton(
+                      onPressed: () async {
+                        await widget.weeklyPlanningRepository
+                            .applyCategoryBalanceAdjustment(suggestion);
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Planejamento ajustado.'),
+                          ),
+                        );
+                        _reload();
+                      },
+                      child: const Text('Sim, ajustar'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

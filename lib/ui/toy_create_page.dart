@@ -436,6 +436,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         getId: (c) => c.id,
                                         getName: (c) => c.name,
                                         getExamples: (c) => c.examples,
+                                        getDevelopmentAspect: (c) =>
+                                            c.developmentAspect,
                                         onSelected: (id) => setState(
                                           () => _selectedCategoryId = id,
                                         ),

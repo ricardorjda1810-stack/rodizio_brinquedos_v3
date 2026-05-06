@@ -43,8 +43,21 @@ class RoundCategorySettingRow {
 class CategorySeed {
   final String id;
   final String name;
+  final String examples;
+  final String description;
+  final String developmentAspect;
+  final int sortOrder;
+  final int quota;
 
-  const CategorySeed(this.id, this.name);
+  const CategorySeed({
+    required this.id,
+    required this.name,
+    required this.examples,
+    required this.description,
+    required this.developmentAspect,
+    required this.sortOrder,
+    required this.quota,
+  });
 }
 
 class LocationSeed {
@@ -61,23 +74,62 @@ class ToyRepository {
   ToyRepository(this.db);
 
   static const Map<String, String> defaultCategoryExamplesById = {
-    'coordenacao': 'encaixe, pinos, quebra-cabeca, classificacao',
-    'construcao': 'blocos, lego, torres, pecas magneticas',
+    'livros': 'livros, fantoches, cartões e brinquedos com palavras',
+    'construcao': 'blocos, encaixes, quebra-cabeças e torres',
     'faz_de_conta': 'cozinha, mÃ©dico, mercado, ferramentas',
-    'livros': 'histÃ³rias, figuras, sons, toque',
     'movimento': 'bola, carrinho, rampa, circuito',
-    'musica': 'tambor, chocalho, teclado, violÃ£o',
-    'artes': 'giz, tinta, colagem, massinha',
+    'coordenacao': 'massinha, chocalhos, texturas e instrumentos',
   };
 
   static const List<CategorySeed> defaultCategories = [
-    CategorySeed('coordenacao', 'CoordenaÃ§Ã£o'),
-    CategorySeed('construcao', 'ConstruÃ§Ã£o'),
-    CategorySeed('faz_de_conta', 'Faz de conta'),
-    CategorySeed('livros', 'Livros'),
-    CategorySeed('movimento', 'Movimento'),
-    CategorySeed('musica', 'MÃºsica'),
-    CategorySeed('artes', 'Artes'),
+    CategorySeed(
+      id: 'livros',
+      name: 'HistÃ³rias e Linguagem',
+      examples: 'livros, fantoches, cartÃµes e brinquedos com palavras',
+      description: 'Para brincar com histÃ³rias, sons e conversas.',
+      developmentAspect: 'Linguagem, escuta e narrativa',
+      sortOrder: 1,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'construcao',
+      name: 'Montar e Raciocinar',
+      examples: 'blocos, encaixes, quebra-cabeÃ§as e torres',
+      description: 'Para montar, resolver e observar com calma.',
+      developmentAspect:
+          'RaciocÃ­nio, concentraÃ§Ã£o e coordenaÃ§Ã£o olho-mÃ£o',
+      sortOrder: 2,
+      quota: 2,
+    ),
+    CategorySeed(
+      id: 'faz_de_conta',
+      name: 'Faz de Conta',
+      examples: 'bonecas, carrinhos, panelinhas e animais',
+      description: 'Para imaginar cenas do dia a dia e criar histÃ³rias.',
+      developmentAspect: 'ImaginaÃ§Ã£o, imitaÃ§Ã£o e vida prÃ¡tica',
+      sortOrder: 3,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'movimento',
+      name: 'Movimento',
+      examples: 'bolas, brinquedos de empurrar, tÃºnel e argolas',
+      description: 'Para mover o corpo e explorar o espaÃ§o.',
+      developmentAspect:
+          'CoordenaÃ§Ã£o ampla, equilÃ­brio e exploraÃ§Ã£o do espaÃ§o',
+      sortOrder: 4,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'coordenacao',
+      name: 'Sensorial e CoordenaÃ§Ã£o',
+      examples: 'massinha, chocalhos, texturas e instrumentos',
+      description: 'Para experimentar sons, texturas e movimentos pequenos.',
+      developmentAspect:
+          'Tato, audiÃ§Ã£o, coordenaÃ§Ã£o fina e exploraÃ§Ã£o sensorial',
+      sortOrder: 5,
+      quota: 2,
+    ),
   ];
 
   static const List<LocationSeed> defaultLocations = [
@@ -92,23 +144,63 @@ class ToyRepository {
   ];
 
   static const Map<String, String> correctedDefaultCategoryExamplesById = {
-    'coordenacao': 'encaixe, pinos, quebra-cabeca, classificacao',
-    'construcao': 'blocos, lego, torres, pecas magneticas',
+    'livros': 'Livros, fantoches, cart\u00F5es e brinquedos com palavras',
+    'construcao': 'Blocos, encaixes, quebra-cabe\u00E7as e torres',
     'faz_de_conta': 'cozinha, m\u00E9dico, mercado, ferramentas',
-    'livros': 'hist\u00F3rias, figuras, sons, toque',
     'movimento': 'bola, carrinho, rampa, circuito',
-    'musica': 'tambor, chocalho, teclado, viol\u00E3o',
-    'artes': 'giz, tinta, colagem, massinha',
+    'coordenacao': 'Massinha, chocalhos, texturas e instrumentos',
   };
 
   static const List<CategorySeed> correctedDefaultCategories = [
-    CategorySeed('coordenacao', 'Coordena\u00E7\u00E3o'),
-    CategorySeed('construcao', 'Constru\u00E7\u00E3o'),
-    CategorySeed('faz_de_conta', 'Faz de conta'),
-    CategorySeed('livros', 'Livros'),
-    CategorySeed('movimento', 'Movimento'),
-    CategorySeed('musica', 'M\u00FAsica'),
-    CategorySeed('artes', 'Artes'),
+    CategorySeed(
+      id: 'livros',
+      name: 'Hist\u00F3rias e Linguagem',
+      examples: 'Livros, fantoches, cart\u00F5es e brinquedos com palavras',
+      description: 'Para brincar com hist\u00F3rias, sons e conversas.',
+      developmentAspect: 'Linguagem, escuta e narrativa',
+      sortOrder: 1,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'construcao',
+      name: 'Montar e Raciocinar',
+      examples: 'Blocos, encaixes, quebra-cabe\u00E7as e torres',
+      description: 'Para montar, resolver e observar com calma.',
+      developmentAspect:
+          'Racioc\u00EDnio, concentra\u00E7\u00E3o e coordena\u00E7\u00E3o olho-m\u00E3o',
+      sortOrder: 2,
+      quota: 2,
+    ),
+    CategorySeed(
+      id: 'faz_de_conta',
+      name: 'Faz de Conta',
+      examples: 'Bonecas, carrinhos, panelinhas e animais',
+      description: 'Para imaginar cenas do dia a dia e criar hist\u00F3rias.',
+      developmentAspect:
+          'Imagina\u00E7\u00E3o, imita\u00E7\u00E3o e vida pr\u00E1tica',
+      sortOrder: 3,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'movimento',
+      name: 'Movimento',
+      examples: 'Bolas, brinquedos de empurrar, t\u00FAnel e argolas',
+      description: 'Para mover o corpo e explorar o espa\u00E7o.',
+      developmentAspect:
+          'Coordena\u00E7\u00E3o ampla, equil\u00EDbrio e explora\u00E7\u00E3o do espa\u00E7o',
+      sortOrder: 4,
+      quota: 1,
+    ),
+    CategorySeed(
+      id: 'coordenacao',
+      name: 'Sensorial e Coordena\u00E7\u00E3o',
+      examples: 'Massinha, chocalhos, texturas e instrumentos',
+      description: 'Para experimentar sons, texturas e movimentos pequenos.',
+      developmentAspect:
+          'Tato, audi\u00E7\u00E3o, coordena\u00E7\u00E3o fina e explora\u00E7\u00E3o sensorial',
+      sortOrder: 5,
+      quota: 2,
+    ),
   ];
 
   static const List<LocationSeed> correctedDefaultLocations = [
@@ -132,10 +224,12 @@ class ToyRepository {
               CategoryDefinitionsCompanion.insert(
                 id: c.id,
                 name: c.name,
-                examples: Value(
-                  _normalizeNullable(
-                      correctedDefaultCategoryExamplesById[c.id]),
-                ),
+                description: Value(_normalizeNullable(c.description)),
+                examples: Value(_normalizeNullable(c.examples)),
+                developmentAspect:
+                    Value(_normalizeNullable(c.developmentAspect)),
+                sortOrder: Value(c.sortOrder),
+                isDefault: const Value(true),
                 isActive: const Value(true),
               ),
               mode: InsertMode.insertOrIgnore,
@@ -153,7 +247,7 @@ class ToyRepository {
               RoundCategorySettingsCompanion.insert(
                 categoryId: c.id,
                 isIncluded: const Value(true),
-                quota: const Value(1),
+                quota: Value(c.quota),
               ),
               mode: InsertMode.insertOrIgnore,
             );
@@ -168,28 +262,21 @@ class ToyRepository {
 
       final categories = await d.select(d.categoryDefinitions).get();
       for (final c in categories) {
-        final seededExamples = correctedDefaultCategoryExamplesById[c.id];
-        if (seededExamples != null &&
-            ((c.examples ?? '').trim().isEmpty ||
-                _looksMisencodedSafely(c.examples))) {
-          await (d.update(d.categoryDefinitions)
-                ..where((row) => row.id.equals(c.id)))
-              .write(
-            CategoryDefinitionsCompanion(
-              examples: Value(seededExamples),
-            ),
-          );
-        }
-
         final seededCategory = correctedDefaultCategories
             .where((seed) => seed.id == c.id)
             .firstOrNull;
-        if (seededCategory != null && _looksMisencodedSafely(c.name)) {
+        if (seededCategory != null) {
           await (d.update(d.categoryDefinitions)
                 ..where((row) => row.id.equals(c.id)))
               .write(
             CategoryDefinitionsCompanion(
               name: Value(seededCategory.name),
+              description: Value(seededCategory.description),
+              examples: Value(seededCategory.examples),
+              developmentAspect: Value(seededCategory.developmentAspect),
+              sortOrder: Value(seededCategory.sortOrder),
+              isDefault: const Value(true),
+              isActive: const Value(true),
             ),
           );
         }
@@ -204,8 +291,8 @@ class ToyRepository {
         await d.into(d.roundCategorySettings).insert(
               RoundCategorySettingsCompanion.insert(
                 categoryId: c.id,
-                isIncluded: const Value(true),
-                quota: const Value(1),
+                isIncluded: Value(seededCategory != null),
+                quota: Value(seededCategory?.quota ?? 0),
               ),
               mode: InsertMode.insertOrIgnore,
             );
@@ -376,7 +463,10 @@ class ToyRepository {
     if (d == null) return const Stream<List<CategoryDefinition>>.empty();
 
     final q = d.select(d.categoryDefinitions)
-      ..orderBy([(c) => OrderingTerm.asc(c.name)]);
+      ..orderBy([
+        (c) => OrderingTerm.asc(c.sortOrder),
+        (c) => OrderingTerm.asc(c.name),
+      ]);
     if (activeOnly) {
       q.where((c) => c.isActive.equals(true));
     }
@@ -397,7 +487,10 @@ class ToyRepository {
       ),
     ])
       ..where(c.isActive.equals(true))
-      ..orderBy([OrderingTerm.asc(c.name)]);
+      ..orderBy([
+        OrderingTerm.asc(c.sortOrder),
+        OrderingTerm.asc(c.name),
+      ]);
 
     return query.watch().map((rows) {
       return rows.map((row) => row.readTable(c)).toList();
@@ -418,7 +511,10 @@ class ToyRepository {
     final query = d.select(c).join([
       leftOuterJoin(s, s.categoryId.equalsExp(c.id)),
     ])
-      ..orderBy([OrderingTerm.asc(c.name)]);
+      ..orderBy([
+        OrderingTerm.asc(c.sortOrder),
+        OrderingTerm.asc(c.name),
+      ]);
 
     return query.watch().map((rows) {
       return rows
@@ -815,7 +911,11 @@ class ToyRepository {
             CategoryDefinitionsCompanion.insert(
               id: id,
               name: trimmed,
+              description: const Value(null),
               examples: Value(_normalizeNullable(examples)),
+              developmentAspect: const Value(null),
+              sortOrder: const Value(999),
+              isDefault: const Value(false),
               isActive: const Value(true),
             ),
           );
@@ -828,8 +928,8 @@ class ToyRepository {
       await d.into(d.roundCategorySettings).insert(
             RoundCategorySettingsCompanion.insert(
               categoryId: id,
-              isIncluded: const Value(true),
-              quota: const Value(1),
+              isIncluded: const Value(false),
+              quota: const Value(0),
             ),
           );
     });
@@ -958,13 +1058,11 @@ class ToyRepository {
     }
 
     const defaultQuotas = <String, int>{
-      'coordenacao': 1,
-      'construcao': 1,
-      'faz_de_conta': 1,
       'livros': 1,
+      'construcao': 2,
+      'faz_de_conta': 1,
       'movimento': 1,
-      'musica': 1,
-      'artes': 1,
+      'coordenacao': 2,
     };
 
     final categories = await d.select(d.categoryDefinitions).get();

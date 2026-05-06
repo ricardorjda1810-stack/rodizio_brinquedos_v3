@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -243,7 +243,8 @@ class RoundRepository {
     );
   }
 
-  Future<OptimizeActiveRoundResult> optimizeActiveRoundByCategoryBalance() async {
+  Future<OptimizeActiveRoundResult>
+      optimizeActiveRoundByCategoryBalance() async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
@@ -308,7 +309,8 @@ class RoundRepository {
     await d.transaction(() async {
       await (d.delete(d.roundToys)
             ..where((rt) =>
-                rt.roundId.equals(activeRound.id) & rt.toyId.equals(toRemove.toyId)))
+                rt.roundId.equals(activeRound.id) &
+                rt.toyId.equals(toRemove.toyId)))
           .go();
 
       await d.into(d.roundToys).insert(
@@ -383,19 +385,6 @@ class RoundRepository {
       }
     }
 
-    for (final config in includedConfigs) {
-      final toysForCategory = await _loadEligibleToysForCategory(
-        d,
-        categoryId: config.categoryId,
-      );
-
-      for (final toy in toysForCategory) {
-        if (selectedIds.add(toy.id)) {
-          selected.add(toy);
-        }
-      }
-    }
-
     if (selected.isEmpty) {
       return const StartRoundResult.notCreated();
     }
@@ -407,10 +396,9 @@ class RoundRepository {
     final requestedSize = totalFromCategories;
     final now = DateTime.now().millisecondsSinceEpoch;
     final newRoundId = const Uuid().v4();
-    final finalSelection =
-        requestedSize > 0 && selected.length > requestedSize
-            ? selected.take(requestedSize).toList(growable: false)
-            : selected;
+    final finalSelection = requestedSize > 0 && selected.length > requestedSize
+        ? selected.take(requestedSize).toList(growable: false)
+        : selected;
 
     await d.transaction(() async {
       await (d.update(d.rounds)..where((r) => r.endAt.isNull()))
@@ -437,7 +425,8 @@ class RoundRepository {
     return StartRoundResult.createdWithCount(finalSelection.length);
   }
 
-  Future<List<WeeklyPlanningCategoryConfig>> _resolveRoundCategoryConfigsForDate(
+  Future<List<WeeklyPlanningCategoryConfig>>
+      _resolveRoundCategoryConfigsForDate(
     DateTime date,
     AppDatabase d,
   ) async {
@@ -648,7 +637,8 @@ class RoundRepository {
 
     final toys = await (d.select(d.toys)
           ..orderBy([
-            (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc),
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc),
             (t) => OrderingTerm(expression: t.id, mode: OrderingMode.asc),
           ]))
         .get();
@@ -667,24 +657,24 @@ class RoundRepository {
 
     final counts = <String, int>{};
     for (final toy in toys) {
-      final categoryId = toy.categoryId.trim().isEmpty ? 'outros' : toy.categoryId.trim();
+      final categoryId =
+          toy.categoryId.trim().isEmpty ? 'outros' : toy.categoryId.trim();
       counts[categoryId] = (counts[categoryId] ?? 0) + 1;
     }
 
-    final categories = counts.entries
-        .map(
-          (entry) {
-            final percentage = entry.value / total;
-            final label = categoryLabels[entry.key] ?? _fallbackCategoryLabel(entry.key);
-            return _BalanceCategoryInfo(
-              id: entry.key,
-              label: label,
-              count: entry.value,
-              percentage: percentage,
-            );
-          },
-        )
-        .toList()
+    final categories = counts.entries.map(
+      (entry) {
+        final percentage = entry.value / total;
+        final label =
+            categoryLabels[entry.key] ?? _fallbackCategoryLabel(entry.key);
+        return _BalanceCategoryInfo(
+          id: entry.key,
+          label: label,
+          count: entry.value,
+          percentage: percentage,
+        );
+      },
+    ).toList()
       ..sort((a, b) {
         final byCount = b.count.compareTo(a.count);
         if (byCount != 0) return byCount;
@@ -699,7 +689,8 @@ class RoundRepository {
         continue;
       }
       if (item.percentage == dominant.percentage &&
-          item.label.toLowerCase().compareTo(dominant.label.toLowerCase()) < 0) {
+          item.label.toLowerCase().compareTo(dominant.label.toLowerCase()) <
+              0) {
         dominant = item;
       }
     }
@@ -717,7 +708,8 @@ class RoundRepository {
       }
     }
 
-    final suggestion = _buildSuggestion(total: total, dominant: dominant, low: low);
+    final suggestion =
+        _buildSuggestion(total: total, dominant: dominant, low: low);
 
     return _BalanceEvaluation(
       total: total,
@@ -728,7 +720,8 @@ class RoundRepository {
     );
   }
 
-  Future<List<_ActiveRoundToy>> _loadActiveRoundToys(AppDatabase d, String roundId) async {
+  Future<List<_ActiveRoundToy>> _loadActiveRoundToys(
+      AppDatabase d, String roundId) async {
     final rt = d.roundToys;
     final t = d.toys;
     final c = d.categoryDefinitions;
@@ -750,7 +743,8 @@ class RoundRepository {
       return _ActiveRoundToy(
         toyId: toy.id,
         toyName: toy.name.trim().isEmpty ? 'Sem nome' : toy.name.trim(),
-        categoryId: toy.categoryId.trim().isEmpty ? 'outros' : toy.categoryId.trim(),
+        categoryId:
+            toy.categoryId.trim().isEmpty ? 'outros' : toy.categoryId.trim(),
         categoryLabel: category?.name.trim().isNotEmpty == true
             ? category!.name.trim()
             : _fallbackCategoryLabel(toy.categoryId),

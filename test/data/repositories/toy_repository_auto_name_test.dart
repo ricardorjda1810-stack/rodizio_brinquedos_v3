@@ -77,17 +77,15 @@ void main() {
     expect(total, 7);
   });
 
-  test('seed padrao cria somente as 7 categorias oficiais', () async {
+  test('seed padrao cria somente as 5 categorias oficiais', () async {
     final categories = await db.select(db.categoryDefinitions).get();
 
     expect(categories.map((category) => category.id).toSet(), {
-      'coordenacao',
+      'livros',
       'construcao',
       'faz_de_conta',
-      'livros',
       'movimento',
-      'musica',
-      'artes',
+      'coordenacao',
     });
   });
 }

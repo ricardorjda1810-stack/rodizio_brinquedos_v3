@@ -60,7 +60,11 @@ class DemoDataLoader {
             CategoryDefinitionsCompanion.insert(
               id: category.id,
               name: category.name,
+              description: const Value(null),
               examples: Value(category.examples),
+              developmentAspect: Value(category.developmentAspect),
+              sortOrder: Value(category.sortOrder),
+              isDefault: const Value(true),
               isActive: const Value(true),
             ),
           );
