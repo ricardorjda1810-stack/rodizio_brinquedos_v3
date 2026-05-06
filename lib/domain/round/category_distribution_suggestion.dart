@@ -8,76 +8,36 @@ class CategoryDistributionSuggestion {
   });
 }
 
-CategoryDistributionSuggestion buildDistribution(int total) {
-  final Map<String, int> dist = {
-    'Coordena\u00E7\u00E3o': 0,
-    'Constru\u00E7\u00E3o': 0,
-    'Faz de conta': 0,
-    'Livros': 0,
-    'Movimento': 0,
-    'M\u00FAsica': 0,
-    'Artes': 0,
-  };
+CategoryDistributionSuggestion buildDistribution(
+  int total,
+  Iterable<String> categories, {
+  int maxTotal = 8,
+}) {
+  final categoryNames = categories
+      .map((category) => category.trim())
+      .where((category) => category.isNotEmpty)
+      .toList(growable: false);
 
-  void add(String key) {
-    dist[key] = (dist[key] ?? 0) + 1;
+  final safeTotal = total.clamp(0, maxTotal).toInt();
+  if (categoryNames.isEmpty || safeTotal == 0) {
+    return CategoryDistributionSuggestion(
+      distribution: {for (final category in categoryNames) category: 0},
+      total: safeTotal,
+    );
   }
 
-  if (total <= 5) {
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Livros');
-    add('Artes');
-  } else if (total == 6) {
-    add('Coordena\u00E7\u00E3o');
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Livros');
-    add('Artes');
-  } else if (total == 7) {
-    add('Coordena\u00E7\u00E3o');
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Livros');
-    add('Artes');
-  } else if (total == 8) {
-    add('Coordena\u00E7\u00E3o');
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Faz de conta');
-    add('Livros');
-    add('Artes');
-  } else if (total == 9) {
-    add('Coordena\u00E7\u00E3o');
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Faz de conta');
-    add('Livros');
-    add('Movimento');
-    add('Artes');
-  } else {
-    add('Coordena\u00E7\u00E3o');
-    add('Coordena\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Constru\u00E7\u00E3o');
-    add('Faz de conta');
-    add('Faz de conta');
-    add('Livros');
-    add('Movimento');
-    add('M\u00FAsica');
-    add('Artes');
+  final baseQuota = safeTotal ~/ categoryNames.length;
+  var remaining = safeTotal % categoryNames.length;
+
+  final distribution = <String, int>{};
+  for (final category in categoryNames) {
+    final extra = remaining > 0 ? 1 : 0;
+    distribution[category] = baseQuota + extra;
+    if (remaining > 0) remaining--;
   }
 
   return CategoryDistributionSuggestion(
-    distribution: dist,
-    total: total,
+    distribution: distribution,
+    total: safeTotal,
   );
 }

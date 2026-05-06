@@ -227,6 +227,9 @@ class _WeekdayTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = config.total;
+    final showDistributionSuggestion = !config.useDefault &&
+        config.categories.length >= 2 &&
+        config.categories.any((category) => category.isIncluded);
 
     return Container(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -276,17 +279,19 @@ class _WeekdayTile extends StatelessWidget {
                 ),
           ),
           if (!config.useDefault) ...[
-            const SizedBox(height: UiTokens.spacingMd),
-            _DistributionSuggestionBlock(
-              total: total,
-              categories: config.categories,
-              onApply: (category) => onCategoryChanged(
-                weekday: config.weekday,
-                categoryId: category.categoryId,
-                isIncluded: category.isIncluded,
-                quota: category.quota,
+            if (showDistributionSuggestion) ...[
+              const SizedBox(height: UiTokens.spacingMd),
+              _DistributionSuggestionBlock(
+                total: total,
+                categories: config.categories,
+                onApply: (category) => onCategoryChanged(
+                  weekday: config.weekday,
+                  categoryId: category.categoryId,
+                  isIncluded: category.isIncluded,
+                  quota: category.quota,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: UiTokens.spacingMd),
             for (final category in config.categories) ...[
               _CategoryRow(
@@ -325,13 +330,16 @@ class _DistributionSuggestionBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final suggestion = buildDistribution(total);
+    final suggestion = buildDistribution(
+      total,
+      categories.map((category) => category.categoryId),
+    );
     final applicableCategories = _applicableSuggestionCategories(
       categories,
       suggestion.distribution,
     );
-    final visibleEntries = suggestion.distribution.entries
-        .where((entry) => entry.value > 0)
+    final visibleEntries = applicableCategories
+        .where((category) => category.quota > 0)
         .toList(growable: false);
 
     return Container(
@@ -375,7 +383,7 @@ class _DistributionSuggestionBlock extends StatelessWidget {
             children: [
               for (final entry in visibleEntries)
                 Text(
-                  '${entry.key}: ${entry.value}',
+                  '${entry.categoryName}: ${entry.quota}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: UiTokens.textSecondary,
                         fontWeight: FontWeight.w600,
@@ -391,11 +399,13 @@ class _DistributionSuggestionBlock extends StatelessWidget {
 
 class _CategorySuggestionApplyItem {
   final String categoryId;
+  final String categoryName;
   final bool isIncluded;
   final int quota;
 
   const _CategorySuggestionApplyItem({
     required this.categoryId,
+    required this.categoryName,
     required this.isIncluded,
     required this.quota,
   });
@@ -542,91 +552,15 @@ List<_CategorySuggestionApplyItem> _applicableSuggestionCategories(
   List<WeeklyPlanningCategoryConfig> categories,
   Map<String, int> distribution,
 ) {
-  final categoriesBySuggestionKey = <String, WeeklyPlanningCategoryConfig>{};
-  for (final category in categories) {
-    final suggestionKey = _suggestionKeyForCategory(category);
-    if (suggestionKey == null) continue;
-    categoriesBySuggestionKey.putIfAbsent(suggestionKey, () => category);
-  }
-
-  return distribution.entries
-      .map((entry) {
-        final category = categoriesBySuggestionKey[entry.key];
-        if (category == null) return null;
-        return _CategorySuggestionApplyItem(
-          categoryId: category.categoryId,
-          isIncluded: entry.value > 0,
-          quota: entry.value,
-        );
-      })
-      .whereType<_CategorySuggestionApplyItem>()
-      .toList(growable: false);
-}
-
-String? _suggestionKeyForCategory(WeeklyPlanningCategoryConfig category) {
-  final normalizedId = _normalizeCategoryText(category.categoryId);
-  final normalizedName = _normalizeCategoryText(category.categoryName);
-
-  if (_matchesAny(normalizedId, normalizedName, const [
-    'coordenacao',
-    'coordenacao motora',
-    'coordenacao_motora',
-  ])) {
-    return 'Coordena\u00E7\u00E3o';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const [
-    'construcao',
-    'montagem',
-    'encaixe',
-    'construcao_montagem',
-  ])) {
-    return 'Constru\u00E7\u00E3o';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const [
-    'faz de conta',
-    'faz_de_conta',
-  ])) {
-    return 'Faz de conta';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const ['livros'])) {
-    return 'Livros';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const ['movimento'])) {
-    return 'Movimento';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const ['musica'])) {
-    return 'M\u00FAsica';
-  }
-  if (_matchesAny(normalizedId, normalizedName, const ['artes'])) {
-    return 'Artes';
-  }
-
-  return null;
-}
-
-bool _matchesAny(String id, String name, List<String> values) {
-  return values.contains(id) || values.contains(name);
-}
-
-String _normalizeCategoryText(String value) {
-  return value
-      .trim()
-      .toLowerCase()
-      .replaceAll('_', ' ')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .replaceAll('\u00E1', 'a')
-      .replaceAll('\u00E0', 'a')
-      .replaceAll('\u00E2', 'a')
-      .replaceAll('\u00E3', 'a')
-      .replaceAll('\u00E7', 'c')
-      .replaceAll('\u00E9', 'e')
-      .replaceAll('\u00EA', 'e')
-      .replaceAll('\u00ED', 'i')
-      .replaceAll('\u00F3', 'o')
-      .replaceAll('\u00F4', 'o')
-      .replaceAll('\u00F5', 'o')
-      .replaceAll('\u00FA', 'u')
-      .replaceAll('\u00FC', 'u');
+  return categories.map((category) {
+    final quota = distribution[category.categoryId] ?? 0;
+    return _CategorySuggestionApplyItem(
+      categoryId: category.categoryId,
+      categoryName: category.categoryName,
+      isIncluded: quota > 0,
+      quota: quota,
+    );
+  }).toList(growable: false);
 }
 
 String _categorySummary(List<WeeklyPlanningCategoryConfig> categories) {
