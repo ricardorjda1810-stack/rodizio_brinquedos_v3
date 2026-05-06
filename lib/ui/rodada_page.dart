@@ -46,6 +46,7 @@ class _RodadaPageState extends State<RodadaPage> {
   bool _checkingAutoPaywall = false;
   bool _autoPaywallQueued = false;
   bool _loadingSuggestion = false;
+  Future<List<RoundToyWithBox>>? _homeSuggestionFuture;
 
   void _openToyDetail(String toyId) {
     Navigator.of(context).push(
@@ -59,20 +60,38 @@ class _RodadaPageState extends State<RodadaPage> {
     );
   }
 
-  Future<void> _startRound() async {
+  Future<List<RoundToyWithBox>> _loadHomeSuggestionPreview() async {
+    final toys = await widget.roundRepository.suggestRoundForToday();
+    final boxes = await widget.toyRepository.watchBoxes().first;
+    final boxesById = {for (final box in boxes) box.id: box};
+
+    return toys.take(7).toList(growable: false).asMap().entries.map((entry) {
+      final toy = entry.value;
+      final boxId = toy.boxId;
+      return RoundToyWithBox(
+        toy: toy,
+        box: boxId == null ? null : boxesById[boxId],
+        position: entry.key,
+      );
+    }).toList(growable: false);
+  }
+
+  Future<void> _useHomeSuggestion(List<RoundToyWithBox> suggestion) async {
     if (_startingRound) return;
     final allowed = await PremiumGate.ensurePremium(
       context: context,
       purchaseService: widget.purchaseService,
     );
     if (!allowed) return;
+    if (!mounted) return;
 
     setState(() => _startingRound = true);
     try {
-      final result = await widget.roundRepository.startRound();
-      if (!mounted) return;
-
-      if (!result.created) {
+      final toyIds = suggestion
+          .map((item) => item.toy.id)
+          .where((id) => id.trim().isNotEmpty)
+          .toList(growable: false);
+      if (toyIds.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
@@ -83,10 +102,12 @@ class _RodadaPageState extends State<RodadaPage> {
         return;
       }
 
+      await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Rodada criada com ${result.selectedCount} brinquedos.'),
+          content: Text('Rodada criada com ${toyIds.length} brinquedos.'),
         ),
       );
       widget.onOpenRodizioTab();
@@ -95,7 +116,7 @@ class _RodadaPageState extends State<RodadaPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'N\u00e3o foi poss\u00edvel iniciar o rod\u00edzio: $e',
+            'N\u00e3o foi poss\u00edvel usar a sugest\u00e3o: $e',
           ),
         ),
       );
@@ -247,6 +268,10 @@ class _RodadaPageState extends State<RodadaPage> {
                   screenHeight * 0.49,
                   constraints.maxHeight,
                 );
+                final maxEmptyGridHeight = math.min(
+                  screenHeight * 0.34,
+                  constraints.maxHeight,
+                );
 
                 return Padding(
                   padding: EdgeInsets.fromLTRB(
@@ -271,9 +296,13 @@ class _RodadaPageState extends State<RodadaPage> {
                         child: LayoutBuilder(
                           builder: (context, gridConstraints) {
                             final gridHeight = math.min(
-                              maxGridHeight,
+                              items.isEmpty
+                                  ? maxEmptyGridHeight
+                                  : maxGridHeight,
                               math.min(
-                                desiredGridCardHeight,
+                                items.isEmpty
+                                    ? desiredGridCardHeight * 0.68
+                                    : desiredGridCardHeight,
                                 gridConstraints.maxHeight,
                               ),
                             );
@@ -287,10 +316,16 @@ class _RodadaPageState extends State<RodadaPage> {
                                   items: items,
                                   categoryNamesById: categoryNamesById,
                                   onOpenToy: _openToyDetail,
-                                  emptyState: _RodadaEmptyState(
-                                    onAction:
-                                        _startingRound ? null : _startRound,
-                                    actionText: 'Criar rodada',
+                                  emptyTitle: 'Sugest\u00e3o para hoje',
+                                  emptyCounterText: 'at\u00e9 7',
+                                  emptyState: _HomeSuggestionEmptyState(
+                                    suggestionFuture: _homeSuggestionFuture ??=
+                                        _loadHomeSuggestionPreview(),
+                                    onOpenToy: _openToyDetail,
+                                    onUseSuggestion: _startingRound
+                                        ? null
+                                        : _useHomeSuggestion,
+                                    usingSuggestion: _startingRound,
                                   ),
                                 ),
                               ),
@@ -441,12 +476,16 @@ class _AvailableToysGridCard extends StatelessWidget {
   final Map<String, String> categoryNamesById;
   final ValueChanged<String> onOpenToy;
   final Widget emptyState;
+  final String emptyTitle;
+  final String emptyCounterText;
 
   const _AvailableToysGridCard({
     required this.items,
     required this.categoryNamesById,
     required this.onOpenToy,
     required this.emptyState,
+    required this.emptyTitle,
+    required this.emptyCounterText,
   });
 
   @override
@@ -464,7 +503,7 @@ class _AvailableToysGridCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Brinquedos dispon\u00edveis',
+                  items.isEmpty ? emptyTitle : 'Brinquedos dispon\u00edveis',
                   style: UiTokens.textTitle.copyWith(
                     fontSize: 21,
                     fontWeight: FontWeight.w800,
@@ -482,7 +521,7 @@ class _AvailableToysGridCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(UiTokens.radiusLg),
                 ),
                 child: Text(
-                  '${items.length} itens',
+                  items.isEmpty ? emptyCounterText : '${items.length} itens',
                   style: UiTokens.textCaption.copyWith(
                     fontWeight: FontWeight.w700,
                     color: colorScheme.onSurfaceVariant,
@@ -494,7 +533,7 @@ class _AvailableToysGridCard extends StatelessWidget {
           const SizedBox(height: UiTokens.spacingSm),
           Expanded(
             child: items.isEmpty
-                ? Center(child: emptyState)
+                ? emptyState
                 : GridView.builder(
                     padding: const EdgeInsets.only(top: UiTokens.spacingXs),
                     physics: const BouncingScrollPhysics(),
@@ -685,72 +724,147 @@ class _GridToyPlaceholder extends StatelessWidget {
   }
 }
 
-class _RodadaEmptyState extends StatelessWidget {
-  final VoidCallback? onAction;
-  final String actionText;
+class _HomeSuggestionEmptyState extends StatelessWidget {
+  final Future<List<RoundToyWithBox>> suggestionFuture;
+  final ValueChanged<String> onOpenToy;
+  final Future<void> Function(List<RoundToyWithBox> suggestion)?
+      onUseSuggestion;
+  final bool usingSuggestion;
 
-  const _RodadaEmptyState({
-    required this.onAction,
-    required this.actionText,
+  const _HomeSuggestionEmptyState({
+    required this.suggestionFuture,
+    required this.onOpenToy,
+    required this.onUseSuggestion,
+    required this.usingSuggestion,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: UiTokens.spacingLg),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: UiTokens.primarySoft,
-              borderRadius: BorderRadius.circular(UiTokens.radiusLg),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.toys_outlined,
-              size: 30,
-              color: UiTokens.primaryStrong,
-            ),
-          ),
-          const SizedBox(height: UiTokens.spacingMd),
-          Text(
-            'Nenhuma rodada ativa',
-            textAlign: TextAlign.center,
-            style: UiTokens.textSectionTitle.copyWith(
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: UiTokens.spacingSm),
-          Text(
-            'Crie uma rodada para come\u00e7ar com os brinquedos dispon\u00edveis.',
-            textAlign: TextAlign.center,
-            style: UiTokens.textBody.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: UiTokens.spacingMd),
-          SizedBox(
-            height: 44,
-            child: FilledButton(
-              onPressed: onAction,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: UiTokens.spacingMd,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(UiTokens.radiusMd),
-                ),
-                textStyle: UiTokens.textButton,
+    return FutureBuilder<List<RoundToyWithBox>>(
+      future: suggestionFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final suggestion = snapshot.data ?? const <RoundToyWithBox>[];
+        if (suggestion.isEmpty) {
+          return Center(
+            child: Text(
+              'Cadastre brinquedos para montar uma sugest\u00e3o.',
+              textAlign: TextAlign.center,
+              style: UiTokens.textBody.copyWith(
+                color: colorScheme.onSurfaceVariant,
               ),
-              child: Text(actionText),
             ),
+          );
+        }
+
+        return Column(
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final tileSize = math.min(
+                    58.0,
+                    (constraints.maxWidth - 30) / 4,
+                  );
+
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: [
+                        for (final item in suggestion)
+                          _SuggestionToyThumb(
+                            item: item,
+                            size: tileSize,
+                            onTap: () => onOpenToy(item.toy.id),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: UiTokens.spacingSm),
+            SizedBox(
+              height: 40,
+              child: FilledButton.icon(
+                onPressed: onUseSuggestion == null || usingSuggestion
+                    ? null
+                    : () => onUseSuggestion!(suggestion),
+                icon: usingSuggestion
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check_circle_outline, size: 18),
+                label: const Text('Usar sugest\u00e3o'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: UiTokens.spacingMd,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+                  ),
+                  textStyle: UiTokens.textButton.copyWith(fontSize: 13),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SuggestionToyThumb extends StatelessWidget {
+  final RoundToyWithBox item;
+  final double size;
+  final VoidCallback onTap;
+
+  const _SuggestionToyThumb({
+    required this.item,
+    required this.size,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final name =
+        item.toy.name.trim().isEmpty ? 'Brinquedo sugerido' : item.toy.name;
+
+    return Tooltip(
+      message: name,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+          child: Container(
+            width: size,
+            height: size,
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+              boxShadow: const [
+                BoxShadow(
+                  color: UiTokens.shadow,
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: _GridToyPhoto(imagePath: item.toy.photoPath),
           ),
-        ],
+        ),
       ),
     );
   }
