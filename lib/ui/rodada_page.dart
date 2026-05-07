@@ -357,7 +357,9 @@ class _RoundMomentCard extends StatelessWidget {
                 Text(
                   itemCount == 0
                       ? 'Crie uma rodada para come\u00e7ar.'
-                      : '$itemCount brinquedos dispon\u00edveis.',
+                      : itemCount == 1
+                          ? '1 item dispon\u00edvel'
+                          : '$itemCount itens dispon\u00edveis',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
