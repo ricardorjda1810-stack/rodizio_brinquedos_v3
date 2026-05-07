@@ -320,13 +320,19 @@ class _RoundMomentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final itemCountText = itemCount == 0
+        ? 'Crie uma rodada para come\u00e7ar.'
+        : itemCount == 1
+            ? '1 item dispon\u00edvel'
+            : '$itemCount itens dispon\u00edveis';
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingSm),
       color: colorScheme.surface,
-      child: Row(
-        children: [
-          Container(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 330;
+          final icon = Container(
             width: 36,
             height: 36,
             decoration: BoxDecoration(
@@ -339,51 +345,32 @@ class _RoundMomentCard extends StatelessWidget {
               size: 19,
               color: UiTokens.primaryStrong,
             ),
-          ),
-          const SizedBox(width: UiTokens.spacingSm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Brincadeira',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textSectionTitle.copyWith(
-                    color: colorScheme.onSurface,
-                  ),
+          );
+          final copy = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Brincadeira',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textSectionTitle.copyWith(
+                  color: colorScheme.onSurface,
                 ),
-                const SizedBox(height: UiTokens.spacingXs),
-                Text(
-                  itemCount == 0
-                      ? 'Crie uma rodada para come\u00e7ar.'
-                      : itemCount == 1
-                          ? '1 item dispon\u00edvel'
-                          : '$itemCount itens dispon\u00edveis',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+              ),
+              const SizedBox(height: UiTokens.spacingXs),
+              Text(
+                itemCountText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+                style: UiTokens.textCaption.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: UiTokens.spacingSm),
-          OutlinedButton.icon(
+              ),
+            ],
+          );
+          final suggestButton = OutlinedButton(
             onPressed: loadingSuggestion ? null : onSuggestRound,
-            icon: loadingSuggestion
-                ? const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.auto_awesome_outlined, size: 18),
-            label: const Text(
-              'Sugerir',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
             style: OutlinedButton.styleFrom(
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 38),
@@ -392,9 +379,19 @@ class _RoundMomentCard extends StatelessWidget {
               ),
               textStyle: UiTokens.textButton.copyWith(fontSize: 13),
             ),
-          ),
-          const SizedBox(width: UiTokens.spacingXs),
-          PopupMenuButton<String>(
+            child: loadingSuggestion
+                ? const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text(
+                    'Sugerir',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+          );
+          final menuButton = PopupMenuButton<String>(
             tooltip: 'Mais op\u00e7\u00f5es',
             onSelected: (value) {
               if (value == 'toys') {
@@ -428,8 +425,42 @@ class _RoundMomentCard extends StatelessWidget {
                 color: colorScheme.onSurface,
               ),
             ),
-          ),
-        ],
+          );
+
+          if (compact) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    icon,
+                    const SizedBox(width: UiTokens.spacingSm),
+                    Expanded(child: copy),
+                    const SizedBox(width: UiTokens.spacingXs),
+                    menuButton,
+                  ],
+                ),
+                const SizedBox(height: UiTokens.spacingXs),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: suggestButton,
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              icon,
+              const SizedBox(width: UiTokens.spacingSm),
+              Expanded(child: copy),
+              const SizedBox(width: UiTokens.spacingSm),
+              suggestButton,
+              const SizedBox(width: UiTokens.spacingXs),
+              menuButton,
+            ],
+          );
+        },
       ),
     );
   }
