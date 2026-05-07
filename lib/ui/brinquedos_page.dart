@@ -61,6 +61,15 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
 
   String _selectedLocalFilter = _localAll;
 
+  Widget _dropdownLabel(String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -272,6 +281,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     width: double.maxFinite,
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedId,
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: 'Categoria',
                       ),
@@ -279,7 +289,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                         for (final c in categories)
                           DropdownMenuItem<String>(
                             value: c.id,
-                            child: Text(c.name),
+                            child: _dropdownLabel(c.name),
                           ),
                       ],
                       onChanged: (value) {
@@ -369,26 +379,30 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
         builder: (context, setDialogState) {
           return AlertDialog(
             title: const Text('Editar local'),
-            content: DropdownButtonFormField<String?>(
-              initialValue: selectedLocation,
-              decoration: const InputDecoration(
-                labelText: 'Local (sem caixa)',
-              ),
-              items: <DropdownMenuItem<String?>>[
-                const DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('Sem local'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: DropdownButtonFormField<String?>(
+                initialValue: selectedLocation,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Local (sem caixa)',
                 ),
-                ...locations.map(
-                  (l) => DropdownMenuItem<String?>(
-                    value: l.name,
-                    child: Text(l.name),
+                items: <DropdownMenuItem<String?>>[
+                  DropdownMenuItem<String?>(
+                    value: null,
+                    child: _dropdownLabel('Sem local'),
                   ),
-                ),
-              ],
-              onChanged: (value) {
-                setDialogState(() => selectedLocation = value);
-              },
+                  ...locations.map(
+                    (l) => DropdownMenuItem<String?>(
+                      value: l.name,
+                      child: _dropdownLabel(l.name),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  setDialogState(() => selectedLocation = value);
+                },
+              ),
             ),
             actions: [
               TextButton(
@@ -455,32 +469,37 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
         builder: (context, setDialogState) {
           return AlertDialog(
             title: const Text('Editar caixa'),
-            content: DropdownButtonFormField<String?>(
-              initialValue: selectedBoxSelection,
-              decoration: const InputDecoration(
-                labelText: 'Caixa',
-              ),
-              items: <DropdownMenuItem<String?>>[
-                const DropdownMenuItem<String?>(
-                  value: _toyBoxNoSelectionValue,
-                  child: Text('Selecione uma caixa ou "Sem caixa"'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: DropdownButtonFormField<String?>(
+                initialValue: selectedBoxSelection,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Caixa',
                 ),
-                const DropdownMenuItem<String?>(
-                  value: _toyBoxWithoutBoxValue,
-                  child: Text('Sem caixa'),
-                ),
-                ...boxes.map(
-                  (b) => DropdownMenuItem<String?>(
-                    value: b.id,
-                    child: Text('Caixa ${b.number} - ${b.local}'),
+                items: <DropdownMenuItem<String?>>[
+                  DropdownMenuItem<String?>(
+                    value: _toyBoxNoSelectionValue,
+                    child: _dropdownLabel('Selecionar caixa'),
                   ),
-                ),
-              ],
-              onChanged: (value) {
-                setDialogState(
-                  () => selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
-                );
-              },
+                  DropdownMenuItem<String?>(
+                    value: _toyBoxWithoutBoxValue,
+                    child: _dropdownLabel('Sem caixa'),
+                  ),
+                  ...boxes.map(
+                    (b) => DropdownMenuItem<String?>(
+                      value: b.id,
+                      child: _dropdownLabel('Caixa ${b.number} - ${b.local}'),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  setDialogState(
+                    () =>
+                        selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
+                  );
+                },
+              ),
             ),
             actions: [
               TextButton(

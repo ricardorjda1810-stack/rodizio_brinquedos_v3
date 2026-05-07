@@ -37,6 +37,15 @@ class ToyDetailPage extends StatelessWidget {
     this.purchaseService,
   });
 
+  Widget _dropdownLabel(String text) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+    );
+  }
+
   Future<void> _pick(BuildContext context, ImageSource source) async {
     final allowed = await PremiumGate.ensurePremium(
       context: context,
@@ -180,12 +189,13 @@ class ToyDetailPage extends StatelessWidget {
                     width: double.maxFinite,
                     child: DropdownButtonFormField<String>(
                       initialValue: selectedId,
+                      isExpanded: true,
                       decoration: const InputDecoration(labelText: 'Categoria'),
                       items: [
                         for (final c in categories)
                           DropdownMenuItem<String>(
                             value: c.id,
-                            child: Text(c.name),
+                            child: _dropdownLabel(c.name),
                           ),
                       ],
                       onChanged: (value) {
@@ -262,30 +272,35 @@ class ToyDetailPage extends StatelessWidget {
         builder: (context, setDialogState) {
           return AlertDialog(
             title: const Text('Editar caixa'),
-            content: DropdownButtonFormField<String?>(
-              initialValue: selectedBoxSelection,
-              decoration: const InputDecoration(labelText: 'Caixa'),
-              items: <DropdownMenuItem<String?>>[
-                const DropdownMenuItem<String?>(
-                  value: _toyBoxNoSelectionValue,
-                  child: Text('Selecione uma caixa ou "Sem caixa"'),
-                ),
-                const DropdownMenuItem<String?>(
-                  value: _toyBoxWithoutBoxValue,
-                  child: Text('Sem caixa'),
-                ),
-                ...boxes.map(
-                  (b) => DropdownMenuItem<String?>(
-                    value: b.id,
-                    child: Text('Caixa ${b.number} - ${b.local}'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: DropdownButtonFormField<String?>(
+                initialValue: selectedBoxSelection,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Caixa'),
+                items: <DropdownMenuItem<String?>>[
+                  DropdownMenuItem<String?>(
+                    value: _toyBoxNoSelectionValue,
+                    child: _dropdownLabel('Selecionar caixa'),
                   ),
-                ),
-              ],
-              onChanged: (value) {
-                setDialogState(
-                  () => selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
-                );
-              },
+                  DropdownMenuItem<String?>(
+                    value: _toyBoxWithoutBoxValue,
+                    child: _dropdownLabel('Sem caixa'),
+                  ),
+                  ...boxes.map(
+                    (b) => DropdownMenuItem<String?>(
+                      value: b.id,
+                      child: _dropdownLabel('Caixa ${b.number} - ${b.local}'),
+                    ),
+                  ),
+                ],
+                onChanged: (value) {
+                  setDialogState(
+                    () =>
+                        selectedBoxSelection = value ?? _toyBoxNoSelectionValue,
+                  );
+                },
+              ),
             ),
             actions: [
               TextButton(
