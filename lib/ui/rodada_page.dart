@@ -240,91 +240,60 @@ class _RodadaPageState extends State<RodadaPage> {
               for (final category in categories) category.id: category.name,
             };
 
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final screenHeight = MediaQuery.sizeOf(context).height;
-                const gridSpacing = 12.0;
-                const gridTileHeight = 132.0;
-                const gridCardPadding = 14.0;
-                const gridHeaderReserve = 32.0;
-                const twoRowsGridHeight =
-                    UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
-                const desiredGridCardHeight = (gridCardPadding * 2) +
-                    gridHeaderReserve +
-                    UiTokens.spacingSm +
-                    twoRowsGridHeight;
-                final maxGridHeight = math.min(
-                  screenHeight * 0.49,
-                  constraints.maxHeight,
-                );
-                final maxEmptyGridHeight = math.min(
-                  screenHeight * 0.34,
-                  constraints.maxHeight,
-                );
+            const gridSpacing = 12.0;
+            const gridTileHeight = 132.0;
+            const gridCardPadding = 14.0;
+            const gridHeaderReserve = 32.0;
+            const twoRowsGridHeight =
+                UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
+            const desiredGridCardHeight = (gridCardPadding * 2) +
+                gridHeaderReserve +
+                UiTokens.spacingSm +
+                twoRowsGridHeight;
+            const emptyGridCardHeight = desiredGridCardHeight * 0.68;
 
-                return Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    UiTokens.spacingMd,
-                    0,
-                    UiTokens.spacingMd,
-                    bottomNavigationReserve,
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                UiTokens.spacingMd,
+                0,
+                UiTokens.spacingMd,
+                bottomNavigationReserve,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _RoundMomentCard(
+                    itemCount: items.length,
+                    loadingSuggestion: _loadingSuggestion,
+                    onSuggestRound: () => _openRoundSuggestionSheet(
+                      categoryNamesById,
+                    ),
+                    onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
+                    onOpenSettings: widget.onOpenSettings,
                   ),
-                  child: Column(
-                    children: [
-                      _RoundMomentCard(
-                        itemCount: items.length,
-                        loadingSuggestion: _loadingSuggestion,
-                        onSuggestRound: () => _openRoundSuggestionSheet(
-                          categoryNamesById,
-                        ),
-                        onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
-                        onOpenSettings: widget.onOpenSettings,
+                  const SizedBox(height: UiTokens.spacingSm),
+                  SizedBox(
+                    width: double.infinity,
+                    height: items.isEmpty
+                        ? emptyGridCardHeight
+                        : desiredGridCardHeight,
+                    child: _AvailableToysGridCard(
+                      items: items,
+                      onOpenToy: _openToyDetail,
+                      emptyTitle: 'Sugest\u00e3o para hoje',
+                      emptyCounterText: 'at\u00e9 7',
+                      emptyState: _HomeSuggestionEmptyState(
+                        suggestionFuture: _homeSuggestionFuture ??=
+                            _loadHomeSuggestionPreview(),
+                        onOpenToy: _openToyDetail,
+                        onUseSuggestion:
+                            _startingRound ? null : _useHomeSuggestion,
+                        usingSuggestion: _startingRound,
                       ),
-                      const SizedBox(height: UiTokens.spacingSm),
-                      Flexible(
-                        child: LayoutBuilder(
-                          builder: (context, gridConstraints) {
-                            final gridHeight = math.min(
-                              items.isEmpty
-                                  ? maxEmptyGridHeight
-                                  : maxGridHeight,
-                              math.min(
-                                items.isEmpty
-                                    ? desiredGridCardHeight * 0.68
-                                    : desiredGridCardHeight,
-                                gridConstraints.maxHeight,
-                              ),
-                            );
-
-                            return Align(
-                              alignment: Alignment.topCenter,
-                              child: SizedBox(
-                                width: double.infinity,
-                                height: gridHeight,
-                                child: _AvailableToysGridCard(
-                                  items: items,
-                                  onOpenToy: _openToyDetail,
-                                  emptyTitle: 'Sugest\u00e3o para hoje',
-                                  emptyCounterText: 'at\u00e9 7',
-                                  emptyState: _HomeSuggestionEmptyState(
-                                    suggestionFuture: _homeSuggestionFuture ??=
-                                        _loadHomeSuggestionPreview(),
-                                    onOpenToy: _openToyDetail,
-                                    onUseSuggestion: _startingRound
-                                        ? null
-                                        : _useHomeSuggestion,
-                                    usingSuggestion: _startingRound,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              },
+                ],
+              ),
             );
           },
         );
@@ -377,7 +346,7 @@ class _RoundMomentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Brincadeira da semana',
+                  'Brincadeira',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textSectionTitle.copyWith(
@@ -409,7 +378,7 @@ class _RoundMomentCard extends StatelessWidget {
                   )
                 : const Icon(Icons.auto_awesome_outlined, size: 18),
             label: const Text(
-              'Sugerir rodada',
+              'Sugerir',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
