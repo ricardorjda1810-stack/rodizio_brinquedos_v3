@@ -8,6 +8,9 @@ import 'data/repositories/local_research_session_repository.dart';
 import 'data/repositories/mock_risk_repository.dart';
 import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/settings_repository.dart';
+import 'data/sensors/healthkit_sensor_provider.dart';
+import 'data/sensors/mock_sensor_provider.dart';
+import 'data/sensors/sensor_provider.dart';
 import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
 import 'domain/models/feeling_level.dart';
@@ -30,6 +33,7 @@ final class AppState extends ChangeNotifier {
     LocalResearchSessionRepository? localResearchSessionRepository,
     OnboardingRepository? onboardingRepository,
     SettingsRepository? settingsRepository,
+    SensorProvider? sensorProvider,
     bool loadPersistedCalibrationFeedbacks = true,
     bool loadPersistedEvents = true,
     bool loadPersistedResearchSessions = true,
@@ -46,6 +50,7 @@ final class AppState extends ChangeNotifier {
        _onboardingRepository =
            onboardingRepository ?? const OnboardingRepository(),
        _settingsRepository = settingsRepository ?? const SettingsRepository(),
+       _sensorProvider = sensorProvider ?? MockSensorProvider(),
        _currentSample = currentSample,
        _currentRiskState = currentRiskState,
        _currentStatusMessage = currentStatusMessage,
@@ -83,6 +88,7 @@ final class AppState extends ChangeNotifier {
   final LocalResearchSessionRepository _localResearchSessionRepository;
   final OnboardingRepository _onboardingRepository;
   final SettingsRepository _settingsRepository;
+  SensorProvider _sensorProvider;
   SensorSample _currentSample;
   RiskState _currentRiskState;
   int _currentScore = 0;
@@ -92,7 +98,6 @@ final class AppState extends ChangeNotifier {
   final List<int> _recentScores = [];
   RiskEvent? _activeEvent;
   Timer? _simulationTimer;
-  int _simulationIndex = 0;
   bool _hasPendingAlert = false;
   bool _isDisposed = false;
   SensitivityLevel _sensitivity = SensitivityLevel.media;
@@ -113,6 +118,9 @@ final class AppState extends ChangeNotifier {
   bool get isSimulationRunning => _simulationTimer?.isActive ?? false;
   bool get hasPendingAlert => _hasPendingAlert;
   SensitivityLevel get sensitivity => _sensitivity;
+  SensorProviderType get sensorProviderType => _sensorProvider.type;
+  bool get isHealthKitInPreparation =>
+      _sensorProvider.type == SensorProviderType.healthkit;
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
@@ -180,15 +188,34 @@ final class AppState extends ChangeNotifier {
     await _settingsRepository.saveSensitivity(sensitivity);
   }
 
+  void updateSensorProvider(SensorProviderType type) {
+    if (_sensorProvider.type == type) {
+      return;
+    }
+
+    stopSimulation();
+    _sensorProvider = switch (type) {
+      SensorProviderType.mock => MockSensorProvider(),
+      SensorProviderType.healthkit => const HealthKitSensorProvider(),
+    };
+    if (type == SensorProviderType.healthkit) {
+      _currentStatusMessage =
+          'Integração em preparação. Use a simulação para continuar explorando os fluxos.';
+    } else {
+      _applyRiskEvaluation(_currentSample);
+    }
+    notifyListeners();
+  }
+
   void startSimulation() {
     if (isSimulationRunning) {
       return;
     }
 
-    _applyNextSimulatedSample();
+    _requestNextSensorSample();
     _simulationTimer = Timer.periodic(
       const Duration(seconds: 3),
-      (_) => _applyNextSimulatedSample(),
+      (_) => _requestNextSensorSample(),
     );
     notifyListeners();
   }
@@ -381,10 +408,37 @@ final class AppState extends ChangeNotifier {
     );
   }
 
-  void _applyNextSimulatedSample() {
-    final samples = _simulatedSamples();
-    final sample = samples[_simulationIndex % samples.length];
-    _simulationIndex++;
+  void _requestNextSensorSample() {
+    final provider = _sensorProvider;
+    if (provider is MockSensorProvider) {
+      _applySensorSample(provider.nextSample());
+      notifyListeners();
+      return;
+    }
+
+    unawaited(_applyNextSensorSample());
+  }
+
+  Future<void> _applyNextSensorSample() async {
+    final sample = await _sensorProvider.getLatestSample();
+    if (_isDisposed) {
+      return;
+    }
+
+    if (sample == null) {
+      _currentStatusMessage =
+          _sensorProvider.type == SensorProviderType.healthkit
+          ? 'Integração em preparação. Use a simulação para continuar explorando os fluxos.'
+          : _currentStatusMessage;
+      notifyListeners();
+      return;
+    }
+
+    _applySensorSample(sample);
+    notifyListeners();
+  }
+
+  void _applySensorSample(SensorSample sample) {
     _currentSample = sample;
     _addRecentSample(sample);
     _applyRiskEvaluation(sample);
@@ -475,48 +529,6 @@ final class AppState extends ChangeNotifier {
       (sum, sample) => sum + sample.hrv,
     );
     return (total / _recentSamples.length).round();
-  }
-
-  List<SensorSample> _simulatedSamples() {
-    final now = DateTime.now();
-
-    return [
-      SensorSample(
-        id: 'sim-normal-${now.microsecondsSinceEpoch}',
-        timestamp: now,
-        heartRate: 72,
-        hrv: 42,
-        motionState: 'parado',
-      ),
-      SensorSample(
-        id: 'sim-leve-${now.microsecondsSinceEpoch}',
-        timestamp: now,
-        heartRate: 84,
-        hrv: 34,
-        motionState: 'parado',
-      ),
-      SensorSample(
-        id: 'sim-atencao-${now.microsecondsSinceEpoch}',
-        timestamp: now,
-        heartRate: 94,
-        hrv: 27,
-        motionState: 'parado',
-      ),
-      SensorSample(
-        id: 'sim-alerta-${now.microsecondsSinceEpoch}',
-        timestamp: now,
-        heartRate: 112,
-        hrv: 18,
-        motionState: 'parado',
-      ),
-      SensorSample(
-        id: 'sim-recuperacao-${now.microsecondsSinceEpoch}',
-        timestamp: now,
-        heartRate: 80,
-        hrv: 36,
-        motionState: 'caminhando',
-      ),
-    ];
   }
 }
 

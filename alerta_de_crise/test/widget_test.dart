@@ -9,6 +9,9 @@ import 'package:alerta_de_crise/data/repositories/local_event_repository.dart';
 import 'package:alerta_de_crise/data/repositories/local_research_session_repository.dart';
 import 'package:alerta_de_crise/data/repositories/mock_risk_repository.dart';
 import 'package:alerta_de_crise/data/repositories/onboarding_repository.dart';
+import 'package:alerta_de_crise/data/sensors/healthkit_sensor_provider.dart';
+import 'package:alerta_de_crise/data/sensors/mock_sensor_provider.dart';
+import 'package:alerta_de_crise/data/sensors/sensor_provider.dart';
 import 'package:alerta_de_crise/domain/models/calibration_feedback.dart';
 import 'package:alerta_de_crise/domain/models/feeling_level.dart';
 import 'package:alerta_de_crise/domain/models/research_session.dart';
@@ -244,6 +247,47 @@ void main() {
     appState.dispose();
   });
 
+  test('app state uses injected mock sensor provider', () {
+    final appState = AppState(
+      currentSample: _sample('current', 90, 30),
+      currentRiskState: RiskState.normal,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: MockSensorProvider(),
+      loadPersistedEvents: false,
+      loadPersistedSettings: false,
+    );
+
+    appState.startSimulation();
+
+    expect(appState.sensorProviderType, SensorProviderType.mock);
+    expect(appState.currentSample.id, startsWith('sim-normal-'));
+    expect(appState.currentSample.heartRate, 72);
+    expect(appState.currentRiskState, RiskState.normal);
+    appState.dispose();
+  });
+
+  test('healthkit provider is prepared without real samples', () async {
+    const provider = HealthKitSensorProvider();
+
+    expect(provider.type, SensorProviderType.healthkit);
+    expect(await provider.getLatestSample(), isNull);
+    expect(await provider.watchSamples().isEmpty, isTrue);
+  });
+
+  test('switching sensor provider to healthkit does not break app state', () {
+    final appState = AppState.fromRepository(const MockRiskRepository());
+
+    appState.updateSensorProvider(SensorProviderType.healthkit);
+    appState.startSimulation();
+
+    expect(appState.sensorProviderType, SensorProviderType.healthkit);
+    expect(appState.isHealthKitInPreparation, isTrue);
+    expect(appState.currentSample.heartRate, 92);
+    expect(appState.currentStatusMessage, contains('Integração em preparação'));
+    appState.dispose();
+  });
+
   testWidgets('settings page controls simulation', (tester) async {
     await _pumpAppWithOnboardingSeen(tester);
 
@@ -252,6 +296,9 @@ void main() {
 
     expect(find.text('Configurações'), findsOneWidget);
     expect(find.text('Status: inativa'), findsOneWidget);
+    expect(find.text('Fonte de dados'), findsOneWidget);
+    expect(find.text('Simulação'), findsWidgets);
+    expect(find.text('HealthKit (experimental)'), findsOneWidget);
 
     await tester.tap(find.text('Iniciar simulação'));
     await tester.pumpAndSettle();

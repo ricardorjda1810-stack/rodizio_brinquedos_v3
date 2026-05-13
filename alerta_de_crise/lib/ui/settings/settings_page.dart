@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
+import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/sensitivity_level.dart';
 import '../theme/ui_tokens.dart';
 
@@ -46,6 +47,50 @@ final class SettingsPage extends StatelessWidget {
                           : 'Iniciar simulação',
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: UiTokens.m),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(UiTokens.m),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Fonte de dados',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: UiTokens.s),
+                  const Text(
+                    'Escolha a origem das amostras usadas pelo protótipo.',
+                    style: TextStyle(color: UiTokens.textSoft, height: 1.35),
+                  ),
+                  const SizedBox(height: UiTokens.m),
+                  SegmentedButton<SensorProviderType>(
+                    segments: SensorProviderType.values
+                        .map(
+                          (type) => ButtonSegment<SensorProviderType>(
+                            value: type,
+                            label: Text(type.label),
+                          ),
+                        )
+                        .toList(),
+                    selected: {appState.sensorProviderType},
+                    onSelectionChanged: (selection) {
+                      appState.updateSensorProvider(selection.first);
+                    },
+                  ),
+                  if (appState.isHealthKitInPreparation) ...[
+                    const SizedBox(height: UiTokens.m),
+                    const Text(
+                      'Integração em preparação. A leitura real do HealthKit/Apple Watch ainda não está ativa.',
+                      style: TextStyle(color: UiTokens.textSoft, height: 1.35),
+                    ),
+                  ],
                 ],
               ),
             ),
