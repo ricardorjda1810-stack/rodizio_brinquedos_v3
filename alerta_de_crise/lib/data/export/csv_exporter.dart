@@ -1,0 +1,122 @@
+import '../../domain/models/calibration_feedback.dart';
+import '../../domain/models/feeling_level.dart';
+import '../../domain/models/risk_event.dart';
+import '../../domain/models/risk_state.dart';
+import '../../domain/models/session_sample.dart';
+
+final class CsvExporter {
+  const CsvExporter();
+
+  static const _header = [
+    'id',
+    'startedAt',
+    'endedAt',
+    'state',
+    'maxScore',
+    'beforeHeartRate',
+    'beforeHrv',
+    'afterHeartRate',
+    'afterHrv',
+    'title',
+    'description',
+    'feedback',
+  ];
+
+  String exportEvents(List<RiskEvent> events) {
+    final rows = [_header, ...events.map(_eventToRow)];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportSessionSamples(List<SessionSample> samples) {
+    final rows = [
+      [
+        'timestamp',
+        'heartRate',
+        'hrv',
+        'riskScore',
+        'riskState',
+        'motionState',
+      ],
+      ...samples.map(_sessionSampleToRow),
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportCalibrationFeedbacks(List<CalibrationFeedback> feedbacks) {
+    final rows = [
+      [
+        'id',
+        'timestamp',
+        'feelingLevel',
+        'label',
+        'heartRate',
+        'hrv',
+        'riskScore',
+        'riskState',
+      ],
+      ...feedbacks.map(_calibrationFeedbackToRow),
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  List<String> _calibrationFeedbackToRow(CalibrationFeedback feedback) {
+    return [
+      feedback.id,
+      feedback.timestamp.toIso8601String(),
+      feedback.feelingLevel.key,
+      feedback.label,
+      feedback.heartRate.toString(),
+      feedback.hrv.toString(),
+      feedback.riskScore.toString(),
+      feedback.riskState.key,
+    ];
+  }
+
+  List<String> _sessionSampleToRow(SessionSample sample) {
+    return [
+      sample.timestamp.toIso8601String(),
+      sample.heartRate.toString(),
+      sample.hrv.toString(),
+      sample.riskScore.toString(),
+      sample.riskState.key,
+      sample.motionState,
+    ];
+  }
+
+  List<String> _eventToRow(RiskEvent event) {
+    return [
+      event.id,
+      event.startedAt.toIso8601String(),
+      event.endedAt?.toIso8601String() ?? '',
+      event.state.key,
+      event.maxScore.toString(),
+      event.beforeHeartRate.toString(),
+      event.beforeHrv.toString(),
+      event.afterHeartRate?.toString() ?? '',
+      event.afterHrv?.toString() ?? '',
+      event.title,
+      event.description,
+      event.feedback,
+    ];
+  }
+
+  String _rowToCsv(List<String> row) {
+    return row.map(_escapeCell).join(',');
+  }
+
+  String _escapeCell(String value) {
+    final shouldEscape =
+        value.contains(',') ||
+        value.contains('"') ||
+        value.contains('\n') ||
+        value.contains('\r');
+    if (!shouldEscape) {
+      return value;
+    }
+
+    return '"${value.replaceAll('"', '""')}"';
+  }
+}
