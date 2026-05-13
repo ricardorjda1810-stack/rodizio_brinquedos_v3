@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../data/export/csv_exporter.dart';
+import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/research_session.dart';
 import '../../domain/models/risk_state.dart';
 import '../../domain/models/session_sample.dart';
@@ -41,6 +42,32 @@ final class ResearchPage extends StatelessWidget {
                     'Amostras coletadas: ${session?.samples.length ?? 0}',
                     style: const TextStyle(color: UiTokens.textSoft),
                   ),
+                  const SizedBox(height: UiTokens.s),
+                  Text(
+                    'Fonte atual: ${_sourceLabel(appState.sensorProviderType)}',
+                    style: const TextStyle(color: UiTokens.textSoft),
+                  ),
+                  if (appState.sensorProviderType ==
+                      SensorProviderType.healthkit) ...[
+                    const SizedBox(height: UiTokens.s),
+                    Text(
+                      'Samples reais coletados: ${appState.activeResearchSessionSampleCount}',
+                      style: const TextStyle(color: UiTokens.textSoft),
+                    ),
+                    const SizedBox(height: UiTokens.s),
+                    Text(
+                      'Último sample: ${_formatOptionalDateTime(appState.lastResearchSessionSampleTimestamp)}',
+                      style: const TextStyle(color: UiTokens.textSoft),
+                    ),
+                    const SizedBox(height: UiTokens.s),
+                    const Text(
+                      'Foreground only',
+                      style: TextStyle(
+                        color: UiTokens.textFaint,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                   if (session != null) ...[
                     const SizedBox(height: UiTokens.s),
                     Text(
@@ -149,6 +176,21 @@ final class ResearchPage extends StatelessWidget {
     final minute = twoDigits(dateTime.minute);
 
     return '$day/$month/${dateTime.year} $hour:$minute';
+  }
+
+  static String _formatOptionalDateTime(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'nenhum dado carregado';
+    }
+
+    return _formatDateTime(dateTime);
+  }
+
+  static String _sourceLabel(SensorProviderType type) {
+    return switch (type) {
+      SensorProviderType.mock => 'Simulação',
+      SensorProviderType.healthkit => 'HealthKit',
+    };
   }
 }
 

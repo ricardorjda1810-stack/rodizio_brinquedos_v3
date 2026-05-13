@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -280,7 +282,8 @@ void main() {
 
     expect(provider.type, SensorProviderType.healthkit);
     expect(await provider.getLatestSample(), isNull);
-    expect(await provider.watchSamples().isEmpty, isTrue);
+    final subscription = provider.watchSamples().listen((_) {});
+    await subscription.cancel();
     expect(await provider.hasPermissions(), isFalse);
     expect(await provider.requestPermissions(), isFalse);
     expect(provider.permissionStatusMessage, contains('HealthKit'));
@@ -308,10 +311,7 @@ void main() {
       expect(appState.dataSourcePermissionGranted, isFalse);
       expect(appState.dataSourcePermissionMessage, contains('HealthKit'));
       expect(appState.currentSample.heartRate, 92);
-      expect(
-        appState.currentStatusMessage,
-        contains('HealthKit selecionado'),
-      );
+      expect(appState.currentStatusMessage, contains('HealthKit selecionado'));
       appState.dispose();
     },
   );
@@ -335,10 +335,78 @@ void main() {
     expect(appState.currentSample.heartRate, 92);
     expect(
       appState.currentStatusMessage,
-      'Nenhum dado recente encontrado no HealthKit.',
+      'Nenhum dado recente encontrado.',
     );
     appState.dispose();
   });
+
+  test('app state collects healthkit stream samples during session', () async {
+    final provider = _StreamHealthKitSensorProvider();
+    final appState = AppState(
+      currentSample: _sample('current', 92, 28),
+      currentRiskState: RiskState.atencao,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: provider,
+      loadPersistedEvents: false,
+      loadPersistedSettings: false,
+    );
+
+    appState.startResearchSession();
+    provider.add(_sample('healthkit-1', 88, 35, motionState: 'healthkit'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(appState.isHealthKitSessionCollectionActive, isTrue);
+    expect(appState.currentSample.id, 'healthkit-1');
+    expect(appState.currentResearchSession?.samples, hasLength(1));
+    expect(appState.currentResearchSession?.samples.first.heartRate, 88);
+
+    appState.endResearchSession();
+    await Future<void>.delayed(Duration.zero);
+    expect(appState.isHealthKitSessionCollectionActive, isFalse);
+    expect(provider.isCanceled, isTrue);
+
+    provider.add(_sample('healthkit-2', 90, 32, motionState: 'healthkit'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(appState.researchSessions.first.samples, hasLength(1));
+    await provider.close();
+    appState.dispose();
+  });
+
+  test(
+    'healthkit session accepts heart rate sample without real hrv',
+    () async {
+      final provider = _StreamHealthKitSensorProvider();
+      final appState = AppState(
+        currentSample: _sample('current', 92, 28),
+        currentRiskState: RiskState.atencao,
+        currentStatusMessage: '',
+        events: const [],
+        sensorProvider: provider,
+        loadPersistedEvents: false,
+        loadPersistedSettings: false,
+      );
+
+      appState.startResearchSession();
+      provider.add(
+        _sample(
+          'healthkit-fc-only',
+          84,
+          40,
+          motionState: 'healthkit-hrv-indisponivel',
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      final sample = appState.currentResearchSession!.samples.single;
+      expect(sample.heartRate, 84);
+      expect(sample.hrv, 40);
+      expect(sample.motionState, 'healthkit-hrv-indisponivel');
+      await provider.close();
+      appState.dispose();
+    },
+  );
 
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
@@ -872,13 +940,64 @@ final class _NullHealthKitSensorProvider implements SensorProvider {
   }
 }
 
-SensorSample _sample(String id, int heartRate, int hrv) {
+final class _StreamHealthKitSensorProvider implements SensorProvider {
+  final StreamController<SensorSample> _controller =
+      StreamController<SensorSample>();
+
+  bool isCanceled = false;
+
+  @override
+  SensorProviderType get type => SensorProviderType.healthkit;
+
+  @override
+  String get permissionStatusMessage => 'Permissão HealthKit concedida.';
+
+  @override
+  Future<SensorSample?> getLatestSample() async {
+    return null;
+  }
+
+  @override
+  Future<bool> requestPermissions() async {
+    return true;
+  }
+
+  @override
+  Future<bool> hasPermissions() async {
+    return true;
+  }
+
+  @override
+  Stream<SensorSample> watchSamples() {
+    _controller.onCancel = () {
+      isCanceled = true;
+    };
+    return _controller.stream;
+  }
+
+  void add(SensorSample sample) {
+    if (!_controller.isClosed) {
+      _controller.add(sample);
+    }
+  }
+
+  Future<void> close() {
+    return _controller.close();
+  }
+}
+
+SensorSample _sample(
+  String id,
+  int heartRate,
+  int hrv, {
+  String motionState = 'parado',
+}) {
   return SensorSample(
     id: id,
     timestamp: DateTime(2026),
     heartRate: heartRate,
     hrv: hrv,
-    motionState: 'parado',
+    motionState: motionState,
   );
 }
 

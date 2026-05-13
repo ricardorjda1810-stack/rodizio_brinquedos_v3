@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:health/health.dart';
 
 import '../../domain/models/sensor_sample.dart';
@@ -74,6 +76,7 @@ final class HealthKitSensorProvider implements SensorProvider {
     try {
       final canRead = await _ensurePermissionsForRead();
       if (!canRead) {
+        _permissionStatusMessage = 'Permissão HealthKit necessária.';
         return null;
       }
 
@@ -127,8 +130,32 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   @override
   Stream<SensorSample> watchSamples() {
-    // TODO: Expor stream de amostras reais do ecossistema iOS/Apple Watch.
-    return const Stream<SensorSample>.empty();
+    Timer? timer;
+    String? lastSampleId;
+    final controller = StreamController<SensorSample>();
+
+    Future<void> poll() async {
+      final sample = await getLatestSample();
+      if (sample == null || sample.id == lastSampleId || controller.isClosed) {
+        return;
+      }
+
+      lastSampleId = sample.id;
+      controller.add(sample);
+    }
+
+    controller.onListen = () {
+      unawaited(poll());
+      timer = Timer.periodic(const Duration(seconds: 15), (_) {
+        unawaited(poll());
+      });
+    };
+    controller.onCancel = () {
+      timer?.cancel();
+      timer = null;
+    };
+
+    return controller.stream;
   }
 
   Future<bool> _ensurePermissionsForRead() async {

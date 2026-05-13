@@ -104,6 +104,7 @@ final class AppState extends ChangeNotifier {
   final List<int> _recentScores = [];
   RiskEvent? _activeEvent;
   Timer? _simulationTimer;
+  StreamSubscription<SensorSample>? _healthKitSampleSubscription;
   bool _hasPendingAlert = false;
   bool _isDisposed = false;
   SensitivityLevel _sensitivity = SensitivityLevel.media;
@@ -136,6 +137,12 @@ final class AppState extends ChangeNotifier {
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
+  bool get isHealthKitSessionCollectionActive =>
+      _healthKitSampleSubscription != null;
+  int get activeResearchSessionSampleCount =>
+      _currentResearchSession?.samples.length ?? 0;
+  DateTime? get lastResearchSessionSampleTimestamp =>
+      _currentResearchSession?.samples.lastOrNull?.timestamp;
   List<CalibrationFeedback> get calibrationFeedbacks =>
       List.unmodifiable(_calibrationFeedbacks);
   CalibrationFeedback? get lastCalibrationFeedback =>
@@ -206,6 +213,7 @@ final class AppState extends ChangeNotifier {
     }
 
     stopSimulation();
+    _stopHealthKitSessionCollection();
     _sensorProvider = switch (type) {
       SensorProviderType.mock => MockSensorProvider(),
       SensorProviderType.healthkit => HealthKitSensorProvider(),
@@ -215,6 +223,7 @@ final class AppState extends ChangeNotifier {
     if (type == SensorProviderType.healthkit) {
       _currentStatusMessage =
           'HealthKit selecionado. Carregue o último dado disponível ou use a simulação quando preferir.';
+      _startHealthKitSessionCollectionIfNeeded();
     } else {
       _lastHealthKitSample = null;
       _applyRiskEvaluation(_currentSample);
@@ -246,7 +255,9 @@ final class AppState extends ChangeNotifier {
 
     _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     if (sample == null) {
-      _currentStatusMessage = 'Nenhum dado recente encontrado no HealthKit.';
+      _currentStatusMessage = _dataSourcePermissionMessage.contains('Permissão')
+          ? 'Permissão HealthKit necessária.'
+          : 'Nenhum dado recente encontrado.';
       notifyListeners();
       return false;
     }
@@ -298,6 +309,7 @@ final class AppState extends ChangeNotifier {
       startedAt: now,
       samples: const [],
     );
+    _startHealthKitSessionCollectionIfNeeded();
     notifyListeners();
   }
 
@@ -311,6 +323,7 @@ final class AppState extends ChangeNotifier {
       endedAt: DateTime.now(),
       notes: notes,
     );
+    _stopHealthKitSessionCollection();
     _currentResearchSession = endedSession;
     _researchSessions.insert(0, endedSession);
     unawaited(_persistResearchSessions());
@@ -435,6 +448,7 @@ final class AppState extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _simulationTimer?.cancel();
+    _stopHealthKitSessionCollection();
     super.dispose();
   }
 
@@ -487,6 +501,42 @@ final class AppState extends ChangeNotifier {
 
     _applySensorSample(sample);
     notifyListeners();
+  }
+
+  void _startHealthKitSessionCollectionIfNeeded() {
+    if (_sensorProvider.type != SensorProviderType.healthkit ||
+        _healthKitSampleSubscription != null) {
+      return;
+    }
+
+    _healthKitSampleSubscription = _sensorProvider.watchSamples().listen(
+      (sample) {
+        if (_isDisposed || !hasActiveResearchSession) {
+          return;
+        }
+
+        _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
+        _applySensorSample(sample);
+        _currentStatusMessage = 'Último dado do HealthKit carregado.';
+        notifyListeners();
+      },
+      onError: (_) {
+        if (_isDisposed) {
+          return;
+        }
+
+        _currentStatusMessage =
+            _dataSourcePermissionMessage.contains('Permissão')
+            ? 'Permissão HealthKit necessária.'
+            : 'Nenhum dado recente encontrado.';
+        notifyListeners();
+      },
+    );
+  }
+
+  void _stopHealthKitSessionCollection() {
+    unawaited(_healthKitSampleSubscription?.cancel());
+    _healthKitSampleSubscription = null;
   }
 
   void _applySensorSample(SensorSample sample) {
