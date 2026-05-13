@@ -58,6 +58,9 @@ final class AppState extends ChangeNotifier {
        _recentSamples = List.of(recentSamples).length <= 30
            ? List.of(recentSamples)
            : List.of(recentSamples).sublist(recentSamples.length - 30) {
+    _dataSourcePermissionGranted =
+        _sensorProvider.type == SensorProviderType.mock;
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     _applyRiskEvaluation(_currentSample);
     if (loadPersistedEvents) {
       unawaited(loadEvents());
@@ -93,6 +96,8 @@ final class AppState extends ChangeNotifier {
   RiskState _currentRiskState;
   int _currentScore = 0;
   String _currentStatusMessage;
+  bool _dataSourcePermissionGranted = true;
+  String _dataSourcePermissionMessage = 'Simulação ativa.';
   final List<RiskEvent> _events;
   final List<SensorSample> _recentSamples;
   final List<int> _recentScores = [];
@@ -121,6 +126,8 @@ final class AppState extends ChangeNotifier {
   SensorProviderType get sensorProviderType => _sensorProvider.type;
   bool get isHealthKitInPreparation =>
       _sensorProvider.type == SensorProviderType.healthkit;
+  bool get dataSourcePermissionGranted => _dataSourcePermissionGranted;
+  String get dataSourcePermissionMessage => _dataSourcePermissionMessage;
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
@@ -196,8 +203,10 @@ final class AppState extends ChangeNotifier {
     stopSimulation();
     _sensorProvider = switch (type) {
       SensorProviderType.mock => MockSensorProvider(),
-      SensorProviderType.healthkit => const HealthKitSensorProvider(),
+      SensorProviderType.healthkit => HealthKitSensorProvider(),
     };
+    _dataSourcePermissionGranted = type == SensorProviderType.mock;
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     if (type == SensorProviderType.healthkit) {
       _currentStatusMessage =
           'Integração em preparação. Use a simulação para continuar explorando os fluxos.';
@@ -205,6 +214,18 @@ final class AppState extends ChangeNotifier {
       _applyRiskEvaluation(_currentSample);
     }
     notifyListeners();
+  }
+
+  Future<bool> requestCurrentProviderPermissions() async {
+    final granted = await _sensorProvider.requestPermissions();
+    if (_isDisposed) {
+      return granted;
+    }
+
+    _dataSourcePermissionGranted = granted;
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
+    notifyListeners();
+    return granted;
   }
 
   void startSimulation() {

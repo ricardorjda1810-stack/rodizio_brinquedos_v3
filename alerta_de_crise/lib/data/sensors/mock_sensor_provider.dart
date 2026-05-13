@@ -10,8 +10,21 @@ final class MockSensorProvider implements SensorProvider {
   SensorProviderType get type => SensorProviderType.mock;
 
   @override
+  String get permissionStatusMessage => 'Simulação ativa.';
+
+  @override
   Future<SensorSample?> getLatestSample() async {
     return nextSample();
+  }
+
+  @override
+  Future<bool> requestPermissions() async {
+    return true;
+  }
+
+  @override
+  Future<bool> hasPermissions() async {
+    return true;
   }
 
   @override

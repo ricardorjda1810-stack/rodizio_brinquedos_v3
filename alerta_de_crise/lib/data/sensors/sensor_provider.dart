@@ -22,7 +22,19 @@ enum SensorProviderType {
 abstract interface class SensorProvider {
   SensorProviderType get type;
 
+  String get permissionStatusMessage {
+    return 'Permissões não disponíveis para esta fonte de dados.';
+  }
+
   Future<SensorSample?> getLatestSample();
+
+  Future<bool> requestPermissions() async {
+    return false;
+  }
+
+  Future<bool> hasPermissions() async {
+    return false;
+  }
 
   Stream<SensorSample> watchSamples() {
     return const Stream<SensorSample>.empty();

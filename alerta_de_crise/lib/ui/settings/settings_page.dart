@@ -70,6 +70,22 @@ final class SettingsPage extends StatelessWidget {
                     style: TextStyle(color: UiTokens.textSoft, height: 1.35),
                   ),
                   const SizedBox(height: UiTokens.m),
+                  Text(
+                    'Fonte selecionada: ${appState.sensorProviderType.label}',
+                    style: const TextStyle(
+                      color: UiTokens.textSoft,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: UiTokens.s),
+                  Text(
+                    'Permissão: ${appState.dataSourcePermissionMessage}',
+                    style: const TextStyle(
+                      color: UiTokens.textSoft,
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: UiTokens.m),
                   SegmentedButton<SensorProviderType>(
                     segments: SensorProviderType.values
                         .map(
@@ -84,10 +100,17 @@ final class SettingsPage extends StatelessWidget {
                       appState.updateSensorProvider(selection.first);
                     },
                   ),
+                  const SizedBox(height: UiTokens.m),
+                  OutlinedButton(
+                    onPressed: () async {
+                      await appState.requestCurrentProviderPermissions();
+                    },
+                    child: const Text('Solicitar permissão'),
+                  ),
                   if (appState.isHealthKitInPreparation) ...[
                     const SizedBox(height: UiTokens.m),
                     const Text(
-                      'Integração em preparação. A leitura real do HealthKit/Apple Watch ainda não está ativa.',
+                      'A integração HealthKit está em preparação. Nesta versão, a coleta real ainda não foi ativada.',
                       style: TextStyle(color: UiTokens.textSoft, height: 1.35),
                     ),
                   ],

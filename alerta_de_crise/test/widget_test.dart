@@ -267,24 +267,63 @@ void main() {
     appState.dispose();
   });
 
+  test('mock sensor provider permissions are always granted', () async {
+    final provider = MockSensorProvider();
+
+    expect(await provider.hasPermissions(), isTrue);
+    expect(await provider.requestPermissions(), isTrue);
+    expect(provider.permissionStatusMessage, 'Simulação ativa.');
+  });
+
   test('healthkit provider is prepared without real samples', () async {
-    const provider = HealthKitSensorProvider();
+    final provider = HealthKitSensorProvider();
 
     expect(provider.type, SensorProviderType.healthkit);
     expect(await provider.getLatestSample(), isNull);
     expect(await provider.watchSamples().isEmpty, isTrue);
+    expect(await provider.hasPermissions(), isFalse);
+    expect(await provider.requestPermissions(), isFalse);
+    expect(provider.permissionStatusMessage, contains('HealthKit'));
   });
 
-  test('switching sensor provider to healthkit does not break app state', () {
+  test(
+    'switching sensor provider to healthkit does not break app state',
+    () async {
+      final appState = AppState(
+        currentSample: _sample('current', 92, 28),
+        currentRiskState: RiskState.atencao,
+        currentStatusMessage: '',
+        events: const [],
+        loadPersistedEvents: false,
+        loadPersistedSettings: false,
+      );
+
+      appState.updateSensorProvider(SensorProviderType.healthkit);
+      appState.startSimulation();
+      final granted = await appState.requestCurrentProviderPermissions();
+
+      expect(appState.sensorProviderType, SensorProviderType.healthkit);
+      expect(appState.isHealthKitInPreparation, isTrue);
+      expect(granted, isFalse);
+      expect(appState.dataSourcePermissionGranted, isFalse);
+      expect(appState.dataSourcePermissionMessage, contains('HealthKit'));
+      expect(appState.currentSample.heartRate, 92);
+      expect(
+        appState.currentStatusMessage,
+        contains('Integração em preparação'),
+      );
+      appState.dispose();
+    },
+  );
+
+  test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
 
-    appState.updateSensorProvider(SensorProviderType.healthkit);
-    appState.startSimulation();
+    final granted = await appState.requestCurrentProviderPermissions();
 
-    expect(appState.sensorProviderType, SensorProviderType.healthkit);
-    expect(appState.isHealthKitInPreparation, isTrue);
-    expect(appState.currentSample.heartRate, 92);
-    expect(appState.currentStatusMessage, contains('Integração em preparação'));
+    expect(granted, isTrue);
+    expect(appState.dataSourcePermissionGranted, isTrue);
+    expect(appState.dataSourcePermissionMessage, 'Simulação ativa.');
     appState.dispose();
   });
 
@@ -299,6 +338,8 @@ void main() {
     expect(find.text('Fonte de dados'), findsOneWidget);
     expect(find.text('Simulação'), findsWidgets);
     expect(find.text('HealthKit (experimental)'), findsOneWidget);
+    expect(find.text('Solicitar permissão'), findsOneWidget);
+    expect(find.textContaining('Permissão:'), findsOneWidget);
 
     await tester.tap(find.text('Iniciar simulação'));
     await tester.pumpAndSettle();

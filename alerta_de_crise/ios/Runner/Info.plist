@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>O app usa dados de frequência cardíaca e variabilidade cardíaca para ajudar você a acompanhar sinais de ativação fisiológica. Ele não realiza diagnóstico e não substitui atendimento profissional.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>O app não grava dados de saúde neste momento.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
