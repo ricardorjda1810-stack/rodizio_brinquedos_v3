@@ -18,15 +18,22 @@ class AppSurfaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: color ?? UiTokens.surface,
+        color: color ?? scheme.surface,
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: const [
+        border: Border.all(
+          color: scheme.outlineVariant.withValues(alpha: isDark ? 0.70 : 0.85),
+        ),
+        boxShadow: [
           BoxShadow(
-            color: UiTokens.shadow,
-            blurRadius: 18,
-            offset: Offset(0, 6),
+            color: isDark ? UiTokens.shadowDark : UiTokens.shadow,
+            blurRadius: isDark ? 12 : 18,
+            offset: Offset(0, isDark ? 4 : 8),
           ),
         ],
       ),

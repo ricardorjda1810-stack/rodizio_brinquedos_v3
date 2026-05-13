@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class UiTokens {
   UiTokens._();
 
-  // Canonical spacing tokens
+  // Canonical spacing tokens.
   static const double spacingXs = 4;
   static const double spacingSm = 8;
   static const double spacingMd = 16;
@@ -11,7 +11,7 @@ class UiTokens {
   static const double spacingXl = 32;
   static const double spacing2xl = 40;
 
-  // Backwards-compatible aliases
+  // Backwards-compatible spacing aliases.
   static const double xs = spacingXs;
   static const double s = spacingSm;
   static const double m = spacingMd;
@@ -19,7 +19,7 @@ class UiTokens {
   static const double xl = spacingXl;
   static const double xxl = spacing2xl;
 
-  // Radius tokens
+  // Radius tokens.
   static const double radiusSm = 8;
   static const double radiusMd = 14;
   static const double radiusLg = 20;
@@ -27,42 +27,84 @@ class UiTokens {
   static const double radiusCard = 22;
   static const double radiusPhoto = 18;
 
-  // Backwards-compatible aliases
+  // Backwards-compatible radius aliases.
   static const double radiusButton = radiusMd;
   static const double radiusInput = radiusMd;
 
-  // Icon size
+  // Elevation/shadow tokens.
+  static const Offset shadowOffset = Offset(0, 10);
+  static const double shadowBlur = 30;
+  static const double shadowSpread = -16;
+
+  // Icon size.
   static const double icon = 22;
 
-  // Typography scale aliases kept for existing theme usage
+  // Typography scale aliases kept for existing theme usage.
   static const double appBarTitle = 20;
   static const double cardTitle = 20;
   static const double body = 15;
   static const double secondary = 13;
 
-  // RDB 2.1 canonical color tokens
-  static const Color primary = Color(0xFF7AA68A);
-  static const Color primaryStrong = Color(0xFF5B8B6A);
-  static const Color primarySoft = Color(0xFFE9F3EB);
-  static const Color secondarySoft = Color(0xFFF3F0E7);
-  static const Color bg = Color(0xFFF7F6F1);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF2F3A33);
-  static const Color textSecondary = Color(0xFF758178);
-  static const Color border = Color(0xFFE6E7DE);
-  static const Color success = Color(0xFF6E9B7C);
-  static const Color warning = Color(0xFFD2A65A);
-  static const Color danger = Color(0xFFC77C73);
+  // RDB 2.1 visual foundation: warm, calm, premium Montessori palette.
+  static const Color backgroundLight = Color(0xFFF7F4EF);
+  static const Color backgroundDark = Color(0xFF111816);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color surfaceDark = Color(0xFF1C2622);
+  static const Color surfaceSecondaryLight = Color(0xFFE8DED2);
+  static const Color surfaceSecondaryDark = Color(0xFF25322D);
+  static const Color sand = surfaceSecondaryLight;
+  static const Color graphite = Color(0xFF2F3A36);
+  static const Color primary = Color(0xFF7A9A8A);
+  static const Color primaryDark = Color(0xFF8EAE9E);
+  static const Color accent = Color(0xFFC79F6B);
+  static const Color accentDark = Color(0xFFD4A76A);
+  static const Color textPrimary = graphite;
+  static const Color textPrimaryDark = Color(0xFFDDE7DE);
+  static const Color textSecondary = Color(0xFF68756F);
+  static const Color textSecondaryDark = Color(0xFFA6B5AB);
+  static const Color border = Color(0xFFE1D8CC);
+  static const Color borderDark = Color(0xFF314039);
   static const Color shadow = Color(0x140C1A12);
+  static const Color shadowDark = Color(0x33000000);
 
-  // Backwards-compatible aliases
-  static const Color card = surface;
+  // Existing semantic colors retained and mapped to the calmer palette.
+  static const Color primaryStrong = Color(0xFF5F806F);
+  static const Color primarySoft = Color(0xFFEAF1EC);
+  static const Color secondarySoft = surfaceSecondaryLight;
+  static const Color success = Color(0xFF6E9B7C);
+  static const Color warning = accent;
+  static const Color danger = Color(0xFFC77C73);
+
+  // Backwards-compatible color aliases.
+  static const Color bg = backgroundLight;
+  static const Color surface = surfaceLight;
+  static const Color card = surfaceLight;
   static const Color text = textPrimary;
   static const Color textMuted = textSecondary;
   static const Color active = primary;
   static const Color playfulSoft = primarySoft;
+  static const Color caramel = accent;
 
-  // Figma text styles
+  // Shared soft shadows for hand-crafted surfaces outside CardTheme.
+  static const List<BoxShadow> softShadow = [
+    BoxShadow(
+      color: shadow,
+      offset: shadowOffset,
+      blurRadius: shadowBlur,
+      spreadRadius: shadowSpread,
+    ),
+  ];
+
+  static const List<BoxShadow> softShadowDark = [
+    BoxShadow(
+      color: shadowDark,
+      offset: Offset(0, 12),
+      blurRadius: 34,
+      spreadRadius: -18,
+    ),
+  ];
+
+  // Figma text styles.
   static const TextStyle textTitle = TextStyle(
     fontSize: 24,
     height: 1.2,
