@@ -13,6 +13,7 @@ import 'data/sensors/mock_sensor_provider.dart';
 import 'data/sensors/sensor_provider.dart';
 import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
+import 'domain/models/collection_diagnostics.dart';
 import 'domain/models/feeling_level.dart';
 import 'domain/models/research_session.dart';
 import 'domain/models/risk_event.dart';
@@ -109,6 +110,9 @@ final class AppState extends ChangeNotifier {
   bool _isDisposed = false;
   SensitivityLevel _sensitivity = SensitivityLevel.media;
   ResearchSession? _currentResearchSession;
+  CollectionDiagnostics _collectionDiagnostics = CollectionDiagnostics.empty(
+    sourceLabel: 'Simulação',
+  );
   final List<CalibrationFeedback> _calibrationFeedbacks = [];
   final List<ResearchSession> _researchSessions = [];
 
@@ -143,6 +147,7 @@ final class AppState extends ChangeNotifier {
       _currentResearchSession?.samples.length ?? 0;
   DateTime? get lastResearchSessionSampleTimestamp =>
       _currentResearchSession?.samples.lastOrNull?.timestamp;
+  CollectionDiagnostics get collectionDiagnostics => _collectionDiagnostics;
   List<CalibrationFeedback> get calibrationFeedbacks =>
       List.unmodifiable(_calibrationFeedbacks);
   CalibrationFeedback? get lastCalibrationFeedback =>
@@ -308,6 +313,9 @@ final class AppState extends ChangeNotifier {
       id: 'research-${now.microsecondsSinceEpoch}',
       startedAt: now,
       samples: const [],
+    );
+    _collectionDiagnostics = CollectionDiagnostics.empty(
+      sourceLabel: _diagnosticsSourceLabel,
     );
     _startHealthKitSessionCollectionIfNeeded();
     notifyListeners();
@@ -594,9 +602,32 @@ final class AppState extends ChangeNotifier {
       motionState: sample.motionState,
     );
 
+    final lastSample = session.samples.lastOrNull;
+    if (lastSample != null && _isDuplicateSessionSample(lastSample, sample)) {
+      _collectionDiagnostics = _collectionDiagnostics.skipDuplicate();
+      return;
+    }
+
+    _collectionDiagnostics = _collectionDiagnostics.addSample(sessionSample);
     _currentResearchSession = session.copyWith(
       samples: [...session.samples, sessionSample],
     );
+  }
+
+  bool _isDuplicateSessionSample(
+    SessionSample lastSample,
+    SensorSample sample,
+  ) {
+    return lastSample.timestamp == sample.timestamp &&
+        lastSample.heartRate == sample.heartRate &&
+        lastSample.hrv == sample.hrv;
+  }
+
+  String get _diagnosticsSourceLabel {
+    return switch (_sensorProvider.type) {
+      SensorProviderType.mock => 'Simulação',
+      SensorProviderType.healthkit => 'HealthKit',
+    };
   }
 
   Future<void> _persistEvents() {

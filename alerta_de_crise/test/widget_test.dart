@@ -15,6 +15,7 @@ import 'package:alerta_de_crise/data/sensors/healthkit_sensor_provider.dart';
 import 'package:alerta_de_crise/data/sensors/mock_sensor_provider.dart';
 import 'package:alerta_de_crise/data/sensors/sensor_provider.dart';
 import 'package:alerta_de_crise/domain/models/calibration_feedback.dart';
+import 'package:alerta_de_crise/domain/models/collection_diagnostics.dart';
 import 'package:alerta_de_crise/domain/models/feeling_level.dart';
 import 'package:alerta_de_crise/domain/models/research_session.dart';
 import 'package:alerta_de_crise/domain/models/risk_event.dart';
@@ -333,10 +334,7 @@ void main() {
     expect(appState.sensorProviderType, SensorProviderType.healthkit);
     expect(appState.hasLoadedHealthKitSample, isFalse);
     expect(appState.currentSample.heartRate, 92);
-    expect(
-      appState.currentStatusMessage,
-      'Nenhum dado recente encontrado.',
-    );
+    expect(appState.currentStatusMessage, 'Nenhum dado recente encontrado.');
     appState.dispose();
   });
 
@@ -360,6 +358,12 @@ void main() {
     expect(appState.currentSample.id, 'healthkit-1');
     expect(appState.currentResearchSession?.samples, hasLength(1));
     expect(appState.currentResearchSession?.samples.first.heartRate, 88);
+
+    provider.add(_sample('healthkit-1-copy', 88, 35, motionState: 'healthkit'));
+    await Future<void>.delayed(Duration.zero);
+
+    expect(appState.currentResearchSession?.samples, hasLength(1));
+    expect(appState.collectionDiagnostics.duplicateSamplesSkipped, 1);
 
     appState.endResearchSession();
     await Future<void>.delayed(Duration.zero);
@@ -407,6 +411,73 @@ void main() {
       appState.dispose();
     },
   );
+
+  test('collection diagnostics starts empty', () {
+    final diagnostics = CollectionDiagnostics.empty(sourceLabel: 'HealthKit');
+
+    expect(diagnostics.totalSamples, 0);
+    expect(diagnostics.heartRateSamples, 0);
+    expect(diagnostics.hrvSamples, 0);
+    expect(diagnostics.missingHeartRateCount, 0);
+    expect(diagnostics.missingHrvCount, 0);
+    expect(diagnostics.duplicateSamplesSkipped, 0);
+    expect(diagnostics.firstSampleAt, isNull);
+    expect(diagnostics.lastSampleAt, isNull);
+    expect(diagnostics.averageIntervalSeconds, 0);
+    expect(diagnostics.minIntervalSeconds, 0);
+    expect(diagnostics.maxIntervalSeconds, 0);
+    expect(diagnostics.sourceLabel, 'HealthKit');
+  });
+
+  test('collection diagnostics handles one sample', () {
+    final sample = _sessionSample(DateTime(2026, 5, 13, 12), 92, 28);
+
+    final diagnostics = CollectionDiagnostics.empty(
+      sourceLabel: 'HealthKit',
+    ).addSample(sample);
+
+    expect(diagnostics.totalSamples, 1);
+    expect(diagnostics.heartRateSamples, 1);
+    expect(diagnostics.hrvSamples, 1);
+    expect(diagnostics.firstSampleAt, sample.timestamp);
+    expect(diagnostics.lastSampleAt, sample.timestamp);
+    expect(diagnostics.averageIntervalSeconds, 0);
+    expect(diagnostics.minIntervalSeconds, 0);
+    expect(diagnostics.maxIntervalSeconds, 0);
+  });
+
+  test('collection diagnostics handles multiple samples', () {
+    final first = _sessionSample(DateTime(2026, 5, 13, 12), 92, 28);
+    final second = _sessionSample(DateTime(2026, 5, 13, 12, 0, 15), 94, 27);
+    final third = _sessionSample(DateTime(2026, 5, 13, 12, 0, 45), 96, 26);
+
+    final diagnostics = CollectionDiagnostics.empty(
+      sourceLabel: 'HealthKit',
+    ).addSample(first).addSample(second).addSample(third);
+
+    expect(diagnostics.totalSamples, 3);
+    expect(diagnostics.averageIntervalSeconds, 22.5);
+    expect(diagnostics.minIntervalSeconds, 15);
+    expect(diagnostics.maxIntervalSeconds, 30);
+    expect(diagnostics.firstSampleAt, first.timestamp);
+    expect(diagnostics.lastSampleAt, third.timestamp);
+  });
+
+  test('collection diagnostics counts missing hrv', () {
+    final diagnostics = CollectionDiagnostics.empty(sourceLabel: 'HealthKit')
+        .addSample(
+          _sessionSample(
+            DateTime(2026, 5, 13, 12),
+            84,
+            40,
+            motionState: 'healthkit-hrv-indisponivel',
+          ),
+        );
+
+    expect(diagnostics.hrvSamples, 0);
+    expect(diagnostics.missingHrvCount, 1);
+    expect(diagnostics.heartRateSamples, 1);
+  });
 
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
@@ -461,7 +532,13 @@ void main() {
 
     expect(find.text('Pesquisa'), findsOneWidget);
     expect(find.text('Sem sessão ativa'), findsOneWidget);
+    expect(find.text('Diagnóstico da coleta'), findsOneWidget);
+    expect(find.text('Total de samples: 0'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Exportar diagnóstico CSV'), 120);
+    expect(find.text('Exportar diagnóstico CSV'), findsOneWidget);
 
+    await tester.drag(find.byType(Scrollable), const Offset(0, 500));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Iniciar sessão'));
     await tester.pumpAndSettle();
 
@@ -472,6 +549,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Amostras coletadas: 1'), findsOneWidget);
+    expect(find.text('Total de samples: 1'), findsOneWidget);
     expect(find.text('Última amostra'), findsOneWidget);
   });
 
@@ -881,6 +959,21 @@ void main() {
     );
   });
 
+  test('csv exporter writes collection diagnostics', () {
+    const exporter = CsvExporter();
+    final diagnostics = CollectionDiagnostics.empty(sourceLabel: 'HealthKit')
+        .addSample(_sessionSample(DateTime(2026, 5, 13, 12), 92, 28))
+        .addSample(_sessionSample(DateTime(2026, 5, 13, 12, 0, 15), 94, 27))
+        .skipDuplicate();
+
+    final csv = exporter.exportCollectionDiagnostics(diagnostics);
+
+    expect(
+      csv,
+      'totalSamples,heartRateSamples,hrvSamples,missingHeartRateCount,missingHrvCount,duplicateSamplesSkipped,firstSampleAt,lastSampleAt,averageIntervalSeconds,minIntervalSeconds,maxIntervalSeconds,sourceLabel\n2,2,2,0,0,1,2026-05-13T12:00:00.000,2026-05-13T12:00:15.000,15.0,15.0,15.0,HealthKit',
+    );
+  });
+
   test('csv exporter writes calibration feedbacks', () {
     const exporter = CsvExporter();
     final csv = exporter.exportCalibrationFeedbacks([
@@ -997,6 +1090,22 @@ SensorSample _sample(
     timestamp: DateTime(2026),
     heartRate: heartRate,
     hrv: hrv,
+    motionState: motionState,
+  );
+}
+
+SessionSample _sessionSample(
+  DateTime timestamp,
+  int heartRate,
+  int hrv, {
+  String motionState = 'healthkit',
+}) {
+  return SessionSample(
+    timestamp: timestamp,
+    heartRate: heartRate,
+    hrv: hrv,
+    riskScore: 42,
+    riskState: RiskState.normal,
     motionState: motionState,
   );
 }

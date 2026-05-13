@@ -115,6 +115,8 @@ final class ResearchPage extends StatelessWidget {
           const SizedBox(height: UiTokens.m),
           _LastSampleCard(sample: lastSample),
           const SizedBox(height: UiTokens.m),
+          _DiagnosticsCard(appState: appState),
+          const SizedBox(height: UiTokens.m),
           _EndedSessionsCard(session: lastEndedSession),
           const SizedBox(height: UiTokens.m),
           OutlinedButton(
@@ -122,6 +124,11 @@ final class ResearchPage extends StatelessWidget {
                 ? null
                 : () => _showSessionCsv(context, session),
             child: const Text('Exportar CSV da sessão'),
+          ),
+          const SizedBox(height: UiTokens.s),
+          OutlinedButton(
+            onPressed: () => _showDiagnosticsCsv(context, appState),
+            child: const Text('Exportar diagnóstico CSV'),
           ),
           const SizedBox(height: UiTokens.s),
           OutlinedButton(
@@ -144,6 +151,40 @@ final class ResearchPage extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: const Text('CSV da sessão'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: SelectableText(
+                csv,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  color: UiTokens.textSoft,
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDiagnosticsCsv(BuildContext context, AppState appState) {
+    const exporter = CsvExporter();
+    final csv = exporter.exportCollectionDiagnostics(
+      appState.collectionDiagnostics,
+    );
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('CSV do diagnóstico'),
           content: SizedBox(
             width: double.maxFinite,
             child: SingleChildScrollView(
@@ -191,6 +232,83 @@ final class ResearchPage extends StatelessWidget {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
     };
+  }
+}
+
+final class _DiagnosticsCard extends StatelessWidget {
+  const _DiagnosticsCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final diagnostics = appState.collectionDiagnostics;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Diagnóstico da coleta',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            Text(
+              'Total de samples: ${diagnostics.totalSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Samples com FC: ${diagnostics.heartRateSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Samples com HRV: ${diagnostics.hrvSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'HRV ausente: ${diagnostics.missingHrvCount}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Intervalo médio: ${_formatSeconds(diagnostics.averageIntervalSeconds)}s',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Menor intervalo: ${_formatSeconds(diagnostics.minIntervalSeconds)}s',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Maior intervalo: ${_formatSeconds(diagnostics.maxIntervalSeconds)}s',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Duplicados ignorados: ${diagnostics.duplicateSamplesSkipped}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Fonte: ${diagnostics.sourceLabel}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            if (appState.sensorProviderType ==
+                SensorProviderType.healthkit) ...[
+              const SizedBox(height: UiTokens.s),
+              const Text(
+                'A frequência dos dados depende do Apple Watch, do iOS e da disponibilidade no HealthKit.',
+                style: TextStyle(color: UiTokens.textFaint, height: 1.35),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatSeconds(double value) {
+    return value.toStringAsFixed(1);
   }
 }
 

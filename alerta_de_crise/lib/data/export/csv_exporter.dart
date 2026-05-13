@@ -1,4 +1,5 @@
 import '../../domain/models/calibration_feedback.dart';
+import '../../domain/models/collection_diagnostics.dart';
 import '../../domain/models/feeling_level.dart';
 import '../../domain/models/risk_event.dart';
 import '../../domain/models/risk_state.dart';
@@ -39,6 +40,41 @@ final class CsvExporter {
         'motionState',
       ],
       ...samples.map(_sessionSampleToRow),
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportCollectionDiagnostics(CollectionDiagnostics diagnostics) {
+    final rows = [
+      [
+        'totalSamples',
+        'heartRateSamples',
+        'hrvSamples',
+        'missingHeartRateCount',
+        'missingHrvCount',
+        'duplicateSamplesSkipped',
+        'firstSampleAt',
+        'lastSampleAt',
+        'averageIntervalSeconds',
+        'minIntervalSeconds',
+        'maxIntervalSeconds',
+        'sourceLabel',
+      ],
+      [
+        diagnostics.totalSamples.toString(),
+        diagnostics.heartRateSamples.toString(),
+        diagnostics.hrvSamples.toString(),
+        diagnostics.missingHeartRateCount.toString(),
+        diagnostics.missingHrvCount.toString(),
+        diagnostics.duplicateSamplesSkipped.toString(),
+        diagnostics.firstSampleAt?.toIso8601String() ?? '',
+        diagnostics.lastSampleAt?.toIso8601String() ?? '',
+        _formatSeconds(diagnostics.averageIntervalSeconds),
+        _formatSeconds(diagnostics.minIntervalSeconds),
+        _formatSeconds(diagnostics.maxIntervalSeconds),
+        diagnostics.sourceLabel,
+      ],
     ];
 
     return rows.map(_rowToCsv).join('\n');
@@ -118,5 +154,9 @@ final class CsvExporter {
     }
 
     return '"${value.replaceAll('"', '""')}"';
+  }
+
+  String _formatSeconds(double value) {
+    return value.toStringAsFixed(1);
   }
 }
