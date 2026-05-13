@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
+import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/risk_event.dart';
 import '../../domain/models/risk_state.dart';
 import '../theme/ui_tokens.dart';
@@ -38,6 +39,7 @@ final class HomePage extends StatelessWidget {
             heartRate: sample.heartRate,
             hrv: sample.hrv,
             message: appState.currentStatusMessage,
+            sourceMessage: _sourceMessage(appState),
           ),
           if (appState.hasPendingAlert) ...[
             const SizedBox(height: UiTokens.m),
@@ -142,6 +144,18 @@ final class HomePage extends StatelessWidget {
 
     return values.sublist(values.length - 20);
   }
+
+  static String _sourceMessage(AppState appState) {
+    if (appState.sensorProviderType != SensorProviderType.healthkit) {
+      return 'Fonte atual: Simulação';
+    }
+
+    if (appState.hasLoadedHealthKitSample) {
+      return 'Fonte atual: HealthKit';
+    }
+
+    return 'Fonte atual: HealthKit - nenhum dado real carregado.';
+  }
 }
 
 final class _StatusCard extends StatelessWidget {
@@ -153,6 +167,7 @@ final class _StatusCard extends StatelessWidget {
     required this.heartRate,
     required this.hrv,
     required this.message,
+    required this.sourceMessage,
   });
 
   final RiskState state;
@@ -162,6 +177,7 @@ final class _StatusCard extends StatelessWidget {
   final int heartRate;
   final int hrv;
   final String message;
+  final String sourceMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -209,6 +225,14 @@ final class _StatusCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: UiTokens.m),
+            Text(
+              sourceMessage,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: UiTokens.textFaint,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: UiTokens.s),
             Text(
               message,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(

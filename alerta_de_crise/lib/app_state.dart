@@ -93,6 +93,7 @@ final class AppState extends ChangeNotifier {
   final SettingsRepository _settingsRepository;
   SensorProvider _sensorProvider;
   SensorSample _currentSample;
+  SensorSample? _lastHealthKitSample;
   RiskState _currentRiskState;
   int _currentScore = 0;
   String _currentStatusMessage;
@@ -111,6 +112,10 @@ final class AppState extends ChangeNotifier {
   final List<ResearchSession> _researchSessions = [];
 
   SensorSample get currentSample => _currentSample;
+  SensorSample? get lastHealthKitSample => _lastHealthKitSample;
+  bool get hasLoadedHealthKitSample => _lastHealthKitSample != null;
+  bool get lastHealthKitSampleHasRealHrv =>
+      !(_lastHealthKitSample?.id.endsWith('-fc-only') ?? false);
   RiskState get currentRiskState => _currentRiskState;
   int get currentScore => _currentScore;
   String get currentStatusMessage => _currentStatusMessage;
@@ -209,8 +214,9 @@ final class AppState extends ChangeNotifier {
     _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     if (type == SensorProviderType.healthkit) {
       _currentStatusMessage =
-          'Integração em preparação. Use a simulação para continuar explorando os fluxos.';
+          'HealthKit selecionado. Carregue o último dado disponível ou use a simulação quando preferir.';
     } else {
+      _lastHealthKitSample = null;
       _applyRiskEvaluation(_currentSample);
     }
     notifyListeners();
@@ -226,6 +232,30 @@ final class AppState extends ChangeNotifier {
     _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     notifyListeners();
     return granted;
+  }
+
+  Future<bool> loadLatestHealthKitSample() async {
+    if (_sensorProvider.type != SensorProviderType.healthkit) {
+      return false;
+    }
+
+    final sample = await _sensorProvider.getLatestSample();
+    if (_isDisposed) {
+      return sample != null;
+    }
+
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
+    if (sample == null) {
+      _currentStatusMessage = 'Nenhum dado recente encontrado no HealthKit.';
+      notifyListeners();
+      return false;
+    }
+
+    _lastHealthKitSample = sample;
+    _applySensorSample(sample);
+    _currentStatusMessage = 'Último dado do HealthKit carregado.';
+    notifyListeners();
+    return true;
   }
 
   void startSimulation() {
@@ -449,7 +479,7 @@ final class AppState extends ChangeNotifier {
     if (sample == null) {
       _currentStatusMessage =
           _sensorProvider.type == SensorProviderType.healthkit
-          ? 'Integração em preparação. Use a simulação para continuar explorando os fluxos.'
+          ? 'Nenhum dado recente encontrado no HealthKit.'
           : _currentStatusMessage;
       notifyListeners();
       return;
@@ -461,6 +491,9 @@ final class AppState extends ChangeNotifier {
 
   void _applySensorSample(SensorSample sample) {
     _currentSample = sample;
+    if (_sensorProvider.type == SensorProviderType.healthkit) {
+      _lastHealthKitSample = sample;
+    }
     _addRecentSample(sample);
     _applyRiskEvaluation(sample);
     _addRecentScore(_currentScore);

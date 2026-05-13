@@ -109,8 +109,17 @@ final class SettingsPage extends StatelessWidget {
                   ),
                   if (appState.isHealthKitInPreparation) ...[
                     const SizedBox(height: UiTokens.m),
+                    OutlinedButton(
+                      onPressed: () async {
+                        await appState.loadLatestHealthKitSample();
+                      },
+                      child: const Text('Ler último dado'),
+                    ),
+                    const SizedBox(height: UiTokens.s),
+                    _HealthKitLastSample(appState: appState),
+                    const SizedBox(height: UiTokens.s),
                     const Text(
-                      'A integração HealthKit está em preparação. Nesta versão, a coleta real ainda não foi ativada.',
+                      'A coleta contínua ainda não está ativada.',
                       style: TextStyle(color: UiTokens.textSoft, height: 1.35),
                     ),
                   ],
@@ -233,5 +242,46 @@ final class SettingsPage extends StatelessWidget {
         content: Text('Onboarding será exibido na próxima abertura'),
       ),
     );
+  }
+}
+
+final class _HealthKitLastSample extends StatelessWidget {
+  const _HealthKitLastSample({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final sample = appState.lastHealthKitSample;
+    final heartRate = sample == null
+        ? 'Última FC carregada: nenhum dado carregado'
+        : 'Última FC carregada: ${sample.heartRate} bpm';
+    final hrv = sample == null
+        ? 'Último HRV carregado: nenhum dado carregado'
+        : appState.lastHealthKitSampleHasRealHrv
+        ? 'Último HRV carregado: ${sample.hrv} ms'
+        : 'Último HRV carregado: não encontrado';
+    final timestamp = sample == null
+        ? 'Horário do sample: nenhum dado carregado'
+        : 'Horário do sample: ${_formatTimestamp(sample.timestamp)}';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(heartRate, style: const TextStyle(color: UiTokens.textSoft)),
+        Text(hrv, style: const TextStyle(color: UiTokens.textSoft)),
+        Text(timestamp, style: const TextStyle(color: UiTokens.textSoft)),
+      ],
+    );
+  }
+
+  String _formatTimestamp(DateTime timestamp) {
+    final local = timestamp.toLocal();
+    return '${_twoDigits(local.day)}/${_twoDigits(local.month)}/${local.year} '
+        '${_twoDigits(local.hour)}:${_twoDigits(local.minute)}';
+  }
+
+  String _twoDigits(int value) {
+    return value.toString().padLeft(2, '0');
   }
 }

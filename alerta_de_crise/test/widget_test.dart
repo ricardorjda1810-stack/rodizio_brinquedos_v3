@@ -275,7 +275,7 @@ void main() {
     expect(provider.permissionStatusMessage, 'Simulação ativa.');
   });
 
-  test('healthkit provider is prepared without real samples', () async {
+  test('healthkit provider in test environment does not break', () async {
     final provider = HealthKitSensorProvider();
 
     expect(provider.type, SensorProviderType.healthkit);
@@ -310,11 +310,35 @@ void main() {
       expect(appState.currentSample.heartRate, 92);
       expect(
         appState.currentStatusMessage,
-        contains('Integração em preparação'),
+        contains('HealthKit selecionado'),
       );
       appState.dispose();
     },
   );
+
+  test('app state handles null healthkit sample safely', () async {
+    final appState = AppState(
+      currentSample: _sample('current', 92, 28),
+      currentRiskState: RiskState.atencao,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: _NullHealthKitSensorProvider(),
+      loadPersistedEvents: false,
+      loadPersistedSettings: false,
+    );
+
+    final loaded = await appState.loadLatestHealthKitSample();
+
+    expect(loaded, isFalse);
+    expect(appState.sensorProviderType, SensorProviderType.healthkit);
+    expect(appState.hasLoadedHealthKitSample, isFalse);
+    expect(appState.currentSample.heartRate, 92);
+    expect(
+      appState.currentStatusMessage,
+      'Nenhum dado recente encontrado no HealthKit.',
+    );
+    appState.dispose();
+  });
 
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
@@ -340,6 +364,15 @@ void main() {
     expect(find.text('HealthKit (experimental)'), findsOneWidget);
     expect(find.text('Solicitar permissão'), findsOneWidget);
     expect(find.textContaining('Permissão:'), findsOneWidget);
+
+    await tester.tap(find.text('HealthKit (experimental)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ler último dado'), findsOneWidget);
+    expect(
+      find.text('A coleta contínua ainda não está ativada.'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Iniciar simulação'));
     await tester.pumpAndSettle();
@@ -808,6 +841,35 @@ Future<void> _pumpAppWithOnboardingSeen(WidgetTester tester) async {
   });
   await tester.pumpWidget(const AlertaDeCriseApp());
   await tester.pumpAndSettle();
+}
+
+final class _NullHealthKitSensorProvider implements SensorProvider {
+  @override
+  SensorProviderType get type => SensorProviderType.healthkit;
+
+  @override
+  String get permissionStatusMessage =>
+      'Nenhum dado recente encontrado no HealthKit.';
+
+  @override
+  Future<SensorSample?> getLatestSample() async {
+    return null;
+  }
+
+  @override
+  Future<bool> requestPermissions() async {
+    return true;
+  }
+
+  @override
+  Future<bool> hasPermissions() async {
+    return true;
+  }
+
+  @override
+  Stream<SensorSample> watchSamples() {
+    return const Stream<SensorSample>.empty();
+  }
 }
 
 SensorSample _sample(String id, int heartRate, int hrv) {
