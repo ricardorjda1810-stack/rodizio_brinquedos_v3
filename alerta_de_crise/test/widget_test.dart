@@ -91,11 +91,12 @@ void main() {
       ),
     );
 
+    expect(tester.takeException(), isNull);
     expect(find.text('Teste'), findsOneWidget);
     expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
   });
 
-  testWidgets('simple timeline painter handles empty and single values', (
+  testWidgets('simple timeline painter handles empty single and equal values', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -113,6 +114,11 @@ void main() {
                 color: Colors.teal,
                 label: 'Um ponto',
               ),
+              SimpleTimelineChart(
+                values: [7, 7, 7],
+                color: Colors.green,
+                label: 'Iguais',
+              ),
             ],
           ),
         ),
@@ -122,6 +128,36 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Vazio'), findsOneWidget);
     expect(find.text('Um ponto'), findsOneWidget);
+    expect(find.text('Iguais'), findsOneWidget);
+  });
+
+  testWidgets('simple timeline chart paints integer and double values', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              SimpleTimelineChart(
+                values: [72, 78, 90],
+                color: Colors.red,
+                label: 'Inteiros',
+              ),
+              SimpleTimelineChart(
+                values: [28.5, 30, 31.5],
+                color: Colors.blue,
+                label: 'Decimais',
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Inteiros'), findsOneWidget);
+    expect(find.text('Decimais'), findsOneWidget);
   });
 
   testWidgets('history route lists mocked events', (tester) async {

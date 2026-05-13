@@ -87,8 +87,17 @@ final class SimpleTimelinePainter extends CustomPainter {
       return;
     }
 
-    final minValue = values.reduce((a, b) => a < b ? a : b).toDouble();
-    final maxValue = values.reduce((a, b) => a > b ? a : b).toDouble();
+    var minValue = values.first.toDouble();
+    var maxValue = minValue;
+    for (final value in values.skip(1)) {
+      final doubleValue = value.toDouble();
+      if (doubleValue < minValue) {
+        minValue = doubleValue;
+      }
+      if (doubleValue > maxValue) {
+        maxValue = doubleValue;
+      }
+    }
     final range = maxValue - minValue;
     final xStep = size.width / (values.length - 1);
     final path = Path();
