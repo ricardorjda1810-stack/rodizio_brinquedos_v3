@@ -606,6 +606,7 @@ void main() {
 
     expect(find.text('Pesquisa'), findsOneWidget);
     expect(find.text('Sem sessão ativa'), findsOneWidget);
+    expect(find.text('Protocolo guiado'), findsOneWidget);
     expect(find.text('Diagnóstico da coleta'), findsOneWidget);
     expect(find.text('Total de samples: 0'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Análise temporal'), 120);
@@ -638,6 +639,35 @@ void main() {
     expect(find.text('Amostras coletadas: 1'), findsOneWidget);
     expect(find.text('Total de samples: 1'), findsOneWidget);
     expect(find.text('Última amostra'), findsOneWidget);
+  });
+
+  testWidgets('guided protocol route starts and advances steps', (
+    tester,
+  ) async {
+    await _pumpAppWithOnboardingSeen(tester);
+
+    await tester.drag(find.byType(Scrollable), const Offset(0, -400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Modo pesquisa'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Protocolo guiado'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Protocolo guiado'), findsOneWidget);
+    expect(find.text('Iniciar protocolo'), findsOneWidget);
+
+    await tester.tap(find.text('Iniciar protocolo'));
+    await tester.pump();
+
+    expect(find.text('Fase atual: Repouso'), findsOneWidget);
+    expect(find.textContaining('Timer:'), findsOneWidget);
+    expect(find.text('Samples nesta sessão: 1'), findsOneWidget);
+
+    await tester.tap(find.text('Avançar etapa'));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Fase atual: Ativação leve'), findsOneWidget);
   });
 
   testWidgets('calibration route registers feedback', (tester) async {
@@ -677,6 +707,40 @@ void main() {
     expect(appState.hasActiveResearchSession, isFalse);
     expect(appState.currentResearchSession?.endedAt, isNotNull);
     expect(appState.researchSessions, hasLength(1));
+    appState.dispose();
+  });
+
+  test('guided protocol starts advances labels samples and saves feedback', () {
+    final appState = AppState.fromRepository(const MockRiskRepository());
+
+    appState.startGuidedProtocol();
+
+    expect(appState.hasActiveGuidedProtocol, isTrue);
+    expect(appState.hasActiveResearchSession, isTrue);
+    expect(appState.currentGuidedProtocolStep?.label, 'Repouso');
+    expect(appState.currentResearchSession?.samples, hasLength(1));
+    expect(
+      appState.currentResearchSession?.samples.first.protocolStepLabel,
+      'Repouso',
+    );
+
+    appState.stopSimulation();
+    appState.advanceGuidedProtocolStep();
+    appState.startSimulation();
+
+    expect(appState.currentGuidedProtocolStep?.label, 'Ativação leve');
+    expect(
+      appState.currentResearchSession?.samples.last.protocolStepLabel,
+      'Ativação leve',
+    );
+
+    appState.endGuidedProtocol(feedback: FeelingLevel.leve);
+
+    expect(appState.hasActiveGuidedProtocol, isFalse);
+    expect(appState.hasActiveResearchSession, isFalse);
+    expect(appState.lastGuidedProtocolSession?.feedback, FeelingLevel.leve);
+    expect(appState.lastGuidedProtocolSession?.samples, isNotEmpty);
+    expect(appState.lastCalibrationFeedback?.feelingLevel, FeelingLevel.leve);
     appState.dispose();
   });
 
@@ -1042,8 +1106,26 @@ void main() {
 
     expect(
       csv,
-      'timestamp,heartRate,hrv,riskScore,riskState,motionState\n2026-05-13T12:00:00.000,92,28,68,atencao,parado',
+      'timestamp,heartRate,hrv,riskScore,riskState,motionState,protocolStepLabel\n2026-05-13T12:00:00.000,92,28,68,atencao,parado,',
     );
+  });
+
+  test('csv exporter includes protocol step label in research samples', () {
+    const exporter = CsvExporter();
+    final csv = exporter.exportSessionSamples([
+      SessionSample(
+        timestamp: DateTime(2026, 5, 13, 12),
+        heartRate: 92,
+        hrv: 28,
+        riskScore: 68,
+        riskState: RiskState.atencao,
+        motionState: 'parado',
+        protocolStepLabel: 'Repouso',
+      ),
+    ]);
+
+    expect(csv, contains('protocolStepLabel'));
+    expect(csv, contains('Repouso'));
   });
 
   test('csv exporter writes collection diagnostics', () {

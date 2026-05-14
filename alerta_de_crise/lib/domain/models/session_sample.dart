@@ -8,6 +8,7 @@ final class SessionSample {
     required this.riskScore,
     required this.riskState,
     required this.motionState,
+    this.protocolStepLabel,
   });
 
   final DateTime timestamp;
@@ -16,6 +17,7 @@ final class SessionSample {
   final int riskScore;
   final RiskState riskState;
   final String motionState;
+  final String? protocolStepLabel;
 
   factory SessionSample.fromJson(Map<String, Object?> json) {
     return SessionSample(
@@ -25,6 +27,7 @@ final class SessionSample {
       riskScore: json['riskScore'] as int,
       riskState: RiskStateText.fromKey(json['riskState'] as String),
       motionState: json['motionState'] as String,
+      protocolStepLabel: json['protocolStepLabel'] as String?,
     );
   }
 
@@ -36,6 +39,7 @@ final class SessionSample {
       'riskScore': riskScore,
       'riskState': riskState.key,
       'motionState': motionState,
+      'protocolStepLabel': protocolStepLabel,
     };
   }
 }

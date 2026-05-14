@@ -15,6 +15,7 @@ import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
 import 'domain/models/collection_diagnostics.dart';
 import 'domain/models/feeling_level.dart';
+import 'domain/models/guided_protocol.dart';
 import 'domain/models/research_session.dart';
 import 'domain/models/risk_event.dart';
 import 'domain/models/risk_state.dart';
@@ -113,6 +114,9 @@ final class AppState extends ChangeNotifier {
   bool _isDisposed = false;
   SensitivityLevel _sensitivity = SensitivityLevel.media;
   ResearchSession? _currentResearchSession;
+  final GuidedProtocol _guidedProtocol = GuidedProtocol.initial();
+  GuidedProtocolSession? _currentGuidedProtocolSession;
+  GuidedProtocolSession? _lastGuidedProtocolSession;
   CollectionDiagnostics _collectionDiagnostics = CollectionDiagnostics.empty(
     sourceLabel: 'Simulação',
   );
@@ -146,6 +150,25 @@ final class AppState extends ChangeNotifier {
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
+  GuidedProtocol get guidedProtocol => _guidedProtocol;
+  GuidedProtocolSession? get currentGuidedProtocolSession =>
+      _currentGuidedProtocolSession;
+  GuidedProtocolSession? get lastGuidedProtocolSession =>
+      _lastGuidedProtocolSession;
+  bool get hasActiveGuidedProtocol =>
+      _currentGuidedProtocolSession?.isActive ?? false;
+  GuidedProtocolStep? get currentGuidedProtocolStep {
+    final session = _currentGuidedProtocolSession;
+    if (session == null || _guidedProtocol.steps.isEmpty) {
+      return null;
+    }
+
+    return _guidedProtocol.steps[session.currentStepIndex.clamp(
+      0,
+      _guidedProtocol.steps.length - 1,
+    )];
+  }
+
   bool get isHealthKitSessionCollectionActive =>
       _healthKitSampleSubscription != null;
   int get activeResearchSessionSampleCount =>
@@ -371,7 +394,87 @@ final class AppState extends ChangeNotifier {
     _stopHealthKitSessionCollection();
     _currentResearchSession = endedSession;
     _researchSessions.insert(0, endedSession);
+    _completeGuidedProtocolFromResearchSession(endedSession);
     unawaited(_persistResearchSessions());
+    notifyListeners();
+  }
+
+  void startGuidedProtocol() {
+    if (hasActiveGuidedProtocol) {
+      return;
+    }
+
+    final now = DateTime.now();
+    _currentGuidedProtocolSession = GuidedProtocolSession(
+      id: 'guided-${now.microsecondsSinceEpoch}',
+      protocolId: _guidedProtocol.id,
+      startedAt: now,
+      currentStepIndex: 0,
+      stepStartedAt: now,
+      samples: const [],
+    );
+
+    if (!hasActiveResearchSession) {
+      startResearchSession();
+    }
+    if (_sensorProvider.type == SensorProviderType.mock &&
+        !isSimulationRunning) {
+      startSimulation();
+    } else {
+      _startHealthKitSessionCollectionIfNeeded();
+      notifyListeners();
+    }
+  }
+
+  void advanceGuidedProtocolStep() {
+    final session = _currentGuidedProtocolSession;
+    if (session == null || !session.isActive) {
+      return;
+    }
+
+    final nextIndex = (session.currentStepIndex + 1).clamp(
+      0,
+      _guidedProtocol.steps.length - 1,
+    );
+    _currentGuidedProtocolSession = session.copyWith(
+      currentStepIndex: nextIndex,
+      stepStartedAt: DateTime.now(),
+    );
+    notifyListeners();
+  }
+
+  void submitGuidedProtocolFeedback(FeelingLevel feelingLevel) {
+    final session = _currentGuidedProtocolSession;
+    if (session == null) {
+      return;
+    }
+
+    _currentGuidedProtocolSession = session.copyWith(feedback: feelingLevel);
+    notifyListeners();
+  }
+
+  void endGuidedProtocol({FeelingLevel? feedback}) {
+    if (feedback != null) {
+      submitGuidedProtocolFeedback(feedback);
+    }
+
+    final finalFeedback = _currentGuidedProtocolSession?.feedback;
+    if (finalFeedback != null) {
+      addCalibrationFeedback(finalFeedback);
+    }
+
+    if (hasActiveResearchSession) {
+      endResearchSession(notes: 'Protocolo guiado');
+      return;
+    }
+
+    final session = _currentGuidedProtocolSession;
+    if (session == null) {
+      return;
+    }
+
+    _lastGuidedProtocolSession = session.copyWith(endedAt: DateTime.now());
+    _currentGuidedProtocolSession = null;
     notifyListeners();
   }
 
@@ -637,6 +740,7 @@ final class AppState extends ChangeNotifier {
       riskScore: _currentScore,
       riskState: _currentRiskState,
       motionState: sample.motionState,
+      protocolStepLabel: currentGuidedProtocolStep?.label,
     );
 
     final lastSample = session.samples.lastOrNull;
@@ -649,6 +753,33 @@ final class AppState extends ChangeNotifier {
     _currentResearchSession = session.copyWith(
       samples: [...session.samples, sessionSample],
     );
+    _addSampleToGuidedProtocol(sessionSample);
+  }
+
+  void _addSampleToGuidedProtocol(SessionSample sample) {
+    final protocolSession = _currentGuidedProtocolSession;
+    if (protocolSession == null || !protocolSession.isActive) {
+      return;
+    }
+
+    _currentGuidedProtocolSession = protocolSession.copyWith(
+      samples: [...protocolSession.samples, sample],
+    );
+  }
+
+  void _completeGuidedProtocolFromResearchSession(ResearchSession session) {
+    final protocolSession = _currentGuidedProtocolSession;
+    if (protocolSession == null) {
+      return;
+    }
+
+    _lastGuidedProtocolSession = protocolSession.copyWith(
+      endedAt: session.endedAt ?? DateTime.now(),
+      samples: session.samples
+          .where((sample) => sample.protocolStepLabel != null)
+          .toList(),
+    );
+    _currentGuidedProtocolSession = null;
   }
 
   bool _isDuplicateSessionSample(

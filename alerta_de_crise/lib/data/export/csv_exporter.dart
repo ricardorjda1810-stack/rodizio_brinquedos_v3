@@ -39,6 +39,7 @@ final class CsvExporter {
         'riskScore',
         'riskState',
         'motionState',
+        'protocolStepLabel',
       ],
       ...samples.map(_sessionSampleToRow),
     ];
@@ -155,6 +156,7 @@ final class CsvExporter {
       sample.riskScore.toString(),
       sample.riskState.key,
       sample.motionState,
+      sample.protocolStepLabel ?? '',
     ];
   }
 

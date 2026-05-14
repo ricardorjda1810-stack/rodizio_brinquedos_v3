@@ -4,6 +4,7 @@ import 'app_state.dart';
 import 'data/repositories/mock_risk_repository.dart';
 import 'data/repositories/onboarding_repository.dart';
 import 'ui/calibration/calibration_page.dart';
+import 'ui/guided_protocol/guided_protocol_page.dart';
 import 'ui/history/history_page.dart';
 import 'ui/home/home_page.dart';
 import 'ui/intervention/intervention_page.dart';
@@ -75,6 +76,7 @@ final class _AlertaDeCriseAppState extends State<AlertaDeCriseApp> {
       '/history' => const HistoryPage(),
       '/settings' => const SettingsPage(),
       '/research' => const ResearchPage(),
+      '/guided-protocol' => const GuidedProtocolPage(),
       '/calibration' => const CalibrationPage(),
       _ => const HomePage(),
     };

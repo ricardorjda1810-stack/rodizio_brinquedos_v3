@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../data/export/csv_exporter.dart';
 import '../../data/sensors/sensor_provider.dart';
+import '../../domain/models/feeling_level.dart';
 import '../../domain/models/research_session.dart';
 import '../../domain/models/risk_state.dart';
 import '../../domain/models/session_sample.dart';
@@ -109,6 +110,12 @@ final class ResearchPage extends StatelessWidget {
                           : 'Iniciar simulação',
                     ),
                   ),
+                  const SizedBox(height: UiTokens.s),
+                  OutlinedButton(
+                    onPressed: () =>
+                        Navigator.of(context).pushNamed('/guided-protocol'),
+                    child: const Text('Protocolo guiado'),
+                  ),
                 ],
               ),
             ),
@@ -123,6 +130,8 @@ final class ResearchPage extends StatelessWidget {
           _HealthKitDebugCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           _EndedSessionsCard(session: lastEndedSession),
+          const SizedBox(height: UiTokens.m),
+          _LastGuidedProtocolCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           OutlinedButton(
             onPressed: session == null
@@ -278,6 +287,50 @@ final class ResearchPage extends StatelessWidget {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
     };
+  }
+}
+
+final class _LastGuidedProtocolCard extends StatelessWidget {
+  const _LastGuidedProtocolCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final session = appState.lastGuidedProtocolSession;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Última sessão de protocolo',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            if (session == null)
+              const Text(
+                'Nenhum protocolo guiado encerrado ainda.',
+                style: TextStyle(color: UiTokens.textSoft),
+              )
+            else ...[
+              Text(
+                'Samples: ${session.samples.length}',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Feedback: ${session.feedback?.label ?? 'não informado'}',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
