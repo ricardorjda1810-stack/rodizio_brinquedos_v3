@@ -23,6 +23,7 @@ import 'package:alerta_de_crise/domain/models/risk_state.dart';
 import 'package:alerta_de_crise/domain/models/session_sample.dart';
 import 'package:alerta_de_crise/domain/models/sensor_sample.dart';
 import 'package:alerta_de_crise/domain/models/sensitivity_level.dart';
+import 'package:alerta_de_crise/domain/models/temporal_sample_analysis.dart';
 import 'package:alerta_de_crise/domain/risk_engine.dart';
 import 'package:alerta_de_crise/main.dart';
 import 'package:alerta_de_crise/ui/widgets/simple_timeline_chart.dart';
@@ -488,6 +489,70 @@ void main() {
     expect(diagnostics.heartRateSamples, 1);
   });
 
+  test('temporal analysis handles zero samples', () {
+    final analysis = TemporalSampleAnalysis.fromSamples(const []);
+
+    expect(analysis.totalSamples, 0);
+    expect(analysis.qualityLabel, 'Sem dados');
+    expect(analysis.intervalsSeconds, isEmpty);
+  });
+
+  test('temporal analysis handles one sample', () {
+    final sample = _sessionSample(DateTime(2026, 5, 13, 12), 92, 28);
+
+    final analysis = TemporalSampleAnalysis.fromSamples([sample]);
+
+    expect(analysis.totalSamples, 1);
+    expect(analysis.firstSampleAt, sample.timestamp);
+    expect(analysis.lastSampleAt, sample.timestamp);
+    expect(analysis.averageIntervalSeconds, 0);
+    expect(analysis.qualityLabel, 'Bom');
+  });
+
+  test('temporal analysis calculates average median and gaps', () {
+    final analysis = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 0, 10), 93, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 0, 40), 94, 27),
+      _sessionSample(DateTime(2026, 5, 13, 12, 2, 40), 95, 27),
+    ]);
+
+    expect(analysis.totalSamples, 4);
+    expect(analysis.durationSeconds, 160);
+    expect(analysis.intervalsSeconds, [10, 30, 120]);
+    expect(analysis.averageIntervalSeconds, 160 / 3);
+    expect(analysis.medianIntervalSeconds, 30);
+    expect(analysis.minIntervalSeconds, 10);
+    expect(analysis.maxIntervalSeconds, 120);
+    expect(analysis.longGapCount, 1);
+    expect(analysis.longestGapSeconds, 120);
+    expect(analysis.samplesPerMinute, 1.5);
+  });
+
+  test('temporal analysis quality labels sparse moderate and good', () {
+    final good = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 0, 30), 93, 28),
+    ]);
+    final moderate = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 1), 93, 28),
+    ]);
+    final sparse = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 2), 93, 28),
+    ]);
+    final verySparse = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 4), 93, 28),
+    ]);
+
+    expect(good.qualityLabel, 'Bom');
+    expect(moderate.qualityLabel, 'Moderado');
+    expect(sparse.qualityLabel, 'Esparso');
+    expect(verySparse.qualityLabel, 'Muito esparso');
+  });
+
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
 
@@ -543,6 +608,12 @@ void main() {
     expect(find.text('Sem sessão ativa'), findsOneWidget);
     expect(find.text('Diagnóstico da coleta'), findsOneWidget);
     expect(find.text('Total de samples: 0'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Análise temporal'), 120);
+    expect(find.text('Análise temporal'), findsOneWidget);
+    expect(
+      find.text('Aguardando mais amostras para calcular intervalos.'),
+      findsOneWidget,
+    );
     await tester.scrollUntilVisible(
       find.text('Diagnóstico bruto HealthKit'),
       120,
@@ -553,7 +624,7 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, 500));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 1000));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Iniciar sessão'));
     await tester.pumpAndSettle();
@@ -987,6 +1058,21 @@ void main() {
     expect(
       csv,
       'totalSamples,heartRateSamples,hrvSamples,missingHeartRateCount,missingHrvCount,duplicateSamplesSkipped,firstSampleAt,lastSampleAt,averageIntervalSeconds,minIntervalSeconds,maxIntervalSeconds,sourceLabel\n2,2,2,0,0,1,2026-05-13T12:00:00.000,2026-05-13T12:00:15.000,15.0,15.0,15.0,HealthKit',
+    );
+  });
+
+  test('csv exporter writes temporal analysis', () {
+    const exporter = CsvExporter();
+    final analysis = TemporalSampleAnalysis.fromSamples([
+      _sessionSample(DateTime(2026, 5, 13, 12), 92, 28),
+      _sessionSample(DateTime(2026, 5, 13, 12, 0, 30), 93, 27),
+    ]);
+
+    final csv = exporter.exportTemporalAnalysis(analysis);
+
+    expect(
+      csv,
+      'totalSamples,firstSampleAt,lastSampleAt,durationSeconds,averageIntervalSeconds,medianIntervalSeconds,minIntervalSeconds,maxIntervalSeconds,longGapCount,longestGapSeconds,samplesPerMinute,qualityLabel\n2,2026-05-13T12:00:00.000,2026-05-13T12:00:30.000,30.0,30.0,30.0,30.0,30.0,0,30.0,4.0,Bom',
     );
   });
 

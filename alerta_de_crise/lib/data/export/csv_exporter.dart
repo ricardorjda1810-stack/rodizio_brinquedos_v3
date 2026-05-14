@@ -4,6 +4,7 @@ import '../../domain/models/feeling_level.dart';
 import '../../domain/models/risk_event.dart';
 import '../../domain/models/risk_state.dart';
 import '../../domain/models/session_sample.dart';
+import '../../domain/models/temporal_sample_analysis.dart';
 
 final class CsvExporter {
   const CsvExporter();
@@ -74,6 +75,41 @@ final class CsvExporter {
         _formatSeconds(diagnostics.minIntervalSeconds),
         _formatSeconds(diagnostics.maxIntervalSeconds),
         diagnostics.sourceLabel,
+      ],
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportTemporalAnalysis(TemporalSampleAnalysis analysis) {
+    final rows = [
+      [
+        'totalSamples',
+        'firstSampleAt',
+        'lastSampleAt',
+        'durationSeconds',
+        'averageIntervalSeconds',
+        'medianIntervalSeconds',
+        'minIntervalSeconds',
+        'maxIntervalSeconds',
+        'longGapCount',
+        'longestGapSeconds',
+        'samplesPerMinute',
+        'qualityLabel',
+      ],
+      [
+        analysis.totalSamples.toString(),
+        analysis.firstSampleAt?.toIso8601String() ?? '',
+        analysis.lastSampleAt?.toIso8601String() ?? '',
+        _formatSeconds(analysis.durationSeconds),
+        _formatSeconds(analysis.averageIntervalSeconds),
+        _formatSeconds(analysis.medianIntervalSeconds),
+        _formatSeconds(analysis.minIntervalSeconds),
+        _formatSeconds(analysis.maxIntervalSeconds),
+        analysis.longGapCount.toString(),
+        _formatSeconds(analysis.longestGapSeconds),
+        _formatSeconds(analysis.samplesPerMinute),
+        analysis.qualityLabel,
       ],
     ];
 

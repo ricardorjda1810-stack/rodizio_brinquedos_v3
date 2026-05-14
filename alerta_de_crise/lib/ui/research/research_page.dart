@@ -6,6 +6,7 @@ import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/research_session.dart';
 import '../../domain/models/risk_state.dart';
 import '../../domain/models/session_sample.dart';
+import '../../domain/models/temporal_sample_analysis.dart';
 import '../theme/ui_tokens.dart';
 
 final class ResearchPage extends StatelessWidget {
@@ -117,6 +118,8 @@ final class ResearchPage extends StatelessWidget {
           const SizedBox(height: UiTokens.m),
           _DiagnosticsCard(appState: appState),
           const SizedBox(height: UiTokens.m),
+          _TemporalAnalysisCard(analysis: appState.currentTemporalAnalysis),
+          const SizedBox(height: UiTokens.m),
           _HealthKitDebugCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           _EndedSessionsCard(session: lastEndedSession),
@@ -131,6 +134,11 @@ final class ResearchPage extends StatelessWidget {
           OutlinedButton(
             onPressed: () => _showDiagnosticsCsv(context, appState),
             child: const Text('Exportar diagnóstico CSV'),
+          ),
+          const SizedBox(height: UiTokens.s),
+          OutlinedButton(
+            onPressed: () => _showTemporalAnalysisCsv(context, appState),
+            child: const Text('Exportar análise temporal CSV'),
           ),
           const SizedBox(height: UiTokens.s),
           OutlinedButton(
@@ -210,6 +218,42 @@ final class ResearchPage extends StatelessWidget {
     );
   }
 
+  void _showTemporalAnalysisCsv(BuildContext context, AppState appState) {
+    const exporter = CsvExporter();
+    final csv = exporter.exportTemporalAnalysis(
+      appState.currentTemporalAnalysis.totalSamples > 0
+          ? appState.currentTemporalAnalysis
+          : appState.lastClosedSessionTemporalAnalysis,
+    );
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('CSV da análise temporal'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: SelectableText(
+                csv,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  color: UiTokens.textSoft,
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   static String _formatDateTime(DateTime dateTime) {
     String twoDigits(int value) => value.toString().padLeft(2, '0');
 
@@ -234,6 +278,88 @@ final class ResearchPage extends StatelessWidget {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
     };
+  }
+}
+
+final class _TemporalAnalysisCard extends StatelessWidget {
+  const _TemporalAnalysisCard({required this.analysis});
+
+  final TemporalSampleAnalysis analysis;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Análise temporal',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            Text(
+              'Total de samples: ${analysis.totalSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Duração analisada: ${_formatSeconds(analysis.durationSeconds)}s',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            if (analysis.totalSamples < 2) ...[
+              const SizedBox(height: UiTokens.s),
+              const Text(
+                'Aguardando mais amostras para calcular intervalos.',
+                style: TextStyle(color: UiTokens.textFaint, height: 1.35),
+              ),
+            ] else ...[
+              Text(
+                'Intervalo médio: ${_formatSeconds(analysis.averageIntervalSeconds)}s',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Intervalo mediano: ${_formatSeconds(analysis.medianIntervalSeconds)}s',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Menor intervalo: ${_formatSeconds(analysis.minIntervalSeconds)}s',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Maior intervalo: ${_formatSeconds(analysis.maxIntervalSeconds)}s',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Gaps longos: ${analysis.longGapCount}',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Maior gap: ${_formatSeconds(analysis.longestGapSeconds)}s',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+              Text(
+                'Samples por minuto: ${analysis.samplesPerMinute.toStringAsFixed(2)}',
+                style: const TextStyle(color: UiTokens.textSoft),
+              ),
+            ],
+            Text(
+              'Qualidade: ${analysis.qualityLabel}',
+              style: const TextStyle(
+                color: UiTokens.textSoft,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatSeconds(double value) {
+    return value.toStringAsFixed(1);
   }
 }
 

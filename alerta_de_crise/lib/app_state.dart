@@ -21,6 +21,7 @@ import 'domain/models/risk_state.dart';
 import 'domain/models/sensor_sample.dart';
 import 'domain/models/session_sample.dart';
 import 'domain/models/sensitivity_level.dart';
+import 'domain/models/temporal_sample_analysis.dart';
 
 final class AppState extends ChangeNotifier {
   AppState({
@@ -152,6 +153,14 @@ final class AppState extends ChangeNotifier {
   DateTime? get lastResearchSessionSampleTimestamp =>
       _currentResearchSession?.samples.lastOrNull?.timestamp;
   CollectionDiagnostics get collectionDiagnostics => _collectionDiagnostics;
+  TemporalSampleAnalysis get currentTemporalAnalysis =>
+      TemporalSampleAnalysis.fromSamples(
+        _currentResearchSession?.samples ?? const [],
+      );
+  TemporalSampleAnalysis get lastClosedSessionTemporalAnalysis =>
+      TemporalSampleAnalysis.fromSamples(
+        _researchSessions.firstOrNull?.samples ?? const [],
+      );
   List<CalibrationFeedback> get calibrationFeedbacks =>
       List.unmodifiable(_calibrationFeedbacks);
   CalibrationFeedback? get lastCalibrationFeedback =>
