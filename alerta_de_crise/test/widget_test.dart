@@ -398,6 +398,70 @@ void main() {
     appState.dispose();
   });
 
+  test('healthkit session saves immediate latest sample on start', () async {
+    final provider = _StreamHealthKitSensorProvider(
+      latestSample: _sample(
+        'healthkit-immediate',
+        86,
+        36,
+        motionState: 'healthkit',
+      ),
+    );
+    final appState = AppState(
+      currentSample: _sample('current', 92, 28),
+      currentRiskState: RiskState.atencao,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: provider,
+      loadPersistedEvents: false,
+      loadPersistedSettings: false,
+    );
+
+    appState.startResearchSession();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(provider.resetDeduplicationCount, 1);
+    expect(provider.watchListenCount, 1);
+    expect(provider.getLatestSampleCount, 1);
+    expect(appState.currentResearchSession?.samples, hasLength(1));
+    expect(appState.currentResearchSession?.samples.first.heartRate, 86);
+    expect(appState.savedSamples, 1);
+
+    await provider.close();
+    appState.dispose();
+  });
+
+  test(
+    'starting a new healthkit session restarts stream and resets dedupe',
+    () async {
+      final provider = _StreamHealthKitSensorProvider();
+      final appState = AppState(
+        currentSample: _sample('current', 92, 28),
+        currentRiskState: RiskState.atencao,
+        currentStatusMessage: '',
+        events: const [],
+        sensorProvider: provider,
+        loadPersistedEvents: false,
+        loadPersistedSettings: false,
+      );
+
+      appState.startResearchSession();
+      await Future<void>.delayed(Duration.zero);
+      appState.endResearchSession();
+      await Future<void>.delayed(Duration.zero);
+      appState.startResearchSession();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(provider.watchListenCount, 2);
+      expect(provider.cancelCount, 1);
+      expect(provider.resetDeduplicationCount, 2);
+      expect(appState.isHealthKitSessionCollectionActive, isTrue);
+
+      await provider.close();
+      appState.dispose();
+    },
+  );
+
   test(
     'healthkit session accepts heart rate sample without real hrv',
     () async {
@@ -617,9 +681,9 @@ void main() {
     expect(find.text('Pesquisa'), findsOneWidget);
     expect(find.text('Sem sessão ativa'), findsOneWidget);
     expect(find.text('Protocolo guiado'), findsOneWidget);
-    expect(find.text('Debug da sessão'), findsOneWidget);
-    expect(find.text('Stream ativa: não'), findsOneWidget);
-    expect(find.text('Total emitido: 0'), findsOneWidget);
+    expect(find.text('Debug da sessão', skipOffstage: false), findsOneWidget);
+    expect(find.text('Stream ativa: não', skipOffstage: false), findsOneWidget);
+    expect(find.text('Total emitido: 0', skipOffstage: false), findsOneWidget);
     expect(
       find.text('Diagnóstico da coleta', skipOffstage: false),
       findsOneWidget,
@@ -1236,11 +1300,17 @@ final class _NullHealthKitSensorProvider implements SensorProvider {
   }
 }
 
-final class _StreamHealthKitSensorProvider implements SensorProvider {
-  final StreamController<SensorSample> _controller =
-      StreamController<SensorSample>();
+final class _StreamHealthKitSensorProvider
+    implements SensorProvider, ResettableSensorDeduplication {
+  _StreamHealthKitSensorProvider({this.latestSample});
 
+  StreamController<SensorSample>? _controller;
+  SensorSample? latestSample;
   bool isCanceled = false;
+  int cancelCount = 0;
+  int watchListenCount = 0;
+  int resetDeduplicationCount = 0;
+  int getLatestSampleCount = 0;
 
   @override
   SensorProviderType get type => SensorProviderType.healthkit;
@@ -1250,7 +1320,8 @@ final class _StreamHealthKitSensorProvider implements SensorProvider {
 
   @override
   Future<SensorSample?> getLatestSample() async {
-    return null;
+    getLatestSampleCount += 1;
+    return latestSample;
   }
 
   @override
@@ -1265,20 +1336,30 @@ final class _StreamHealthKitSensorProvider implements SensorProvider {
 
   @override
   Stream<SensorSample> watchSamples() {
-    _controller.onCancel = () {
+    watchListenCount += 1;
+    final controller = StreamController<SensorSample>();
+    _controller = controller;
+    controller.onCancel = () {
       isCanceled = true;
+      cancelCount += 1;
     };
-    return _controller.stream;
+    return controller.stream;
   }
 
   void add(SensorSample sample) {
-    if (!_controller.isClosed) {
-      _controller.add(sample);
+    final controller = _controller;
+    if (controller != null && !controller.isClosed) {
+      controller.add(sample);
     }
   }
 
-  Future<void> close() {
-    return _controller.close();
+  @override
+  void resetDeduplication() {
+    resetDeduplicationCount += 1;
+  }
+
+  Future<void> close() async {
+    await _controller?.close();
   }
 }
 

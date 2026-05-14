@@ -6,7 +6,8 @@ import 'package:health/health.dart';
 import '../../domain/models/sensor_sample.dart';
 import 'sensor_provider.dart';
 
-final class HealthKitSensorProvider implements SensorProvider {
+final class HealthKitSensorProvider
+    implements SensorProvider, ResettableSensorDeduplication {
   HealthKitSensorProvider({Health? health}) : _health = health ?? Health();
 
   static const List<HealthDataType> plannedTypes = [
@@ -21,6 +22,7 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   final Health _health;
   String _permissionStatusMessage = 'Permissão HealthKit ainda não solicitada.';
+  String? _lastEmittedSampleId;
   static const int _fallbackHrv = 40;
   static const Duration _diagnosticWindow = Duration(minutes: 30);
 
@@ -223,7 +225,6 @@ final class HealthKitSensorProvider implements SensorProvider {
   @override
   Stream<SensorSample> watchSamples() {
     Timer? timer;
-    String? lastSampleId;
     final controller = StreamController<SensorSample>();
 
     Future<void> poll() async {
@@ -240,15 +241,15 @@ final class HealthKitSensorProvider implements SensorProvider {
         return;
       }
       _debugLog('watchSamples sample encontrado: ${_describeSample(sample)}.');
-      if (sample.id == lastSampleId) {
+      if (sample.id == _lastEmittedSampleId) {
         _debugLog(
           'watchSamples sample descartado: duplicado id=${sample.id} '
-          'lastSampleId=$lastSampleId.',
+          'lastSampleId=$_lastEmittedSampleId.',
         );
         return;
       }
 
-      lastSampleId = sample.id;
+      _lastEmittedSampleId = sample.id;
       _debugLog('watchSamples sample emitido: ${_describeSample(sample)}.');
       controller.add(sample);
     }
@@ -267,6 +268,12 @@ final class HealthKitSensorProvider implements SensorProvider {
     };
 
     return controller.stream;
+  }
+
+  @override
+  void resetDeduplication() {
+    _debugLog('watchSamples deduplicação resetada.');
+    _lastEmittedSampleId = null;
   }
 
   Future<bool> _ensurePermissionsForRead() async {

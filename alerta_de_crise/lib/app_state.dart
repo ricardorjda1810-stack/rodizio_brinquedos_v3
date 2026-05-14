@@ -116,6 +116,7 @@ final class AppState extends ChangeNotifier {
   final List<int> _recentScores = [];
   RiskEvent? _activeEvent;
   Timer? _simulationTimer;
+  Timer? _healthKitSessionFallbackTimer;
   StreamSubscription<SensorSample>? _healthKitSampleSubscription;
   bool _hasPendingAlert = false;
   bool _isDisposed = false;
@@ -278,7 +279,6 @@ final class AppState extends ChangeNotifier {
     if (type == SensorProviderType.healthkit) {
       _currentStatusMessage =
           'HealthKit selecionado. Carregue o último dado disponível ou use a simulação quando preferir.';
-      _startHealthKitSessionCollectionIfNeeded();
     } else {
       _lastHealthKitSample = null;
       _applyRiskEvaluation(_currentSample);
@@ -396,7 +396,7 @@ final class AppState extends ChangeNotifier {
       'Sessão iniciada id=${_currentResearchSession!.id} '
       'provider=$_diagnosticsSourceLabel.',
     );
-    _startHealthKitSessionCollectionIfNeeded();
+    _startHealthKitSessionCollectionForActiveSession();
     notifyListeners();
   }
 
@@ -620,6 +620,7 @@ final class AppState extends ChangeNotifier {
     _isDisposed = true;
     _simulationTimer?.cancel();
     _stopHealthKitSessionCollection();
+    _cancelHealthKitSessionFallback();
     super.dispose();
   }
 
@@ -664,7 +665,7 @@ final class AppState extends ChangeNotifier {
     }
 
     if (sample == null) {
-      _recordPipelineIgnore(null, 'provider retornou null em leitura avulsa');
+      _recordPipelineMiss('provider retornou null em leitura avulsa');
       _currentStatusMessage =
           _sensorProvider.type == SensorProviderType.healthkit
           ? 'Nenhum dado recente encontrado no HealthKit.'
@@ -731,6 +732,25 @@ final class AppState extends ChangeNotifier {
     );
   }
 
+  void _startHealthKitSessionCollectionForActiveSession() {
+    if (_sensorProvider.type != SensorProviderType.healthkit) {
+      _startHealthKitSessionCollectionIfNeeded();
+      return;
+    }
+
+    if (!hasActiveResearchSession) {
+      _pipelineLog('Stream HealthKit não reiniciada: sem sessão ativa.');
+      return;
+    }
+
+    _pipelineLog('Reiniciando stream HealthKit para a sessão ativa.');
+    _stopHealthKitSessionCollection();
+    _resetProviderDeduplication();
+    _startHealthKitSessionCollectionIfNeeded();
+    unawaited(_loadImmediateHealthKitSessionSample());
+    _scheduleHealthKitSessionFallback();
+  }
+
   void _stopHealthKitSessionCollection() {
     if (_healthKitSampleSubscription == null) {
       _pipelineLog('Stream HealthKit cancelada: não havia stream ativa.');
@@ -740,6 +760,92 @@ final class AppState extends ChangeNotifier {
     _pipelineLog('Stream HealthKit cancelada.');
     unawaited(_healthKitSampleSubscription?.cancel());
     _healthKitSampleSubscription = null;
+    _cancelHealthKitSessionFallback();
+  }
+
+  Future<void> _loadImmediateHealthKitSessionSample() async {
+    if (_sensorProvider.type != SensorProviderType.healthkit ||
+        !hasActiveResearchSession) {
+      return;
+    }
+
+    _pipelineLog('Leitura imediata HealthKit iniciada para sessão ativa.');
+    final sample = await _sensorProvider.getLatestSample();
+    if (_isDisposed ||
+        _sensorProvider.type != SensorProviderType.healthkit ||
+        !hasActiveResearchSession) {
+      return;
+    }
+
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
+    if (sample == null) {
+      _recordPipelineMiss('leitura imediata HealthKit retornou null');
+      notifyListeners();
+      return;
+    }
+
+    _recordPipelineEmission(
+      sample,
+      source: 'healthkit.getLatestSample.immediate',
+    );
+    _applySensorSample(sample);
+    _currentStatusMessage = 'Último dado do HealthKit carregado.';
+    notifyListeners();
+  }
+
+  void _scheduleHealthKitSessionFallback() {
+    _cancelHealthKitSessionFallback();
+    _healthKitSessionFallbackTimer = Timer(const Duration(seconds: 30), () {
+      if (_isDisposed ||
+          _sensorProvider.type != SensorProviderType.healthkit ||
+          !hasActiveResearchSession ||
+          _savedSamples > 0) {
+        return;
+      }
+
+      _pipelineLog(
+        'Fallback HealthKit em 30s: nenhum sample salvo; tentando leitura avulsa.',
+      );
+      unawaited(_loadFallbackHealthKitSessionSample());
+    });
+  }
+
+  Future<void> _loadFallbackHealthKitSessionSample() async {
+    final sample = await _sensorProvider.getLatestSample();
+    if (_isDisposed ||
+        _sensorProvider.type != SensorProviderType.healthkit ||
+        !hasActiveResearchSession ||
+        _savedSamples > 0) {
+      return;
+    }
+
+    _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
+    if (sample == null) {
+      _recordPipelineMiss('fallback HealthKit 30s retornou null');
+      notifyListeners();
+      return;
+    }
+
+    _recordPipelineEmission(
+      sample,
+      source: 'healthkit.getLatestSample.fallback30s',
+    );
+    _applySensorSample(sample);
+    _currentStatusMessage = 'Último dado do HealthKit carregado.';
+    notifyListeners();
+  }
+
+  void _cancelHealthKitSessionFallback() {
+    _healthKitSessionFallbackTimer?.cancel();
+    _healthKitSessionFallbackTimer = null;
+  }
+
+  void _resetProviderDeduplication() {
+    final provider = _sensorProvider;
+    if (provider is ResettableSensorDeduplication) {
+      (provider as ResettableSensorDeduplication).resetDeduplication();
+      _pipelineLog('Deduplicação do provider resetada.');
+    }
   }
 
   void _applySensorSample(SensorSample sample) {
@@ -887,6 +993,11 @@ final class AppState extends ChangeNotifier {
       'sample=${sample == null ? 'null' : _describeSensorSample(sample)} '
       'totalIgnorados=$_ignoredSamples.',
     );
+  }
+
+  void _recordPipelineMiss(String reason) {
+    _lastPipelineIgnoreReason = reason;
+    _pipelineLog('Nenhum sample para salvar: motivo="$reason".');
   }
 
   void _recordDuplicateSessionSample(
