@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:health/health.dart';
 
@@ -21,6 +22,7 @@ final class HealthKitSensorProvider implements SensorProvider {
   final Health _health;
   String _permissionStatusMessage = 'Permissão HealthKit ainda não solicitada.';
   static const int _fallbackHrv = 40;
+  static const Duration _diagnosticWindow = Duration(minutes: 30);
 
   @override
   SensorProviderType get type => SensorProviderType.healthkit;
@@ -30,6 +32,7 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   @override
   Future<bool> requestPermissions() async {
+    _debugLog('requestPermissions iniciado.');
     try {
       await _health.configure();
       final granted = await _health.requestAuthorization(
@@ -39,16 +42,19 @@ final class HealthKitSensorProvider implements SensorProvider {
       _permissionStatusMessage = granted
           ? 'Permissão HealthKit concedida.'
           : 'Permissão HealthKit não concedida.';
+      _debugLog('requestPermissions resultado: $granted.');
       return granted;
-    } catch (_) {
+    } catch (error) {
       _permissionStatusMessage =
           'Permissão HealthKit indisponível neste ambiente.';
+      _debugLog('requestPermissions erro: $error.');
       return false;
     }
   }
 
   @override
   Future<bool> hasPermissions() async {
+    _debugLog('hasPermissions iniciado.');
     try {
       await _health.configure();
       final granted = await _health.hasPermissions(
@@ -58,15 +64,18 @@ final class HealthKitSensorProvider implements SensorProvider {
       if (granted == null) {
         _permissionStatusMessage =
             'O iOS não informa o status de leitura do HealthKit. Solicite permissão para continuar a preparação.';
+        _debugLog('hasPermissions retornou null.');
         return false;
       }
       _permissionStatusMessage = granted
           ? 'Permissão HealthKit concedida.'
           : 'Permissão HealthKit ainda não concedida.';
+      _debugLog('hasPermissions resultado: $granted.');
       return granted;
-    } catch (_) {
+    } catch (error) {
       _permissionStatusMessage =
           'Permissão HealthKit indisponível neste ambiente.';
+      _debugLog('hasPermissions erro: $error.');
       return false;
     }
   }
@@ -80,28 +89,33 @@ final class HealthKitSensorProvider implements SensorProvider {
         return null;
       }
 
-      final now = DateTime.now();
-      final start = now.subtract(const Duration(days: 30));
-      final heartRatePoint = await _latestPoint(
+      final window = _debugWindow();
+      final heartRatePoints = await _pointsForType(
         HealthDataType.HEART_RATE,
-        start,
-        now,
+        window.start,
+        window.end,
       );
+      final heartRatePoint = _latestFromPoints(heartRatePoints);
       if (heartRatePoint == null) {
         _permissionStatusMessage =
             'Nenhum dado recente encontrado no HealthKit.';
+        _debugLog(
+          'Nenhum HEART_RATE encontrado nos últimos ${_diagnosticWindow.inMinutes} minutos.',
+        );
         return null;
       }
 
-      final hrvPoint = await _latestPoint(
+      final hrvPoints = await _pointsForType(
         HealthDataType.HEART_RATE_VARIABILITY_SDNN,
-        start,
-        now,
+        window.start,
+        window.end,
       );
+      final hrvPoint = _latestFromPoints(hrvPoints);
       final heartRate = _numericValue(heartRatePoint)?.round();
       if (heartRate == null || heartRate <= 0) {
         _permissionStatusMessage =
             'Nenhum dado recente encontrado no HealthKit.';
+        _debugLog('HEART_RATE encontrado sem valor numérico válido.');
         return null;
       }
 
@@ -111,6 +125,12 @@ final class HealthKitSensorProvider implements SensorProvider {
       _permissionStatusMessage = hasRealHrv
           ? 'Último dado do HealthKit carregado.'
           : 'Última frequência cardíaca carregada. HRV recente não encontrado.';
+      _debugLog(
+        'Leitura HealthKit: FC=${heartRatePoint.dateTo.toIso8601String()} '
+        'valor=$heartRate, HRV=${hrvPoint?.dateTo.toIso8601String() ?? 'não encontrado'} '
+        'valor=${hasRealHrv ? hrv : 'indisponível'}, '
+        'counts FC=${heartRatePoints.length} HRV=${hrvPoints.length}.',
+      );
 
       return SensorSample(
         id:
@@ -121,11 +141,83 @@ final class HealthKitSensorProvider implements SensorProvider {
         hrv: hasRealHrv ? hrv : _fallbackHrv,
         motionState: hasRealHrv ? 'healthkit' : 'healthkit-hrv-indisponivel',
       );
-    } catch (_) {
+    } catch (error) {
       _permissionStatusMessage =
           'Não foi possível ler dados recentes do HealthKit.';
+      _debugLog('getLatestSample erro: $error.');
       return null;
     }
+  }
+
+  Future<String> debugHealthKitStatus() async {
+    final lines = <String>[
+      'Diagnóstico bruto HealthKit',
+      'Janela: últimos ${_diagnosticWindow.inMinutes} minutos',
+      'Executado em: ${DateTime.now().toIso8601String()}',
+    ];
+
+    try {
+      final canRead = await _ensurePermissionsForRead();
+      lines.add('Permissões: ${canRead ? 'concedidas' : 'não concedidas'}');
+      lines.add('Mensagem de permissão: $_permissionStatusMessage');
+      _debugLog('debugHealthKitStatus permissões: $canRead.');
+
+      if (!canRead) {
+        lines.add('Permissão HealthKit necessária.');
+        return lines.join('\n');
+      }
+
+      final window = _debugWindow();
+      final heartRatePoints = await _pointsForType(
+        HealthDataType.HEART_RATE,
+        window.start,
+        window.end,
+      );
+      final hrvPoints = await _pointsForType(
+        HealthDataType.HEART_RATE_VARIABILITY_SDNN,
+        window.start,
+        window.end,
+      );
+      final heartRatePoint = _latestFromPoints(heartRatePoints);
+      final hrvPoint = _latestFromPoints(hrvPoints);
+      final heartRate = _numericValue(heartRatePoint);
+      final hrv = _numericValue(hrvPoint);
+
+      lines
+        ..add('Samples HEART_RATE na janela: ${heartRatePoints.length}')
+        ..add('Samples HRV_SDNN na janela: ${hrvPoints.length}')
+        ..add(
+          'Último FC encontrado: ${heartRate == null ? 'não encontrado' : heartRate.round()}',
+        )
+        ..add(
+          'Timestamp FC: ${heartRatePoint?.dateTo.toIso8601String() ?? 'não encontrado'}',
+        )
+        ..add(
+          'Último HRV encontrado: ${hrv == null ? 'não encontrado' : hrv.round()}',
+        )
+        ..add(
+          'Timestamp HRV: ${hrvPoint?.dateTo.toIso8601String() ?? 'não encontrado'}',
+        )
+        ..add('Tipos consultados: HEART_RATE, HEART_RATE_VARIABILITY_SDNN');
+
+      if (heartRatePoints.isEmpty && hrvPoints.isEmpty) {
+        lines.add('Nenhum sample encontrado nos últimos 30 minutos.');
+      }
+
+      _debugLog(
+        'debugHealthKitStatus counts: HEART_RATE=${heartRatePoints.length}, '
+        'HRV_SDNN=${hrvPoints.length}.',
+      );
+      _debugLog(
+        'debugHealthKitStatus latest: FC=${heartRatePoint?.dateTo.toIso8601String() ?? 'n/a'} '
+        'HRV=${hrvPoint?.dateTo.toIso8601String() ?? 'n/a'}.',
+      );
+    } catch (error) {
+      lines.add('Erro: $error');
+      _debugLog('debugHealthKitStatus erro: $error.');
+    }
+
+    return lines.join('\n');
   }
 
   @override
@@ -167,7 +259,7 @@ final class HealthKitSensorProvider implements SensorProvider {
     return requestPermissions();
   }
 
-  Future<HealthDataPoint?> _latestPoint(
+  Future<List<HealthDataPoint>> _pointsForType(
     HealthDataType type,
     DateTime start,
     DateTime end,
@@ -181,12 +273,28 @@ final class HealthKitSensorProvider implements SensorProvider {
       startTime: start,
       endTime: end,
     );
+    _debugLog(
+      '${type.name}: ${points.length} samples entre '
+      '${start.toIso8601String()} e ${end.toIso8601String()}.',
+    );
+    for (final point in points.take(5)) {
+      _debugLog(
+        '${type.name} sample: from=${point.dateFrom.toIso8601String()} '
+        'to=${point.dateTo.toIso8601String()} value=${_numericValue(point) ?? 'não numérico'} '
+        'source=${point.sourceName}.',
+      );
+    }
+    return points;
+  }
+
+  HealthDataPoint? _latestFromPoints(List<HealthDataPoint> points) {
     if (points.isEmpty) {
       return null;
     }
 
-    points.sort((a, b) => b.dateTo.compareTo(a.dateTo));
-    return points.first;
+    final sortedPoints = List<HealthDataPoint>.of(points)
+      ..sort((a, b) => b.dateTo.compareTo(a.dateTo));
+    return sortedPoints.first;
   }
 
   num? _numericValue(HealthDataPoint? point) {
@@ -208,5 +316,14 @@ final class HealthKitSensorProvider implements SensorProvider {
     }
 
     return heartRatePoint.dateTo;
+  }
+
+  ({DateTime start, DateTime end}) _debugWindow() {
+    final end = DateTime.now();
+    return (start: end.subtract(_diagnosticWindow), end: end);
+  }
+
+  void _debugLog(String message) {
+    developer.log(message, name: 'HealthKitSensorProvider');
   }
 }

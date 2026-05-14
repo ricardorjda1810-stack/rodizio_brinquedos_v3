@@ -117,6 +117,8 @@ final class ResearchPage extends StatelessWidget {
           const SizedBox(height: UiTokens.m),
           _DiagnosticsCard(appState: appState),
           const SizedBox(height: UiTokens.m),
+          _HealthKitDebugCard(appState: appState),
+          const SizedBox(height: UiTokens.m),
           _EndedSessionsCard(session: lastEndedSession),
           const SizedBox(height: UiTokens.m),
           OutlinedButton(
@@ -232,6 +234,55 @@ final class ResearchPage extends StatelessWidget {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
     };
+  }
+}
+
+final class _HealthKitDebugCard extends StatelessWidget {
+  const _HealthKitDebugCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final isHealthKit =
+        appState.sensorProviderType == SensorProviderType.healthkit;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Diagnóstico bruto HealthKit',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            OutlinedButton(
+              onPressed: isHealthKit && !appState.isHealthKitDebugRunning
+                  ? appState.runHealthKitDebugDiagnostics
+                  : null,
+              child: Text(
+                appState.isHealthKitDebugRunning
+                    ? 'Executando diagnóstico'
+                    : 'Executar diagnóstico',
+              ),
+            ),
+            const SizedBox(height: UiTokens.s),
+            SelectableText(
+              appState.healthKitDebugStatus,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: UiTokens.textSoft,
+                fontFamily: 'monospace',
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

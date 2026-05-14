@@ -100,6 +100,8 @@ final class AppState extends ChangeNotifier {
   String _currentStatusMessage;
   bool _dataSourcePermissionGranted = true;
   String _dataSourcePermissionMessage = 'Simulação ativa.';
+  String _healthKitDebugStatus = 'Diagnóstico HealthKit ainda não executado.';
+  bool _isHealthKitDebugRunning = false;
   final List<RiskEvent> _events;
   final List<SensorSample> _recentSamples;
   final List<int> _recentScores = [];
@@ -138,6 +140,8 @@ final class AppState extends ChangeNotifier {
       _sensorProvider.type == SensorProviderType.healthkit;
   bool get dataSourcePermissionGranted => _dataSourcePermissionGranted;
   String get dataSourcePermissionMessage => _dataSourcePermissionMessage;
+  String get healthKitDebugStatus => _healthKitDebugStatus;
+  bool get isHealthKitDebugRunning => _isHealthKitDebugRunning;
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
@@ -272,6 +276,30 @@ final class AppState extends ChangeNotifier {
     _currentStatusMessage = 'Último dado do HealthKit carregado.';
     notifyListeners();
     return true;
+  }
+
+  Future<void> runHealthKitDebugDiagnostics() async {
+    if (_sensorProvider is! HealthKitSensorProvider) {
+      _healthKitDebugStatus =
+          'Selecione HealthKit experimental para executar o diagnóstico.';
+      notifyListeners();
+      return;
+    }
+
+    _isHealthKitDebugRunning = true;
+    _healthKitDebugStatus = 'Executando diagnóstico HealthKit...';
+    notifyListeners();
+
+    final provider = _sensorProvider as HealthKitSensorProvider;
+    final status = await provider.debugHealthKitStatus();
+    if (_isDisposed) {
+      return;
+    }
+
+    _dataSourcePermissionMessage = provider.permissionStatusMessage;
+    _healthKitDebugStatus = status;
+    _isHealthKitDebugRunning = false;
+    notifyListeners();
   }
 
   void startSimulation() {

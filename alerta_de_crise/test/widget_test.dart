@@ -290,6 +290,15 @@ void main() {
     expect(provider.permissionStatusMessage, contains('HealthKit'));
   });
 
+  test('healthkit debug status does not break in test environment', () async {
+    final provider = HealthKitSensorProvider();
+
+    final status = await provider.debugHealthKitStatus();
+
+    expect(status, contains('Diagnóstico bruto HealthKit'));
+    expect(status, contains('Permissões:'));
+  });
+
   test(
     'switching sensor provider to healthkit does not break app state',
     () async {
@@ -534,10 +543,17 @@ void main() {
     expect(find.text('Sem sessão ativa'), findsOneWidget);
     expect(find.text('Diagnóstico da coleta'), findsOneWidget);
     expect(find.text('Total de samples: 0'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Exportar diagnóstico CSV'), 120);
-    expect(find.text('Exportar diagnóstico CSV'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Diagnóstico bruto HealthKit'),
+      120,
+    );
+    expect(find.text('Diagnóstico bruto HealthKit'), findsOneWidget);
+    expect(
+      find.text('Executar diagnóstico', skipOffstage: false),
+      findsOneWidget,
+    );
 
-    await tester.drag(find.byType(Scrollable), const Offset(0, 500));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 500));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Iniciar sessão'));
     await tester.pumpAndSettle();
