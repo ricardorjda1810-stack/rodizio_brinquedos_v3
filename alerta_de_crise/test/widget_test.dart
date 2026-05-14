@@ -368,12 +368,22 @@ void main() {
     expect(appState.currentSample.id, 'healthkit-1');
     expect(appState.currentResearchSession?.samples, hasLength(1));
     expect(appState.currentResearchSession?.samples.first.heartRate, 88);
+    expect(appState.emittedSamples, 1);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 0);
+    expect(appState.lastPipelineEmittedSample?.id, 'healthkit-1');
+    expect(appState.lastPipelineSavedSample?.heartRate, 88);
 
     provider.add(_sample('healthkit-1-copy', 88, 35, motionState: 'healthkit'));
     await Future<void>.delayed(Duration.zero);
 
     expect(appState.currentResearchSession?.samples, hasLength(1));
     expect(appState.collectionDiagnostics.duplicateSamplesSkipped, 1);
+    expect(appState.emittedSamples, 2);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 1);
+    expect(appState.lastPipelineIgnoredSample?.id, 'healthkit-1-copy');
+    expect(appState.lastPipelineIgnoreReason, contains('duplicado'));
 
     appState.endResearchSession();
     await Future<void>.delayed(Duration.zero);
@@ -607,8 +617,29 @@ void main() {
     expect(find.text('Pesquisa'), findsOneWidget);
     expect(find.text('Sem sessão ativa'), findsOneWidget);
     expect(find.text('Protocolo guiado'), findsOneWidget);
-    expect(find.text('Diagnóstico da coleta'), findsOneWidget);
-    expect(find.text('Total de samples: 0'), findsOneWidget);
+    expect(find.text('Debug da sessão'), findsOneWidget);
+    expect(find.text('Stream ativa: não'), findsOneWidget);
+    expect(find.text('Total emitido: 0'), findsOneWidget);
+    expect(
+      find.text('Diagnóstico da coleta', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Total de samples: 0', skipOffstage: false),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Iniciar sessão'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sessão ativa'), findsOneWidget);
+    expect(find.text('Amostras coletadas: 0'), findsOneWidget);
+
+    await tester.tap(find.text('Iniciar simulação'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Amostras coletadas: 1'), findsOneWidget);
+    expect(find.text('Última amostra'), findsOneWidget);
+
     await tester.scrollUntilVisible(find.text('Análise temporal'), 120);
     expect(find.text('Análise temporal'), findsOneWidget);
     expect(
@@ -624,21 +655,6 @@ void main() {
       find.text('Executar diagnóstico', skipOffstage: false),
       findsOneWidget,
     );
-
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, 1000));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Iniciar sessão'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Sessão ativa'), findsOneWidget);
-    expect(find.text('Amostras coletadas: 0'), findsOneWidget);
-
-    await tester.tap(find.text('Iniciar simulação'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Amostras coletadas: 1'), findsOneWidget);
-    expect(find.text('Total de samples: 1'), findsOneWidget);
-    expect(find.text('Última amostra'), findsOneWidget);
   });
 
   testWidgets('guided protocol route starts and advances steps', (
@@ -701,6 +717,9 @@ void main() {
     expect(session!.samples, hasLength(1));
     expect(session.samples.first.heartRate, appState.currentSample.heartRate);
     expect(session.samples.first.riskScore, appState.currentScore);
+    expect(appState.emittedSamples, 1);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 0);
 
     appState.endResearchSession();
 

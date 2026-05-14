@@ -6,6 +6,7 @@ import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/feeling_level.dart';
 import '../../domain/models/research_session.dart';
 import '../../domain/models/risk_state.dart';
+import '../../domain/models/sensor_sample.dart';
 import '../../domain/models/session_sample.dart';
 import '../../domain/models/temporal_sample_analysis.dart';
 import '../theme/ui_tokens.dart';
@@ -122,6 +123,8 @@ final class ResearchPage extends StatelessWidget {
           ),
           const SizedBox(height: UiTokens.m),
           _LastSampleCard(sample: lastSample),
+          const SizedBox(height: UiTokens.m),
+          _SessionDebugCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           _DiagnosticsCard(appState: appState),
           const SizedBox(height: UiTokens.m),
@@ -287,6 +290,94 @@ final class ResearchPage extends StatelessWidget {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
     };
+  }
+}
+
+final class _SessionDebugCard extends StatelessWidget {
+  const _SessionDebugCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Debug da sessão',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            Text(
+              'Stream ativa: ${appState.isHealthKitSessionCollectionActive ? 'sim' : 'não'}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Provider atual: ${ResearchPage._sourceLabel(appState.sensorProviderType)}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Total emitido: ${appState.emittedSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Total salvo: ${appState.savedSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Total ignorado: ${appState.ignoredSamples}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            const SizedBox(height: UiTokens.s),
+            Text(
+              'Último sample emitido: ${_formatSensorSample(appState.lastPipelineEmittedSample)}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Último sample salvo: ${_formatSessionSample(appState.lastPipelineSavedSample)}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Último sample ignorado: ${_formatSensorSample(appState.lastPipelineIgnoredSample)}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+            Text(
+              'Motivo do último descarte: ${appState.lastPipelineIgnoreReason}',
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatSensorSample(SensorSample? sample) {
+    if (sample == null) {
+      return 'nenhum';
+    }
+
+    return '${sample.heartRate} bpm, HRV ${sample.hrv} ms, '
+        '${_formatTime(sample.timestamp)}';
+  }
+
+  String _formatSessionSample(SessionSample? sample) {
+    if (sample == null) {
+      return 'nenhum';
+    }
+
+    return '${sample.heartRate} bpm, HRV ${sample.hrv} ms, '
+        '${_formatTime(sample.timestamp)}';
+  }
+
+  String _formatTime(DateTime dateTime) {
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+
+    return '${twoDigits(dateTime.hour)}:${twoDigits(dateTime.minute)}:${twoDigits(dateTime.second)}';
   }
 }
 

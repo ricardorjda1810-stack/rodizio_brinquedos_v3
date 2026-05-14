@@ -104,6 +104,13 @@ final class AppState extends ChangeNotifier {
   String _dataSourcePermissionMessage = 'Simulação ativa.';
   String _healthKitDebugStatus = 'Diagnóstico HealthKit ainda não executado.';
   bool _isHealthKitDebugRunning = false;
+  SensorSample? _lastPipelineEmittedSample;
+  SessionSample? _lastPipelineSavedSample;
+  SensorSample? _lastPipelineIgnoredSample;
+  String _lastPipelineIgnoreReason = 'Nenhum descarte registrado.';
+  int _emittedSamples = 0;
+  int _savedSamples = 0;
+  int _ignoredSamples = 0;
   final List<RiskEvent> _events;
   final List<SensorSample> _recentSamples;
   final List<int> _recentScores = [];
@@ -147,6 +154,13 @@ final class AppState extends ChangeNotifier {
   String get dataSourcePermissionMessage => _dataSourcePermissionMessage;
   String get healthKitDebugStatus => _healthKitDebugStatus;
   bool get isHealthKitDebugRunning => _isHealthKitDebugRunning;
+  SensorSample? get lastPipelineEmittedSample => _lastPipelineEmittedSample;
+  SessionSample? get lastPipelineSavedSample => _lastPipelineSavedSample;
+  SensorSample? get lastPipelineIgnoredSample => _lastPipelineIgnoredSample;
+  String get lastPipelineIgnoreReason => _lastPipelineIgnoreReason;
+  int get emittedSamples => _emittedSamples;
+  int get savedSamples => _savedSamples;
+  int get ignoredSamples => _ignoredSamples;
   ResearchSession? get currentResearchSession => _currentResearchSession;
   bool get hasActiveResearchSession =>
       _currentResearchSession?.isActive ?? false;
@@ -369,6 +383,7 @@ final class AppState extends ChangeNotifier {
 
   void startResearchSession() {
     final now = DateTime.now();
+    _resetSessionPipelineDebug();
     _currentResearchSession = ResearchSession(
       id: 'research-${now.microsecondsSinceEpoch}',
       startedAt: now,
@@ -376,6 +391,10 @@ final class AppState extends ChangeNotifier {
     );
     _collectionDiagnostics = CollectionDiagnostics.empty(
       sourceLabel: _diagnosticsSourceLabel,
+    );
+    _pipelineLog(
+      'Sessão iniciada id=${_currentResearchSession!.id} '
+      'provider=$_diagnosticsSourceLabel.',
     );
     _startHealthKitSessionCollectionIfNeeded();
     notifyListeners();
@@ -390,6 +409,10 @@ final class AppState extends ChangeNotifier {
     final endedSession = session.copyWith(
       endedAt: DateTime.now(),
       notes: notes,
+    );
+    _pipelineLog(
+      'Sessão encerrada id=${session.id} samples=${session.samples.length} '
+      'emitted=$_emittedSamples saved=$_savedSamples ignored=$_ignoredSamples.',
     );
     _stopHealthKitSessionCollection();
     _currentResearchSession = endedSession;
@@ -624,7 +647,9 @@ final class AppState extends ChangeNotifier {
   void _requestNextSensorSample() {
     final provider = _sensorProvider;
     if (provider is MockSensorProvider) {
-      _applySensorSample(provider.nextSample());
+      final sample = provider.nextSample();
+      _recordPipelineEmission(sample, source: 'mock.nextSample');
+      _applySensorSample(sample);
       notifyListeners();
       return;
     }
@@ -639,6 +664,7 @@ final class AppState extends ChangeNotifier {
     }
 
     if (sample == null) {
+      _recordPipelineIgnore(null, 'provider retornou null em leitura avulsa');
       _currentStatusMessage =
           _sensorProvider.type == SensorProviderType.healthkit
           ? 'Nenhum dado recente encontrado no HealthKit.'
@@ -647,19 +673,41 @@ final class AppState extends ChangeNotifier {
       return;
     }
 
+    _recordPipelineEmission(sample, source: 'provider.getLatestSample');
     _applySensorSample(sample);
     notifyListeners();
   }
 
   void _startHealthKitSessionCollectionIfNeeded() {
-    if (_sensorProvider.type != SensorProviderType.healthkit ||
-        _healthKitSampleSubscription != null) {
+    if (_sensorProvider.type != SensorProviderType.healthkit) {
+      _pipelineLog(
+        'Stream HealthKit não iniciada: provider atual=$_diagnosticsSourceLabel.',
+      );
       return;
     }
 
+    if (_healthKitSampleSubscription != null) {
+      _pipelineLog('Stream HealthKit não iniciada: stream já ativa.');
+      return;
+    }
+
+    _pipelineLog(
+      'Stream HealthKit iniciada. sessãoAtiva=$hasActiveResearchSession.',
+    );
     _healthKitSampleSubscription = _sensorProvider.watchSamples().listen(
       (sample) {
-        if (_isDisposed || !hasActiveResearchSession) {
+        _recordPipelineEmission(sample, source: 'healthkit.watchSamples');
+        _pipelineLog(
+          'Sample recebido do provider: ${_describeSensorSample(sample)} '
+          'sessãoAtiva=$hasActiveResearchSession.',
+        );
+        if (_isDisposed) {
+          _recordPipelineIgnore(sample, 'AppState descartado');
+          return;
+        }
+        if (!hasActiveResearchSession) {
+          _recordPipelineIgnore(sample, 'sem sessão ativa');
+          notifyListeners();
           return;
         }
 
@@ -668,11 +716,12 @@ final class AppState extends ChangeNotifier {
         _currentStatusMessage = 'Último dado do HealthKit carregado.';
         notifyListeners();
       },
-      onError: (_) {
+      onError: (error) {
         if (_isDisposed) {
           return;
         }
 
+        _recordPipelineIgnore(null, 'erro no stream HealthKit: $error');
         _currentStatusMessage =
             _dataSourcePermissionMessage.contains('Permissão')
             ? 'Permissão HealthKit necessária.'
@@ -683,6 +732,12 @@ final class AppState extends ChangeNotifier {
   }
 
   void _stopHealthKitSessionCollection() {
+    if (_healthKitSampleSubscription == null) {
+      _pipelineLog('Stream HealthKit cancelada: não havia stream ativa.');
+      return;
+    }
+
+    _pipelineLog('Stream HealthKit cancelada.');
     unawaited(_healthKitSampleSubscription?.cancel());
     _healthKitSampleSubscription = null;
   }
@@ -730,6 +785,7 @@ final class AppState extends ChangeNotifier {
   void _addSampleToResearchSession(SensorSample sample) {
     final session = _currentResearchSession;
     if (session == null || !session.isActive) {
+      _recordPipelineIgnore(sample, 'sem sessão ativa ao salvar');
       return;
     }
 
@@ -745,6 +801,7 @@ final class AppState extends ChangeNotifier {
 
     final lastSample = session.samples.lastOrNull;
     if (lastSample != null && _isDuplicateSessionSample(lastSample, sample)) {
+      _recordDuplicateSessionSample(lastSample, sample);
       _collectionDiagnostics = _collectionDiagnostics.skipDuplicate();
       return;
     }
@@ -753,6 +810,7 @@ final class AppState extends ChangeNotifier {
     _currentResearchSession = session.copyWith(
       samples: [...session.samples, sessionSample],
     );
+    _recordPipelineSave(sessionSample);
     _addSampleToGuidedProtocol(sessionSample);
   }
 
@@ -789,6 +847,77 @@ final class AppState extends ChangeNotifier {
     return lastSample.timestamp == sample.timestamp &&
         lastSample.heartRate == sample.heartRate &&
         lastSample.hrv == sample.hrv;
+  }
+
+  void _resetSessionPipelineDebug() {
+    _lastPipelineEmittedSample = null;
+    _lastPipelineSavedSample = null;
+    _lastPipelineIgnoredSample = null;
+    _lastPipelineIgnoreReason = 'Nenhum descarte registrado.';
+    _emittedSamples = 0;
+    _savedSamples = 0;
+    _ignoredSamples = 0;
+  }
+
+  void _recordPipelineEmission(SensorSample sample, {required String source}) {
+    _emittedSamples += 1;
+    _lastPipelineEmittedSample = sample;
+    _pipelineLog(
+      'Sample emitido/recebido ($source): ${_describeSensorSample(sample)} '
+      'totalEmitidos=$_emittedSamples.',
+    );
+  }
+
+  void _recordPipelineSave(SessionSample sample) {
+    _savedSamples += 1;
+    _lastPipelineSavedSample = sample;
+    _pipelineLog(
+      'Sample salvo: ${_describeSessionSample(sample)} '
+      'totalSalvos=$_savedSamples '
+      'samplesSessão=${_currentResearchSession?.samples.length ?? 0}.',
+    );
+  }
+
+  void _recordPipelineIgnore(SensorSample? sample, String reason) {
+    _ignoredSamples += 1;
+    _lastPipelineIgnoredSample = sample;
+    _lastPipelineIgnoreReason = reason;
+    _pipelineLog(
+      'Sample ignorado: motivo="$reason" '
+      'sample=${sample == null ? 'null' : _describeSensorSample(sample)} '
+      'totalIgnorados=$_ignoredSamples.',
+    );
+  }
+
+  void _recordDuplicateSessionSample(
+    SessionSample lastSample,
+    SensorSample sample,
+  ) {
+    final sameTimestamp = lastSample.timestamp == sample.timestamp;
+    final sameHeartRate = lastSample.heartRate == sample.heartRate;
+    final sameHrv = lastSample.hrv == sample.hrv;
+    _recordPipelineIgnore(
+      sample,
+      'duplicado: timestamp=$sameTimestamp FC=$sameHeartRate HRV=$sameHrv; '
+      'anterior=${_describeSessionSample(lastSample)}',
+    );
+  }
+
+  String _describeSensorSample(SensorSample sample) {
+    return 'id=${sample.id} ts=${sample.timestamp.toIso8601String()} '
+        'FC=${sample.heartRate} HRV=${sample.hrv} '
+        'motion=${sample.motionState}';
+  }
+
+  String _describeSessionSample(SessionSample sample) {
+    return 'ts=${sample.timestamp.toIso8601String()} '
+        'FC=${sample.heartRate} HRV=${sample.hrv} '
+        'score=${sample.riskScore} state=${sample.riskState.key} '
+        'motion=${sample.motionState}';
+  }
+
+  void _pipelineLog(String message) {
+    debugPrint('[SignalFlowSessionPipeline] $message');
   }
 
   String get _diagnosticsSourceLabel {

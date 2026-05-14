@@ -227,22 +227,41 @@ final class HealthKitSensorProvider implements SensorProvider {
     final controller = StreamController<SensorSample>();
 
     Future<void> poll() async {
+      _debugLog('watchSamples polling executado.');
       final sample = await getLatestSample();
-      if (sample == null || sample.id == lastSampleId || controller.isClosed) {
+      if (controller.isClosed) {
+        _debugLog('watchSamples sample descartado: controller fechado.');
+        return;
+      }
+      if (sample == null) {
+        _debugLog(
+          'watchSamples sample descartado: getLatestSample retornou null.',
+        );
+        return;
+      }
+      _debugLog('watchSamples sample encontrado: ${_describeSample(sample)}.');
+      if (sample.id == lastSampleId) {
+        _debugLog(
+          'watchSamples sample descartado: duplicado id=${sample.id} '
+          'lastSampleId=$lastSampleId.',
+        );
         return;
       }
 
       lastSampleId = sample.id;
+      _debugLog('watchSamples sample emitido: ${_describeSample(sample)}.');
       controller.add(sample);
     }
 
     controller.onListen = () {
+      _debugLog('watchSamples polling iniciado: intervalo=15s.');
       unawaited(poll());
       timer = Timer.periodic(const Duration(seconds: 15), (_) {
         unawaited(poll());
       });
     };
     controller.onCancel = () {
+      _debugLog('watchSamples polling cancelado.');
       timer?.cancel();
       timer = null;
     };
@@ -325,5 +344,11 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   void _debugLog(String message) {
     developer.log(message, name: 'HealthKitSensorProvider');
+  }
+
+  String _describeSample(SensorSample sample) {
+    return 'id=${sample.id} ts=${sample.timestamp.toIso8601String()} '
+        'FC=${sample.heartRate} HRV=${sample.hrv} '
+        'motion=${sample.motionState}';
   }
 }
