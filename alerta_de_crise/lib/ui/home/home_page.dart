@@ -19,7 +19,7 @@ final class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Alerta de Crise'),
+        title: const Text('SignalFlow'),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).pushNamed('/settings'),

@@ -37,7 +37,7 @@ void main() {
     await tester.pumpWidget(const AlertaDeCriseApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Alerta de Crise'), findsOneWidget);
+    expect(find.text('SignalFlow'), findsOneWidget);
     expect(
       find.text(
         'O app observa sinais de ativação fisiológica e ajuda você a fazer uma regulação curta.',

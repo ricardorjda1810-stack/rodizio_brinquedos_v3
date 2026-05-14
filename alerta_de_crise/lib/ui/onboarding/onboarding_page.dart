@@ -20,7 +20,7 @@ final class OnboardingPage extends StatelessWidget {
           children: [
             const SizedBox(height: UiTokens.xl),
             Text(
-              'Alerta de Crise',
+              'SignalFlow',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w900,
                 color: UiTokens.text,

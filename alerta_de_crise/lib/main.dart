@@ -46,7 +46,7 @@ final class _AlertaDeCriseAppState extends State<AlertaDeCriseApp> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return MaterialApp(
-              title: 'Alerta de Crise',
+              title: 'SignalFlow',
               debugShowCheckedModeBanner: false,
               theme: _buildTheme(),
               home: const Scaffold(
@@ -56,7 +56,7 @@ final class _AlertaDeCriseAppState extends State<AlertaDeCriseApp> {
           }
 
           return MaterialApp(
-            title: 'Alerta de Crise',
+            title: 'SignalFlow',
             debugShowCheckedModeBanner: false,
             theme: _buildTheme(),
             home: snapshot.data! ? const HomePage() : const OnboardingPage(),
