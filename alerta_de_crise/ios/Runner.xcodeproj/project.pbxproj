@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0381DD094DED3F64DCFB6A53 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 080771AA2260789ACB289A7A /* Pods_RunnerTests.framework */; };
+		A20A00000000000000000001 /* SignalFlowWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20A00000000000000000005 /* SignalFlowWatchApp.swift */; };
+		A20A00000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20A00000000000000000006 /* ContentView.swift */; };
+		A20A00000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20A00000000000000000008 /* Assets.xcassets */; };
+		A20A00000000000000000004 /* SignalFlow Watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A20A00000000000000000009 /* SignalFlow Watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
@@ -27,9 +31,27 @@
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
 		};
+		A20A00000000000000000015 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A20A0000000000000000000E;
+			remoteInfo = "SignalFlow Watch";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A20A00000000000000000013 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				A20A00000000000000000004 /* SignalFlow Watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,6 +66,11 @@
 
 /* Begin PBXFileReference section */
 		080771AA2260789ACB289A7A /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A20A00000000000000000005 /* SignalFlowWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalFlowWatchApp.swift; sourceTree = "<group>"; };
+		A20A00000000000000000006 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20A00000000000000000007 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20A00000000000000000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20A00000000000000000009 /* SignalFlow Watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SignalFlow Watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
@@ -76,6 +103,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				95F516C9E72F3A33A4E67643 /* Pods_Runner.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A20A0000000000000000000D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +162,7 @@
 			children = (
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
+				A20A0000000000000000000A /* SignalFlow Watch */,
 				97C146EF1CF9000F007C117D /* Products */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				46F8297E90357C9EB0CFFBA6 /* Pods */,
@@ -139,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
+				A20A00000000000000000009 /* SignalFlow Watch.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 			);
 			name = Products;
@@ -170,9 +206,37 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A20A0000000000000000000A /* SignalFlow Watch */ = {
+			isa = PBXGroup;
+			children = (
+				A20A00000000000000000005 /* SignalFlowWatchApp.swift */,
+				A20A00000000000000000006 /* ContentView.swift */,
+				A20A00000000000000000008 /* Assets.xcassets */,
+				A20A00000000000000000007 /* Info.plist */,
+			);
+			path = "SignalFlow Watch";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		A20A0000000000000000000E /* SignalFlow Watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A20A0000000000000000000F /* Build configuration list for PBXNativeTarget "SignalFlow Watch" */;
+			buildPhases = (
+				A20A0000000000000000000B /* Sources */,
+				A20A0000000000000000000D /* Frameworks */,
+				A20A0000000000000000000C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SignalFlow Watch";
+			productName = "SignalFlow Watch";
+			productReference = A20A00000000000000000009 /* SignalFlow Watch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		331C8080294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */;
@@ -201,6 +265,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				A20A00000000000000000013 /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				E69B1B985961DEC74434297A /* [CP] Embed Pods Frameworks */,
@@ -208,6 +273,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A20A00000000000000000014 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -237,6 +303,9 @@
 							};
 						};
 					};
+					A20A0000000000000000000E = {
+						CreatedOnToolsVersion = 15.0;
+					};
 				};
 			};
 			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */;
@@ -253,6 +322,7 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
+				A20A0000000000000000000E /* SignalFlow Watch */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
 			);
 		};
@@ -274,6 +344,14 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A20A0000000000000000000C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20A00000000000000000003 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,9 +471,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A20A0000000000000000000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20A00000000000000000001 /* SignalFlowWatchApp.swift in Sources */,
+				A20A00000000000000000002 /* ContentView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		A20A00000000000000000014 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A20A0000000000000000000E /* SignalFlow Watch */;
+			targetProxy = A20A00000000000000000015 /* PBXContainerItemProxy */;
+		};
 		331C8086294A63A400263BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
@@ -423,6 +515,86 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		A20A00000000000000000010 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72LJALLVLP;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "SignalFlow Watch/Info.plist";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.signalflow.app;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.signalflow.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		A20A00000000000000000011 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72LJALLVLP;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "SignalFlow Watch/Info.plist";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.signalflow.app;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.signalflow.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		A20A00000000000000000012 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 72LJALLVLP;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "SignalFlow Watch/Info.plist";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.signalflow.app;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.signalflow.app.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Profile;
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -709,6 +881,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A20A0000000000000000000F /* Build configuration list for PBXNativeTarget "SignalFlow Watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A20A00000000000000000010 /* Debug */,
+				A20A00000000000000000011 /* Release */,
+				A20A00000000000000000012 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
