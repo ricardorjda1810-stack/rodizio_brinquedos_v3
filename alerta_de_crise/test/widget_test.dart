@@ -17,6 +17,7 @@ import 'package:alerta_de_crise/data/sensors/sensor_provider.dart';
 import 'package:alerta_de_crise/domain/models/calibration_feedback.dart';
 import 'package:alerta_de_crise/domain/models/collection_diagnostics.dart';
 import 'package:alerta_de_crise/domain/models/feeling_level.dart';
+import 'package:alerta_de_crise/domain/models/guided_protocol_analysis.dart';
 import 'package:alerta_de_crise/domain/models/research_session.dart';
 import 'package:alerta_de_crise/domain/models/risk_event.dart';
 import 'package:alerta_de_crise/domain/models/risk_state.dart';
@@ -627,6 +628,75 @@ void main() {
     expect(verySparse.qualityLabel, 'Muito esparso');
   });
 
+  test('guided protocol analysis groups samples by phase', () {
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        60,
+        42,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 0, 30),
+        64,
+        40,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        94,
+        32,
+        protocolStepLabel: 'Ativação leve',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 2),
+        72,
+        38,
+        protocolStepLabel: 'Recuperação',
+      ),
+    ]);
+
+    expect(analysis.totalSamples, 4);
+    expect(analysis.overallAverageHeartRate, 72.5);
+    expect(analysis.phases.map((phase) => phase.stepLabel), [
+      'Repouso',
+      'Ativação leve',
+      'Recuperação',
+    ]);
+
+    final rest = analysis.phases.first;
+    expect(rest.sampleCount, 2);
+    expect(rest.averageHeartRate, 62);
+    expect(rest.minHeartRate, 60);
+    expect(rest.maxHeartRate, 64);
+    expect(rest.averageHrv, 41);
+    expect(rest.durationSeconds, 30);
+    expect(analysis.hasEnoughDataForCompleteAnalysis, isTrue);
+  });
+
+  test('guided protocol analysis ignores missing hrv values', () {
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        92,
+        40,
+        motionState: 'healthkit-hrv-indisponivel',
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        96,
+        0,
+        protocolStepLabel: 'Repouso',
+      ),
+    ]);
+
+    expect(analysis.phases.single.averageHrv, isNull);
+    expect(analysis.phases.single.minHrv, isNull);
+    expect(analysis.phases.single.maxHrv, isNull);
+    expect(analysis.overallAverageHrv, isNull);
+  });
+
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
 
@@ -735,6 +805,7 @@ void main() {
 
     expect(find.text('Protocolo guiado'), findsOneWidget);
     expect(find.text('Iniciar protocolo'), findsOneWidget);
+    expect(find.text('Análise por fase'), findsOneWidget);
 
     await tester.tap(find.text('Iniciar protocolo'));
     await tester.pump();
@@ -742,6 +813,7 @@ void main() {
     expect(find.text('Fase atual: Repouso'), findsOneWidget);
     expect(find.textContaining('Timer:'), findsOneWidget);
     expect(find.text('Samples nesta sessão: 1'), findsOneWidget);
+    expect(find.textContaining('Repouso -> FC média'), findsOneWidget);
 
     await tester.tap(find.text('Avançar etapa'));
     await tester.pump(const Duration(seconds: 1));
@@ -1241,6 +1313,37 @@ void main() {
     );
   });
 
+  test('csv exporter writes guided protocol analysis', () {
+    const exporter = CsvExporter();
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        60,
+        42,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 0, 30),
+        64,
+        40,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        94,
+        32,
+        protocolStepLabel: 'Ativação leve',
+      ),
+    ]);
+
+    final csv = exporter.exportGuidedProtocolAnalysis(analysis);
+
+    expect(
+      csv,
+      'phase,sampleCount,averageHeartRate,minHeartRate,maxHeartRate,averageHrv,durationSeconds\nRepouso,2,62.0,60,64,41.0,30.0\nAtivação leve,1,94.0,94,94,32.0,0.0',
+    );
+  });
+
   test('csv exporter writes calibration feedbacks', () {
     const exporter = CsvExporter();
     final csv = exporter.exportCalibrationFeedbacks([
@@ -1383,6 +1486,7 @@ SessionSample _sessionSample(
   int heartRate,
   int hrv, {
   String motionState = 'healthkit',
+  String? protocolStepLabel,
 }) {
   return SessionSample(
     timestamp: timestamp,
@@ -1391,6 +1495,7 @@ SessionSample _sessionSample(
     riskScore: 42,
     riskState: RiskState.normal,
     motionState: motionState,
+    protocolStepLabel: protocolStepLabel,
   );
 }
 

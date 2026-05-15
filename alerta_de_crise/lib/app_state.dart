@@ -15,6 +15,7 @@ import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
 import 'domain/models/collection_diagnostics.dart';
 import 'domain/models/feeling_level.dart';
+import 'domain/models/guided_protocol_analysis.dart';
 import 'domain/models/guided_protocol.dart';
 import 'domain/models/research_session.dart';
 import 'domain/models/risk_event.dart';
@@ -206,6 +207,16 @@ final class AppState extends ChangeNotifier {
   List<ResearchSession> get researchSessions =>
       List.unmodifiable(_researchSessions);
   ResearchSession? get lastResearchSession => _researchSessions.firstOrNull;
+  GuidedProtocolAnalysis get currentGuidedProtocolAnalysis =>
+      GuidedProtocolAnalysis.fromSamples(
+        _currentGuidedProtocolSession?.samples ??
+            _currentResearchSession?.samples ??
+            const [],
+      );
+  GuidedProtocolAnalysis get lastGuidedProtocolAnalysis =>
+      GuidedProtocolAnalysis.fromSamples(
+        _lastGuidedProtocolSession?.samples ?? const [],
+      );
 
   Future<void> loadEvents() async {
     final persistedEvents = await _localEventRepository.loadEvents();

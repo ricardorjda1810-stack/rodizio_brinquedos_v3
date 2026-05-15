@@ -1,6 +1,7 @@
 import '../../domain/models/calibration_feedback.dart';
 import '../../domain/models/collection_diagnostics.dart';
 import '../../domain/models/feeling_level.dart';
+import '../../domain/models/guided_protocol_analysis.dart';
 import '../../domain/models/risk_event.dart';
 import '../../domain/models/risk_state.dart';
 import '../../domain/models/session_sample.dart';
@@ -112,6 +113,33 @@ final class CsvExporter {
         _formatSeconds(analysis.samplesPerMinute),
         analysis.qualityLabel,
       ],
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportGuidedProtocolAnalysis(GuidedProtocolAnalysis analysis) {
+    final rows = [
+      [
+        'phase',
+        'sampleCount',
+        'averageHeartRate',
+        'minHeartRate',
+        'maxHeartRate',
+        'averageHrv',
+        'durationSeconds',
+      ],
+      ...analysis.phases.map((phase) {
+        return [
+          phase.stepLabel,
+          phase.sampleCount.toString(),
+          _formatSeconds(phase.averageHeartRate),
+          phase.minHeartRate.toString(),
+          phase.maxHeartRate.toString(),
+          phase.averageHrv == null ? '' : _formatSeconds(phase.averageHrv!),
+          _formatSeconds(phase.durationSeconds),
+        ];
+      }),
     ];
 
     return rows.map(_rowToCsv).join('\n');
