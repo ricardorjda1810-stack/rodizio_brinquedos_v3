@@ -14,9 +14,11 @@ import 'data/sensors/sensor_provider.dart';
 import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
 import 'domain/models/collection_diagnostics.dart';
+import 'domain/models/experimental_insight.dart';
 import 'domain/models/feeling_level.dart';
 import 'domain/models/guided_protocol_analysis.dart';
 import 'domain/models/guided_protocol.dart';
+import 'domain/models/phase_analysis.dart';
 import 'domain/models/research_session.dart';
 import 'domain/models/risk_event.dart';
 import 'domain/models/risk_state.dart';
@@ -216,6 +218,18 @@ final class AppState extends ChangeNotifier {
   GuidedProtocolAnalysis get lastGuidedProtocolAnalysis =>
       GuidedProtocolAnalysis.fromSamples(
         _lastGuidedProtocolSession?.samples ?? const [],
+      );
+  List<ExperimentalInsight> get currentExperimentalInsights =>
+      _buildExperimentalInsights(
+        _currentGuidedProtocolSession?.samples ??
+            _currentResearchSession?.samples ??
+            const [],
+      );
+  List<ExperimentalInsight> get lastExperimentalInsights =>
+      _buildExperimentalInsights(
+        _lastGuidedProtocolSession?.samples ??
+            _researchSessions.firstOrNull?.samples ??
+            const [],
       );
 
   Future<void> loadEvents() async {
@@ -1040,6 +1054,138 @@ final class AppState extends ChangeNotifier {
 
   void _pipelineLog(String message) {
     debugPrint('[SignalFlowSessionPipeline] $message');
+  }
+
+  List<ExperimentalInsight> _buildExperimentalInsights(
+    List<SessionSample> samples,
+  ) {
+    if (samples.isEmpty) {
+      return const [];
+    }
+
+    final protocolAnalysis = GuidedProtocolAnalysis.fromSamples(samples);
+    final temporalAnalysis = TemporalSampleAnalysis.fromSamples(samples);
+    final insights = <ExperimentalInsight>[];
+    final rest = _phaseByLabel(protocolAnalysis, 'Repouso');
+    final activation = _phaseByLabel(protocolAnalysis, 'Ativação leve');
+    final recovery = _phaseByLabel(protocolAnalysis, 'Recuperação');
+
+    if (rest != null &&
+        activation != null &&
+        activation.averageHeartRate > rest.averageHeartRate + 10) {
+      final increase = activation.averageHeartRate - rest.averageHeartRate;
+      insights.add(
+        ExperimentalInsight(
+          title: 'Sinais aumentaram na ativação',
+          description:
+              'Os sinais fisiológicos aumentaram durante a fase de ativação leve em comparação com o repouso.',
+          category: InsightCategory.activation,
+          confidenceLabel: _confidenceForPhaseSamples(
+            rest.sampleCount + activation.sampleCount,
+          ),
+          valueSummary:
+              'Repouso ${_formatInsightNumber(rest.averageHeartRate)} bpm -> ativação ${_formatInsightNumber(activation.averageHeartRate)} bpm (+${_formatInsightNumber(increase)} bpm)',
+        ),
+      );
+    }
+
+    if (activation != null &&
+        recovery != null &&
+        recovery.averageHeartRate < activation.averageHeartRate) {
+      final reduction = activation.averageHeartRate - recovery.averageHeartRate;
+      insights.add(
+        ExperimentalInsight(
+          title: 'Sinais reduziram na recuperação',
+          description:
+              'Os sinais fisiológicos reduziram durante a recuperação em comparação com a ativação leve.',
+          category: InsightCategory.recovery,
+          confidenceLabel: _confidenceForPhaseSamples(
+            activation.sampleCount + recovery.sampleCount,
+          ),
+          valueSummary:
+              'Ativação ${_formatInsightNumber(activation.averageHeartRate)} bpm -> recuperação ${_formatInsightNumber(recovery.averageHeartRate)} bpm (-${_formatInsightNumber(reduction)} bpm)',
+        ),
+      );
+    }
+
+    if (temporalAnalysis.totalSamples > 0 &&
+        temporalAnalysis.samplesPerMinute < 0.5) {
+      insights.add(
+        ExperimentalInsight(
+          title: 'Coleta muito esparsa',
+          description:
+              'A frequência dos dados foi muito esparsa nesta sessão, então os padrões devem ser lidos com cautela.',
+          category: InsightCategory.collection,
+          confidenceLabel: 'baixa',
+          valueSummary:
+              '${_formatInsightDecimal(temporalAnalysis.samplesPerMinute)} samples/min',
+        ),
+      );
+    }
+
+    if (samples.isNotEmpty && !samples.any(_hasAvailableHrv)) {
+      insights.add(
+        ExperimentalInsight(
+          title: 'HRV indisponível',
+          description:
+              'Não houve dados HRV disponíveis nesta sessão. A leitura ficou baseada nas amostras de frequência cardíaca.',
+          category: InsightCategory.collection,
+          confidenceLabel: 'moderada',
+          valueSummary: '0 samples HRV',
+        ),
+      );
+    }
+
+    if (protocolAnalysis.phases.isNotEmpty &&
+        !protocolAnalysis.hasEnoughDataForCompleteAnalysis) {
+      insights.add(
+        ExperimentalInsight(
+          title: 'Protocolo com dados parciais',
+          description:
+              'A sessão ainda não tem amostras suficientes em todas as fases para uma comparação completa.',
+          category: InsightCategory.protocol,
+          confidenceLabel: 'baixa',
+          valueSummary:
+              '${protocolAnalysis.totalSamples} samples com fase registrada',
+        ),
+      );
+    }
+
+    return List.unmodifiable(insights);
+  }
+
+  PhaseAnalysis? _phaseByLabel(GuidedProtocolAnalysis analysis, String label) {
+    for (final phase in analysis.phases) {
+      if (phase.stepLabel == label) {
+        return phase;
+      }
+    }
+
+    return null;
+  }
+
+  String _confidenceForPhaseSamples(int sampleCount) {
+    if (sampleCount >= 10) {
+      return 'alta';
+    }
+
+    if (sampleCount >= 4) {
+      return 'moderada';
+    }
+
+    return 'baixa';
+  }
+
+  String _formatInsightNumber(double value) {
+    return value.toStringAsFixed(0);
+  }
+
+  String _formatInsightDecimal(double value) {
+    return value.toStringAsFixed(2);
+  }
+
+  bool _hasAvailableHrv(SessionSample sample) {
+    return sample.motionState != 'healthkit-hrv-indisponivel' && sample.hrv > 0;
   }
 
   String get _diagnosticsSourceLabel {

@@ -16,6 +16,7 @@ import 'package:signalflow/data/sensors/mock_sensor_provider.dart';
 import 'package:signalflow/data/sensors/sensor_provider.dart';
 import 'package:signalflow/domain/models/calibration_feedback.dart';
 import 'package:signalflow/domain/models/collection_diagnostics.dart';
+import 'package:signalflow/domain/models/experimental_insight.dart';
 import 'package:signalflow/domain/models/feeling_level.dart';
 import 'package:signalflow/domain/models/guided_protocol_analysis.dart';
 import 'package:signalflow/domain/models/research_session.dart';
@@ -697,6 +698,139 @@ void main() {
     expect(analysis.overallAverageHrv, isNull);
   });
 
+  test('app state generates activation and recovery insights', () async {
+    final provider = _StreamHealthKitSensorProvider();
+    final appState = AppState(
+      currentSample: _sample('current', 72, 42),
+      currentRiskState: RiskState.normal,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: provider,
+    );
+
+    appState.startGuidedProtocol();
+    provider.add(
+      _sample('rest-1', 62, 40, timestamp: DateTime(2026, 5, 13, 12)),
+    );
+    provider.add(
+      _sample('rest-2', 64, 41, timestamp: DateTime(2026, 5, 13, 12, 0, 15)),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    appState.advanceGuidedProtocolStep();
+    provider.add(
+      _sample('activation-1', 88, 35, timestamp: DateTime(2026, 5, 13, 12, 1)),
+    );
+    provider.add(
+      _sample(
+        'activation-2',
+        92,
+        34,
+        timestamp: DateTime(2026, 5, 13, 12, 1, 15),
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    appState.advanceGuidedProtocolStep();
+    provider.add(
+      _sample('recovery-1', 74, 38, timestamp: DateTime(2026, 5, 13, 12, 2)),
+    );
+    provider.add(
+      _sample(
+        'recovery-2',
+        72,
+        39,
+        timestamp: DateTime(2026, 5, 13, 12, 2, 15),
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final insights = appState.currentExperimentalInsights;
+
+    expect(
+      insights.map((insight) => insight.category),
+      containsAll([InsightCategory.activation, InsightCategory.recovery]),
+    );
+    expect(
+      insights.map((insight) => insight.title),
+      containsAll([
+        'Sinais aumentaram na ativação',
+        'Sinais reduziram na recuperação',
+      ]),
+    );
+    expect(
+      insights
+          .firstWhere(
+            (insight) => insight.category == InsightCategory.activation,
+          )
+          .valueSummary,
+      contains('+27 bpm'),
+    );
+
+    await provider.close();
+    appState.dispose();
+  });
+
+  test(
+    'app state generates sparse collection and missing hrv insights',
+    () async {
+      final provider = _StreamHealthKitSensorProvider();
+      final appState = AppState(
+        currentSample: _sample('current', 72, 42),
+        currentRiskState: RiskState.normal,
+        currentStatusMessage: '',
+        events: const [],
+        sensorProvider: provider,
+      );
+
+      appState.startGuidedProtocol();
+      provider.add(
+        _sample(
+          'rest-1',
+          70,
+          40,
+          motionState: 'healthkit-hrv-indisponivel',
+          timestamp: DateTime(2026, 5, 13, 12),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      appState.advanceGuidedProtocolStep();
+      provider.add(
+        _sample(
+          'activation-1',
+          82,
+          40,
+          motionState: 'healthkit-hrv-indisponivel',
+          timestamp: DateTime(2026, 5, 13, 12, 10),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      final insights = appState.currentExperimentalInsights;
+
+      expect(
+        insights.map((insight) => insight.title),
+        containsAll(['Coleta muito esparsa', 'HRV indisponível']),
+      );
+      expect(
+        insights
+            .firstWhere((insight) => insight.title == 'Coleta muito esparsa')
+            .valueSummary,
+        '0.20 samples/min',
+      );
+      expect(
+        insights
+            .firstWhere((insight) => insight.title == 'HRV indisponível')
+            .valueSummary,
+        '0 samples HRV',
+      );
+
+      await provider.close();
+      appState.dispose();
+    },
+  );
+
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
 
@@ -806,6 +940,11 @@ void main() {
     expect(find.text('Protocolo guiado'), findsOneWidget);
     expect(find.text('Iniciar protocolo'), findsOneWidget);
     expect(find.text('Análise por fase'), findsOneWidget);
+    expect(find.text('Insights experimentais'), findsOneWidget);
+    expect(
+      find.text('Nenhum insight experimental disponível ainda.'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Iniciar protocolo'));
     await tester.pump();
@@ -814,6 +953,9 @@ void main() {
     expect(find.textContaining('Timer:'), findsOneWidget);
     expect(find.text('Samples nesta sessão: 1'), findsOneWidget);
     expect(find.textContaining('Repouso -> FC média'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Insights experimentais'), 120);
+    expect(find.text('Protocolo com dados parciais'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Avançar etapa'), -120);
 
     await tester.tap(find.text('Avançar etapa'));
     await tester.pump(const Duration(seconds: 1));
@@ -1344,6 +1486,24 @@ void main() {
     );
   });
 
+  test('csv exporter writes experimental insights', () {
+    const exporter = CsvExporter();
+    final csv = exporter.exportExperimentalInsights(const [
+      ExperimentalInsight(
+        title: 'Sinais aumentaram na ativação',
+        description: 'Os sinais fisiológicos aumentaram durante a fase.',
+        category: InsightCategory.activation,
+        confidenceLabel: 'moderada',
+        valueSummary: 'Repouso 62 bpm -> ativação 90 bpm (+28 bpm)',
+      ),
+    ]);
+
+    expect(
+      csv,
+      'category,title,description,confidence,valueSummary\nactivation,Sinais aumentaram na ativação,Os sinais fisiológicos aumentaram durante a fase.,moderada,Repouso 62 bpm -> ativação 90 bpm (+28 bpm)',
+    );
+  });
+
   test('csv exporter writes calibration feedbacks', () {
     const exporter = CsvExporter();
     final csv = exporter.exportCalibrationFeedbacks([
@@ -1471,10 +1631,11 @@ SensorSample _sample(
   int heartRate,
   int hrv, {
   String motionState = 'parado',
+  DateTime? timestamp,
 }) {
   return SensorSample(
     id: id,
-    timestamp: DateTime(2026),
+    timestamp: timestamp ?? DateTime(2026),
     heartRate: heartRate,
     hrv: hrv,
     motionState: motionState,

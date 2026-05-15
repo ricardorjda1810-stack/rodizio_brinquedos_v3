@@ -1,5 +1,6 @@
 import '../../domain/models/calibration_feedback.dart';
 import '../../domain/models/collection_diagnostics.dart';
+import '../../domain/models/experimental_insight.dart';
 import '../../domain/models/feeling_level.dart';
 import '../../domain/models/guided_protocol_analysis.dart';
 import '../../domain/models/risk_event.dart';
@@ -138,6 +139,23 @@ final class CsvExporter {
           phase.maxHeartRate.toString(),
           phase.averageHrv == null ? '' : _formatSeconds(phase.averageHrv!),
           _formatSeconds(phase.durationSeconds),
+        ];
+      }),
+    ];
+
+    return rows.map(_rowToCsv).join('\n');
+  }
+
+  String exportExperimentalInsights(List<ExperimentalInsight> insights) {
+    final rows = [
+      ['category', 'title', 'description', 'confidence', 'valueSummary'],
+      ...insights.map((insight) {
+        return [
+          insight.category.key,
+          insight.title,
+          insight.description,
+          insight.confidenceLabel,
+          insight.valueSummary,
         ];
       }),
     ];

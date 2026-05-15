@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../app_state.dart';
 import '../../data/export/csv_exporter.dart';
 import '../../data/sensors/sensor_provider.dart';
+import '../../domain/models/experimental_insight.dart';
 import '../../domain/models/feeling_level.dart';
 import '../../domain/models/guided_protocol_analysis.dart';
 import '../../domain/models/phase_analysis.dart';
@@ -46,6 +47,9 @@ final class _GuidedProtocolPageState extends State<GuidedProtocolPage> {
     final analysis = session != null
         ? appState.currentGuidedProtocolAnalysis
         : appState.lastGuidedProtocolAnalysis;
+    final insights = session != null
+        ? appState.currentExperimentalInsights
+        : appState.lastExperimentalInsights;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Protocolo guiado')),
@@ -165,6 +169,8 @@ final class _GuidedProtocolPageState extends State<GuidedProtocolPage> {
           ],
           const SizedBox(height: UiTokens.m),
           _PhaseAnalysisCard(analysis: analysis),
+          const SizedBox(height: UiTokens.m),
+          _ExperimentalInsightsCard(insights: insights),
           const SizedBox(height: UiTokens.m),
           Card(
             child: Padding(
@@ -330,6 +336,133 @@ final class _PhaseAnalysisCard extends StatelessWidget {
 
   String _formatNumber(double value) {
     return value.toStringAsFixed(0);
+  }
+}
+
+final class _ExperimentalInsightsCard extends StatelessWidget {
+  const _ExperimentalInsightsCard({required this.insights});
+
+  final List<ExperimentalInsight> insights;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Insights experimentais',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            const Text(
+              'Regras simples comparam os dados coletados, sem diagnóstico ou previsão.',
+              style: TextStyle(color: UiTokens.textFaint, height: 1.35),
+            ),
+            if (insights.isEmpty) ...[
+              const SizedBox(height: UiTokens.s),
+              const Text(
+                'Nenhum insight experimental disponível ainda.',
+                style: TextStyle(color: UiTokens.textSoft),
+              ),
+            ] else ...[
+              const SizedBox(height: UiTokens.m),
+              ...insights.map((insight) {
+                return _InsightSummary(insight: insight);
+              }),
+              const SizedBox(height: UiTokens.s),
+              OutlinedButton(
+                onPressed: () => _showInsightsCsv(context, insights),
+                child: const Text('Exportar insights CSV'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showInsightsCsv(
+    BuildContext context,
+    List<ExperimentalInsight> insights,
+  ) {
+    const exporter = CsvExporter();
+    final csv = exporter.exportExperimentalInsights(insights);
+
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('CSV dos insights'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: SelectableText(
+                csv,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  color: UiTokens.textSoft,
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+final class _InsightSummary extends StatelessWidget {
+  const _InsightSummary({required this.insight});
+
+  final ExperimentalInsight insight;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: UiTokens.s),
+      padding: const EdgeInsets.all(UiTokens.s),
+      decoration: BoxDecoration(
+        border: Border.all(color: UiTokens.border),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            insight.title,
+            style: const TextStyle(
+              color: UiTokens.text,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            insight.description,
+            style: const TextStyle(color: UiTokens.textSoft, height: 1.35),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${insight.category.label} • Confiança ${insight.confidenceLabel} • ${insight.valueSummary}',
+            style: const TextStyle(
+              color: UiTokens.textFaint,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
