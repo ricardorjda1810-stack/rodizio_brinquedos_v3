@@ -27,6 +27,14 @@ void main() {
 
       expect(registry.getCurrent(), customProvider);
     });
+
+    test('appleWatch provider is registered for debug use', () {
+      final registry = SensorProviderRegistry();
+
+      registry.switchProvider(SensorProviderType.appleWatch);
+
+      expect(registry.getCurrent().type, SensorProviderType.appleWatch);
+    });
   });
 }
 

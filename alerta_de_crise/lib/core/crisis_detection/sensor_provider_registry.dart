@@ -1,3 +1,4 @@
+import 'apple_health_sensor_provider.dart';
 import 'physiological_sensor_provider.dart';
 import 'sensor_provider_type.dart';
 import 'simulated_sensor_provider.dart';
@@ -8,6 +9,7 @@ class SensorProviderRegistry {
 
   SensorProviderRegistry({PhysiologicalSensorProvider? defaultProvider}) {
     register(defaultProvider ?? SimulatedSensorProvider());
+    register(AppleHealthSensorProvider.defaultService());
     _currentType = SensorProviderType.simulator;
   }
 
