@@ -8,6 +8,7 @@ import '../../core/crisis_detection/crisis_risk_result.dart';
 import '../../core/crisis_detection/crisis_sample_simulator.dart';
 import '../../data/crisis_detection/crisis_risk_event.dart';
 import '../../data/crisis_detection/crisis_risk_event_repository.dart';
+import 'intervention_protocol_debug_page.dart';
 import '../theme/ui_tokens.dart';
 
 class CrisisRiskDebugPage extends StatefulWidget {
@@ -67,7 +68,10 @@ class _CrisisRiskDebugPageState extends State<CrisisRiskDebugPage> {
             _BaselineCard(baseline: simulatedBaseline),
           ],
           const SizedBox(height: 16),
-          _ResultCard(result: _result),
+          _ResultCard(
+            result: _result,
+            onStartProtocol: _openInterventionProtocol,
+          ),
           const SizedBox(height: 16),
           _RecentEventsCard(events: _repository.listRecent()),
         ],
@@ -98,6 +102,14 @@ class _CrisisRiskDebugPageState extends State<CrisisRiskDebugPage> {
       );
     });
   }
+
+  void _openInterventionProtocol() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const InterventionProtocolDebugPage(),
+      ),
+    );
+  }
 }
 
 class _ScenarioTile extends StatelessWidget {
@@ -126,9 +138,10 @@ class _ScenarioTile extends StatelessWidget {
 }
 
 class _ResultCard extends StatelessWidget {
-  const _ResultCard({required this.result});
+  const _ResultCard({required this.result, required this.onStartProtocol});
 
   final CrisisRiskResult result;
+  final VoidCallback onStartProtocol;
 
   @override
   Widget build(BuildContext context) {
@@ -170,6 +183,13 @@ class _ResultCard extends StatelessWidget {
                     ),
                 ],
               ),
+            if (result.level == CrisisRiskLevel.highIntervention) ...[
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: onStartProtocol,
+                child: const Text('Iniciar protocolo guiado'),
+              ),
+            ],
           ],
         ),
       ),
