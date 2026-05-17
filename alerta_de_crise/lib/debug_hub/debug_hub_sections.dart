@@ -6,6 +6,7 @@ import '../ui/crisis_detection/csv_replay_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
+import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
@@ -42,6 +43,11 @@ class SignalFlowDebugHubSections {
             label: 'Apple Health',
             description: 'Bridge inicial HealthKit para leituras simples.',
             builder: (_) => const AppleHealthDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Polar H10',
+            description: 'BLE RR intervals para pesquisa fisiológica.',
+            builder: (_) => const PolarH10DebugPage(),
           ),
         ],
       ),

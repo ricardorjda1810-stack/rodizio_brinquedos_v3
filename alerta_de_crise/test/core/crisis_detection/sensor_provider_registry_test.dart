@@ -35,6 +35,14 @@ void main() {
 
       expect(registry.getCurrent().type, SensorProviderType.appleWatch);
     });
+
+    test('polarH10 provider is registered for debug use', () {
+      final registry = SensorProviderRegistry();
+
+      registry.switchProvider(SensorProviderType.polarH10);
+
+      expect(registry.getCurrent().type, SensorProviderType.polarH10);
+    });
   });
 }
 
