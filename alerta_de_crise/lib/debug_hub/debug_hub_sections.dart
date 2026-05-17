@@ -10,6 +10,7 @@ import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
+import '../ui/crisis_detection/sensor_quality_debug_page.dart';
 import '../ui/crisis_detection/watch_live_session_debug_page.dart';
 import 'debug_hub_models.dart';
 
@@ -48,6 +49,11 @@ class SignalFlowDebugHubSections {
             label: 'Polar H10',
             description: 'BLE RR intervals para pesquisa fisiológica.',
             builder: (_) => const PolarH10DebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Sensor Quality',
+            description: 'Confiança do sinal e artefatos RR.',
+            builder: (_) => const SensorQualityDebugPage(),
           ),
         ],
       ),
