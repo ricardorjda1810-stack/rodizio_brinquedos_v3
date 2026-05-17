@@ -17,7 +17,9 @@ class _BaselineCalibrationDebugPageState
     extends State<BaselineCalibrationDebugPage> {
   final CrisisSampleSimulator _simulator = const CrisisSampleSimulator();
   final BaselineSessionService _service = const BaselineSessionService();
-  final BaselineProfileRepository _repository = BaselineProfileRepository();
+  final BaselineProfileRepository _repository = BaselineProfileRepository(
+    persistSyncWrites: true,
+  );
   BaselineSessionResult? _result;
 
   @override

@@ -25,7 +25,7 @@ class _CsvReplayDebugPageState extends State<CsvReplayDebugPage> {
   final CsvReplayService _service = CsvReplayService(
     detectionService: CrisisDetectionService(
       engine: const CrisisRiskEngine(),
-      repository: CrisisRiskEventRepository(),
+      repository: CrisisRiskEventRepository(persistSyncWrites: true),
     ),
   );
 

@@ -76,7 +76,9 @@ class SignalFlowDebugHubSections {
             label: 'Intervention History',
             description: 'Registro longitudinal local de protocolos debug.',
             builder: (_) => InterventionHistoryDebugPage(
-              repository: InterventionHistoryRepository(),
+              repository: InterventionHistoryRepository(
+                persistSyncWrites: true,
+              ),
             ),
           ),
         ],

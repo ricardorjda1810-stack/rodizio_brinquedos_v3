@@ -31,7 +31,7 @@ class _SensorProviderDebugPageState extends State<SensorProviderDebugPage> {
         registry: _registry,
         detectionService: CrisisDetectionService(
           engine: const CrisisRiskEngine(),
-          repository: CrisisRiskEventRepository(),
+          repository: CrisisRiskEventRepository(persistSyncWrites: true),
         ),
       );
 

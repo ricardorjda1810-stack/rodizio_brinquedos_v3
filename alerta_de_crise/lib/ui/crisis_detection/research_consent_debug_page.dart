@@ -21,7 +21,7 @@ class _ResearchConsentDebugPageState extends State<ResearchConsentDebugPage> {
   @override
   void initState() {
     super.initState();
-    _repository = ResearchConsentRepository();
+    _repository = ResearchConsentRepository(persistSyncWrites: true);
     _service = ResearchConsentService(repository: _repository);
     _currentConsent = _service.currentConsent;
   }

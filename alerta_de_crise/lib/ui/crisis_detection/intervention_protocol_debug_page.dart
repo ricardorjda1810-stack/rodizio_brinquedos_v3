@@ -23,7 +23,7 @@ class _InterventionProtocolDebugPageState
 
   final InterventionService _service = InterventionService()..startProtocol();
   final InterventionHistoryRepository _historyRepository =
-      InterventionHistoryRepository();
+      InterventionHistoryRepository(persistSyncWrites: true);
   late final InterventionOutcomeService _outcomeService =
       InterventionOutcomeService(repository: _historyRepository);
   InterventionSessionResult? _result;

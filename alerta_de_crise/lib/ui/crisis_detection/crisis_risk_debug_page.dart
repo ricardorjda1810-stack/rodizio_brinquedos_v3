@@ -21,7 +21,9 @@ class CrisisRiskDebugPage extends StatefulWidget {
 class _CrisisRiskDebugPageState extends State<CrisisRiskDebugPage> {
   final CrisisSampleSimulator _simulator = const CrisisSampleSimulator();
   final BaselineBuilder _baselineBuilder = const BaselineBuilder();
-  final CrisisRiskEventRepository _repository = CrisisRiskEventRepository();
+  final CrisisRiskEventRepository _repository = CrisisRiskEventRepository(
+    persistSyncWrites: true,
+  );
   late final CrisisDetectionService _service = CrisisDetectionService(
     engine: const CrisisRiskEngine(),
     repository: _repository,
