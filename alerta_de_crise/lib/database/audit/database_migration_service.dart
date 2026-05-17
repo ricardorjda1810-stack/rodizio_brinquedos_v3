@@ -16,6 +16,11 @@ class DatabaseMigrationService {
         toVersion: 1,
         description: 'Initial Drift persistence layer for SignalFlow data.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 1,
+        toVersion: 2,
+        description: 'Adaptive baseline and circadian profile persistence.',
+      ),
     ];
   }
 

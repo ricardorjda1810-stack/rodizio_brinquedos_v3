@@ -1,4 +1,5 @@
 import '../data/crisis_detection/intervention_history_repository.dart';
+import '../ui/crisis_detection/adaptive_baseline_debug_page.dart';
 import '../ui/crisis_detection/apple_health_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
@@ -29,6 +30,11 @@ class SignalFlowDebugHubSections {
             label: 'Baseline Calibration',
             description: 'Calibragem inicial simulada do padrão fisiológico.',
             builder: (_) => const BaselineCalibrationDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Adaptive Baseline',
+            description: 'Perfis circadianos e baseline dinâmico.',
+            builder: (_) => const AdaptiveBaselineDebugPage(),
           ),
         ],
       ),

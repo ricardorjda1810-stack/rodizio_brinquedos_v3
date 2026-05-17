@@ -2206,6 +2206,1203 @@ class ResearchConsentTableCompanion
   }
 }
 
+class $AdaptiveBaselineStateTableTable extends AdaptiveBaselineStateTable
+    with
+        TableInfo<
+          $AdaptiveBaselineStateTableTable,
+          AdaptiveBaselineStateTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AdaptiveBaselineStateTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalSamplesMeta = const VerificationMeta(
+    'totalSamples',
+  );
+  @override
+  late final GeneratedColumn<int> totalSamples = GeneratedColumn<int>(
+    'total_samples',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _restingHeartRateMeta = const VerificationMeta(
+    'restingHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> restingHeartRate = GeneratedColumn<double>(
+    'resting_heart_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hrvRmssdMeta = const VerificationMeta(
+    'hrvRmssd',
+  );
+  @override
+  late final GeneratedColumn<double> hrvRmssd = GeneratedColumn<double>(
+    'hrv_rmssd',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _respiratoryRateMeta = const VerificationMeta(
+    'respiratoryRate',
+  );
+  @override
+  late final GeneratedColumn<double> respiratoryRate = GeneratedColumn<double>(
+    'respiratory_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _movementIntensityMeta = const VerificationMeta(
+    'movementIntensity',
+  );
+  @override
+  late final GeneratedColumn<double> movementIntensity =
+      GeneratedColumn<double>(
+        'movement_intensity',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    totalSamples,
+    restingHeartRate,
+    hrvRmssd,
+    respiratoryRate,
+    movementIntensity,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'adaptive_baseline_state_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AdaptiveBaselineStateTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('total_samples')) {
+      context.handle(
+        _totalSamplesMeta,
+        totalSamples.isAcceptableOrUnknown(
+          data['total_samples']!,
+          _totalSamplesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSamplesMeta);
+    }
+    if (data.containsKey('resting_heart_rate')) {
+      context.handle(
+        _restingHeartRateMeta,
+        restingHeartRate.isAcceptableOrUnknown(
+          data['resting_heart_rate']!,
+          _restingHeartRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_restingHeartRateMeta);
+    }
+    if (data.containsKey('hrv_rmssd')) {
+      context.handle(
+        _hrvRmssdMeta,
+        hrvRmssd.isAcceptableOrUnknown(data['hrv_rmssd']!, _hrvRmssdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvRmssdMeta);
+    }
+    if (data.containsKey('respiratory_rate')) {
+      context.handle(
+        _respiratoryRateMeta,
+        respiratoryRate.isAcceptableOrUnknown(
+          data['respiratory_rate']!,
+          _respiratoryRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_respiratoryRateMeta);
+    }
+    if (data.containsKey('movement_intensity')) {
+      context.handle(
+        _movementIntensityMeta,
+        movementIntensity.isAcceptableOrUnknown(
+          data['movement_intensity']!,
+          _movementIntensityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_movementIntensityMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AdaptiveBaselineStateTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AdaptiveBaselineStateTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      totalSamples: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_samples'],
+      )!,
+      restingHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}resting_heart_rate'],
+      )!,
+      hrvRmssd: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv_rmssd'],
+      )!,
+      respiratoryRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}respiratory_rate'],
+      )!,
+      movementIntensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}movement_intensity'],
+      )!,
+    );
+  }
+
+  @override
+  $AdaptiveBaselineStateTableTable createAlias(String alias) {
+    return $AdaptiveBaselineStateTableTable(attachedDatabase, alias);
+  }
+}
+
+class AdaptiveBaselineStateTableData extends DataClass
+    implements Insertable<AdaptiveBaselineStateTableData> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int totalSamples;
+  final double restingHeartRate;
+  final double hrvRmssd;
+  final double respiratoryRate;
+  final double movementIntensity;
+  const AdaptiveBaselineStateTableData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.totalSamples,
+    required this.restingHeartRate,
+    required this.hrvRmssd,
+    required this.respiratoryRate,
+    required this.movementIntensity,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['total_samples'] = Variable<int>(totalSamples);
+    map['resting_heart_rate'] = Variable<double>(restingHeartRate);
+    map['hrv_rmssd'] = Variable<double>(hrvRmssd);
+    map['respiratory_rate'] = Variable<double>(respiratoryRate);
+    map['movement_intensity'] = Variable<double>(movementIntensity);
+    return map;
+  }
+
+  AdaptiveBaselineStateTableCompanion toCompanion(bool nullToAbsent) {
+    return AdaptiveBaselineStateTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      totalSamples: Value(totalSamples),
+      restingHeartRate: Value(restingHeartRate),
+      hrvRmssd: Value(hrvRmssd),
+      respiratoryRate: Value(respiratoryRate),
+      movementIntensity: Value(movementIntensity),
+    );
+  }
+
+  factory AdaptiveBaselineStateTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AdaptiveBaselineStateTableData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      totalSamples: serializer.fromJson<int>(json['totalSamples']),
+      restingHeartRate: serializer.fromJson<double>(json['restingHeartRate']),
+      hrvRmssd: serializer.fromJson<double>(json['hrvRmssd']),
+      respiratoryRate: serializer.fromJson<double>(json['respiratoryRate']),
+      movementIntensity: serializer.fromJson<double>(json['movementIntensity']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'totalSamples': serializer.toJson<int>(totalSamples),
+      'restingHeartRate': serializer.toJson<double>(restingHeartRate),
+      'hrvRmssd': serializer.toJson<double>(hrvRmssd),
+      'respiratoryRate': serializer.toJson<double>(respiratoryRate),
+      'movementIntensity': serializer.toJson<double>(movementIntensity),
+    };
+  }
+
+  AdaptiveBaselineStateTableData copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? totalSamples,
+    double? restingHeartRate,
+    double? hrvRmssd,
+    double? respiratoryRate,
+    double? movementIntensity,
+  }) => AdaptiveBaselineStateTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    totalSamples: totalSamples ?? this.totalSamples,
+    restingHeartRate: restingHeartRate ?? this.restingHeartRate,
+    hrvRmssd: hrvRmssd ?? this.hrvRmssd,
+    respiratoryRate: respiratoryRate ?? this.respiratoryRate,
+    movementIntensity: movementIntensity ?? this.movementIntensity,
+  );
+  AdaptiveBaselineStateTableData copyWithCompanion(
+    AdaptiveBaselineStateTableCompanion data,
+  ) {
+    return AdaptiveBaselineStateTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      totalSamples: data.totalSamples.present
+          ? data.totalSamples.value
+          : this.totalSamples,
+      restingHeartRate: data.restingHeartRate.present
+          ? data.restingHeartRate.value
+          : this.restingHeartRate,
+      hrvRmssd: data.hrvRmssd.present ? data.hrvRmssd.value : this.hrvRmssd,
+      respiratoryRate: data.respiratoryRate.present
+          ? data.respiratoryRate.value
+          : this.respiratoryRate,
+      movementIntensity: data.movementIntensity.present
+          ? data.movementIntensity.value
+          : this.movementIntensity,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AdaptiveBaselineStateTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('restingHeartRate: $restingHeartRate, ')
+          ..write('hrvRmssd: $hrvRmssd, ')
+          ..write('respiratoryRate: $respiratoryRate, ')
+          ..write('movementIntensity: $movementIntensity')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    totalSamples,
+    restingHeartRate,
+    hrvRmssd,
+    respiratoryRate,
+    movementIntensity,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AdaptiveBaselineStateTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.totalSamples == this.totalSamples &&
+          other.restingHeartRate == this.restingHeartRate &&
+          other.hrvRmssd == this.hrvRmssd &&
+          other.respiratoryRate == this.respiratoryRate &&
+          other.movementIntensity == this.movementIntensity);
+}
+
+class AdaptiveBaselineStateTableCompanion
+    extends UpdateCompanion<AdaptiveBaselineStateTableData> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> totalSamples;
+  final Value<double> restingHeartRate;
+  final Value<double> hrvRmssd;
+  final Value<double> respiratoryRate;
+  final Value<double> movementIntensity;
+  final Value<int> rowid;
+  const AdaptiveBaselineStateTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.totalSamples = const Value.absent(),
+    this.restingHeartRate = const Value.absent(),
+    this.hrvRmssd = const Value.absent(),
+    this.respiratoryRate = const Value.absent(),
+    this.movementIntensity = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AdaptiveBaselineStateTableCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    required int totalSamples,
+    required double restingHeartRate,
+    required double hrvRmssd,
+    required double respiratoryRate,
+    required double movementIntensity,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       totalSamples = Value(totalSamples),
+       restingHeartRate = Value(restingHeartRate),
+       hrvRmssd = Value(hrvRmssd),
+       respiratoryRate = Value(respiratoryRate),
+       movementIntensity = Value(movementIntensity);
+  static Insertable<AdaptiveBaselineStateTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? totalSamples,
+    Expression<double>? restingHeartRate,
+    Expression<double>? hrvRmssd,
+    Expression<double>? respiratoryRate,
+    Expression<double>? movementIntensity,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (totalSamples != null) 'total_samples': totalSamples,
+      if (restingHeartRate != null) 'resting_heart_rate': restingHeartRate,
+      if (hrvRmssd != null) 'hrv_rmssd': hrvRmssd,
+      if (respiratoryRate != null) 'respiratory_rate': respiratoryRate,
+      if (movementIntensity != null) 'movement_intensity': movementIntensity,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AdaptiveBaselineStateTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? totalSamples,
+    Value<double>? restingHeartRate,
+    Value<double>? hrvRmssd,
+    Value<double>? respiratoryRate,
+    Value<double>? movementIntensity,
+    Value<int>? rowid,
+  }) {
+    return AdaptiveBaselineStateTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      totalSamples: totalSamples ?? this.totalSamples,
+      restingHeartRate: restingHeartRate ?? this.restingHeartRate,
+      hrvRmssd: hrvRmssd ?? this.hrvRmssd,
+      respiratoryRate: respiratoryRate ?? this.respiratoryRate,
+      movementIntensity: movementIntensity ?? this.movementIntensity,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (totalSamples.present) {
+      map['total_samples'] = Variable<int>(totalSamples.value);
+    }
+    if (restingHeartRate.present) {
+      map['resting_heart_rate'] = Variable<double>(restingHeartRate.value);
+    }
+    if (hrvRmssd.present) {
+      map['hrv_rmssd'] = Variable<double>(hrvRmssd.value);
+    }
+    if (respiratoryRate.present) {
+      map['respiratory_rate'] = Variable<double>(respiratoryRate.value);
+    }
+    if (movementIntensity.present) {
+      map['movement_intensity'] = Variable<double>(movementIntensity.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AdaptiveBaselineStateTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('restingHeartRate: $restingHeartRate, ')
+          ..write('hrvRmssd: $hrvRmssd, ')
+          ..write('respiratoryRate: $respiratoryRate, ')
+          ..write('movementIntensity: $movementIntensity, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CircadianProfilesTableTable extends CircadianProfilesTable
+    with TableInfo<$CircadianProfilesTableTable, CircadianProfilesTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CircadianProfilesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _baselineIdMeta = const VerificationMeta(
+    'baselineId',
+  );
+  @override
+  late final GeneratedColumn<String> baselineId = GeneratedColumn<String>(
+    'baseline_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowLabelMeta = const VerificationMeta(
+    'windowLabel',
+  );
+  @override
+  late final GeneratedColumn<String> windowLabel = GeneratedColumn<String>(
+    'window_label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startHourMeta = const VerificationMeta(
+    'startHour',
+  );
+  @override
+  late final GeneratedColumn<int> startHour = GeneratedColumn<int>(
+    'start_hour',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endHourMeta = const VerificationMeta(
+    'endHour',
+  );
+  @override
+  late final GeneratedColumn<int> endHour = GeneratedColumn<int>(
+    'end_hour',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHeartRateMeta = const VerificationMeta(
+    'averageHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> averageHeartRate = GeneratedColumn<double>(
+    'average_heart_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHrvMeta = const VerificationMeta(
+    'averageHrv',
+  );
+  @override
+  late final GeneratedColumn<double> averageHrv = GeneratedColumn<double>(
+    'average_hrv',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _averageRespiratoryRateMeta =
+      const VerificationMeta('averageRespiratoryRate');
+  @override
+  late final GeneratedColumn<double> averageRespiratoryRate =
+      GeneratedColumn<double>(
+        'average_respiratory_rate',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _sampleCountMeta = const VerificationMeta(
+    'sampleCount',
+  );
+  @override
+  late final GeneratedColumn<int> sampleCount = GeneratedColumn<int>(
+    'sample_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    baselineId,
+    windowLabel,
+    startHour,
+    endHour,
+    averageHeartRate,
+    averageHrv,
+    averageRespiratoryRate,
+    sampleCount,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'circadian_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CircadianProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('baseline_id')) {
+      context.handle(
+        _baselineIdMeta,
+        baselineId.isAcceptableOrUnknown(data['baseline_id']!, _baselineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_baselineIdMeta);
+    }
+    if (data.containsKey('window_label')) {
+      context.handle(
+        _windowLabelMeta,
+        windowLabel.isAcceptableOrUnknown(
+          data['window_label']!,
+          _windowLabelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_windowLabelMeta);
+    }
+    if (data.containsKey('start_hour')) {
+      context.handle(
+        _startHourMeta,
+        startHour.isAcceptableOrUnknown(data['start_hour']!, _startHourMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startHourMeta);
+    }
+    if (data.containsKey('end_hour')) {
+      context.handle(
+        _endHourMeta,
+        endHour.isAcceptableOrUnknown(data['end_hour']!, _endHourMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_endHourMeta);
+    }
+    if (data.containsKey('average_heart_rate')) {
+      context.handle(
+        _averageHeartRateMeta,
+        averageHeartRate.isAcceptableOrUnknown(
+          data['average_heart_rate']!,
+          _averageHeartRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageHeartRateMeta);
+    }
+    if (data.containsKey('average_hrv')) {
+      context.handle(
+        _averageHrvMeta,
+        averageHrv.isAcceptableOrUnknown(data['average_hrv']!, _averageHrvMeta),
+      );
+    }
+    if (data.containsKey('average_respiratory_rate')) {
+      context.handle(
+        _averageRespiratoryRateMeta,
+        averageRespiratoryRate.isAcceptableOrUnknown(
+          data['average_respiratory_rate']!,
+          _averageRespiratoryRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sample_count')) {
+      context.handle(
+        _sampleCountMeta,
+        sampleCount.isAcceptableOrUnknown(
+          data['sample_count']!,
+          _sampleCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sampleCountMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CircadianProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CircadianProfilesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      baselineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}baseline_id'],
+      )!,
+      windowLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}window_label'],
+      )!,
+      startHour: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}start_hour'],
+      )!,
+      endHour: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}end_hour'],
+      )!,
+      averageHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_heart_rate'],
+      )!,
+      averageHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_hrv'],
+      ),
+      averageRespiratoryRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_respiratory_rate'],
+      ),
+      sampleCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sample_count'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CircadianProfilesTableTable createAlias(String alias) {
+    return $CircadianProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class CircadianProfilesTableData extends DataClass
+    implements Insertable<CircadianProfilesTableData> {
+  final String id;
+  final String baselineId;
+  final String windowLabel;
+  final int startHour;
+  final int endHour;
+  final double averageHeartRate;
+  final double? averageHrv;
+  final double? averageRespiratoryRate;
+  final int sampleCount;
+  final DateTime updatedAt;
+  const CircadianProfilesTableData({
+    required this.id,
+    required this.baselineId,
+    required this.windowLabel,
+    required this.startHour,
+    required this.endHour,
+    required this.averageHeartRate,
+    this.averageHrv,
+    this.averageRespiratoryRate,
+    required this.sampleCount,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['baseline_id'] = Variable<String>(baselineId);
+    map['window_label'] = Variable<String>(windowLabel);
+    map['start_hour'] = Variable<int>(startHour);
+    map['end_hour'] = Variable<int>(endHour);
+    map['average_heart_rate'] = Variable<double>(averageHeartRate);
+    if (!nullToAbsent || averageHrv != null) {
+      map['average_hrv'] = Variable<double>(averageHrv);
+    }
+    if (!nullToAbsent || averageRespiratoryRate != null) {
+      map['average_respiratory_rate'] = Variable<double>(
+        averageRespiratoryRate,
+      );
+    }
+    map['sample_count'] = Variable<int>(sampleCount);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CircadianProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return CircadianProfilesTableCompanion(
+      id: Value(id),
+      baselineId: Value(baselineId),
+      windowLabel: Value(windowLabel),
+      startHour: Value(startHour),
+      endHour: Value(endHour),
+      averageHeartRate: Value(averageHeartRate),
+      averageHrv: averageHrv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHrv),
+      averageRespiratoryRate: averageRespiratoryRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageRespiratoryRate),
+      sampleCount: Value(sampleCount),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CircadianProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CircadianProfilesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      baselineId: serializer.fromJson<String>(json['baselineId']),
+      windowLabel: serializer.fromJson<String>(json['windowLabel']),
+      startHour: serializer.fromJson<int>(json['startHour']),
+      endHour: serializer.fromJson<int>(json['endHour']),
+      averageHeartRate: serializer.fromJson<double>(json['averageHeartRate']),
+      averageHrv: serializer.fromJson<double?>(json['averageHrv']),
+      averageRespiratoryRate: serializer.fromJson<double?>(
+        json['averageRespiratoryRate'],
+      ),
+      sampleCount: serializer.fromJson<int>(json['sampleCount']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'baselineId': serializer.toJson<String>(baselineId),
+      'windowLabel': serializer.toJson<String>(windowLabel),
+      'startHour': serializer.toJson<int>(startHour),
+      'endHour': serializer.toJson<int>(endHour),
+      'averageHeartRate': serializer.toJson<double>(averageHeartRate),
+      'averageHrv': serializer.toJson<double?>(averageHrv),
+      'averageRespiratoryRate': serializer.toJson<double?>(
+        averageRespiratoryRate,
+      ),
+      'sampleCount': serializer.toJson<int>(sampleCount),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CircadianProfilesTableData copyWith({
+    String? id,
+    String? baselineId,
+    String? windowLabel,
+    int? startHour,
+    int? endHour,
+    double? averageHeartRate,
+    Value<double?> averageHrv = const Value.absent(),
+    Value<double?> averageRespiratoryRate = const Value.absent(),
+    int? sampleCount,
+    DateTime? updatedAt,
+  }) => CircadianProfilesTableData(
+    id: id ?? this.id,
+    baselineId: baselineId ?? this.baselineId,
+    windowLabel: windowLabel ?? this.windowLabel,
+    startHour: startHour ?? this.startHour,
+    endHour: endHour ?? this.endHour,
+    averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+    averageHrv: averageHrv.present ? averageHrv.value : this.averageHrv,
+    averageRespiratoryRate: averageRespiratoryRate.present
+        ? averageRespiratoryRate.value
+        : this.averageRespiratoryRate,
+    sampleCount: sampleCount ?? this.sampleCount,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CircadianProfilesTableData copyWithCompanion(
+    CircadianProfilesTableCompanion data,
+  ) {
+    return CircadianProfilesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      baselineId: data.baselineId.present
+          ? data.baselineId.value
+          : this.baselineId,
+      windowLabel: data.windowLabel.present
+          ? data.windowLabel.value
+          : this.windowLabel,
+      startHour: data.startHour.present ? data.startHour.value : this.startHour,
+      endHour: data.endHour.present ? data.endHour.value : this.endHour,
+      averageHeartRate: data.averageHeartRate.present
+          ? data.averageHeartRate.value
+          : this.averageHeartRate,
+      averageHrv: data.averageHrv.present
+          ? data.averageHrv.value
+          : this.averageHrv,
+      averageRespiratoryRate: data.averageRespiratoryRate.present
+          ? data.averageRespiratoryRate.value
+          : this.averageRespiratoryRate,
+      sampleCount: data.sampleCount.present
+          ? data.sampleCount.value
+          : this.sampleCount,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CircadianProfilesTableData(')
+          ..write('id: $id, ')
+          ..write('baselineId: $baselineId, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('startHour: $startHour, ')
+          ..write('endHour: $endHour, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageRespiratoryRate: $averageRespiratoryRate, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    baselineId,
+    windowLabel,
+    startHour,
+    endHour,
+    averageHeartRate,
+    averageHrv,
+    averageRespiratoryRate,
+    sampleCount,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CircadianProfilesTableData &&
+          other.id == this.id &&
+          other.baselineId == this.baselineId &&
+          other.windowLabel == this.windowLabel &&
+          other.startHour == this.startHour &&
+          other.endHour == this.endHour &&
+          other.averageHeartRate == this.averageHeartRate &&
+          other.averageHrv == this.averageHrv &&
+          other.averageRespiratoryRate == this.averageRespiratoryRate &&
+          other.sampleCount == this.sampleCount &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CircadianProfilesTableCompanion
+    extends UpdateCompanion<CircadianProfilesTableData> {
+  final Value<String> id;
+  final Value<String> baselineId;
+  final Value<String> windowLabel;
+  final Value<int> startHour;
+  final Value<int> endHour;
+  final Value<double> averageHeartRate;
+  final Value<double?> averageHrv;
+  final Value<double?> averageRespiratoryRate;
+  final Value<int> sampleCount;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CircadianProfilesTableCompanion({
+    this.id = const Value.absent(),
+    this.baselineId = const Value.absent(),
+    this.windowLabel = const Value.absent(),
+    this.startHour = const Value.absent(),
+    this.endHour = const Value.absent(),
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.averageRespiratoryRate = const Value.absent(),
+    this.sampleCount = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CircadianProfilesTableCompanion.insert({
+    required String id,
+    required String baselineId,
+    required String windowLabel,
+    required int startHour,
+    required int endHour,
+    required double averageHeartRate,
+    this.averageHrv = const Value.absent(),
+    this.averageRespiratoryRate = const Value.absent(),
+    required int sampleCount,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       baselineId = Value(baselineId),
+       windowLabel = Value(windowLabel),
+       startHour = Value(startHour),
+       endHour = Value(endHour),
+       averageHeartRate = Value(averageHeartRate),
+       sampleCount = Value(sampleCount),
+       updatedAt = Value(updatedAt);
+  static Insertable<CircadianProfilesTableData> custom({
+    Expression<String>? id,
+    Expression<String>? baselineId,
+    Expression<String>? windowLabel,
+    Expression<int>? startHour,
+    Expression<int>? endHour,
+    Expression<double>? averageHeartRate,
+    Expression<double>? averageHrv,
+    Expression<double>? averageRespiratoryRate,
+    Expression<int>? sampleCount,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (baselineId != null) 'baseline_id': baselineId,
+      if (windowLabel != null) 'window_label': windowLabel,
+      if (startHour != null) 'start_hour': startHour,
+      if (endHour != null) 'end_hour': endHour,
+      if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
+      if (averageHrv != null) 'average_hrv': averageHrv,
+      if (averageRespiratoryRate != null)
+        'average_respiratory_rate': averageRespiratoryRate,
+      if (sampleCount != null) 'sample_count': sampleCount,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CircadianProfilesTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? baselineId,
+    Value<String>? windowLabel,
+    Value<int>? startHour,
+    Value<int>? endHour,
+    Value<double>? averageHeartRate,
+    Value<double?>? averageHrv,
+    Value<double?>? averageRespiratoryRate,
+    Value<int>? sampleCount,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CircadianProfilesTableCompanion(
+      id: id ?? this.id,
+      baselineId: baselineId ?? this.baselineId,
+      windowLabel: windowLabel ?? this.windowLabel,
+      startHour: startHour ?? this.startHour,
+      endHour: endHour ?? this.endHour,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      averageHrv: averageHrv ?? this.averageHrv,
+      averageRespiratoryRate:
+          averageRespiratoryRate ?? this.averageRespiratoryRate,
+      sampleCount: sampleCount ?? this.sampleCount,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (baselineId.present) {
+      map['baseline_id'] = Variable<String>(baselineId.value);
+    }
+    if (windowLabel.present) {
+      map['window_label'] = Variable<String>(windowLabel.value);
+    }
+    if (startHour.present) {
+      map['start_hour'] = Variable<int>(startHour.value);
+    }
+    if (endHour.present) {
+      map['end_hour'] = Variable<int>(endHour.value);
+    }
+    if (averageHeartRate.present) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate.value);
+    }
+    if (averageHrv.present) {
+      map['average_hrv'] = Variable<double>(averageHrv.value);
+    }
+    if (averageRespiratoryRate.present) {
+      map['average_respiratory_rate'] = Variable<double>(
+        averageRespiratoryRate.value,
+      );
+    }
+    if (sampleCount.present) {
+      map['sample_count'] = Variable<int>(sampleCount.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CircadianProfilesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('baselineId: $baselineId, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('startHour: $startHour, ')
+          ..write('endHour: $endHour, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageRespiratoryRate: $averageRespiratoryRate, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -2217,6 +3414,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $InterventionHistoryTableTable(this);
   late final $ResearchConsentTableTable researchConsentTable =
       $ResearchConsentTableTable(this);
+  late final $AdaptiveBaselineStateTableTable adaptiveBaselineStateTable =
+      $AdaptiveBaselineStateTableTable(this);
+  late final $CircadianProfilesTableTable circadianProfilesTable =
+      $CircadianProfilesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2226,6 +3427,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     crisisRiskEventsTable,
     interventionHistoryTable,
     researchConsentTable,
+    adaptiveBaselineStateTable,
+    circadianProfilesTable,
   ];
 }
 
@@ -3363,6 +4566,616 @@ typedef $$ResearchConsentTableTableProcessedTableManager =
       ResearchConsentTableData,
       PrefetchHooks Function()
     >;
+typedef $$AdaptiveBaselineStateTableTableCreateCompanionBuilder =
+    AdaptiveBaselineStateTableCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      required int totalSamples,
+      required double restingHeartRate,
+      required double hrvRmssd,
+      required double respiratoryRate,
+      required double movementIntensity,
+      Value<int> rowid,
+    });
+typedef $$AdaptiveBaselineStateTableTableUpdateCompanionBuilder =
+    AdaptiveBaselineStateTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> totalSamples,
+      Value<double> restingHeartRate,
+      Value<double> hrvRmssd,
+      Value<double> respiratoryRate,
+      Value<double> movementIntensity,
+      Value<int> rowid,
+    });
+
+class $$AdaptiveBaselineStateTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $AdaptiveBaselineStateTableTable> {
+  $$AdaptiveBaselineStateTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get restingHeartRate => $composableBuilder(
+    column: $table.restingHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrvRmssd => $composableBuilder(
+    column: $table.hrvRmssd,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get respiratoryRate => $composableBuilder(
+    column: $table.respiratoryRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get movementIntensity => $composableBuilder(
+    column: $table.movementIntensity,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AdaptiveBaselineStateTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $AdaptiveBaselineStateTableTable> {
+  $$AdaptiveBaselineStateTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get restingHeartRate => $composableBuilder(
+    column: $table.restingHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrvRmssd => $composableBuilder(
+    column: $table.hrvRmssd,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get respiratoryRate => $composableBuilder(
+    column: $table.respiratoryRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get movementIntensity => $composableBuilder(
+    column: $table.movementIntensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AdaptiveBaselineStateTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $AdaptiveBaselineStateTableTable> {
+  $$AdaptiveBaselineStateTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get restingHeartRate => $composableBuilder(
+    column: $table.restingHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get hrvRmssd =>
+      $composableBuilder(column: $table.hrvRmssd, builder: (column) => column);
+
+  GeneratedColumn<double> get respiratoryRate => $composableBuilder(
+    column: $table.respiratoryRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get movementIntensity => $composableBuilder(
+    column: $table.movementIntensity,
+    builder: (column) => column,
+  );
+}
+
+class $$AdaptiveBaselineStateTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $AdaptiveBaselineStateTableTable,
+          AdaptiveBaselineStateTableData,
+          $$AdaptiveBaselineStateTableTableFilterComposer,
+          $$AdaptiveBaselineStateTableTableOrderingComposer,
+          $$AdaptiveBaselineStateTableTableAnnotationComposer,
+          $$AdaptiveBaselineStateTableTableCreateCompanionBuilder,
+          $$AdaptiveBaselineStateTableTableUpdateCompanionBuilder,
+          (
+            AdaptiveBaselineStateTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $AdaptiveBaselineStateTableTable,
+              AdaptiveBaselineStateTableData
+            >,
+          ),
+          AdaptiveBaselineStateTableData,
+          PrefetchHooks Function()
+        > {
+  $$AdaptiveBaselineStateTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $AdaptiveBaselineStateTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AdaptiveBaselineStateTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$AdaptiveBaselineStateTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AdaptiveBaselineStateTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> totalSamples = const Value.absent(),
+                Value<double> restingHeartRate = const Value.absent(),
+                Value<double> hrvRmssd = const Value.absent(),
+                Value<double> respiratoryRate = const Value.absent(),
+                Value<double> movementIntensity = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AdaptiveBaselineStateTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                totalSamples: totalSamples,
+                restingHeartRate: restingHeartRate,
+                hrvRmssd: hrvRmssd,
+                respiratoryRate: respiratoryRate,
+                movementIntensity: movementIntensity,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                required int totalSamples,
+                required double restingHeartRate,
+                required double hrvRmssd,
+                required double respiratoryRate,
+                required double movementIntensity,
+                Value<int> rowid = const Value.absent(),
+              }) => AdaptiveBaselineStateTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                totalSamples: totalSamples,
+                restingHeartRate: restingHeartRate,
+                hrvRmssd: hrvRmssd,
+                respiratoryRate: respiratoryRate,
+                movementIntensity: movementIntensity,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AdaptiveBaselineStateTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $AdaptiveBaselineStateTableTable,
+      AdaptiveBaselineStateTableData,
+      $$AdaptiveBaselineStateTableTableFilterComposer,
+      $$AdaptiveBaselineStateTableTableOrderingComposer,
+      $$AdaptiveBaselineStateTableTableAnnotationComposer,
+      $$AdaptiveBaselineStateTableTableCreateCompanionBuilder,
+      $$AdaptiveBaselineStateTableTableUpdateCompanionBuilder,
+      (
+        AdaptiveBaselineStateTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $AdaptiveBaselineStateTableTable,
+          AdaptiveBaselineStateTableData
+        >,
+      ),
+      AdaptiveBaselineStateTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$CircadianProfilesTableTableCreateCompanionBuilder =
+    CircadianProfilesTableCompanion Function({
+      required String id,
+      required String baselineId,
+      required String windowLabel,
+      required int startHour,
+      required int endHour,
+      required double averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double?> averageRespiratoryRate,
+      required int sampleCount,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CircadianProfilesTableTableUpdateCompanionBuilder =
+    CircadianProfilesTableCompanion Function({
+      Value<String> id,
+      Value<String> baselineId,
+      Value<String> windowLabel,
+      Value<int> startHour,
+      Value<int> endHour,
+      Value<double> averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double?> averageRespiratoryRate,
+      Value<int> sampleCount,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CircadianProfilesTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $CircadianProfilesTableTable> {
+  $$CircadianProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baselineId => $composableBuilder(
+    column: $table.baselineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get startHour => $composableBuilder(
+    column: $table.startHour,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get endHour => $composableBuilder(
+    column: $table.endHour,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageRespiratoryRate => $composableBuilder(
+    column: $table.averageRespiratoryRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CircadianProfilesTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $CircadianProfilesTableTable> {
+  $$CircadianProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baselineId => $composableBuilder(
+    column: $table.baselineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get startHour => $composableBuilder(
+    column: $table.startHour,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get endHour => $composableBuilder(
+    column: $table.endHour,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageRespiratoryRate => $composableBuilder(
+    column: $table.averageRespiratoryRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CircadianProfilesTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $CircadianProfilesTableTable> {
+  $$CircadianProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get baselineId => $composableBuilder(
+    column: $table.baselineId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get startHour =>
+      $composableBuilder(column: $table.startHour, builder: (column) => column);
+
+  GeneratedColumn<int> get endHour =>
+      $composableBuilder(column: $table.endHour, builder: (column) => column);
+
+  GeneratedColumn<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageRespiratoryRate => $composableBuilder(
+    column: $table.averageRespiratoryRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CircadianProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $CircadianProfilesTableTable,
+          CircadianProfilesTableData,
+          $$CircadianProfilesTableTableFilterComposer,
+          $$CircadianProfilesTableTableOrderingComposer,
+          $$CircadianProfilesTableTableAnnotationComposer,
+          $$CircadianProfilesTableTableCreateCompanionBuilder,
+          $$CircadianProfilesTableTableUpdateCompanionBuilder,
+          (
+            CircadianProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $CircadianProfilesTableTable,
+              CircadianProfilesTableData
+            >,
+          ),
+          CircadianProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$CircadianProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $CircadianProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CircadianProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CircadianProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CircadianProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> baselineId = const Value.absent(),
+                Value<String> windowLabel = const Value.absent(),
+                Value<int> startHour = const Value.absent(),
+                Value<int> endHour = const Value.absent(),
+                Value<double> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double?> averageRespiratoryRate = const Value.absent(),
+                Value<int> sampleCount = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CircadianProfilesTableCompanion(
+                id: id,
+                baselineId: baselineId,
+                windowLabel: windowLabel,
+                startHour: startHour,
+                endHour: endHour,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageRespiratoryRate: averageRespiratoryRate,
+                sampleCount: sampleCount,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String baselineId,
+                required String windowLabel,
+                required int startHour,
+                required int endHour,
+                required double averageHeartRate,
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double?> averageRespiratoryRate = const Value.absent(),
+                required int sampleCount,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CircadianProfilesTableCompanion.insert(
+                id: id,
+                baselineId: baselineId,
+                windowLabel: windowLabel,
+                startHour: startHour,
+                endHour: endHour,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageRespiratoryRate: averageRespiratoryRate,
+                sampleCount: sampleCount,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CircadianProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $CircadianProfilesTableTable,
+      CircadianProfilesTableData,
+      $$CircadianProfilesTableTableFilterComposer,
+      $$CircadianProfilesTableTableOrderingComposer,
+      $$CircadianProfilesTableTableAnnotationComposer,
+      $$CircadianProfilesTableTableCreateCompanionBuilder,
+      $$CircadianProfilesTableTableUpdateCompanionBuilder,
+      (
+        CircadianProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $CircadianProfilesTableTable,
+          CircadianProfilesTableData
+        >,
+      ),
+      CircadianProfilesTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -3378,4 +5191,15 @@ class $SignalFlowDatabaseManager {
       );
   $$ResearchConsentTableTableTableManager get researchConsentTable =>
       $$ResearchConsentTableTableTableManager(_db, _db.researchConsentTable);
+  $$AdaptiveBaselineStateTableTableTableManager
+  get adaptiveBaselineStateTable =>
+      $$AdaptiveBaselineStateTableTableTableManager(
+        _db,
+        _db.adaptiveBaselineStateTable,
+      );
+  $$CircadianProfilesTableTableTableManager get circadianProfilesTable =>
+      $$CircadianProfilesTableTableTableManager(
+        _db,
+        _db.circadianProfilesTable,
+      );
 }

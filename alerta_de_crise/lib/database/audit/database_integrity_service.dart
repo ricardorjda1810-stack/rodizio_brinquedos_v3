@@ -21,6 +21,8 @@ class DatabaseIntegrityService {
       'crisis_risk_events_table',
       'intervention_history_table',
       'research_consent_table',
+      'adaptive_baseline_state_table',
+      'circadian_profiles_table',
     ];
 
     final baselines = await _database
@@ -35,17 +37,27 @@ class DatabaseIntegrityService {
     final consents = await _database
         .select(_database.researchConsentTable)
         .get();
+    final adaptiveBaselines = await _database
+        .select(_database.adaptiveBaselineStateTable)
+        .get();
+    final circadianProfiles = await _database
+        .select(_database.circadianProfilesTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
     _auditInterventions(interventions, issues, warnings);
     _auditConsents(consents, issues, warnings);
+    _auditAdaptiveBaselines(adaptiveBaselines, issues, warnings);
+    _auditCircadianProfiles(circadianProfiles, issues, warnings);
 
     final totalRecords =
         baselines.length +
         crisisEvents.length +
         interventions.length +
-        consents.length;
+        consents.length +
+        adaptiveBaselines.length +
+        circadianProfiles.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -155,6 +167,62 @@ class DatabaseIntegrityService {
         warnings.add(
           'Research consent ${row.id} is accepted without acceptedAt.',
         );
+      }
+    }
+  }
+
+  void _auditAdaptiveBaselines(
+    List<AdaptiveBaselineStateTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Adaptive baseline with empty id.');
+      }
+      if (row.updatedAt.isBefore(row.createdAt)) {
+        issues.add(
+          'Adaptive baseline ${row.id} has updatedAt before createdAt.',
+        );
+      }
+      if (row.totalSamples < 0) {
+        issues.add('Adaptive baseline ${row.id} has negative sample count.');
+      }
+      if (row.restingHeartRate <= 0 || row.hrvRmssd <= 0) {
+        issues.add('Adaptive baseline ${row.id} has invalid baseline values.');
+      }
+      if (row.movementIntensity < 0 || row.movementIntensity > 1) {
+        warnings.add('Adaptive baseline ${row.id} has movement outside 0..1.');
+      }
+    }
+  }
+
+  void _auditCircadianProfiles(
+    List<CircadianProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.baselineId.trim().isEmpty) {
+        issues.add('Circadian profile with empty id or baselineId.');
+      }
+      if (row.windowLabel.trim().isEmpty) {
+        issues.add('Circadian profile ${row.id} has empty window label.');
+      }
+      if (row.startHour < 0 ||
+          row.startHour > 23 ||
+          row.endHour < 0 ||
+          row.endHour > 23) {
+        issues.add('Circadian profile ${row.id} has invalid hour window.');
+      }
+      if (row.sampleCount < 0) {
+        issues.add('Circadian profile ${row.id} has negative sample count.');
+      }
+      if (row.averageHeartRate <= 0) {
+        issues.add('Circadian profile ${row.id} has invalid heart rate.');
+      }
+      if (row.averageHrv != null && row.averageHrv! <= 0) {
+        warnings.add('Circadian profile ${row.id} has non-positive HRV.');
       }
     }
   }
