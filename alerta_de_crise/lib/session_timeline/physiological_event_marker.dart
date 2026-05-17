@@ -7,6 +7,9 @@ enum EventType {
   lowConfidenceSignal,
   manualMarker,
   circadianTransition,
+  escalatingPhysiology,
+  sustainedHeartRateElevation,
+  prolongedHrvSuppression,
 }
 
 enum Severity { low, medium, high }

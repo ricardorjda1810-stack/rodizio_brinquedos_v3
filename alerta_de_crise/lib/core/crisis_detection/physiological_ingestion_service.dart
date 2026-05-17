@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../adaptive_baseline/adaptive_baseline_models.dart';
 import '../../adaptive_baseline/adaptive_baseline_service.dart';
+import '../../physiological_trends/physiological_trend_service.dart';
 import '../../sensor_quality/sensor_quality_models.dart';
 import '../../sensor_quality/sensor_quality_service.dart';
 import '../../session_timeline/physiological_event_marker.dart';
@@ -19,6 +20,7 @@ class PhysiologicalIngestionService {
   final SensorQualityService _qualityService;
   final AdaptiveBaselineService _adaptiveBaselineService;
   final SessionTimelineService? _timelineService;
+  final PhysiologicalTrendService? _trendService;
   SensorQualityEvaluation? _lastQualityEvaluation;
 
   PhysiologicalIngestionService({
@@ -27,12 +29,14 @@ class PhysiologicalIngestionService {
     SensorQualityService qualityService = const SensorQualityService(),
     AdaptiveBaselineService? adaptiveBaselineService,
     SessionTimelineService? timelineService,
+    PhysiologicalTrendService? trendService,
   }) : _registry = registry,
        _detectionService = detectionService,
        _qualityService = qualityService,
        _adaptiveBaselineService =
            adaptiveBaselineService ?? AdaptiveBaselineService(),
-       _timelineService = timelineService;
+       _timelineService = timelineService,
+       _trendService = trendService;
 
   SensorQualityEvaluation? get lastQualityEvaluation => _lastQualityEvaluation;
 
@@ -79,7 +83,31 @@ class PhysiologicalIngestionService {
       baseline: contextualBaseline,
       source: provider.type.name,
     );
+    await _recordTrendIfAvailable(adaptiveBaseline);
     return result;
+  }
+
+  Future<void> _recordTrendIfAvailable(
+    AdaptiveBaselineProfile? adaptiveBaseline,
+  ) async {
+    final timelineService = _timelineService;
+    final trendService = _trendService;
+    final timeline = timelineService?.currentTimeline;
+    if (timelineService == null ||
+        trendService == null ||
+        timeline == null ||
+        !timelineService.isActive ||
+        timelineService.samples.length < 3) {
+      return;
+    }
+
+    await trendService.analyzeTimeline(
+      timeline: timeline,
+      samples: timelineService.samples,
+      markers: timelineService.markers,
+      timelineService: timelineService,
+      adaptiveBaseline: adaptiveBaseline,
+    );
   }
 
   Future<void> _recordTimelineQualityMarkers(

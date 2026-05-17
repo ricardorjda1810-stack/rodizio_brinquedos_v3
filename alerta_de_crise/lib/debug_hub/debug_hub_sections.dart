@@ -8,6 +8,7 @@ import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/polar_h10_debug_page.dart';
+import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
@@ -41,6 +42,11 @@ class SignalFlowDebugHubSections {
             label: 'Session Timeline',
             description: 'Marcadores temporais e análise before/during/after.',
             builder: (_) => const SessionTimelineDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Physiological Trends',
+            description: 'Tendências e escalada fisiológica progressiva.',
+            builder: (_) => const PhysiologicalTrendDebugPage(),
           ),
         ],
       ),

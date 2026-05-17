@@ -23,8 +23,8 @@ void main() {
     test('returns valid health report for empty database', () async {
       final report = await service.runIntegrityAudit();
 
-      expect(report.schemaVersion, 3);
-      expect(report.tablesChecked, hasLength(8));
+      expect(report.schemaVersion, 4);
+      expect(report.tablesChecked, hasLength(9));
       expect(report.totalRecords, 0);
       expect(report.hasIntegrityIssues, isFalse);
       expect(report.healthScore, 100);
@@ -170,6 +170,34 @@ void main() {
       expect(report.issues, contains(contains('invalid severity')));
       expect(report.warnings, contains(contains('empty title')));
       expect(report.warnings, contains(contains('empty source')));
+    });
+
+    test('detects invalid physiological trend metadata', () async {
+      await database
+          .into(database.physiologicalTrendsTable)
+          .insert(
+            PhysiologicalTrendsTableCompanion.insert(
+              id: 'bad-trend',
+              timelineId: 'timeline-1',
+              generatedAt: DateTime.utc(2026, 5, 17, 10),
+              windowLabel: '',
+              windowSeconds: 0,
+              averageHeartRate: const Value(-1),
+              averageHrv: const Value(-1),
+              hrvSlope: -1,
+              heartRateSlope: 1,
+              activationDensity: 2,
+              escalationScore: 120,
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('invalid window')));
+      expect(report.issues, contains(contains('escalationScore outside')));
+      expect(report.issues, contains(contains('activationDensity outside')));
+      expect(report.warnings, contains(contains('invalid average HR')));
+      expect(report.warnings, contains(contains('non-positive HRV')));
     });
   });
 }

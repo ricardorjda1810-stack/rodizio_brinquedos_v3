@@ -26,6 +26,11 @@ class DatabaseMigrationService {
         toVersion: 3,
         description: 'Adaptive baseline + timeline persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 3,
+        toVersion: 4,
+        description: 'Trend analysis persistence.',
+      ),
     ];
   }
 

@@ -25,6 +25,7 @@ class DatabaseIntegrityService {
       'circadian_profiles_table',
       'session_timeline_table',
       'physiological_event_markers_table',
+      'physiological_trends_table',
     ];
 
     final baselines = await _database
@@ -51,6 +52,9 @@ class DatabaseIntegrityService {
     final markers = await _database
         .select(_database.physiologicalEventMarkersTable)
         .get();
+    final trends = await _database
+        .select(_database.physiologicalTrendsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -60,6 +64,7 @@ class DatabaseIntegrityService {
     _auditCircadianProfiles(circadianProfiles, issues, warnings);
     _auditSessionTimelines(timelines, issues, warnings);
     _auditEventMarkers(markers, issues, warnings);
+    _auditTrends(trends, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -69,7 +74,8 @@ class DatabaseIntegrityService {
         adaptiveBaselines.length +
         circadianProfiles.length +
         timelines.length +
-        markers.length;
+        markers.length +
+        trends.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -277,6 +283,9 @@ class DatabaseIntegrityService {
       'lowConfidenceSignal',
       'manualMarker',
       'circadianTransition',
+      'escalatingPhysiology',
+      'sustainedHeartRateElevation',
+      'prolongedHrvSuppression',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -295,6 +304,37 @@ class DatabaseIntegrityService {
       }
       if (row.source.trim().isEmpty) {
         warnings.add('Physiological marker ${row.id} has empty source.');
+      }
+    }
+  }
+
+  void _auditTrends(
+    List<PhysiologicalTrendsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.timelineId.trim().isEmpty) {
+        issues.add('Physiological trend with empty id or timelineId.');
+      }
+      if (row.windowLabel.trim().isEmpty || row.windowSeconds <= 0) {
+        issues.add('Physiological trend ${row.id} has invalid window.');
+      }
+      if (row.escalationScore < 0 || row.escalationScore > 100) {
+        issues.add(
+          'Physiological trend ${row.id} has escalationScore outside 0..100.',
+        );
+      }
+      if (row.activationDensity < 0 || row.activationDensity > 1) {
+        issues.add(
+          'Physiological trend ${row.id} has activationDensity outside 0..1.',
+        );
+      }
+      if (row.averageHeartRate != null && row.averageHeartRate! <= 0) {
+        warnings.add('Physiological trend ${row.id} has invalid average HR.');
+      }
+      if (row.averageHrv != null && row.averageHrv! <= 0) {
+        warnings.add('Physiological trend ${row.id} has non-positive HRV.');
       }
     }
   }

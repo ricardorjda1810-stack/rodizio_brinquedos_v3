@@ -4522,6 +4522,717 @@ class PhysiologicalEventMarkersTableCompanion
   }
 }
 
+class $PhysiologicalTrendsTableTable extends PhysiologicalTrendsTable
+    with
+        TableInfo<
+          $PhysiologicalTrendsTableTable,
+          PhysiologicalTrendsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PhysiologicalTrendsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timelineIdMeta = const VerificationMeta(
+    'timelineId',
+  );
+  @override
+  late final GeneratedColumn<String> timelineId = GeneratedColumn<String>(
+    'timeline_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowLabelMeta = const VerificationMeta(
+    'windowLabel',
+  );
+  @override
+  late final GeneratedColumn<String> windowLabel = GeneratedColumn<String>(
+    'window_label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowSecondsMeta = const VerificationMeta(
+    'windowSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> windowSeconds = GeneratedColumn<int>(
+    'window_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHeartRateMeta = const VerificationMeta(
+    'averageHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> averageHeartRate = GeneratedColumn<double>(
+    'average_heart_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _averageHrvMeta = const VerificationMeta(
+    'averageHrv',
+  );
+  @override
+  late final GeneratedColumn<double> averageHrv = GeneratedColumn<double>(
+    'average_hrv',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _hrvSlopeMeta = const VerificationMeta(
+    'hrvSlope',
+  );
+  @override
+  late final GeneratedColumn<double> hrvSlope = GeneratedColumn<double>(
+    'hrv_slope',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heartRateSlopeMeta = const VerificationMeta(
+    'heartRateSlope',
+  );
+  @override
+  late final GeneratedColumn<double> heartRateSlope = GeneratedColumn<double>(
+    'heart_rate_slope',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activationDensityMeta = const VerificationMeta(
+    'activationDensity',
+  );
+  @override
+  late final GeneratedColumn<double> activationDensity =
+      GeneratedColumn<double>(
+        'activation_density',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationScoreMeta = const VerificationMeta(
+    'escalationScore',
+  );
+  @override
+  late final GeneratedColumn<int> escalationScore = GeneratedColumn<int>(
+    'escalation_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    timelineId,
+    generatedAt,
+    windowLabel,
+    windowSeconds,
+    averageHeartRate,
+    averageHrv,
+    hrvSlope,
+    heartRateSlope,
+    activationDensity,
+    escalationScore,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'physiological_trends_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PhysiologicalTrendsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timeline_id')) {
+      context.handle(
+        _timelineIdMeta,
+        timelineId.isAcceptableOrUnknown(data['timeline_id']!, _timelineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timelineIdMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('window_label')) {
+      context.handle(
+        _windowLabelMeta,
+        windowLabel.isAcceptableOrUnknown(
+          data['window_label']!,
+          _windowLabelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_windowLabelMeta);
+    }
+    if (data.containsKey('window_seconds')) {
+      context.handle(
+        _windowSecondsMeta,
+        windowSeconds.isAcceptableOrUnknown(
+          data['window_seconds']!,
+          _windowSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_windowSecondsMeta);
+    }
+    if (data.containsKey('average_heart_rate')) {
+      context.handle(
+        _averageHeartRateMeta,
+        averageHeartRate.isAcceptableOrUnknown(
+          data['average_heart_rate']!,
+          _averageHeartRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('average_hrv')) {
+      context.handle(
+        _averageHrvMeta,
+        averageHrv.isAcceptableOrUnknown(data['average_hrv']!, _averageHrvMeta),
+      );
+    }
+    if (data.containsKey('hrv_slope')) {
+      context.handle(
+        _hrvSlopeMeta,
+        hrvSlope.isAcceptableOrUnknown(data['hrv_slope']!, _hrvSlopeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvSlopeMeta);
+    }
+    if (data.containsKey('heart_rate_slope')) {
+      context.handle(
+        _heartRateSlopeMeta,
+        heartRateSlope.isAcceptableOrUnknown(
+          data['heart_rate_slope']!,
+          _heartRateSlopeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_heartRateSlopeMeta);
+    }
+    if (data.containsKey('activation_density')) {
+      context.handle(
+        _activationDensityMeta,
+        activationDensity.isAcceptableOrUnknown(
+          data['activation_density']!,
+          _activationDensityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activationDensityMeta);
+    }
+    if (data.containsKey('escalation_score')) {
+      context.handle(
+        _escalationScoreMeta,
+        escalationScore.isAcceptableOrUnknown(
+          data['escalation_score']!,
+          _escalationScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationScoreMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PhysiologicalTrendsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PhysiologicalTrendsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      timelineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}timeline_id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      windowLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}window_label'],
+      )!,
+      windowSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}window_seconds'],
+      )!,
+      averageHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_heart_rate'],
+      ),
+      averageHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_hrv'],
+      ),
+      hrvSlope: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv_slope'],
+      )!,
+      heartRateSlope: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}heart_rate_slope'],
+      )!,
+      activationDensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}activation_density'],
+      )!,
+      escalationScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}escalation_score'],
+      )!,
+    );
+  }
+
+  @override
+  $PhysiologicalTrendsTableTable createAlias(String alias) {
+    return $PhysiologicalTrendsTableTable(attachedDatabase, alias);
+  }
+}
+
+class PhysiologicalTrendsTableData extends DataClass
+    implements Insertable<PhysiologicalTrendsTableData> {
+  final String id;
+  final String timelineId;
+  final DateTime generatedAt;
+  final String windowLabel;
+  final int windowSeconds;
+  final double? averageHeartRate;
+  final double? averageHrv;
+  final double hrvSlope;
+  final double heartRateSlope;
+  final double activationDensity;
+  final int escalationScore;
+  const PhysiologicalTrendsTableData({
+    required this.id,
+    required this.timelineId,
+    required this.generatedAt,
+    required this.windowLabel,
+    required this.windowSeconds,
+    this.averageHeartRate,
+    this.averageHrv,
+    required this.hrvSlope,
+    required this.heartRateSlope,
+    required this.activationDensity,
+    required this.escalationScore,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timeline_id'] = Variable<String>(timelineId);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['window_label'] = Variable<String>(windowLabel);
+    map['window_seconds'] = Variable<int>(windowSeconds);
+    if (!nullToAbsent || averageHeartRate != null) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate);
+    }
+    if (!nullToAbsent || averageHrv != null) {
+      map['average_hrv'] = Variable<double>(averageHrv);
+    }
+    map['hrv_slope'] = Variable<double>(hrvSlope);
+    map['heart_rate_slope'] = Variable<double>(heartRateSlope);
+    map['activation_density'] = Variable<double>(activationDensity);
+    map['escalation_score'] = Variable<int>(escalationScore);
+    return map;
+  }
+
+  PhysiologicalTrendsTableCompanion toCompanion(bool nullToAbsent) {
+    return PhysiologicalTrendsTableCompanion(
+      id: Value(id),
+      timelineId: Value(timelineId),
+      generatedAt: Value(generatedAt),
+      windowLabel: Value(windowLabel),
+      windowSeconds: Value(windowSeconds),
+      averageHeartRate: averageHeartRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHeartRate),
+      averageHrv: averageHrv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHrv),
+      hrvSlope: Value(hrvSlope),
+      heartRateSlope: Value(heartRateSlope),
+      activationDensity: Value(activationDensity),
+      escalationScore: Value(escalationScore),
+    );
+  }
+
+  factory PhysiologicalTrendsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PhysiologicalTrendsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      timelineId: serializer.fromJson<String>(json['timelineId']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      windowLabel: serializer.fromJson<String>(json['windowLabel']),
+      windowSeconds: serializer.fromJson<int>(json['windowSeconds']),
+      averageHeartRate: serializer.fromJson<double?>(json['averageHeartRate']),
+      averageHrv: serializer.fromJson<double?>(json['averageHrv']),
+      hrvSlope: serializer.fromJson<double>(json['hrvSlope']),
+      heartRateSlope: serializer.fromJson<double>(json['heartRateSlope']),
+      activationDensity: serializer.fromJson<double>(json['activationDensity']),
+      escalationScore: serializer.fromJson<int>(json['escalationScore']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timelineId': serializer.toJson<String>(timelineId),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'windowLabel': serializer.toJson<String>(windowLabel),
+      'windowSeconds': serializer.toJson<int>(windowSeconds),
+      'averageHeartRate': serializer.toJson<double?>(averageHeartRate),
+      'averageHrv': serializer.toJson<double?>(averageHrv),
+      'hrvSlope': serializer.toJson<double>(hrvSlope),
+      'heartRateSlope': serializer.toJson<double>(heartRateSlope),
+      'activationDensity': serializer.toJson<double>(activationDensity),
+      'escalationScore': serializer.toJson<int>(escalationScore),
+    };
+  }
+
+  PhysiologicalTrendsTableData copyWith({
+    String? id,
+    String? timelineId,
+    DateTime? generatedAt,
+    String? windowLabel,
+    int? windowSeconds,
+    Value<double?> averageHeartRate = const Value.absent(),
+    Value<double?> averageHrv = const Value.absent(),
+    double? hrvSlope,
+    double? heartRateSlope,
+    double? activationDensity,
+    int? escalationScore,
+  }) => PhysiologicalTrendsTableData(
+    id: id ?? this.id,
+    timelineId: timelineId ?? this.timelineId,
+    generatedAt: generatedAt ?? this.generatedAt,
+    windowLabel: windowLabel ?? this.windowLabel,
+    windowSeconds: windowSeconds ?? this.windowSeconds,
+    averageHeartRate: averageHeartRate.present
+        ? averageHeartRate.value
+        : this.averageHeartRate,
+    averageHrv: averageHrv.present ? averageHrv.value : this.averageHrv,
+    hrvSlope: hrvSlope ?? this.hrvSlope,
+    heartRateSlope: heartRateSlope ?? this.heartRateSlope,
+    activationDensity: activationDensity ?? this.activationDensity,
+    escalationScore: escalationScore ?? this.escalationScore,
+  );
+  PhysiologicalTrendsTableData copyWithCompanion(
+    PhysiologicalTrendsTableCompanion data,
+  ) {
+    return PhysiologicalTrendsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      timelineId: data.timelineId.present
+          ? data.timelineId.value
+          : this.timelineId,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      windowLabel: data.windowLabel.present
+          ? data.windowLabel.value
+          : this.windowLabel,
+      windowSeconds: data.windowSeconds.present
+          ? data.windowSeconds.value
+          : this.windowSeconds,
+      averageHeartRate: data.averageHeartRate.present
+          ? data.averageHeartRate.value
+          : this.averageHeartRate,
+      averageHrv: data.averageHrv.present
+          ? data.averageHrv.value
+          : this.averageHrv,
+      hrvSlope: data.hrvSlope.present ? data.hrvSlope.value : this.hrvSlope,
+      heartRateSlope: data.heartRateSlope.present
+          ? data.heartRateSlope.value
+          : this.heartRateSlope,
+      activationDensity: data.activationDensity.present
+          ? data.activationDensity.value
+          : this.activationDensity,
+      escalationScore: data.escalationScore.present
+          ? data.escalationScore.value
+          : this.escalationScore,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalTrendsTableData(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('windowSeconds: $windowSeconds, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('hrvSlope: $hrvSlope, ')
+          ..write('heartRateSlope: $heartRateSlope, ')
+          ..write('activationDensity: $activationDensity, ')
+          ..write('escalationScore: $escalationScore')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    timelineId,
+    generatedAt,
+    windowLabel,
+    windowSeconds,
+    averageHeartRate,
+    averageHrv,
+    hrvSlope,
+    heartRateSlope,
+    activationDensity,
+    escalationScore,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PhysiologicalTrendsTableData &&
+          other.id == this.id &&
+          other.timelineId == this.timelineId &&
+          other.generatedAt == this.generatedAt &&
+          other.windowLabel == this.windowLabel &&
+          other.windowSeconds == this.windowSeconds &&
+          other.averageHeartRate == this.averageHeartRate &&
+          other.averageHrv == this.averageHrv &&
+          other.hrvSlope == this.hrvSlope &&
+          other.heartRateSlope == this.heartRateSlope &&
+          other.activationDensity == this.activationDensity &&
+          other.escalationScore == this.escalationScore);
+}
+
+class PhysiologicalTrendsTableCompanion
+    extends UpdateCompanion<PhysiologicalTrendsTableData> {
+  final Value<String> id;
+  final Value<String> timelineId;
+  final Value<DateTime> generatedAt;
+  final Value<String> windowLabel;
+  final Value<int> windowSeconds;
+  final Value<double?> averageHeartRate;
+  final Value<double?> averageHrv;
+  final Value<double> hrvSlope;
+  final Value<double> heartRateSlope;
+  final Value<double> activationDensity;
+  final Value<int> escalationScore;
+  final Value<int> rowid;
+  const PhysiologicalTrendsTableCompanion({
+    this.id = const Value.absent(),
+    this.timelineId = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.windowLabel = const Value.absent(),
+    this.windowSeconds = const Value.absent(),
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.hrvSlope = const Value.absent(),
+    this.heartRateSlope = const Value.absent(),
+    this.activationDensity = const Value.absent(),
+    this.escalationScore = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PhysiologicalTrendsTableCompanion.insert({
+    required String id,
+    required String timelineId,
+    required DateTime generatedAt,
+    required String windowLabel,
+    required int windowSeconds,
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    required double hrvSlope,
+    required double heartRateSlope,
+    required double activationDensity,
+    required int escalationScore,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       timelineId = Value(timelineId),
+       generatedAt = Value(generatedAt),
+       windowLabel = Value(windowLabel),
+       windowSeconds = Value(windowSeconds),
+       hrvSlope = Value(hrvSlope),
+       heartRateSlope = Value(heartRateSlope),
+       activationDensity = Value(activationDensity),
+       escalationScore = Value(escalationScore);
+  static Insertable<PhysiologicalTrendsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? timelineId,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? windowLabel,
+    Expression<int>? windowSeconds,
+    Expression<double>? averageHeartRate,
+    Expression<double>? averageHrv,
+    Expression<double>? hrvSlope,
+    Expression<double>? heartRateSlope,
+    Expression<double>? activationDensity,
+    Expression<int>? escalationScore,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timelineId != null) 'timeline_id': timelineId,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (windowLabel != null) 'window_label': windowLabel,
+      if (windowSeconds != null) 'window_seconds': windowSeconds,
+      if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
+      if (averageHrv != null) 'average_hrv': averageHrv,
+      if (hrvSlope != null) 'hrv_slope': hrvSlope,
+      if (heartRateSlope != null) 'heart_rate_slope': heartRateSlope,
+      if (activationDensity != null) 'activation_density': activationDensity,
+      if (escalationScore != null) 'escalation_score': escalationScore,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PhysiologicalTrendsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? timelineId,
+    Value<DateTime>? generatedAt,
+    Value<String>? windowLabel,
+    Value<int>? windowSeconds,
+    Value<double?>? averageHeartRate,
+    Value<double?>? averageHrv,
+    Value<double>? hrvSlope,
+    Value<double>? heartRateSlope,
+    Value<double>? activationDensity,
+    Value<int>? escalationScore,
+    Value<int>? rowid,
+  }) {
+    return PhysiologicalTrendsTableCompanion(
+      id: id ?? this.id,
+      timelineId: timelineId ?? this.timelineId,
+      generatedAt: generatedAt ?? this.generatedAt,
+      windowLabel: windowLabel ?? this.windowLabel,
+      windowSeconds: windowSeconds ?? this.windowSeconds,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      averageHrv: averageHrv ?? this.averageHrv,
+      hrvSlope: hrvSlope ?? this.hrvSlope,
+      heartRateSlope: heartRateSlope ?? this.heartRateSlope,
+      activationDensity: activationDensity ?? this.activationDensity,
+      escalationScore: escalationScore ?? this.escalationScore,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timelineId.present) {
+      map['timeline_id'] = Variable<String>(timelineId.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (windowLabel.present) {
+      map['window_label'] = Variable<String>(windowLabel.value);
+    }
+    if (windowSeconds.present) {
+      map['window_seconds'] = Variable<int>(windowSeconds.value);
+    }
+    if (averageHeartRate.present) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate.value);
+    }
+    if (averageHrv.present) {
+      map['average_hrv'] = Variable<double>(averageHrv.value);
+    }
+    if (hrvSlope.present) {
+      map['hrv_slope'] = Variable<double>(hrvSlope.value);
+    }
+    if (heartRateSlope.present) {
+      map['heart_rate_slope'] = Variable<double>(heartRateSlope.value);
+    }
+    if (activationDensity.present) {
+      map['activation_density'] = Variable<double>(activationDensity.value);
+    }
+    if (escalationScore.present) {
+      map['escalation_score'] = Variable<int>(escalationScore.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalTrendsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('windowSeconds: $windowSeconds, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('hrvSlope: $hrvSlope, ')
+          ..write('heartRateSlope: $heartRateSlope, ')
+          ..write('activationDensity: $activationDensity, ')
+          ..write('escalationScore: $escalationScore, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -4541,6 +5252,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $SessionTimelineTableTable(this);
   late final $PhysiologicalEventMarkersTableTable
   physiologicalEventMarkersTable = $PhysiologicalEventMarkersTableTable(this);
+  late final $PhysiologicalTrendsTableTable physiologicalTrendsTable =
+      $PhysiologicalTrendsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4554,6 +5267,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     circadianProfilesTable,
     sessionTimelineTable,
     physiologicalEventMarkersTable,
+    physiologicalTrendsTable,
   ];
 }
 
@@ -6886,6 +7600,357 @@ typedef $$PhysiologicalEventMarkersTableTableProcessedTableManager =
       PhysiologicalEventMarkersTableData,
       PrefetchHooks Function()
     >;
+typedef $$PhysiologicalTrendsTableTableCreateCompanionBuilder =
+    PhysiologicalTrendsTableCompanion Function({
+      required String id,
+      required String timelineId,
+      required DateTime generatedAt,
+      required String windowLabel,
+      required int windowSeconds,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      required double hrvSlope,
+      required double heartRateSlope,
+      required double activationDensity,
+      required int escalationScore,
+      Value<int> rowid,
+    });
+typedef $$PhysiologicalTrendsTableTableUpdateCompanionBuilder =
+    PhysiologicalTrendsTableCompanion Function({
+      Value<String> id,
+      Value<String> timelineId,
+      Value<DateTime> generatedAt,
+      Value<String> windowLabel,
+      Value<int> windowSeconds,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double> hrvSlope,
+      Value<double> heartRateSlope,
+      Value<double> activationDensity,
+      Value<int> escalationScore,
+      Value<int> rowid,
+    });
+
+class $$PhysiologicalTrendsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $PhysiologicalTrendsTableTable> {
+  $$PhysiologicalTrendsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrvSlope => $composableBuilder(
+    column: $table.hrvSlope,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heartRateSlope => $composableBuilder(
+    column: $table.heartRateSlope,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get escalationScore => $composableBuilder(
+    column: $table.escalationScore,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PhysiologicalTrendsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $PhysiologicalTrendsTableTable> {
+  $$PhysiologicalTrendsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrvSlope => $composableBuilder(
+    column: $table.hrvSlope,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heartRateSlope => $composableBuilder(
+    column: $table.heartRateSlope,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get escalationScore => $composableBuilder(
+    column: $table.escalationScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PhysiologicalTrendsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $PhysiologicalTrendsTableTable> {
+  $$PhysiologicalTrendsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get hrvSlope =>
+      $composableBuilder(column: $table.hrvSlope, builder: (column) => column);
+
+  GeneratedColumn<double> get heartRateSlope => $composableBuilder(
+    column: $table.heartRateSlope,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get escalationScore => $composableBuilder(
+    column: $table.escalationScore,
+    builder: (column) => column,
+  );
+}
+
+class $$PhysiologicalTrendsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $PhysiologicalTrendsTableTable,
+          PhysiologicalTrendsTableData,
+          $$PhysiologicalTrendsTableTableFilterComposer,
+          $$PhysiologicalTrendsTableTableOrderingComposer,
+          $$PhysiologicalTrendsTableTableAnnotationComposer,
+          $$PhysiologicalTrendsTableTableCreateCompanionBuilder,
+          $$PhysiologicalTrendsTableTableUpdateCompanionBuilder,
+          (
+            PhysiologicalTrendsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $PhysiologicalTrendsTableTable,
+              PhysiologicalTrendsTableData
+            >,
+          ),
+          PhysiologicalTrendsTableData,
+          PrefetchHooks Function()
+        > {
+  $$PhysiologicalTrendsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $PhysiologicalTrendsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PhysiologicalTrendsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PhysiologicalTrendsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PhysiologicalTrendsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> timelineId = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> windowLabel = const Value.absent(),
+                Value<int> windowSeconds = const Value.absent(),
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double> hrvSlope = const Value.absent(),
+                Value<double> heartRateSlope = const Value.absent(),
+                Value<double> activationDensity = const Value.absent(),
+                Value<int> escalationScore = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalTrendsTableCompanion(
+                id: id,
+                timelineId: timelineId,
+                generatedAt: generatedAt,
+                windowLabel: windowLabel,
+                windowSeconds: windowSeconds,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                hrvSlope: hrvSlope,
+                heartRateSlope: heartRateSlope,
+                activationDensity: activationDensity,
+                escalationScore: escalationScore,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String timelineId,
+                required DateTime generatedAt,
+                required String windowLabel,
+                required int windowSeconds,
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                required double hrvSlope,
+                required double heartRateSlope,
+                required double activationDensity,
+                required int escalationScore,
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalTrendsTableCompanion.insert(
+                id: id,
+                timelineId: timelineId,
+                generatedAt: generatedAt,
+                windowLabel: windowLabel,
+                windowSeconds: windowSeconds,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                hrvSlope: hrvSlope,
+                heartRateSlope: heartRateSlope,
+                activationDensity: activationDensity,
+                escalationScore: escalationScore,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PhysiologicalTrendsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $PhysiologicalTrendsTableTable,
+      PhysiologicalTrendsTableData,
+      $$PhysiologicalTrendsTableTableFilterComposer,
+      $$PhysiologicalTrendsTableTableOrderingComposer,
+      $$PhysiologicalTrendsTableTableAnnotationComposer,
+      $$PhysiologicalTrendsTableTableCreateCompanionBuilder,
+      $$PhysiologicalTrendsTableTableUpdateCompanionBuilder,
+      (
+        PhysiologicalTrendsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $PhysiologicalTrendsTableTable,
+          PhysiologicalTrendsTableData
+        >,
+      ),
+      PhysiologicalTrendsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -6919,5 +7984,10 @@ class $SignalFlowDatabaseManager {
       $$PhysiologicalEventMarkersTableTableTableManager(
         _db,
         _db.physiologicalEventMarkersTable,
+      );
+  $$PhysiologicalTrendsTableTableTableManager get physiologicalTrendsTable =>
+      $$PhysiologicalTrendsTableTableTableManager(
+        _db,
+        _db.physiologicalTrendsTable,
       );
 }
