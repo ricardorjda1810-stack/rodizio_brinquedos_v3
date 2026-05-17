@@ -12,6 +12,7 @@ import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
 import '../ui/crisis_detection/sensor_quality_debug_page.dart';
+import '../ui/crisis_detection/session_timeline_debug_page.dart';
 import '../ui/crisis_detection/watch_live_session_debug_page.dart';
 import 'debug_hub_models.dart';
 
@@ -35,6 +36,11 @@ class SignalFlowDebugHubSections {
             label: 'Adaptive Baseline',
             description: 'Perfis circadianos e baseline dinâmico.',
             builder: (_) => const AdaptiveBaselineDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Session Timeline',
+            description: 'Marcadores temporais e análise before/during/after.',
+            builder: (_) => const SessionTimelineDebugPage(),
           ),
         ],
       ),

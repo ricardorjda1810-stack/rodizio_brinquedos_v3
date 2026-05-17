@@ -21,6 +21,11 @@ class DatabaseMigrationService {
         toVersion: 2,
         description: 'Adaptive baseline and circadian profile persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 2,
+        toVersion: 3,
+        description: 'Adaptive baseline + timeline persistence.',
+      ),
     ];
   }
 

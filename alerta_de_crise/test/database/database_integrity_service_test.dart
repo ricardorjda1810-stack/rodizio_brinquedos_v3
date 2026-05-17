@@ -23,8 +23,8 @@ void main() {
     test('returns valid health report for empty database', () async {
       final report = await service.runIntegrityAudit();
 
-      expect(report.schemaVersion, 2);
-      expect(report.tablesChecked, hasLength(6));
+      expect(report.schemaVersion, 3);
+      expect(report.tablesChecked, hasLength(8));
       expect(report.totalRecords, 0);
       expect(report.hasIntegrityIssues, isFalse);
       expect(report.healthScore, 100);
@@ -124,6 +124,52 @@ void main() {
         report.warnings,
         contains(contains('accepted without acceptedAt')),
       );
+    });
+
+    test('detects inconsistent timeline timestamps', () async {
+      await database
+          .into(database.sessionTimelineTable)
+          .insert(
+            SessionTimelineTableCompanion.insert(
+              id: 'bad-timeline',
+              startedAt: DateTime.utc(2026, 5, 17, 10, 5),
+              endedAt: Value(DateTime.utc(2026, 5, 17, 10)),
+              totalSamples: 0,
+              totalEvents: 0,
+              averageHeartRate: const Value(null),
+              averageHrv: const Value(null),
+              maxHeartRate: const Value(null),
+              minHrv: const Value(null),
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('endedAt before startedAt')));
+    });
+
+    test('detects invalid event marker metadata', () async {
+      await database
+          .into(database.physiologicalEventMarkersTable)
+          .insert(
+            PhysiologicalEventMarkersTableCompanion.insert(
+              id: 'bad-marker',
+              timelineId: 'timeline-1',
+              timestamp: DateTime.utc(2026, 5, 17, 10),
+              type: 'unknown',
+              title: '',
+              description: 'Evento inválido.',
+              severity: 'urgent',
+              source: '',
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('invalid type')));
+      expect(report.issues, contains(contains('invalid severity')));
+      expect(report.warnings, contains(contains('empty title')));
+      expect(report.warnings, contains(contains('empty source')));
     });
   });
 }

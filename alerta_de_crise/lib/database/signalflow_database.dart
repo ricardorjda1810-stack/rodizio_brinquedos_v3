@@ -7,6 +7,7 @@ import 'baseline_tables.dart';
 import 'consent_tables.dart';
 import 'crisis_tables.dart';
 import 'intervention_tables.dart';
+import 'session_timeline_tables.dart';
 
 part 'signalflow_database.g.dart';
 
@@ -18,6 +19,8 @@ part 'signalflow_database.g.dart';
     ResearchConsentTable,
     AdaptiveBaselineStateTable,
     CircadianProfilesTable,
+    SessionTimelineTable,
+    PhysiologicalEventMarkersTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -31,7 +34,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -41,6 +44,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 2) {
           await migrator.createTable(adaptiveBaselineStateTable);
           await migrator.createTable(circadianProfilesTable);
+        }
+        if (from < 3) {
+          await migrator.createTable(sessionTimelineTable);
+          await migrator.createTable(physiologicalEventMarkersTable);
         }
       },
     );
@@ -54,6 +61,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(researchConsentTable);
       batch.deleteAll(adaptiveBaselineStateTable);
       batch.deleteAll(circadianProfilesTable);
+      batch.deleteAll(sessionTimelineTable);
+      batch.deleteAll(physiologicalEventMarkersTable);
     });
   }
 }

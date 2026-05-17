@@ -23,6 +23,8 @@ class DatabaseIntegrityService {
       'research_consent_table',
       'adaptive_baseline_state_table',
       'circadian_profiles_table',
+      'session_timeline_table',
+      'physiological_event_markers_table',
     ];
 
     final baselines = await _database
@@ -43,6 +45,12 @@ class DatabaseIntegrityService {
     final circadianProfiles = await _database
         .select(_database.circadianProfilesTable)
         .get();
+    final timelines = await _database
+        .select(_database.sessionTimelineTable)
+        .get();
+    final markers = await _database
+        .select(_database.physiologicalEventMarkersTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -50,6 +58,8 @@ class DatabaseIntegrityService {
     _auditConsents(consents, issues, warnings);
     _auditAdaptiveBaselines(adaptiveBaselines, issues, warnings);
     _auditCircadianProfiles(circadianProfiles, issues, warnings);
+    _auditSessionTimelines(timelines, issues, warnings);
+    _auditEventMarkers(markers, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -57,7 +67,9 @@ class DatabaseIntegrityService {
         interventions.length +
         consents.length +
         adaptiveBaselines.length +
-        circadianProfiles.length;
+        circadianProfiles.length +
+        timelines.length +
+        markers.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -223,6 +235,66 @@ class DatabaseIntegrityService {
       }
       if (row.averageHrv != null && row.averageHrv! <= 0) {
         warnings.add('Circadian profile ${row.id} has non-positive HRV.');
+      }
+    }
+  }
+
+  void _auditSessionTimelines(
+    List<SessionTimelineTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Session timeline with empty id.');
+      }
+      if (row.endedAt != null && row.endedAt!.isBefore(row.startedAt)) {
+        issues.add('Session timeline ${row.id} has endedAt before startedAt.');
+      }
+      if (row.totalSamples < 0 || row.totalEvents < 0) {
+        issues.add('Session timeline ${row.id} has negative counters.');
+      }
+      if (row.averageHeartRate != null && row.averageHeartRate! <= 0) {
+        warnings.add('Session timeline ${row.id} has invalid average HR.');
+      }
+      if (row.minHrv != null && row.minHrv! <= 0) {
+        warnings.add('Session timeline ${row.id} has non-positive min HRV.');
+      }
+    }
+  }
+
+  void _auditEventMarkers(
+    List<PhysiologicalEventMarkersTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTypes = {
+      'elevatedHeartRate',
+      'hrvDrop',
+      'interventionStarted',
+      'interventionCompleted',
+      'movementArtifact',
+      'lowConfidenceSignal',
+      'manualMarker',
+      'circadianTransition',
+    };
+    const validSeverities = {'low', 'medium', 'high'};
+
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.timelineId.trim().isEmpty) {
+        issues.add('Physiological marker with empty id or timelineId.');
+      }
+      if (!validTypes.contains(row.type)) {
+        issues.add('Physiological marker ${row.id} has invalid type.');
+      }
+      if (!validSeverities.contains(row.severity)) {
+        issues.add('Physiological marker ${row.id} has invalid severity.');
+      }
+      if (row.title.trim().isEmpty) {
+        warnings.add('Physiological marker ${row.id} has empty title.');
+      }
+      if (row.source.trim().isEmpty) {
+        warnings.add('Physiological marker ${row.id} has empty source.');
       }
     }
   }

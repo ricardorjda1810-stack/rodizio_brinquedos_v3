@@ -3403,6 +3403,1125 @@ class CircadianProfilesTableCompanion
   }
 }
 
+class $SessionTimelineTableTable extends SessionTimelineTable
+    with TableInfo<$SessionTimelineTableTable, SessionTimelineTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SessionTimelineTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endedAtMeta = const VerificationMeta(
+    'endedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endedAt = GeneratedColumn<DateTime>(
+    'ended_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _totalSamplesMeta = const VerificationMeta(
+    'totalSamples',
+  );
+  @override
+  late final GeneratedColumn<int> totalSamples = GeneratedColumn<int>(
+    'total_samples',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalEventsMeta = const VerificationMeta(
+    'totalEvents',
+  );
+  @override
+  late final GeneratedColumn<int> totalEvents = GeneratedColumn<int>(
+    'total_events',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHeartRateMeta = const VerificationMeta(
+    'averageHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> averageHeartRate = GeneratedColumn<double>(
+    'average_heart_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _averageHrvMeta = const VerificationMeta(
+    'averageHrv',
+  );
+  @override
+  late final GeneratedColumn<double> averageHrv = GeneratedColumn<double>(
+    'average_hrv',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _maxHeartRateMeta = const VerificationMeta(
+    'maxHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> maxHeartRate = GeneratedColumn<double>(
+    'max_heart_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _minHrvMeta = const VerificationMeta('minHrv');
+  @override
+  late final GeneratedColumn<double> minHrv = GeneratedColumn<double>(
+    'min_hrv',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    startedAt,
+    endedAt,
+    totalSamples,
+    totalEvents,
+    averageHeartRate,
+    averageHrv,
+    maxHeartRate,
+    minHrv,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'session_timeline_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SessionTimelineTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('ended_at')) {
+      context.handle(
+        _endedAtMeta,
+        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
+      );
+    }
+    if (data.containsKey('total_samples')) {
+      context.handle(
+        _totalSamplesMeta,
+        totalSamples.isAcceptableOrUnknown(
+          data['total_samples']!,
+          _totalSamplesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSamplesMeta);
+    }
+    if (data.containsKey('total_events')) {
+      context.handle(
+        _totalEventsMeta,
+        totalEvents.isAcceptableOrUnknown(
+          data['total_events']!,
+          _totalEventsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalEventsMeta);
+    }
+    if (data.containsKey('average_heart_rate')) {
+      context.handle(
+        _averageHeartRateMeta,
+        averageHeartRate.isAcceptableOrUnknown(
+          data['average_heart_rate']!,
+          _averageHeartRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('average_hrv')) {
+      context.handle(
+        _averageHrvMeta,
+        averageHrv.isAcceptableOrUnknown(data['average_hrv']!, _averageHrvMeta),
+      );
+    }
+    if (data.containsKey('max_heart_rate')) {
+      context.handle(
+        _maxHeartRateMeta,
+        maxHeartRate.isAcceptableOrUnknown(
+          data['max_heart_rate']!,
+          _maxHeartRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('min_hrv')) {
+      context.handle(
+        _minHrvMeta,
+        minHrv.isAcceptableOrUnknown(data['min_hrv']!, _minHrvMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SessionTimelineTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SessionTimelineTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}ended_at'],
+      ),
+      totalSamples: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_samples'],
+      )!,
+      totalEvents: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_events'],
+      )!,
+      averageHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_heart_rate'],
+      ),
+      averageHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_hrv'],
+      ),
+      maxHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}max_heart_rate'],
+      ),
+      minHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}min_hrv'],
+      ),
+    );
+  }
+
+  @override
+  $SessionTimelineTableTable createAlias(String alias) {
+    return $SessionTimelineTableTable(attachedDatabase, alias);
+  }
+}
+
+class SessionTimelineTableData extends DataClass
+    implements Insertable<SessionTimelineTableData> {
+  final String id;
+  final DateTime startedAt;
+  final DateTime? endedAt;
+  final int totalSamples;
+  final int totalEvents;
+  final double? averageHeartRate;
+  final double? averageHrv;
+  final double? maxHeartRate;
+  final double? minHrv;
+  const SessionTimelineTableData({
+    required this.id,
+    required this.startedAt,
+    this.endedAt,
+    required this.totalSamples,
+    required this.totalEvents,
+    this.averageHeartRate,
+    this.averageHrv,
+    this.maxHeartRate,
+    this.minHrv,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<DateTime>(endedAt);
+    }
+    map['total_samples'] = Variable<int>(totalSamples);
+    map['total_events'] = Variable<int>(totalEvents);
+    if (!nullToAbsent || averageHeartRate != null) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate);
+    }
+    if (!nullToAbsent || averageHrv != null) {
+      map['average_hrv'] = Variable<double>(averageHrv);
+    }
+    if (!nullToAbsent || maxHeartRate != null) {
+      map['max_heart_rate'] = Variable<double>(maxHeartRate);
+    }
+    if (!nullToAbsent || minHrv != null) {
+      map['min_hrv'] = Variable<double>(minHrv);
+    }
+    return map;
+  }
+
+  SessionTimelineTableCompanion toCompanion(bool nullToAbsent) {
+    return SessionTimelineTableCompanion(
+      id: Value(id),
+      startedAt: Value(startedAt),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
+      totalSamples: Value(totalSamples),
+      totalEvents: Value(totalEvents),
+      averageHeartRate: averageHeartRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHeartRate),
+      averageHrv: averageHrv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHrv),
+      maxHeartRate: maxHeartRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maxHeartRate),
+      minHrv: minHrv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minHrv),
+    );
+  }
+
+  factory SessionTimelineTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SessionTimelineTableData(
+      id: serializer.fromJson<String>(json['id']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      endedAt: serializer.fromJson<DateTime?>(json['endedAt']),
+      totalSamples: serializer.fromJson<int>(json['totalSamples']),
+      totalEvents: serializer.fromJson<int>(json['totalEvents']),
+      averageHeartRate: serializer.fromJson<double?>(json['averageHeartRate']),
+      averageHrv: serializer.fromJson<double?>(json['averageHrv']),
+      maxHeartRate: serializer.fromJson<double?>(json['maxHeartRate']),
+      minHrv: serializer.fromJson<double?>(json['minHrv']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'endedAt': serializer.toJson<DateTime?>(endedAt),
+      'totalSamples': serializer.toJson<int>(totalSamples),
+      'totalEvents': serializer.toJson<int>(totalEvents),
+      'averageHeartRate': serializer.toJson<double?>(averageHeartRate),
+      'averageHrv': serializer.toJson<double?>(averageHrv),
+      'maxHeartRate': serializer.toJson<double?>(maxHeartRate),
+      'minHrv': serializer.toJson<double?>(minHrv),
+    };
+  }
+
+  SessionTimelineTableData copyWith({
+    String? id,
+    DateTime? startedAt,
+    Value<DateTime?> endedAt = const Value.absent(),
+    int? totalSamples,
+    int? totalEvents,
+    Value<double?> averageHeartRate = const Value.absent(),
+    Value<double?> averageHrv = const Value.absent(),
+    Value<double?> maxHeartRate = const Value.absent(),
+    Value<double?> minHrv = const Value.absent(),
+  }) => SessionTimelineTableData(
+    id: id ?? this.id,
+    startedAt: startedAt ?? this.startedAt,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
+    totalSamples: totalSamples ?? this.totalSamples,
+    totalEvents: totalEvents ?? this.totalEvents,
+    averageHeartRate: averageHeartRate.present
+        ? averageHeartRate.value
+        : this.averageHeartRate,
+    averageHrv: averageHrv.present ? averageHrv.value : this.averageHrv,
+    maxHeartRate: maxHeartRate.present ? maxHeartRate.value : this.maxHeartRate,
+    minHrv: minHrv.present ? minHrv.value : this.minHrv,
+  );
+  SessionTimelineTableData copyWithCompanion(
+    SessionTimelineTableCompanion data,
+  ) {
+    return SessionTimelineTableData(
+      id: data.id.present ? data.id.value : this.id,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
+      totalSamples: data.totalSamples.present
+          ? data.totalSamples.value
+          : this.totalSamples,
+      totalEvents: data.totalEvents.present
+          ? data.totalEvents.value
+          : this.totalEvents,
+      averageHeartRate: data.averageHeartRate.present
+          ? data.averageHeartRate.value
+          : this.averageHeartRate,
+      averageHrv: data.averageHrv.present
+          ? data.averageHrv.value
+          : this.averageHrv,
+      maxHeartRate: data.maxHeartRate.present
+          ? data.maxHeartRate.value
+          : this.maxHeartRate,
+      minHrv: data.minHrv.present ? data.minHrv.value : this.minHrv,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionTimelineTableData(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('totalEvents: $totalEvents, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('minHrv: $minHrv')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    startedAt,
+    endedAt,
+    totalSamples,
+    totalEvents,
+    averageHeartRate,
+    averageHrv,
+    maxHeartRate,
+    minHrv,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SessionTimelineTableData &&
+          other.id == this.id &&
+          other.startedAt == this.startedAt &&
+          other.endedAt == this.endedAt &&
+          other.totalSamples == this.totalSamples &&
+          other.totalEvents == this.totalEvents &&
+          other.averageHeartRate == this.averageHeartRate &&
+          other.averageHrv == this.averageHrv &&
+          other.maxHeartRate == this.maxHeartRate &&
+          other.minHrv == this.minHrv);
+}
+
+class SessionTimelineTableCompanion
+    extends UpdateCompanion<SessionTimelineTableData> {
+  final Value<String> id;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> endedAt;
+  final Value<int> totalSamples;
+  final Value<int> totalEvents;
+  final Value<double?> averageHeartRate;
+  final Value<double?> averageHrv;
+  final Value<double?> maxHeartRate;
+  final Value<double?> minHrv;
+  final Value<int> rowid;
+  const SessionTimelineTableCompanion({
+    this.id = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.endedAt = const Value.absent(),
+    this.totalSamples = const Value.absent(),
+    this.totalEvents = const Value.absent(),
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.maxHeartRate = const Value.absent(),
+    this.minHrv = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SessionTimelineTableCompanion.insert({
+    required String id,
+    required DateTime startedAt,
+    this.endedAt = const Value.absent(),
+    required int totalSamples,
+    required int totalEvents,
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.maxHeartRate = const Value.absent(),
+    this.minHrv = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       startedAt = Value(startedAt),
+       totalSamples = Value(totalSamples),
+       totalEvents = Value(totalEvents);
+  static Insertable<SessionTimelineTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? endedAt,
+    Expression<int>? totalSamples,
+    Expression<int>? totalEvents,
+    Expression<double>? averageHeartRate,
+    Expression<double>? averageHrv,
+    Expression<double>? maxHeartRate,
+    Expression<double>? minHrv,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startedAt != null) 'started_at': startedAt,
+      if (endedAt != null) 'ended_at': endedAt,
+      if (totalSamples != null) 'total_samples': totalSamples,
+      if (totalEvents != null) 'total_events': totalEvents,
+      if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
+      if (averageHrv != null) 'average_hrv': averageHrv,
+      if (maxHeartRate != null) 'max_heart_rate': maxHeartRate,
+      if (minHrv != null) 'min_hrv': minHrv,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SessionTimelineTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? startedAt,
+    Value<DateTime?>? endedAt,
+    Value<int>? totalSamples,
+    Value<int>? totalEvents,
+    Value<double?>? averageHeartRate,
+    Value<double?>? averageHrv,
+    Value<double?>? maxHeartRate,
+    Value<double?>? minHrv,
+    Value<int>? rowid,
+  }) {
+    return SessionTimelineTableCompanion(
+      id: id ?? this.id,
+      startedAt: startedAt ?? this.startedAt,
+      endedAt: endedAt ?? this.endedAt,
+      totalSamples: totalSamples ?? this.totalSamples,
+      totalEvents: totalEvents ?? this.totalEvents,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      averageHrv: averageHrv ?? this.averageHrv,
+      maxHeartRate: maxHeartRate ?? this.maxHeartRate,
+      minHrv: minHrv ?? this.minHrv,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<DateTime>(endedAt.value);
+    }
+    if (totalSamples.present) {
+      map['total_samples'] = Variable<int>(totalSamples.value);
+    }
+    if (totalEvents.present) {
+      map['total_events'] = Variable<int>(totalEvents.value);
+    }
+    if (averageHeartRate.present) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate.value);
+    }
+    if (averageHrv.present) {
+      map['average_hrv'] = Variable<double>(averageHrv.value);
+    }
+    if (maxHeartRate.present) {
+      map['max_heart_rate'] = Variable<double>(maxHeartRate.value);
+    }
+    if (minHrv.present) {
+      map['min_hrv'] = Variable<double>(minHrv.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionTimelineTableCompanion(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('totalEvents: $totalEvents, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('maxHeartRate: $maxHeartRate, ')
+          ..write('minHrv: $minHrv, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PhysiologicalEventMarkersTableTable
+    extends PhysiologicalEventMarkersTable
+    with
+        TableInfo<
+          $PhysiologicalEventMarkersTableTable,
+          PhysiologicalEventMarkersTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PhysiologicalEventMarkersTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timelineIdMeta = const VerificationMeta(
+    'timelineId',
+  );
+  @override
+  late final GeneratedColumn<String> timelineId = GeneratedColumn<String>(
+    'timeline_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _severityMeta = const VerificationMeta(
+    'severity',
+  );
+  @override
+  late final GeneratedColumn<String> severity = GeneratedColumn<String>(
+    'severity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    timelineId,
+    timestamp,
+    type,
+    title,
+    description,
+    severity,
+    source,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'physiological_event_markers_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PhysiologicalEventMarkersTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timeline_id')) {
+      context.handle(
+        _timelineIdMeta,
+        timelineId.isAcceptableOrUnknown(data['timeline_id']!, _timelineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timelineIdMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('severity')) {
+      context.handle(
+        _severityMeta,
+        severity.isAcceptableOrUnknown(data['severity']!, _severityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_severityMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PhysiologicalEventMarkersTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PhysiologicalEventMarkersTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      timelineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}timeline_id'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      severity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}severity'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+    );
+  }
+
+  @override
+  $PhysiologicalEventMarkersTableTable createAlias(String alias) {
+    return $PhysiologicalEventMarkersTableTable(attachedDatabase, alias);
+  }
+}
+
+class PhysiologicalEventMarkersTableData extends DataClass
+    implements Insertable<PhysiologicalEventMarkersTableData> {
+  final String id;
+  final String timelineId;
+  final DateTime timestamp;
+  final String type;
+  final String title;
+  final String description;
+  final String severity;
+  final String source;
+  const PhysiologicalEventMarkersTableData({
+    required this.id,
+    required this.timelineId,
+    required this.timestamp,
+    required this.type,
+    required this.title,
+    required this.description,
+    required this.severity,
+    required this.source,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timeline_id'] = Variable<String>(timelineId);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['type'] = Variable<String>(type);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['severity'] = Variable<String>(severity);
+    map['source'] = Variable<String>(source);
+    return map;
+  }
+
+  PhysiologicalEventMarkersTableCompanion toCompanion(bool nullToAbsent) {
+    return PhysiologicalEventMarkersTableCompanion(
+      id: Value(id),
+      timelineId: Value(timelineId),
+      timestamp: Value(timestamp),
+      type: Value(type),
+      title: Value(title),
+      description: Value(description),
+      severity: Value(severity),
+      source: Value(source),
+    );
+  }
+
+  factory PhysiologicalEventMarkersTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PhysiologicalEventMarkersTableData(
+      id: serializer.fromJson<String>(json['id']),
+      timelineId: serializer.fromJson<String>(json['timelineId']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      type: serializer.fromJson<String>(json['type']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      severity: serializer.fromJson<String>(json['severity']),
+      source: serializer.fromJson<String>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timelineId': serializer.toJson<String>(timelineId),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'type': serializer.toJson<String>(type),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'severity': serializer.toJson<String>(severity),
+      'source': serializer.toJson<String>(source),
+    };
+  }
+
+  PhysiologicalEventMarkersTableData copyWith({
+    String? id,
+    String? timelineId,
+    DateTime? timestamp,
+    String? type,
+    String? title,
+    String? description,
+    String? severity,
+    String? source,
+  }) => PhysiologicalEventMarkersTableData(
+    id: id ?? this.id,
+    timelineId: timelineId ?? this.timelineId,
+    timestamp: timestamp ?? this.timestamp,
+    type: type ?? this.type,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    severity: severity ?? this.severity,
+    source: source ?? this.source,
+  );
+  PhysiologicalEventMarkersTableData copyWithCompanion(
+    PhysiologicalEventMarkersTableCompanion data,
+  ) {
+    return PhysiologicalEventMarkersTableData(
+      id: data.id.present ? data.id.value : this.id,
+      timelineId: data.timelineId.present
+          ? data.timelineId.value
+          : this.timelineId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      type: data.type.present ? data.type.value : this.type,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      severity: data.severity.present ? data.severity.value : this.severity,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalEventMarkersTableData(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('severity: $severity, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    timelineId,
+    timestamp,
+    type,
+    title,
+    description,
+    severity,
+    source,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PhysiologicalEventMarkersTableData &&
+          other.id == this.id &&
+          other.timelineId == this.timelineId &&
+          other.timestamp == this.timestamp &&
+          other.type == this.type &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.severity == this.severity &&
+          other.source == this.source);
+}
+
+class PhysiologicalEventMarkersTableCompanion
+    extends UpdateCompanion<PhysiologicalEventMarkersTableData> {
+  final Value<String> id;
+  final Value<String> timelineId;
+  final Value<DateTime> timestamp;
+  final Value<String> type;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<String> severity;
+  final Value<String> source;
+  final Value<int> rowid;
+  const PhysiologicalEventMarkersTableCompanion({
+    this.id = const Value.absent(),
+    this.timelineId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.type = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.severity = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PhysiologicalEventMarkersTableCompanion.insert({
+    required String id,
+    required String timelineId,
+    required DateTime timestamp,
+    required String type,
+    required String title,
+    required String description,
+    required String severity,
+    required String source,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       timelineId = Value(timelineId),
+       timestamp = Value(timestamp),
+       type = Value(type),
+       title = Value(title),
+       description = Value(description),
+       severity = Value(severity),
+       source = Value(source);
+  static Insertable<PhysiologicalEventMarkersTableData> custom({
+    Expression<String>? id,
+    Expression<String>? timelineId,
+    Expression<DateTime>? timestamp,
+    Expression<String>? type,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? severity,
+    Expression<String>? source,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timelineId != null) 'timeline_id': timelineId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (type != null) 'type': type,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (severity != null) 'severity': severity,
+      if (source != null) 'source': source,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PhysiologicalEventMarkersTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? timelineId,
+    Value<DateTime>? timestamp,
+    Value<String>? type,
+    Value<String>? title,
+    Value<String>? description,
+    Value<String>? severity,
+    Value<String>? source,
+    Value<int>? rowid,
+  }) {
+    return PhysiologicalEventMarkersTableCompanion(
+      id: id ?? this.id,
+      timelineId: timelineId ?? this.timelineId,
+      timestamp: timestamp ?? this.timestamp,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      severity: severity ?? this.severity,
+      source: source ?? this.source,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timelineId.present) {
+      map['timeline_id'] = Variable<String>(timelineId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (severity.present) {
+      map['severity'] = Variable<String>(severity.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalEventMarkersTableCompanion(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('severity: $severity, ')
+          ..write('source: $source, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -3418,6 +4537,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $AdaptiveBaselineStateTableTable(this);
   late final $CircadianProfilesTableTable circadianProfilesTable =
       $CircadianProfilesTableTable(this);
+  late final $SessionTimelineTableTable sessionTimelineTable =
+      $SessionTimelineTableTable(this);
+  late final $PhysiologicalEventMarkersTableTable
+  physiologicalEventMarkersTable = $PhysiologicalEventMarkersTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3429,6 +4552,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     researchConsentTable,
     adaptiveBaselineStateTable,
     circadianProfilesTable,
+    sessionTimelineTable,
+    physiologicalEventMarkersTable,
   ];
 }
 
@@ -5176,6 +6301,591 @@ typedef $$CircadianProfilesTableTableProcessedTableManager =
       CircadianProfilesTableData,
       PrefetchHooks Function()
     >;
+typedef $$SessionTimelineTableTableCreateCompanionBuilder =
+    SessionTimelineTableCompanion Function({
+      required String id,
+      required DateTime startedAt,
+      Value<DateTime?> endedAt,
+      required int totalSamples,
+      required int totalEvents,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double?> maxHeartRate,
+      Value<double?> minHrv,
+      Value<int> rowid,
+    });
+typedef $$SessionTimelineTableTableUpdateCompanionBuilder =
+    SessionTimelineTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> startedAt,
+      Value<DateTime?> endedAt,
+      Value<int> totalSamples,
+      Value<int> totalEvents,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double?> maxHeartRate,
+      Value<double?> minHrv,
+      Value<int> rowid,
+    });
+
+class $$SessionTimelineTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $SessionTimelineTableTable> {
+  $$SessionTimelineTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalEvents => $composableBuilder(
+    column: $table.totalEvents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get maxHeartRate => $composableBuilder(
+    column: $table.maxHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get minHrv => $composableBuilder(
+    column: $table.minHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SessionTimelineTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $SessionTimelineTableTable> {
+  $$SessionTimelineTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endedAt => $composableBuilder(
+    column: $table.endedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalEvents => $composableBuilder(
+    column: $table.totalEvents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get maxHeartRate => $composableBuilder(
+    column: $table.maxHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get minHrv => $composableBuilder(
+    column: $table.minHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SessionTimelineTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $SessionTimelineTableTable> {
+  $$SessionTimelineTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalEvents => $composableBuilder(
+    column: $table.totalEvents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get maxHeartRate => $composableBuilder(
+    column: $table.maxHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get minHrv =>
+      $composableBuilder(column: $table.minHrv, builder: (column) => column);
+}
+
+class $$SessionTimelineTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $SessionTimelineTableTable,
+          SessionTimelineTableData,
+          $$SessionTimelineTableTableFilterComposer,
+          $$SessionTimelineTableTableOrderingComposer,
+          $$SessionTimelineTableTableAnnotationComposer,
+          $$SessionTimelineTableTableCreateCompanionBuilder,
+          $$SessionTimelineTableTableUpdateCompanionBuilder,
+          (
+            SessionTimelineTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $SessionTimelineTableTable,
+              SessionTimelineTableData
+            >,
+          ),
+          SessionTimelineTableData,
+          PrefetchHooks Function()
+        > {
+  $$SessionTimelineTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $SessionTimelineTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SessionTimelineTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SessionTimelineTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SessionTimelineTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime?> endedAt = const Value.absent(),
+                Value<int> totalSamples = const Value.absent(),
+                Value<int> totalEvents = const Value.absent(),
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double?> maxHeartRate = const Value.absent(),
+                Value<double?> minHrv = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SessionTimelineTableCompanion(
+                id: id,
+                startedAt: startedAt,
+                endedAt: endedAt,
+                totalSamples: totalSamples,
+                totalEvents: totalEvents,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                maxHeartRate: maxHeartRate,
+                minHrv: minHrv,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime startedAt,
+                Value<DateTime?> endedAt = const Value.absent(),
+                required int totalSamples,
+                required int totalEvents,
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double?> maxHeartRate = const Value.absent(),
+                Value<double?> minHrv = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SessionTimelineTableCompanion.insert(
+                id: id,
+                startedAt: startedAt,
+                endedAt: endedAt,
+                totalSamples: totalSamples,
+                totalEvents: totalEvents,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                maxHeartRate: maxHeartRate,
+                minHrv: minHrv,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SessionTimelineTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $SessionTimelineTableTable,
+      SessionTimelineTableData,
+      $$SessionTimelineTableTableFilterComposer,
+      $$SessionTimelineTableTableOrderingComposer,
+      $$SessionTimelineTableTableAnnotationComposer,
+      $$SessionTimelineTableTableCreateCompanionBuilder,
+      $$SessionTimelineTableTableUpdateCompanionBuilder,
+      (
+        SessionTimelineTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $SessionTimelineTableTable,
+          SessionTimelineTableData
+        >,
+      ),
+      SessionTimelineTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$PhysiologicalEventMarkersTableTableCreateCompanionBuilder =
+    PhysiologicalEventMarkersTableCompanion Function({
+      required String id,
+      required String timelineId,
+      required DateTime timestamp,
+      required String type,
+      required String title,
+      required String description,
+      required String severity,
+      required String source,
+      Value<int> rowid,
+    });
+typedef $$PhysiologicalEventMarkersTableTableUpdateCompanionBuilder =
+    PhysiologicalEventMarkersTableCompanion Function({
+      Value<String> id,
+      Value<String> timelineId,
+      Value<DateTime> timestamp,
+      Value<String> type,
+      Value<String> title,
+      Value<String> description,
+      Value<String> severity,
+      Value<String> source,
+      Value<int> rowid,
+    });
+
+class $$PhysiologicalEventMarkersTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $PhysiologicalEventMarkersTableTable> {
+  $$PhysiologicalEventMarkersTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PhysiologicalEventMarkersTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $PhysiologicalEventMarkersTableTable> {
+  $$PhysiologicalEventMarkersTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get severity => $composableBuilder(
+    column: $table.severity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PhysiologicalEventMarkersTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $PhysiologicalEventMarkersTableTable> {
+  $$PhysiologicalEventMarkersTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get severity =>
+      $composableBuilder(column: $table.severity, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+}
+
+class $$PhysiologicalEventMarkersTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $PhysiologicalEventMarkersTableTable,
+          PhysiologicalEventMarkersTableData,
+          $$PhysiologicalEventMarkersTableTableFilterComposer,
+          $$PhysiologicalEventMarkersTableTableOrderingComposer,
+          $$PhysiologicalEventMarkersTableTableAnnotationComposer,
+          $$PhysiologicalEventMarkersTableTableCreateCompanionBuilder,
+          $$PhysiologicalEventMarkersTableTableUpdateCompanionBuilder,
+          (
+            PhysiologicalEventMarkersTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $PhysiologicalEventMarkersTableTable,
+              PhysiologicalEventMarkersTableData
+            >,
+          ),
+          PhysiologicalEventMarkersTableData,
+          PrefetchHooks Function()
+        > {
+  $$PhysiologicalEventMarkersTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $PhysiologicalEventMarkersTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PhysiologicalEventMarkersTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PhysiologicalEventMarkersTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PhysiologicalEventMarkersTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> timelineId = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String> severity = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalEventMarkersTableCompanion(
+                id: id,
+                timelineId: timelineId,
+                timestamp: timestamp,
+                type: type,
+                title: title,
+                description: description,
+                severity: severity,
+                source: source,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String timelineId,
+                required DateTime timestamp,
+                required String type,
+                required String title,
+                required String description,
+                required String severity,
+                required String source,
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalEventMarkersTableCompanion.insert(
+                id: id,
+                timelineId: timelineId,
+                timestamp: timestamp,
+                type: type,
+                title: title,
+                description: description,
+                severity: severity,
+                source: source,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PhysiologicalEventMarkersTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $PhysiologicalEventMarkersTableTable,
+      PhysiologicalEventMarkersTableData,
+      $$PhysiologicalEventMarkersTableTableFilterComposer,
+      $$PhysiologicalEventMarkersTableTableOrderingComposer,
+      $$PhysiologicalEventMarkersTableTableAnnotationComposer,
+      $$PhysiologicalEventMarkersTableTableCreateCompanionBuilder,
+      $$PhysiologicalEventMarkersTableTableUpdateCompanionBuilder,
+      (
+        PhysiologicalEventMarkersTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $PhysiologicalEventMarkersTableTable,
+          PhysiologicalEventMarkersTableData
+        >,
+      ),
+      PhysiologicalEventMarkersTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -5201,5 +6911,13 @@ class $SignalFlowDatabaseManager {
       $$CircadianProfilesTableTableTableManager(
         _db,
         _db.circadianProfilesTable,
+      );
+  $$SessionTimelineTableTableTableManager get sessionTimelineTable =>
+      $$SessionTimelineTableTableTableManager(_db, _db.sessionTimelineTable);
+  $$PhysiologicalEventMarkersTableTableTableManager
+  get physiologicalEventMarkersTable =>
+      $$PhysiologicalEventMarkersTableTableTableManager(
+        _db,
+        _db.physiologicalEventMarkersTable,
       );
 }
