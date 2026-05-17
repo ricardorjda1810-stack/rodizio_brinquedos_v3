@@ -31,6 +31,11 @@ class DatabaseMigrationService {
         toVersion: 4,
         description: 'Trend analysis persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 4,
+        toVersion: 5,
+        description: 'Autonomic recovery persistence.',
+      ),
     ];
   }
 

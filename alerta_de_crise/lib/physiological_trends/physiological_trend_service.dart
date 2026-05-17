@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
 import '../adaptive_baseline/adaptive_baseline_models.dart';
+import '../autonomic_recovery/recovery_analysis_service.dart';
+import '../core/crisis_detection/baseline_profile.dart';
 import '../core/crisis_detection/physiological_sample.dart';
 import '../database/signalflow_database.dart';
 import '../session_timeline/physiological_event_marker.dart';
@@ -14,15 +16,18 @@ import 'trend_window.dart';
 class PhysiologicalTrendService {
   final SignalFlowDatabase? _database;
   final EscalationDetectionService _escalationDetectionService;
+  final RecoveryAnalysisService? _recoveryAnalysisService;
   final DateTime Function() _now;
 
   const PhysiologicalTrendService({
     SignalFlowDatabase? database,
     EscalationDetectionService escalationDetectionService =
         const EscalationDetectionService(),
+    RecoveryAnalysisService? recoveryAnalysisService,
     DateTime Function()? now,
   }) : _database = database,
        _escalationDetectionService = escalationDetectionService,
+       _recoveryAnalysisService = recoveryAnalysisService,
        _now = now ?? DateTime.now;
 
   SignalFlowDatabase get _db => _database ?? SignalFlowDatabase.instance;
@@ -34,6 +39,7 @@ class PhysiologicalTrendService {
     TrendWindow window = TrendWindow.shortTerm,
     SessionTimelineService? timelineService,
     AdaptiveBaselineProfile? adaptiveBaseline,
+    BaselineProfile? baseline,
   }) async {
     final trend = calculateTrend(
       samples: samples,
@@ -51,6 +57,21 @@ class PhysiologicalTrendService {
       for (final marker in detection.markers) {
         await timelineService.addMarker(marker);
       }
+    }
+    final recoveryService = _recoveryAnalysisService;
+    final recoveryBaseline = baseline ?? adaptiveBaseline?.globalBaseline;
+    if (recoveryService != null &&
+        recoveryBaseline != null &&
+        samples.length >= 3) {
+      await recoveryService.analyzeRecovery(
+        samples: samples,
+        baseline: recoveryBaseline,
+        markers: markers,
+        timeline: timeline,
+        timelineService: timelineService,
+        trend: trend,
+        adaptiveBaseline: adaptiveBaseline,
+      );
     }
 
     return trend;

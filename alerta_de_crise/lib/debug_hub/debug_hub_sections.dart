@@ -1,6 +1,7 @@
 import '../data/crisis_detection/intervention_history_repository.dart';
 import '../ui/crisis_detection/adaptive_baseline_debug_page.dart';
 import '../ui/crisis_detection/apple_health_debug_page.dart';
+import '../ui/crisis_detection/autonomic_recovery_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
@@ -47,6 +48,11 @@ class SignalFlowDebugHubSections {
             label: 'Physiological Trends',
             description: 'Tendências e escalada fisiológica progressiva.',
             builder: (_) => const PhysiologicalTrendDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Autonomic Recovery',
+            description: 'Recuperação fisiológica e resiliência longitudinal.',
+            builder: (_) => const AutonomicRecoveryDebugPage(),
           ),
         ],
       ),

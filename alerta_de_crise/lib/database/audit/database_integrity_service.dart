@@ -26,6 +26,7 @@ class DatabaseIntegrityService {
       'session_timeline_table',
       'physiological_event_markers_table',
       'physiological_trends_table',
+      'autonomic_recovery_profiles_table',
     ];
 
     final baselines = await _database
@@ -55,6 +56,9 @@ class DatabaseIntegrityService {
     final trends = await _database
         .select(_database.physiologicalTrendsTable)
         .get();
+    final recoveryProfiles = await _database
+        .select(_database.autonomicRecoveryProfilesTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -65,6 +69,7 @@ class DatabaseIntegrityService {
     _auditSessionTimelines(timelines, issues, warnings);
     _auditEventMarkers(markers, issues, warnings);
     _auditTrends(trends, issues, warnings);
+    _auditRecoveryProfiles(recoveryProfiles, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -75,7 +80,8 @@ class DatabaseIntegrityService {
         circadianProfiles.length +
         timelines.length +
         markers.length +
-        trends.length;
+        trends.length +
+        recoveryProfiles.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -286,6 +292,10 @@ class DatabaseIntegrityService {
       'escalatingPhysiology',
       'sustainedHeartRateElevation',
       'prolongedHrvSuppression',
+      'incompleteRecovery',
+      'prolongedActivation',
+      'autonomicFatigue',
+      'resilienceDegradation',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -335,6 +345,57 @@ class DatabaseIntegrityService {
       }
       if (row.averageHrv != null && row.averageHrv! <= 0) {
         warnings.add('Physiological trend ${row.id} has non-positive HRV.');
+      }
+    }
+  }
+
+  void _auditRecoveryProfiles(
+    List<AutonomicRecoveryProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validLevels = {'resilient', 'stable', 'fatigued', 'overloaded'};
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.timelineId.trim().isEmpty) {
+        issues.add('Autonomic recovery profile with empty id or timelineId.');
+      }
+      if (row.windowLabel.trim().isEmpty || row.windowSeconds <= 0) {
+        issues.add('Autonomic recovery profile ${row.id} has invalid window.');
+      }
+      if (row.recoveryRate < 0 || row.recoveryRate > 1) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has recoveryRate outside 0..1.',
+        );
+      }
+      if (row.heartRateNormalization < 0 || row.heartRateNormalization > 1) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has HR normalization outside 0..1.',
+        );
+      }
+      if (row.resilienceScore < 0 || row.resilienceScore > 100) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has resilienceScore outside 0..100.',
+        );
+      }
+      if (row.fatigueScore < 0 || row.fatigueScore > 100) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has fatigueScore outside 0..100.',
+        );
+      }
+      if (row.stressCarryover < 0 || row.stressCarryover > 1) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has stressCarryover outside 0..1.',
+        );
+      }
+      if (!validLevels.contains(row.resilienceLevel)) {
+        issues.add(
+          'Autonomic recovery profile ${row.id} has invalid resilienceLevel.',
+        );
+      }
+      if (row.baselineReturnSeconds != null && row.baselineReturnSeconds! < 0) {
+        warnings.add(
+          'Autonomic recovery profile ${row.id} has negative baseline return.',
+        );
       }
     }
   }

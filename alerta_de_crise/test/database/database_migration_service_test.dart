@@ -17,14 +17,14 @@ void main() {
     test('exposes current schema version', () {
       final service = DatabaseMigrationService(database: database);
 
-      expect(service.currentSchemaVersion, 4);
+      expect(service.currentSchemaVersion, 5);
     });
 
     test('registers initial Drift persistence migration', () {
       final service = DatabaseMigrationService(database: database);
       final migrations = service.registeredMigrations;
 
-      expect(migrations, hasLength(4));
+      expect(migrations, hasLength(5));
       expect(migrations.first.fromVersion, 0);
       expect(migrations.first.toVersion, 1);
       expect(migrations.first.description, contains('Drift persistence'));
@@ -34,9 +34,12 @@ void main() {
       expect(migrations[2].fromVersion, 2);
       expect(migrations[2].toVersion, 3);
       expect(migrations[2].description, contains('timeline'));
-      expect(migrations.last.fromVersion, 3);
-      expect(migrations.last.toVersion, 4);
-      expect(migrations.last.description, contains('Trend analysis'));
+      expect(migrations[3].fromVersion, 3);
+      expect(migrations[3].toVersion, 4);
+      expect(migrations[3].description, contains('Trend analysis'));
+      expect(migrations.last.fromVersion, 4);
+      expect(migrations.last.toVersion, 5);
+      expect(migrations.last.description, contains('Autonomic recovery'));
     });
 
     test('has migration for current schema version', () {

@@ -5233,6 +5233,844 @@ class PhysiologicalTrendsTableCompanion
   }
 }
 
+class $AutonomicRecoveryProfilesTableTable
+    extends AutonomicRecoveryProfilesTable
+    with
+        TableInfo<
+          $AutonomicRecoveryProfilesTableTable,
+          AutonomicRecoveryProfilesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AutonomicRecoveryProfilesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timelineIdMeta = const VerificationMeta(
+    'timelineId',
+  );
+  @override
+  late final GeneratedColumn<String> timelineId = GeneratedColumn<String>(
+    'timeline_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowLabelMeta = const VerificationMeta(
+    'windowLabel',
+  );
+  @override
+  late final GeneratedColumn<String> windowLabel = GeneratedColumn<String>(
+    'window_label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _windowSecondsMeta = const VerificationMeta(
+    'windowSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> windowSeconds = GeneratedColumn<int>(
+    'window_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recoveryRateMeta = const VerificationMeta(
+    'recoveryRate',
+  );
+  @override
+  late final GeneratedColumn<double> recoveryRate = GeneratedColumn<double>(
+    'recovery_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hrvRecoverySlopeMeta = const VerificationMeta(
+    'hrvRecoverySlope',
+  );
+  @override
+  late final GeneratedColumn<double> hrvRecoverySlope = GeneratedColumn<double>(
+    'hrv_recovery_slope',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heartRateNormalizationMeta =
+      const VerificationMeta('heartRateNormalization');
+  @override
+  late final GeneratedColumn<double> heartRateNormalization =
+      GeneratedColumn<double>(
+        'heart_rate_normalization',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _baselineReturnSecondsMeta =
+      const VerificationMeta('baselineReturnSeconds');
+  @override
+  late final GeneratedColumn<int> baselineReturnSeconds = GeneratedColumn<int>(
+    'baseline_return_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resilienceScoreMeta = const VerificationMeta(
+    'resilienceScore',
+  );
+  @override
+  late final GeneratedColumn<int> resilienceScore = GeneratedColumn<int>(
+    'resilience_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fatigueScoreMeta = const VerificationMeta(
+    'fatigueScore',
+  );
+  @override
+  late final GeneratedColumn<int> fatigueScore = GeneratedColumn<int>(
+    'fatigue_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stressCarryoverMeta = const VerificationMeta(
+    'stressCarryover',
+  );
+  @override
+  late final GeneratedColumn<double> stressCarryover = GeneratedColumn<double>(
+    'stress_carryover',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resilienceLevelMeta = const VerificationMeta(
+    'resilienceLevel',
+  );
+  @override
+  late final GeneratedColumn<String> resilienceLevel = GeneratedColumn<String>(
+    'resilience_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    timelineId,
+    generatedAt,
+    windowLabel,
+    windowSeconds,
+    recoveryRate,
+    hrvRecoverySlope,
+    heartRateNormalization,
+    baselineReturnSeconds,
+    resilienceScore,
+    fatigueScore,
+    stressCarryover,
+    resilienceLevel,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'autonomic_recovery_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AutonomicRecoveryProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timeline_id')) {
+      context.handle(
+        _timelineIdMeta,
+        timelineId.isAcceptableOrUnknown(data['timeline_id']!, _timelineIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timelineIdMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('window_label')) {
+      context.handle(
+        _windowLabelMeta,
+        windowLabel.isAcceptableOrUnknown(
+          data['window_label']!,
+          _windowLabelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_windowLabelMeta);
+    }
+    if (data.containsKey('window_seconds')) {
+      context.handle(
+        _windowSecondsMeta,
+        windowSeconds.isAcceptableOrUnknown(
+          data['window_seconds']!,
+          _windowSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_windowSecondsMeta);
+    }
+    if (data.containsKey('recovery_rate')) {
+      context.handle(
+        _recoveryRateMeta,
+        recoveryRate.isAcceptableOrUnknown(
+          data['recovery_rate']!,
+          _recoveryRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryRateMeta);
+    }
+    if (data.containsKey('hrv_recovery_slope')) {
+      context.handle(
+        _hrvRecoverySlopeMeta,
+        hrvRecoverySlope.isAcceptableOrUnknown(
+          data['hrv_recovery_slope']!,
+          _hrvRecoverySlopeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvRecoverySlopeMeta);
+    }
+    if (data.containsKey('heart_rate_normalization')) {
+      context.handle(
+        _heartRateNormalizationMeta,
+        heartRateNormalization.isAcceptableOrUnknown(
+          data['heart_rate_normalization']!,
+          _heartRateNormalizationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_heartRateNormalizationMeta);
+    }
+    if (data.containsKey('baseline_return_seconds')) {
+      context.handle(
+        _baselineReturnSecondsMeta,
+        baselineReturnSeconds.isAcceptableOrUnknown(
+          data['baseline_return_seconds']!,
+          _baselineReturnSecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('resilience_score')) {
+      context.handle(
+        _resilienceScoreMeta,
+        resilienceScore.isAcceptableOrUnknown(
+          data['resilience_score']!,
+          _resilienceScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_resilienceScoreMeta);
+    }
+    if (data.containsKey('fatigue_score')) {
+      context.handle(
+        _fatigueScoreMeta,
+        fatigueScore.isAcceptableOrUnknown(
+          data['fatigue_score']!,
+          _fatigueScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fatigueScoreMeta);
+    }
+    if (data.containsKey('stress_carryover')) {
+      context.handle(
+        _stressCarryoverMeta,
+        stressCarryover.isAcceptableOrUnknown(
+          data['stress_carryover']!,
+          _stressCarryoverMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_stressCarryoverMeta);
+    }
+    if (data.containsKey('resilience_level')) {
+      context.handle(
+        _resilienceLevelMeta,
+        resilienceLevel.isAcceptableOrUnknown(
+          data['resilience_level']!,
+          _resilienceLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_resilienceLevelMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AutonomicRecoveryProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AutonomicRecoveryProfilesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      timelineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}timeline_id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      windowLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}window_label'],
+      )!,
+      windowSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}window_seconds'],
+      )!,
+      recoveryRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_rate'],
+      )!,
+      hrvRecoverySlope: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv_recovery_slope'],
+      )!,
+      heartRateNormalization: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}heart_rate_normalization'],
+      )!,
+      baselineReturnSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}baseline_return_seconds'],
+      ),
+      resilienceScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}resilience_score'],
+      )!,
+      fatigueScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fatigue_score'],
+      )!,
+      stressCarryover: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}stress_carryover'],
+      )!,
+      resilienceLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resilience_level'],
+      )!,
+    );
+  }
+
+  @override
+  $AutonomicRecoveryProfilesTableTable createAlias(String alias) {
+    return $AutonomicRecoveryProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class AutonomicRecoveryProfilesTableData extends DataClass
+    implements Insertable<AutonomicRecoveryProfilesTableData> {
+  final String id;
+  final String timelineId;
+  final DateTime generatedAt;
+  final String windowLabel;
+  final int windowSeconds;
+  final double recoveryRate;
+  final double hrvRecoverySlope;
+  final double heartRateNormalization;
+  final int? baselineReturnSeconds;
+  final int resilienceScore;
+  final int fatigueScore;
+  final double stressCarryover;
+  final String resilienceLevel;
+  const AutonomicRecoveryProfilesTableData({
+    required this.id,
+    required this.timelineId,
+    required this.generatedAt,
+    required this.windowLabel,
+    required this.windowSeconds,
+    required this.recoveryRate,
+    required this.hrvRecoverySlope,
+    required this.heartRateNormalization,
+    this.baselineReturnSeconds,
+    required this.resilienceScore,
+    required this.fatigueScore,
+    required this.stressCarryover,
+    required this.resilienceLevel,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timeline_id'] = Variable<String>(timelineId);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['window_label'] = Variable<String>(windowLabel);
+    map['window_seconds'] = Variable<int>(windowSeconds);
+    map['recovery_rate'] = Variable<double>(recoveryRate);
+    map['hrv_recovery_slope'] = Variable<double>(hrvRecoverySlope);
+    map['heart_rate_normalization'] = Variable<double>(heartRateNormalization);
+    if (!nullToAbsent || baselineReturnSeconds != null) {
+      map['baseline_return_seconds'] = Variable<int>(baselineReturnSeconds);
+    }
+    map['resilience_score'] = Variable<int>(resilienceScore);
+    map['fatigue_score'] = Variable<int>(fatigueScore);
+    map['stress_carryover'] = Variable<double>(stressCarryover);
+    map['resilience_level'] = Variable<String>(resilienceLevel);
+    return map;
+  }
+
+  AutonomicRecoveryProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return AutonomicRecoveryProfilesTableCompanion(
+      id: Value(id),
+      timelineId: Value(timelineId),
+      generatedAt: Value(generatedAt),
+      windowLabel: Value(windowLabel),
+      windowSeconds: Value(windowSeconds),
+      recoveryRate: Value(recoveryRate),
+      hrvRecoverySlope: Value(hrvRecoverySlope),
+      heartRateNormalization: Value(heartRateNormalization),
+      baselineReturnSeconds: baselineReturnSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(baselineReturnSeconds),
+      resilienceScore: Value(resilienceScore),
+      fatigueScore: Value(fatigueScore),
+      stressCarryover: Value(stressCarryover),
+      resilienceLevel: Value(resilienceLevel),
+    );
+  }
+
+  factory AutonomicRecoveryProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AutonomicRecoveryProfilesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      timelineId: serializer.fromJson<String>(json['timelineId']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      windowLabel: serializer.fromJson<String>(json['windowLabel']),
+      windowSeconds: serializer.fromJson<int>(json['windowSeconds']),
+      recoveryRate: serializer.fromJson<double>(json['recoveryRate']),
+      hrvRecoverySlope: serializer.fromJson<double>(json['hrvRecoverySlope']),
+      heartRateNormalization: serializer.fromJson<double>(
+        json['heartRateNormalization'],
+      ),
+      baselineReturnSeconds: serializer.fromJson<int?>(
+        json['baselineReturnSeconds'],
+      ),
+      resilienceScore: serializer.fromJson<int>(json['resilienceScore']),
+      fatigueScore: serializer.fromJson<int>(json['fatigueScore']),
+      stressCarryover: serializer.fromJson<double>(json['stressCarryover']),
+      resilienceLevel: serializer.fromJson<String>(json['resilienceLevel']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timelineId': serializer.toJson<String>(timelineId),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'windowLabel': serializer.toJson<String>(windowLabel),
+      'windowSeconds': serializer.toJson<int>(windowSeconds),
+      'recoveryRate': serializer.toJson<double>(recoveryRate),
+      'hrvRecoverySlope': serializer.toJson<double>(hrvRecoverySlope),
+      'heartRateNormalization': serializer.toJson<double>(
+        heartRateNormalization,
+      ),
+      'baselineReturnSeconds': serializer.toJson<int?>(baselineReturnSeconds),
+      'resilienceScore': serializer.toJson<int>(resilienceScore),
+      'fatigueScore': serializer.toJson<int>(fatigueScore),
+      'stressCarryover': serializer.toJson<double>(stressCarryover),
+      'resilienceLevel': serializer.toJson<String>(resilienceLevel),
+    };
+  }
+
+  AutonomicRecoveryProfilesTableData copyWith({
+    String? id,
+    String? timelineId,
+    DateTime? generatedAt,
+    String? windowLabel,
+    int? windowSeconds,
+    double? recoveryRate,
+    double? hrvRecoverySlope,
+    double? heartRateNormalization,
+    Value<int?> baselineReturnSeconds = const Value.absent(),
+    int? resilienceScore,
+    int? fatigueScore,
+    double? stressCarryover,
+    String? resilienceLevel,
+  }) => AutonomicRecoveryProfilesTableData(
+    id: id ?? this.id,
+    timelineId: timelineId ?? this.timelineId,
+    generatedAt: generatedAt ?? this.generatedAt,
+    windowLabel: windowLabel ?? this.windowLabel,
+    windowSeconds: windowSeconds ?? this.windowSeconds,
+    recoveryRate: recoveryRate ?? this.recoveryRate,
+    hrvRecoverySlope: hrvRecoverySlope ?? this.hrvRecoverySlope,
+    heartRateNormalization:
+        heartRateNormalization ?? this.heartRateNormalization,
+    baselineReturnSeconds: baselineReturnSeconds.present
+        ? baselineReturnSeconds.value
+        : this.baselineReturnSeconds,
+    resilienceScore: resilienceScore ?? this.resilienceScore,
+    fatigueScore: fatigueScore ?? this.fatigueScore,
+    stressCarryover: stressCarryover ?? this.stressCarryover,
+    resilienceLevel: resilienceLevel ?? this.resilienceLevel,
+  );
+  AutonomicRecoveryProfilesTableData copyWithCompanion(
+    AutonomicRecoveryProfilesTableCompanion data,
+  ) {
+    return AutonomicRecoveryProfilesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      timelineId: data.timelineId.present
+          ? data.timelineId.value
+          : this.timelineId,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      windowLabel: data.windowLabel.present
+          ? data.windowLabel.value
+          : this.windowLabel,
+      windowSeconds: data.windowSeconds.present
+          ? data.windowSeconds.value
+          : this.windowSeconds,
+      recoveryRate: data.recoveryRate.present
+          ? data.recoveryRate.value
+          : this.recoveryRate,
+      hrvRecoverySlope: data.hrvRecoverySlope.present
+          ? data.hrvRecoverySlope.value
+          : this.hrvRecoverySlope,
+      heartRateNormalization: data.heartRateNormalization.present
+          ? data.heartRateNormalization.value
+          : this.heartRateNormalization,
+      baselineReturnSeconds: data.baselineReturnSeconds.present
+          ? data.baselineReturnSeconds.value
+          : this.baselineReturnSeconds,
+      resilienceScore: data.resilienceScore.present
+          ? data.resilienceScore.value
+          : this.resilienceScore,
+      fatigueScore: data.fatigueScore.present
+          ? data.fatigueScore.value
+          : this.fatigueScore,
+      stressCarryover: data.stressCarryover.present
+          ? data.stressCarryover.value
+          : this.stressCarryover,
+      resilienceLevel: data.resilienceLevel.present
+          ? data.resilienceLevel.value
+          : this.resilienceLevel,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AutonomicRecoveryProfilesTableData(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('windowSeconds: $windowSeconds, ')
+          ..write('recoveryRate: $recoveryRate, ')
+          ..write('hrvRecoverySlope: $hrvRecoverySlope, ')
+          ..write('heartRateNormalization: $heartRateNormalization, ')
+          ..write('baselineReturnSeconds: $baselineReturnSeconds, ')
+          ..write('resilienceScore: $resilienceScore, ')
+          ..write('fatigueScore: $fatigueScore, ')
+          ..write('stressCarryover: $stressCarryover, ')
+          ..write('resilienceLevel: $resilienceLevel')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    timelineId,
+    generatedAt,
+    windowLabel,
+    windowSeconds,
+    recoveryRate,
+    hrvRecoverySlope,
+    heartRateNormalization,
+    baselineReturnSeconds,
+    resilienceScore,
+    fatigueScore,
+    stressCarryover,
+    resilienceLevel,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AutonomicRecoveryProfilesTableData &&
+          other.id == this.id &&
+          other.timelineId == this.timelineId &&
+          other.generatedAt == this.generatedAt &&
+          other.windowLabel == this.windowLabel &&
+          other.windowSeconds == this.windowSeconds &&
+          other.recoveryRate == this.recoveryRate &&
+          other.hrvRecoverySlope == this.hrvRecoverySlope &&
+          other.heartRateNormalization == this.heartRateNormalization &&
+          other.baselineReturnSeconds == this.baselineReturnSeconds &&
+          other.resilienceScore == this.resilienceScore &&
+          other.fatigueScore == this.fatigueScore &&
+          other.stressCarryover == this.stressCarryover &&
+          other.resilienceLevel == this.resilienceLevel);
+}
+
+class AutonomicRecoveryProfilesTableCompanion
+    extends UpdateCompanion<AutonomicRecoveryProfilesTableData> {
+  final Value<String> id;
+  final Value<String> timelineId;
+  final Value<DateTime> generatedAt;
+  final Value<String> windowLabel;
+  final Value<int> windowSeconds;
+  final Value<double> recoveryRate;
+  final Value<double> hrvRecoverySlope;
+  final Value<double> heartRateNormalization;
+  final Value<int?> baselineReturnSeconds;
+  final Value<int> resilienceScore;
+  final Value<int> fatigueScore;
+  final Value<double> stressCarryover;
+  final Value<String> resilienceLevel;
+  final Value<int> rowid;
+  const AutonomicRecoveryProfilesTableCompanion({
+    this.id = const Value.absent(),
+    this.timelineId = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.windowLabel = const Value.absent(),
+    this.windowSeconds = const Value.absent(),
+    this.recoveryRate = const Value.absent(),
+    this.hrvRecoverySlope = const Value.absent(),
+    this.heartRateNormalization = const Value.absent(),
+    this.baselineReturnSeconds = const Value.absent(),
+    this.resilienceScore = const Value.absent(),
+    this.fatigueScore = const Value.absent(),
+    this.stressCarryover = const Value.absent(),
+    this.resilienceLevel = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AutonomicRecoveryProfilesTableCompanion.insert({
+    required String id,
+    required String timelineId,
+    required DateTime generatedAt,
+    required String windowLabel,
+    required int windowSeconds,
+    required double recoveryRate,
+    required double hrvRecoverySlope,
+    required double heartRateNormalization,
+    this.baselineReturnSeconds = const Value.absent(),
+    required int resilienceScore,
+    required int fatigueScore,
+    required double stressCarryover,
+    required String resilienceLevel,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       timelineId = Value(timelineId),
+       generatedAt = Value(generatedAt),
+       windowLabel = Value(windowLabel),
+       windowSeconds = Value(windowSeconds),
+       recoveryRate = Value(recoveryRate),
+       hrvRecoverySlope = Value(hrvRecoverySlope),
+       heartRateNormalization = Value(heartRateNormalization),
+       resilienceScore = Value(resilienceScore),
+       fatigueScore = Value(fatigueScore),
+       stressCarryover = Value(stressCarryover),
+       resilienceLevel = Value(resilienceLevel);
+  static Insertable<AutonomicRecoveryProfilesTableData> custom({
+    Expression<String>? id,
+    Expression<String>? timelineId,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? windowLabel,
+    Expression<int>? windowSeconds,
+    Expression<double>? recoveryRate,
+    Expression<double>? hrvRecoverySlope,
+    Expression<double>? heartRateNormalization,
+    Expression<int>? baselineReturnSeconds,
+    Expression<int>? resilienceScore,
+    Expression<int>? fatigueScore,
+    Expression<double>? stressCarryover,
+    Expression<String>? resilienceLevel,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timelineId != null) 'timeline_id': timelineId,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (windowLabel != null) 'window_label': windowLabel,
+      if (windowSeconds != null) 'window_seconds': windowSeconds,
+      if (recoveryRate != null) 'recovery_rate': recoveryRate,
+      if (hrvRecoverySlope != null) 'hrv_recovery_slope': hrvRecoverySlope,
+      if (heartRateNormalization != null)
+        'heart_rate_normalization': heartRateNormalization,
+      if (baselineReturnSeconds != null)
+        'baseline_return_seconds': baselineReturnSeconds,
+      if (resilienceScore != null) 'resilience_score': resilienceScore,
+      if (fatigueScore != null) 'fatigue_score': fatigueScore,
+      if (stressCarryover != null) 'stress_carryover': stressCarryover,
+      if (resilienceLevel != null) 'resilience_level': resilienceLevel,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AutonomicRecoveryProfilesTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? timelineId,
+    Value<DateTime>? generatedAt,
+    Value<String>? windowLabel,
+    Value<int>? windowSeconds,
+    Value<double>? recoveryRate,
+    Value<double>? hrvRecoverySlope,
+    Value<double>? heartRateNormalization,
+    Value<int?>? baselineReturnSeconds,
+    Value<int>? resilienceScore,
+    Value<int>? fatigueScore,
+    Value<double>? stressCarryover,
+    Value<String>? resilienceLevel,
+    Value<int>? rowid,
+  }) {
+    return AutonomicRecoveryProfilesTableCompanion(
+      id: id ?? this.id,
+      timelineId: timelineId ?? this.timelineId,
+      generatedAt: generatedAt ?? this.generatedAt,
+      windowLabel: windowLabel ?? this.windowLabel,
+      windowSeconds: windowSeconds ?? this.windowSeconds,
+      recoveryRate: recoveryRate ?? this.recoveryRate,
+      hrvRecoverySlope: hrvRecoverySlope ?? this.hrvRecoverySlope,
+      heartRateNormalization:
+          heartRateNormalization ?? this.heartRateNormalization,
+      baselineReturnSeconds:
+          baselineReturnSeconds ?? this.baselineReturnSeconds,
+      resilienceScore: resilienceScore ?? this.resilienceScore,
+      fatigueScore: fatigueScore ?? this.fatigueScore,
+      stressCarryover: stressCarryover ?? this.stressCarryover,
+      resilienceLevel: resilienceLevel ?? this.resilienceLevel,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timelineId.present) {
+      map['timeline_id'] = Variable<String>(timelineId.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (windowLabel.present) {
+      map['window_label'] = Variable<String>(windowLabel.value);
+    }
+    if (windowSeconds.present) {
+      map['window_seconds'] = Variable<int>(windowSeconds.value);
+    }
+    if (recoveryRate.present) {
+      map['recovery_rate'] = Variable<double>(recoveryRate.value);
+    }
+    if (hrvRecoverySlope.present) {
+      map['hrv_recovery_slope'] = Variable<double>(hrvRecoverySlope.value);
+    }
+    if (heartRateNormalization.present) {
+      map['heart_rate_normalization'] = Variable<double>(
+        heartRateNormalization.value,
+      );
+    }
+    if (baselineReturnSeconds.present) {
+      map['baseline_return_seconds'] = Variable<int>(
+        baselineReturnSeconds.value,
+      );
+    }
+    if (resilienceScore.present) {
+      map['resilience_score'] = Variable<int>(resilienceScore.value);
+    }
+    if (fatigueScore.present) {
+      map['fatigue_score'] = Variable<int>(fatigueScore.value);
+    }
+    if (stressCarryover.present) {
+      map['stress_carryover'] = Variable<double>(stressCarryover.value);
+    }
+    if (resilienceLevel.present) {
+      map['resilience_level'] = Variable<String>(resilienceLevel.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AutonomicRecoveryProfilesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('timelineId: $timelineId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('windowLabel: $windowLabel, ')
+          ..write('windowSeconds: $windowSeconds, ')
+          ..write('recoveryRate: $recoveryRate, ')
+          ..write('hrvRecoverySlope: $hrvRecoverySlope, ')
+          ..write('heartRateNormalization: $heartRateNormalization, ')
+          ..write('baselineReturnSeconds: $baselineReturnSeconds, ')
+          ..write('resilienceScore: $resilienceScore, ')
+          ..write('fatigueScore: $fatigueScore, ')
+          ..write('stressCarryover: $stressCarryover, ')
+          ..write('resilienceLevel: $resilienceLevel, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -5254,6 +6092,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   physiologicalEventMarkersTable = $PhysiologicalEventMarkersTableTable(this);
   late final $PhysiologicalTrendsTableTable physiologicalTrendsTable =
       $PhysiologicalTrendsTableTable(this);
+  late final $AutonomicRecoveryProfilesTableTable
+  autonomicRecoveryProfilesTable = $AutonomicRecoveryProfilesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5268,6 +6108,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     sessionTimelineTable,
     physiologicalEventMarkersTable,
     physiologicalTrendsTable,
+    autonomicRecoveryProfilesTable,
   ];
 }
 
@@ -7951,6 +8792,404 @@ typedef $$PhysiologicalTrendsTableTableProcessedTableManager =
       PhysiologicalTrendsTableData,
       PrefetchHooks Function()
     >;
+typedef $$AutonomicRecoveryProfilesTableTableCreateCompanionBuilder =
+    AutonomicRecoveryProfilesTableCompanion Function({
+      required String id,
+      required String timelineId,
+      required DateTime generatedAt,
+      required String windowLabel,
+      required int windowSeconds,
+      required double recoveryRate,
+      required double hrvRecoverySlope,
+      required double heartRateNormalization,
+      Value<int?> baselineReturnSeconds,
+      required int resilienceScore,
+      required int fatigueScore,
+      required double stressCarryover,
+      required String resilienceLevel,
+      Value<int> rowid,
+    });
+typedef $$AutonomicRecoveryProfilesTableTableUpdateCompanionBuilder =
+    AutonomicRecoveryProfilesTableCompanion Function({
+      Value<String> id,
+      Value<String> timelineId,
+      Value<DateTime> generatedAt,
+      Value<String> windowLabel,
+      Value<int> windowSeconds,
+      Value<double> recoveryRate,
+      Value<double> hrvRecoverySlope,
+      Value<double> heartRateNormalization,
+      Value<int?> baselineReturnSeconds,
+      Value<int> resilienceScore,
+      Value<int> fatigueScore,
+      Value<double> stressCarryover,
+      Value<String> resilienceLevel,
+      Value<int> rowid,
+    });
+
+class $$AutonomicRecoveryProfilesTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $AutonomicRecoveryProfilesTableTable> {
+  $$AutonomicRecoveryProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryRate => $composableBuilder(
+    column: $table.recoveryRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrvRecoverySlope => $composableBuilder(
+    column: $table.hrvRecoverySlope,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heartRateNormalization => $composableBuilder(
+    column: $table.heartRateNormalization,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get baselineReturnSeconds => $composableBuilder(
+    column: $table.baselineReturnSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resilienceLevel => $composableBuilder(
+    column: $table.resilienceLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AutonomicRecoveryProfilesTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $AutonomicRecoveryProfilesTableTable> {
+  $$AutonomicRecoveryProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryRate => $composableBuilder(
+    column: $table.recoveryRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrvRecoverySlope => $composableBuilder(
+    column: $table.hrvRecoverySlope,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heartRateNormalization => $composableBuilder(
+    column: $table.heartRateNormalization,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get baselineReturnSeconds => $composableBuilder(
+    column: $table.baselineReturnSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resilienceLevel => $composableBuilder(
+    column: $table.resilienceLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AutonomicRecoveryProfilesTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $AutonomicRecoveryProfilesTableTable> {
+  $$AutonomicRecoveryProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get timelineId => $composableBuilder(
+    column: $table.timelineId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get windowLabel => $composableBuilder(
+    column: $table.windowLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get windowSeconds => $composableBuilder(
+    column: $table.windowSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryRate => $composableBuilder(
+    column: $table.recoveryRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get hrvRecoverySlope => $composableBuilder(
+    column: $table.hrvRecoverySlope,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get heartRateNormalization => $composableBuilder(
+    column: $table.heartRateNormalization,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get baselineReturnSeconds => $composableBuilder(
+    column: $table.baselineReturnSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resilienceLevel => $composableBuilder(
+    column: $table.resilienceLevel,
+    builder: (column) => column,
+  );
+}
+
+class $$AutonomicRecoveryProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $AutonomicRecoveryProfilesTableTable,
+          AutonomicRecoveryProfilesTableData,
+          $$AutonomicRecoveryProfilesTableTableFilterComposer,
+          $$AutonomicRecoveryProfilesTableTableOrderingComposer,
+          $$AutonomicRecoveryProfilesTableTableAnnotationComposer,
+          $$AutonomicRecoveryProfilesTableTableCreateCompanionBuilder,
+          $$AutonomicRecoveryProfilesTableTableUpdateCompanionBuilder,
+          (
+            AutonomicRecoveryProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $AutonomicRecoveryProfilesTableTable,
+              AutonomicRecoveryProfilesTableData
+            >,
+          ),
+          AutonomicRecoveryProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$AutonomicRecoveryProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $AutonomicRecoveryProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AutonomicRecoveryProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$AutonomicRecoveryProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AutonomicRecoveryProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> timelineId = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> windowLabel = const Value.absent(),
+                Value<int> windowSeconds = const Value.absent(),
+                Value<double> recoveryRate = const Value.absent(),
+                Value<double> hrvRecoverySlope = const Value.absent(),
+                Value<double> heartRateNormalization = const Value.absent(),
+                Value<int?> baselineReturnSeconds = const Value.absent(),
+                Value<int> resilienceScore = const Value.absent(),
+                Value<int> fatigueScore = const Value.absent(),
+                Value<double> stressCarryover = const Value.absent(),
+                Value<String> resilienceLevel = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AutonomicRecoveryProfilesTableCompanion(
+                id: id,
+                timelineId: timelineId,
+                generatedAt: generatedAt,
+                windowLabel: windowLabel,
+                windowSeconds: windowSeconds,
+                recoveryRate: recoveryRate,
+                hrvRecoverySlope: hrvRecoverySlope,
+                heartRateNormalization: heartRateNormalization,
+                baselineReturnSeconds: baselineReturnSeconds,
+                resilienceScore: resilienceScore,
+                fatigueScore: fatigueScore,
+                stressCarryover: stressCarryover,
+                resilienceLevel: resilienceLevel,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String timelineId,
+                required DateTime generatedAt,
+                required String windowLabel,
+                required int windowSeconds,
+                required double recoveryRate,
+                required double hrvRecoverySlope,
+                required double heartRateNormalization,
+                Value<int?> baselineReturnSeconds = const Value.absent(),
+                required int resilienceScore,
+                required int fatigueScore,
+                required double stressCarryover,
+                required String resilienceLevel,
+                Value<int> rowid = const Value.absent(),
+              }) => AutonomicRecoveryProfilesTableCompanion.insert(
+                id: id,
+                timelineId: timelineId,
+                generatedAt: generatedAt,
+                windowLabel: windowLabel,
+                windowSeconds: windowSeconds,
+                recoveryRate: recoveryRate,
+                hrvRecoverySlope: hrvRecoverySlope,
+                heartRateNormalization: heartRateNormalization,
+                baselineReturnSeconds: baselineReturnSeconds,
+                resilienceScore: resilienceScore,
+                fatigueScore: fatigueScore,
+                stressCarryover: stressCarryover,
+                resilienceLevel: resilienceLevel,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AutonomicRecoveryProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $AutonomicRecoveryProfilesTableTable,
+      AutonomicRecoveryProfilesTableData,
+      $$AutonomicRecoveryProfilesTableTableFilterComposer,
+      $$AutonomicRecoveryProfilesTableTableOrderingComposer,
+      $$AutonomicRecoveryProfilesTableTableAnnotationComposer,
+      $$AutonomicRecoveryProfilesTableTableCreateCompanionBuilder,
+      $$AutonomicRecoveryProfilesTableTableUpdateCompanionBuilder,
+      (
+        AutonomicRecoveryProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $AutonomicRecoveryProfilesTableTable,
+          AutonomicRecoveryProfilesTableData
+        >,
+      ),
+      AutonomicRecoveryProfilesTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -7989,5 +9228,11 @@ class $SignalFlowDatabaseManager {
       $$PhysiologicalTrendsTableTableTableManager(
         _db,
         _db.physiologicalTrendsTable,
+      );
+  $$AutonomicRecoveryProfilesTableTableTableManager
+  get autonomicRecoveryProfilesTable =>
+      $$AutonomicRecoveryProfilesTableTableTableManager(
+        _db,
+        _db.autonomicRecoveryProfilesTable,
       );
 }

@@ -10,6 +10,10 @@ enum EventType {
   escalatingPhysiology,
   sustainedHeartRateElevation,
   prolongedHrvSuppression,
+  incompleteRecovery,
+  prolongedActivation,
+  autonomicFatigue,
+  resilienceDegradation,
 }
 
 enum Severity { low, medium, high }

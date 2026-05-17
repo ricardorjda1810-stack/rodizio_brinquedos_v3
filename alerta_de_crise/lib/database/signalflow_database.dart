@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import 'adaptive_baseline_tables.dart';
+import 'autonomic_recovery_tables.dart';
 import 'baseline_tables.dart';
 import 'consent_tables.dart';
 import 'crisis_tables.dart';
@@ -23,6 +24,7 @@ part 'signalflow_database.g.dart';
     SessionTimelineTable,
     PhysiologicalEventMarkersTable,
     PhysiologicalTrendsTable,
+    AutonomicRecoveryProfilesTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -36,7 +38,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -54,6 +56,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 4) {
           await migrator.createTable(physiologicalTrendsTable);
         }
+        if (from < 5) {
+          await migrator.createTable(autonomicRecoveryProfilesTable);
+        }
       },
     );
   }
@@ -69,6 +74,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(sessionTimelineTable);
       batch.deleteAll(physiologicalEventMarkersTable);
       batch.deleteAll(physiologicalTrendsTable);
+      batch.deleteAll(autonomicRecoveryProfilesTable);
     });
   }
 }

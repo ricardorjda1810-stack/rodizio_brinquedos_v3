@@ -23,8 +23,8 @@ void main() {
     test('returns valid health report for empty database', () async {
       final report = await service.runIntegrityAudit();
 
-      expect(report.schemaVersion, 4);
-      expect(report.tablesChecked, hasLength(9));
+      expect(report.schemaVersion, 5);
+      expect(report.tablesChecked, hasLength(10));
       expect(report.totalRecords, 0);
       expect(report.hasIntegrityIssues, isFalse);
       expect(report.healthScore, 100);
@@ -198,6 +198,39 @@ void main() {
       expect(report.issues, contains(contains('activationDensity outside')));
       expect(report.warnings, contains(contains('invalid average HR')));
       expect(report.warnings, contains(contains('non-positive HRV')));
+    });
+
+    test('detects invalid autonomic recovery profile metadata', () async {
+      await database
+          .into(database.autonomicRecoveryProfilesTable)
+          .insert(
+            AutonomicRecoveryProfilesTableCompanion.insert(
+              id: 'bad-recovery',
+              timelineId: 'timeline-1',
+              generatedAt: DateTime.utc(2026, 5, 17, 10),
+              windowLabel: '',
+              windowSeconds: 0,
+              recoveryRate: 2,
+              hrvRecoverySlope: 1,
+              heartRateNormalization: -1,
+              baselineReturnSeconds: const Value(-1),
+              resilienceScore: 120,
+              fatigueScore: -1,
+              stressCarryover: 2,
+              resilienceLevel: 'invalid',
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('invalid window')));
+      expect(report.issues, contains(contains('recoveryRate outside')));
+      expect(report.issues, contains(contains('HR normalization outside')));
+      expect(report.issues, contains(contains('resilienceScore outside')));
+      expect(report.issues, contains(contains('fatigueScore outside')));
+      expect(report.issues, contains(contains('stressCarryover outside')));
+      expect(report.issues, contains(contains('invalid resilienceLevel')));
+      expect(report.warnings, contains(contains('negative baseline return')));
     });
   });
 }
