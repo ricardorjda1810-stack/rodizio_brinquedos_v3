@@ -1,0 +1,129 @@
+import 'package:drift/drift.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:signalflow/database/audit/database_integrity_service.dart';
+import 'package:signalflow/database/signalflow_database.dart';
+
+void main() {
+  group('DatabaseIntegrityService', () {
+    late SignalFlowDatabase database;
+    late DatabaseIntegrityService service;
+
+    setUp(() {
+      database = SignalFlowDatabase.memory();
+      service = DatabaseIntegrityService(
+        database: database,
+        now: () => DateTime.utc(2026, 5, 17, 12),
+      );
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test('returns valid health report for empty database', () async {
+      final report = await service.runIntegrityAudit();
+
+      expect(report.schemaVersion, 1);
+      expect(report.tablesChecked, hasLength(4));
+      expect(report.totalRecords, 0);
+      expect(report.hasIntegrityIssues, isFalse);
+      expect(report.healthScore, 100);
+    });
+
+    test('generates issues for invalid score and invalid JSON', () async {
+      await database
+          .into(database.crisisRiskEventsTable)
+          .insert(
+            CrisisRiskEventsTableCompanion.insert(
+              id: 'bad-event',
+              timestamp: DateTime.utc(2026, 5, 17, 10),
+              score: 120,
+              level: 'moderateAlert',
+              reasonCodesJson: 'not-json',
+              recommendedAction: 'Observar sinais fisiológicos.',
+              cognitiveResponse: 'notAsked',
+              source: 'test',
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.hasIntegrityIssues, isTrue);
+      expect(report.issues, contains(contains('score outside 0..100')));
+      expect(report.issues, contains(contains('invalid reasonCodesJson')));
+      expect(report.healthScore, lessThan(100));
+    });
+
+    test('generates warnings for empty optional semantic fields', () async {
+      await database
+          .into(database.crisisRiskEventsTable)
+          .insert(
+            CrisisRiskEventsTableCompanion.insert(
+              id: 'warning-event',
+              timestamp: DateTime.utc(2026, 5, 17, 10),
+              score: 40,
+              level: 'mildAttention',
+              reasonCodesJson: '[]',
+              recommendedAction: '',
+              cognitiveResponse: 'notAsked',
+              source: '',
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.hasIntegrityIssues, isFalse);
+      expect(report.warnings, hasLength(2));
+      expect(report.healthScore, 90);
+    });
+
+    test('detects inconsistent intervention timestamps', () async {
+      await database
+          .into(database.interventionHistoryTable)
+          .insert(
+            InterventionHistoryTableCompanion.insert(
+              id: 'bad-intervention',
+              protocolId: 'standard',
+              startedAt: DateTime.utc(2026, 5, 17, 10, 5),
+              completedAt: DateTime.utc(2026, 5, 17, 10),
+              durationSeconds: 300,
+              completed: true,
+              userReportedImprovement: true,
+              finalResponse: 'feelingOk',
+              preScore: const Value(70),
+              postScore: const Value(45),
+              scoreDelta: const Value(5),
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('completedAt before startedAt')));
+      expect(report.warnings, contains(contains('inconsistent scoreDelta')));
+    });
+
+    test('detects empty consent version', () async {
+      await database
+          .into(database.researchConsentTable)
+          .insert(
+            ResearchConsentTableCompanion.insert(
+              id: 'current',
+              accepted: true,
+              acceptedAt: const Value(null),
+              version: '',
+              allowsPhysiologicalCollection: true,
+              allowsResearchExport: true,
+              allowsReplayAnalysis: true,
+            ),
+          );
+
+      final report = await service.runIntegrityAudit();
+
+      expect(report.issues, contains(contains('empty version')));
+      expect(
+        report.warnings,
+        contains(contains('accepted without acceptedAt')),
+      );
+    });
+  });
+}

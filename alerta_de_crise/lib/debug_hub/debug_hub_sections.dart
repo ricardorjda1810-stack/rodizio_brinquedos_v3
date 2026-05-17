@@ -3,6 +3,7 @@ import '../ui/crisis_detection/apple_health_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
+import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
@@ -100,6 +101,11 @@ class SignalFlowDebugHubSections {
             label: 'Research Export',
             description: 'Export local/debug de eventos e estatísticas.',
             builder: (_) => const ResearchExportDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Database Audit',
+            description: 'Auditoria técnica de schema e integridade Drift.',
+            builder: (_) => const DatabaseAuditDebugPage(),
           ),
         ],
       ),
