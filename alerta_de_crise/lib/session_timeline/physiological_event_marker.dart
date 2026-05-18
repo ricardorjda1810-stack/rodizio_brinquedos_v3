@@ -17,6 +17,9 @@ enum EventType {
   forecastElevatedRisk,
   prolongedAutonomicLoad,
   recoveryProtectiveEffect,
+  repeatedContextTrigger,
+  contextualEscalationPattern,
+  recoveryContextAssociation,
 }
 
 enum Severity { low, medium, high }

@@ -46,6 +46,11 @@ class DatabaseMigrationService {
         toVersion: 7,
         description: 'Predictive forecasting persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 7,
+        toVersion: 8,
+        description: 'Contextual trigger persistence.',
+      ),
     ];
   }
 

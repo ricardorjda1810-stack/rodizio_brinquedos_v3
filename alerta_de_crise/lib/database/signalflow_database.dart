@@ -6,6 +6,7 @@ import 'adaptive_baseline_tables.dart';
 import 'autonomic_recovery_tables.dart';
 import 'baseline_tables.dart';
 import 'consent_tables.dart';
+import 'contextual_trigger_tables.dart';
 import 'crisis_tables.dart';
 import 'intervention_tables.dart';
 import 'physiological_trend_tables.dart';
@@ -29,6 +30,8 @@ part 'signalflow_database.g.dart';
     AutonomicRecoveryProfilesTable,
     ResearchDashboardSnapshotsTable,
     EscalationForecastsTable,
+    ContextualEventsTable,
+    ContextualTriggerCorrelationsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -42,7 +45,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -69,6 +72,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 7) {
           await migrator.createTable(escalationForecastsTable);
         }
+        if (from < 8) {
+          await migrator.createTable(contextualEventsTable);
+          await migrator.createTable(contextualTriggerCorrelationsTable);
+        }
       },
     );
   }
@@ -87,6 +94,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(autonomicRecoveryProfilesTable);
       batch.deleteAll(researchDashboardSnapshotsTable);
       batch.deleteAll(escalationForecastsTable);
+      batch.deleteAll(contextualEventsTable);
+      batch.deleteAll(contextualTriggerCorrelationsTable);
     });
   }
 }

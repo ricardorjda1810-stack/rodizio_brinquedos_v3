@@ -29,6 +29,8 @@ class DatabaseIntegrityService {
       'autonomic_recovery_profiles_table',
       'research_dashboard_snapshots_table',
       'escalation_forecasts_table',
+      'contextual_events_table',
+      'contextual_trigger_correlations_table',
     ];
 
     final baselines = await _database
@@ -67,6 +69,12 @@ class DatabaseIntegrityService {
     final forecasts = await _database
         .select(_database.escalationForecastsTable)
         .get();
+    final contextualEvents = await _database
+        .select(_database.contextualEventsTable)
+        .get();
+    final contextualCorrelations = await _database
+        .select(_database.contextualTriggerCorrelationsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -80,6 +88,8 @@ class DatabaseIntegrityService {
     _auditRecoveryProfiles(recoveryProfiles, issues, warnings);
     _auditDashboardSnapshots(dashboardSnapshots, issues, warnings);
     _auditForecasts(forecasts, issues, warnings);
+    _auditContextualEvents(contextualEvents, issues, warnings);
+    _auditContextualCorrelations(contextualCorrelations, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -93,7 +103,9 @@ class DatabaseIntegrityService {
         trends.length +
         recoveryProfiles.length +
         dashboardSnapshots.length +
-        forecasts.length;
+        forecasts.length +
+        contextualEvents.length +
+        contextualCorrelations.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -311,6 +323,9 @@ class DatabaseIntegrityService {
       'forecastElevatedRisk',
       'prolongedAutonomicLoad',
       'recoveryProtectiveEffect',
+      'repeatedContextTrigger',
+      'contextualEscalationPattern',
+      'recoveryContextAssociation',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -533,6 +548,102 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('não é diagnóstico')) {
         warnings.add(
           'Escalation forecast ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditContextualEvents(
+    List<ContextualEventsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validCategories = {
+      'work',
+      'social',
+      'sleep',
+      'exercise',
+      'caffeine',
+      'conflict',
+      'noise',
+      'environment',
+      'manual',
+      'unknown',
+    };
+    const validIntensities = {'low', 'medium', 'high'};
+
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Contextual event with empty id.');
+      }
+      if (!validCategories.contains(row.category)) {
+        issues.add('Contextual event ${row.id} has invalid category.');
+      }
+      if (!validIntensities.contains(row.intensity)) {
+        issues.add('Contextual event ${row.id} has invalid intensity.');
+      }
+      if (row.label.trim().isEmpty) {
+        warnings.add('Contextual event ${row.id} has empty label.');
+      }
+      if (row.source.trim().isEmpty) {
+        warnings.add('Contextual event ${row.id} has empty source.');
+      }
+    }
+  }
+
+  void _auditContextualCorrelations(
+    List<ContextualTriggerCorrelationsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validCategories = {
+      'work',
+      'social',
+      'sleep',
+      'exercise',
+      'caffeine',
+      'conflict',
+      'noise',
+      'environment',
+      'manual',
+      'unknown',
+    };
+
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Contextual correlation with empty id.');
+      }
+      if (!validCategories.contains(row.category)) {
+        issues.add('Contextual correlation ${row.id} has invalid category.');
+      }
+      if (row.occurrenceCount < 0) {
+        issues.add(
+          'Contextual correlation ${row.id} has negative occurrence count.',
+        );
+      }
+      if (row.escalationCorrelation < 0 || row.escalationCorrelation > 100) {
+        issues.add(
+          'Contextual correlation ${row.id} has escalationCorrelation outside 0..100.',
+        );
+      }
+      if (row.recoveryImpact < 0 || row.recoveryImpact > 100) {
+        issues.add(
+          'Contextual correlation ${row.id} has recoveryImpact outside 0..100.',
+        );
+      }
+      if (row.confidence < 0 || row.confidence > 100) {
+        issues.add(
+          'Contextual correlation ${row.id} has confidence outside 0..100.',
+        );
+      }
+      if (!_isValidJsonList(row.associatedMarkersJson)) {
+        issues.add(
+          'Contextual correlation ${row.id} has invalid associated markers.',
+        );
+      }
+      if (!row.safetyCopy.contains('correlação não implica causalidade')) {
+        warnings.add(
+          'Contextual correlation ${row.id} is missing explicit safety copy.',
         );
       }
     }

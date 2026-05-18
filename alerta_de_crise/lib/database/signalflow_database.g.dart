@@ -8044,6 +8044,1151 @@ class EscalationForecastsTableCompanion
   }
 }
 
+class $ContextualEventsTableTable extends ContextualEventsTable
+    with TableInfo<$ContextualEventsTableTable, ContextualEventsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContextualEventsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _intensityMeta = const VerificationMeta(
+    'intensity',
+  );
+  @override
+  late final GeneratedColumn<String> intensity = GeneratedColumn<String>(
+    'intensity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    timestamp,
+    category,
+    label,
+    description,
+    intensity,
+    source,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'contextual_events_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ContextualEventsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('intensity')) {
+      context.handle(
+        _intensityMeta,
+        intensity.isAcceptableOrUnknown(data['intensity']!, _intensityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_intensityMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ContextualEventsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ContextualEventsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      intensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}intensity'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+    );
+  }
+
+  @override
+  $ContextualEventsTableTable createAlias(String alias) {
+    return $ContextualEventsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ContextualEventsTableData extends DataClass
+    implements Insertable<ContextualEventsTableData> {
+  final String id;
+  final DateTime timestamp;
+  final String category;
+  final String label;
+  final String description;
+  final String intensity;
+  final String source;
+  const ContextualEventsTableData({
+    required this.id,
+    required this.timestamp,
+    required this.category,
+    required this.label,
+    required this.description,
+    required this.intensity,
+    required this.source,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['category'] = Variable<String>(category);
+    map['label'] = Variable<String>(label);
+    map['description'] = Variable<String>(description);
+    map['intensity'] = Variable<String>(intensity);
+    map['source'] = Variable<String>(source);
+    return map;
+  }
+
+  ContextualEventsTableCompanion toCompanion(bool nullToAbsent) {
+    return ContextualEventsTableCompanion(
+      id: Value(id),
+      timestamp: Value(timestamp),
+      category: Value(category),
+      label: Value(label),
+      description: Value(description),
+      intensity: Value(intensity),
+      source: Value(source),
+    );
+  }
+
+  factory ContextualEventsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ContextualEventsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      category: serializer.fromJson<String>(json['category']),
+      label: serializer.fromJson<String>(json['label']),
+      description: serializer.fromJson<String>(json['description']),
+      intensity: serializer.fromJson<String>(json['intensity']),
+      source: serializer.fromJson<String>(json['source']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'category': serializer.toJson<String>(category),
+      'label': serializer.toJson<String>(label),
+      'description': serializer.toJson<String>(description),
+      'intensity': serializer.toJson<String>(intensity),
+      'source': serializer.toJson<String>(source),
+    };
+  }
+
+  ContextualEventsTableData copyWith({
+    String? id,
+    DateTime? timestamp,
+    String? category,
+    String? label,
+    String? description,
+    String? intensity,
+    String? source,
+  }) => ContextualEventsTableData(
+    id: id ?? this.id,
+    timestamp: timestamp ?? this.timestamp,
+    category: category ?? this.category,
+    label: label ?? this.label,
+    description: description ?? this.description,
+    intensity: intensity ?? this.intensity,
+    source: source ?? this.source,
+  );
+  ContextualEventsTableData copyWithCompanion(
+    ContextualEventsTableCompanion data,
+  ) {
+    return ContextualEventsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      category: data.category.present ? data.category.value : this.category,
+      label: data.label.present ? data.label.value : this.label,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      intensity: data.intensity.present ? data.intensity.value : this.intensity,
+      source: data.source.present ? data.source.value : this.source,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualEventsTableData(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('category: $category, ')
+          ..write('label: $label, ')
+          ..write('description: $description, ')
+          ..write('intensity: $intensity, ')
+          ..write('source: $source')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    timestamp,
+    category,
+    label,
+    description,
+    intensity,
+    source,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ContextualEventsTableData &&
+          other.id == this.id &&
+          other.timestamp == this.timestamp &&
+          other.category == this.category &&
+          other.label == this.label &&
+          other.description == this.description &&
+          other.intensity == this.intensity &&
+          other.source == this.source);
+}
+
+class ContextualEventsTableCompanion
+    extends UpdateCompanion<ContextualEventsTableData> {
+  final Value<String> id;
+  final Value<DateTime> timestamp;
+  final Value<String> category;
+  final Value<String> label;
+  final Value<String> description;
+  final Value<String> intensity;
+  final Value<String> source;
+  final Value<int> rowid;
+  const ContextualEventsTableCompanion({
+    this.id = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.category = const Value.absent(),
+    this.label = const Value.absent(),
+    this.description = const Value.absent(),
+    this.intensity = const Value.absent(),
+    this.source = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ContextualEventsTableCompanion.insert({
+    required String id,
+    required DateTime timestamp,
+    required String category,
+    required String label,
+    required String description,
+    required String intensity,
+    required String source,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       timestamp = Value(timestamp),
+       category = Value(category),
+       label = Value(label),
+       description = Value(description),
+       intensity = Value(intensity),
+       source = Value(source);
+  static Insertable<ContextualEventsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? timestamp,
+    Expression<String>? category,
+    Expression<String>? label,
+    Expression<String>? description,
+    Expression<String>? intensity,
+    Expression<String>? source,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (category != null) 'category': category,
+      if (label != null) 'label': label,
+      if (description != null) 'description': description,
+      if (intensity != null) 'intensity': intensity,
+      if (source != null) 'source': source,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ContextualEventsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? timestamp,
+    Value<String>? category,
+    Value<String>? label,
+    Value<String>? description,
+    Value<String>? intensity,
+    Value<String>? source,
+    Value<int>? rowid,
+  }) {
+    return ContextualEventsTableCompanion(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      category: category ?? this.category,
+      label: label ?? this.label,
+      description: description ?? this.description,
+      intensity: intensity ?? this.intensity,
+      source: source ?? this.source,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (intensity.present) {
+      map['intensity'] = Variable<String>(intensity.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualEventsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('category: $category, ')
+          ..write('label: $label, ')
+          ..write('description: $description, ')
+          ..write('intensity: $intensity, ')
+          ..write('source: $source, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ContextualTriggerCorrelationsTableTable
+    extends ContextualTriggerCorrelationsTable
+    with
+        TableInfo<
+          $ContextualTriggerCorrelationsTableTable,
+          ContextualTriggerCorrelationsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContextualTriggerCorrelationsTableTable(
+    this.attachedDatabase, [
+    this._alias,
+  ]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _occurrenceCountMeta = const VerificationMeta(
+    'occurrenceCount',
+  );
+  @override
+  late final GeneratedColumn<int> occurrenceCount = GeneratedColumn<int>(
+    'occurrence_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _escalationCorrelationMeta =
+      const VerificationMeta('escalationCorrelation');
+  @override
+  late final GeneratedColumn<double> escalationCorrelation =
+      GeneratedColumn<double>(
+        'escalation_correlation',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryImpactMeta = const VerificationMeta(
+    'recoveryImpact',
+  );
+  @override
+  late final GeneratedColumn<double> recoveryImpact = GeneratedColumn<double>(
+    'recovery_impact',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastOccurrenceMeta = const VerificationMeta(
+    'lastOccurrence',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastOccurrence =
+      GeneratedColumn<DateTime>(
+        'last_occurrence',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _associatedMarkersJsonMeta =
+      const VerificationMeta('associatedMarkersJson');
+  @override
+  late final GeneratedColumn<String> associatedMarkersJson =
+      GeneratedColumn<String>(
+        'associated_markers_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    category,
+    occurrenceCount,
+    escalationCorrelation,
+    recoveryImpact,
+    confidence,
+    lastOccurrence,
+    associatedMarkersJson,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'contextual_trigger_correlations_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ContextualTriggerCorrelationsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('occurrence_count')) {
+      context.handle(
+        _occurrenceCountMeta,
+        occurrenceCount.isAcceptableOrUnknown(
+          data['occurrence_count']!,
+          _occurrenceCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_occurrenceCountMeta);
+    }
+    if (data.containsKey('escalation_correlation')) {
+      context.handle(
+        _escalationCorrelationMeta,
+        escalationCorrelation.isAcceptableOrUnknown(
+          data['escalation_correlation']!,
+          _escalationCorrelationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationCorrelationMeta);
+    }
+    if (data.containsKey('recovery_impact')) {
+      context.handle(
+        _recoveryImpactMeta,
+        recoveryImpact.isAcceptableOrUnknown(
+          data['recovery_impact']!,
+          _recoveryImpactMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryImpactMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('last_occurrence')) {
+      context.handle(
+        _lastOccurrenceMeta,
+        lastOccurrence.isAcceptableOrUnknown(
+          data['last_occurrence']!,
+          _lastOccurrenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('associated_markers_json')) {
+      context.handle(
+        _associatedMarkersJsonMeta,
+        associatedMarkersJson.isAcceptableOrUnknown(
+          data['associated_markers_json']!,
+          _associatedMarkersJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_associatedMarkersJsonMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ContextualTriggerCorrelationsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ContextualTriggerCorrelationsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      occurrenceCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}occurrence_count'],
+      )!,
+      escalationCorrelation: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}escalation_correlation'],
+      )!,
+      recoveryImpact: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_impact'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      lastOccurrence: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_occurrence'],
+      ),
+      associatedMarkersJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}associated_markers_json'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ContextualTriggerCorrelationsTableTable createAlias(String alias) {
+    return $ContextualTriggerCorrelationsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ContextualTriggerCorrelationsTableData extends DataClass
+    implements Insertable<ContextualTriggerCorrelationsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final String category;
+  final int occurrenceCount;
+  final double escalationCorrelation;
+  final double recoveryImpact;
+  final double confidence;
+  final DateTime? lastOccurrence;
+  final String associatedMarkersJson;
+  final String safetyCopy;
+  const ContextualTriggerCorrelationsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.category,
+    required this.occurrenceCount,
+    required this.escalationCorrelation,
+    required this.recoveryImpact,
+    required this.confidence,
+    this.lastOccurrence,
+    required this.associatedMarkersJson,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['category'] = Variable<String>(category);
+    map['occurrence_count'] = Variable<int>(occurrenceCount);
+    map['escalation_correlation'] = Variable<double>(escalationCorrelation);
+    map['recovery_impact'] = Variable<double>(recoveryImpact);
+    map['confidence'] = Variable<double>(confidence);
+    if (!nullToAbsent || lastOccurrence != null) {
+      map['last_occurrence'] = Variable<DateTime>(lastOccurrence);
+    }
+    map['associated_markers_json'] = Variable<String>(associatedMarkersJson);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ContextualTriggerCorrelationsTableCompanion toCompanion(bool nullToAbsent) {
+    return ContextualTriggerCorrelationsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      category: Value(category),
+      occurrenceCount: Value(occurrenceCount),
+      escalationCorrelation: Value(escalationCorrelation),
+      recoveryImpact: Value(recoveryImpact),
+      confidence: Value(confidence),
+      lastOccurrence: lastOccurrence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastOccurrence),
+      associatedMarkersJson: Value(associatedMarkersJson),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ContextualTriggerCorrelationsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ContextualTriggerCorrelationsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      category: serializer.fromJson<String>(json['category']),
+      occurrenceCount: serializer.fromJson<int>(json['occurrenceCount']),
+      escalationCorrelation: serializer.fromJson<double>(
+        json['escalationCorrelation'],
+      ),
+      recoveryImpact: serializer.fromJson<double>(json['recoveryImpact']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      lastOccurrence: serializer.fromJson<DateTime?>(json['lastOccurrence']),
+      associatedMarkersJson: serializer.fromJson<String>(
+        json['associatedMarkersJson'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'category': serializer.toJson<String>(category),
+      'occurrenceCount': serializer.toJson<int>(occurrenceCount),
+      'escalationCorrelation': serializer.toJson<double>(escalationCorrelation),
+      'recoveryImpact': serializer.toJson<double>(recoveryImpact),
+      'confidence': serializer.toJson<double>(confidence),
+      'lastOccurrence': serializer.toJson<DateTime?>(lastOccurrence),
+      'associatedMarkersJson': serializer.toJson<String>(associatedMarkersJson),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ContextualTriggerCorrelationsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    String? category,
+    int? occurrenceCount,
+    double? escalationCorrelation,
+    double? recoveryImpact,
+    double? confidence,
+    Value<DateTime?> lastOccurrence = const Value.absent(),
+    String? associatedMarkersJson,
+    String? safetyCopy,
+  }) => ContextualTriggerCorrelationsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    category: category ?? this.category,
+    occurrenceCount: occurrenceCount ?? this.occurrenceCount,
+    escalationCorrelation: escalationCorrelation ?? this.escalationCorrelation,
+    recoveryImpact: recoveryImpact ?? this.recoveryImpact,
+    confidence: confidence ?? this.confidence,
+    lastOccurrence: lastOccurrence.present
+        ? lastOccurrence.value
+        : this.lastOccurrence,
+    associatedMarkersJson: associatedMarkersJson ?? this.associatedMarkersJson,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ContextualTriggerCorrelationsTableData copyWithCompanion(
+    ContextualTriggerCorrelationsTableCompanion data,
+  ) {
+    return ContextualTriggerCorrelationsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      category: data.category.present ? data.category.value : this.category,
+      occurrenceCount: data.occurrenceCount.present
+          ? data.occurrenceCount.value
+          : this.occurrenceCount,
+      escalationCorrelation: data.escalationCorrelation.present
+          ? data.escalationCorrelation.value
+          : this.escalationCorrelation,
+      recoveryImpact: data.recoveryImpact.present
+          ? data.recoveryImpact.value
+          : this.recoveryImpact,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      lastOccurrence: data.lastOccurrence.present
+          ? data.lastOccurrence.value
+          : this.lastOccurrence,
+      associatedMarkersJson: data.associatedMarkersJson.present
+          ? data.associatedMarkersJson.value
+          : this.associatedMarkersJson,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualTriggerCorrelationsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('category: $category, ')
+          ..write('occurrenceCount: $occurrenceCount, ')
+          ..write('escalationCorrelation: $escalationCorrelation, ')
+          ..write('recoveryImpact: $recoveryImpact, ')
+          ..write('confidence: $confidence, ')
+          ..write('lastOccurrence: $lastOccurrence, ')
+          ..write('associatedMarkersJson: $associatedMarkersJson, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    category,
+    occurrenceCount,
+    escalationCorrelation,
+    recoveryImpact,
+    confidence,
+    lastOccurrence,
+    associatedMarkersJson,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ContextualTriggerCorrelationsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.category == this.category &&
+          other.occurrenceCount == this.occurrenceCount &&
+          other.escalationCorrelation == this.escalationCorrelation &&
+          other.recoveryImpact == this.recoveryImpact &&
+          other.confidence == this.confidence &&
+          other.lastOccurrence == this.lastOccurrence &&
+          other.associatedMarkersJson == this.associatedMarkersJson &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ContextualTriggerCorrelationsTableCompanion
+    extends UpdateCompanion<ContextualTriggerCorrelationsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<String> category;
+  final Value<int> occurrenceCount;
+  final Value<double> escalationCorrelation;
+  final Value<double> recoveryImpact;
+  final Value<double> confidence;
+  final Value<DateTime?> lastOccurrence;
+  final Value<String> associatedMarkersJson;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ContextualTriggerCorrelationsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.category = const Value.absent(),
+    this.occurrenceCount = const Value.absent(),
+    this.escalationCorrelation = const Value.absent(),
+    this.recoveryImpact = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.lastOccurrence = const Value.absent(),
+    this.associatedMarkersJson = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ContextualTriggerCorrelationsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required String category,
+    required int occurrenceCount,
+    required double escalationCorrelation,
+    required double recoveryImpact,
+    required double confidence,
+    this.lastOccurrence = const Value.absent(),
+    required String associatedMarkersJson,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       category = Value(category),
+       occurrenceCount = Value(occurrenceCount),
+       escalationCorrelation = Value(escalationCorrelation),
+       recoveryImpact = Value(recoveryImpact),
+       confidence = Value(confidence),
+       associatedMarkersJson = Value(associatedMarkersJson),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ContextualTriggerCorrelationsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? category,
+    Expression<int>? occurrenceCount,
+    Expression<double>? escalationCorrelation,
+    Expression<double>? recoveryImpact,
+    Expression<double>? confidence,
+    Expression<DateTime>? lastOccurrence,
+    Expression<String>? associatedMarkersJson,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (category != null) 'category': category,
+      if (occurrenceCount != null) 'occurrence_count': occurrenceCount,
+      if (escalationCorrelation != null)
+        'escalation_correlation': escalationCorrelation,
+      if (recoveryImpact != null) 'recovery_impact': recoveryImpact,
+      if (confidence != null) 'confidence': confidence,
+      if (lastOccurrence != null) 'last_occurrence': lastOccurrence,
+      if (associatedMarkersJson != null)
+        'associated_markers_json': associatedMarkersJson,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ContextualTriggerCorrelationsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<String>? category,
+    Value<int>? occurrenceCount,
+    Value<double>? escalationCorrelation,
+    Value<double>? recoveryImpact,
+    Value<double>? confidence,
+    Value<DateTime?>? lastOccurrence,
+    Value<String>? associatedMarkersJson,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ContextualTriggerCorrelationsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      category: category ?? this.category,
+      occurrenceCount: occurrenceCount ?? this.occurrenceCount,
+      escalationCorrelation:
+          escalationCorrelation ?? this.escalationCorrelation,
+      recoveryImpact: recoveryImpact ?? this.recoveryImpact,
+      confidence: confidence ?? this.confidence,
+      lastOccurrence: lastOccurrence ?? this.lastOccurrence,
+      associatedMarkersJson:
+          associatedMarkersJson ?? this.associatedMarkersJson,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (occurrenceCount.present) {
+      map['occurrence_count'] = Variable<int>(occurrenceCount.value);
+    }
+    if (escalationCorrelation.present) {
+      map['escalation_correlation'] = Variable<double>(
+        escalationCorrelation.value,
+      );
+    }
+    if (recoveryImpact.present) {
+      map['recovery_impact'] = Variable<double>(recoveryImpact.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (lastOccurrence.present) {
+      map['last_occurrence'] = Variable<DateTime>(lastOccurrence.value);
+    }
+    if (associatedMarkersJson.present) {
+      map['associated_markers_json'] = Variable<String>(
+        associatedMarkersJson.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualTriggerCorrelationsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('category: $category, ')
+          ..write('occurrenceCount: $occurrenceCount, ')
+          ..write('escalationCorrelation: $escalationCorrelation, ')
+          ..write('recoveryImpact: $recoveryImpact, ')
+          ..write('confidence: $confidence, ')
+          ..write('lastOccurrence: $lastOccurrence, ')
+          ..write('associatedMarkersJson: $associatedMarkersJson, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -8071,6 +9216,12 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   researchDashboardSnapshotsTable = $ResearchDashboardSnapshotsTableTable(this);
   late final $EscalationForecastsTableTable escalationForecastsTable =
       $EscalationForecastsTableTable(this);
+  late final $ContextualEventsTableTable contextualEventsTable =
+      $ContextualEventsTableTable(this);
+  late final $ContextualTriggerCorrelationsTableTable
+  contextualTriggerCorrelationsTable = $ContextualTriggerCorrelationsTableTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -8088,6 +9239,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     autonomicRecoveryProfilesTable,
     researchDashboardSnapshotsTable,
     escalationForecastsTable,
+    contextualEventsTable,
+    contextualTriggerCorrelationsTable,
   ];
 }
 
@@ -12067,6 +13220,607 @@ typedef $$EscalationForecastsTableTableProcessedTableManager =
       EscalationForecastsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ContextualEventsTableTableCreateCompanionBuilder =
+    ContextualEventsTableCompanion Function({
+      required String id,
+      required DateTime timestamp,
+      required String category,
+      required String label,
+      required String description,
+      required String intensity,
+      required String source,
+      Value<int> rowid,
+    });
+typedef $$ContextualEventsTableTableUpdateCompanionBuilder =
+    ContextualEventsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> timestamp,
+      Value<String> category,
+      Value<String> label,
+      Value<String> description,
+      Value<String> intensity,
+      Value<String> source,
+      Value<int> rowid,
+    });
+
+class $$ContextualEventsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ContextualEventsTableTable> {
+  $$ContextualEventsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get intensity => $composableBuilder(
+    column: $table.intensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ContextualEventsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ContextualEventsTableTable> {
+  $$ContextualEventsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get intensity => $composableBuilder(
+    column: $table.intensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ContextualEventsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ContextualEventsTableTable> {
+  $$ContextualEventsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get intensity =>
+      $composableBuilder(column: $table.intensity, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+}
+
+class $$ContextualEventsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ContextualEventsTableTable,
+          ContextualEventsTableData,
+          $$ContextualEventsTableTableFilterComposer,
+          $$ContextualEventsTableTableOrderingComposer,
+          $$ContextualEventsTableTableAnnotationComposer,
+          $$ContextualEventsTableTableCreateCompanionBuilder,
+          $$ContextualEventsTableTableUpdateCompanionBuilder,
+          (
+            ContextualEventsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ContextualEventsTableTable,
+              ContextualEventsTableData
+            >,
+          ),
+          ContextualEventsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ContextualEventsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ContextualEventsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContextualEventsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ContextualEventsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ContextualEventsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String> intensity = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualEventsTableCompanion(
+                id: id,
+                timestamp: timestamp,
+                category: category,
+                label: label,
+                description: description,
+                intensity: intensity,
+                source: source,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime timestamp,
+                required String category,
+                required String label,
+                required String description,
+                required String intensity,
+                required String source,
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualEventsTableCompanion.insert(
+                id: id,
+                timestamp: timestamp,
+                category: category,
+                label: label,
+                description: description,
+                intensity: intensity,
+                source: source,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ContextualEventsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ContextualEventsTableTable,
+      ContextualEventsTableData,
+      $$ContextualEventsTableTableFilterComposer,
+      $$ContextualEventsTableTableOrderingComposer,
+      $$ContextualEventsTableTableAnnotationComposer,
+      $$ContextualEventsTableTableCreateCompanionBuilder,
+      $$ContextualEventsTableTableUpdateCompanionBuilder,
+      (
+        ContextualEventsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ContextualEventsTableTable,
+          ContextualEventsTableData
+        >,
+      ),
+      ContextualEventsTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$ContextualTriggerCorrelationsTableTableCreateCompanionBuilder =
+    ContextualTriggerCorrelationsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required String category,
+      required int occurrenceCount,
+      required double escalationCorrelation,
+      required double recoveryImpact,
+      required double confidence,
+      Value<DateTime?> lastOccurrence,
+      required String associatedMarkersJson,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ContextualTriggerCorrelationsTableTableUpdateCompanionBuilder =
+    ContextualTriggerCorrelationsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<String> category,
+      Value<int> occurrenceCount,
+      Value<double> escalationCorrelation,
+      Value<double> recoveryImpact,
+      Value<double> confidence,
+      Value<DateTime?> lastOccurrence,
+      Value<String> associatedMarkersJson,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ContextualTriggerCorrelationsTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualTriggerCorrelationsTableTable
+        > {
+  $$ContextualTriggerCorrelationsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get occurrenceCount => $composableBuilder(
+    column: $table.occurrenceCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get escalationCorrelation => $composableBuilder(
+    column: $table.escalationCorrelation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryImpact => $composableBuilder(
+    column: $table.recoveryImpact,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastOccurrence => $composableBuilder(
+    column: $table.lastOccurrence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get associatedMarkersJson => $composableBuilder(
+    column: $table.associatedMarkersJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ContextualTriggerCorrelationsTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualTriggerCorrelationsTableTable
+        > {
+  $$ContextualTriggerCorrelationsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get occurrenceCount => $composableBuilder(
+    column: $table.occurrenceCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get escalationCorrelation => $composableBuilder(
+    column: $table.escalationCorrelation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryImpact => $composableBuilder(
+    column: $table.recoveryImpact,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastOccurrence => $composableBuilder(
+    column: $table.lastOccurrence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get associatedMarkersJson => $composableBuilder(
+    column: $table.associatedMarkersJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ContextualTriggerCorrelationsTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualTriggerCorrelationsTableTable
+        > {
+  $$ContextualTriggerCorrelationsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get occurrenceCount => $composableBuilder(
+    column: $table.occurrenceCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get escalationCorrelation => $composableBuilder(
+    column: $table.escalationCorrelation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryImpact => $composableBuilder(
+    column: $table.recoveryImpact,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastOccurrence => $composableBuilder(
+    column: $table.lastOccurrence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get associatedMarkersJson => $composableBuilder(
+    column: $table.associatedMarkersJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ContextualTriggerCorrelationsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ContextualTriggerCorrelationsTableTable,
+          ContextualTriggerCorrelationsTableData,
+          $$ContextualTriggerCorrelationsTableTableFilterComposer,
+          $$ContextualTriggerCorrelationsTableTableOrderingComposer,
+          $$ContextualTriggerCorrelationsTableTableAnnotationComposer,
+          $$ContextualTriggerCorrelationsTableTableCreateCompanionBuilder,
+          $$ContextualTriggerCorrelationsTableTableUpdateCompanionBuilder,
+          (
+            ContextualTriggerCorrelationsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ContextualTriggerCorrelationsTableTable,
+              ContextualTriggerCorrelationsTableData
+            >,
+          ),
+          ContextualTriggerCorrelationsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ContextualTriggerCorrelationsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ContextualTriggerCorrelationsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContextualTriggerCorrelationsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ContextualTriggerCorrelationsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ContextualTriggerCorrelationsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<int> occurrenceCount = const Value.absent(),
+                Value<double> escalationCorrelation = const Value.absent(),
+                Value<double> recoveryImpact = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<DateTime?> lastOccurrence = const Value.absent(),
+                Value<String> associatedMarkersJson = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualTriggerCorrelationsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                category: category,
+                occurrenceCount: occurrenceCount,
+                escalationCorrelation: escalationCorrelation,
+                recoveryImpact: recoveryImpact,
+                confidence: confidence,
+                lastOccurrence: lastOccurrence,
+                associatedMarkersJson: associatedMarkersJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required String category,
+                required int occurrenceCount,
+                required double escalationCorrelation,
+                required double recoveryImpact,
+                required double confidence,
+                Value<DateTime?> lastOccurrence = const Value.absent(),
+                required String associatedMarkersJson,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualTriggerCorrelationsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                category: category,
+                occurrenceCount: occurrenceCount,
+                escalationCorrelation: escalationCorrelation,
+                recoveryImpact: recoveryImpact,
+                confidence: confidence,
+                lastOccurrence: lastOccurrence,
+                associatedMarkersJson: associatedMarkersJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ContextualTriggerCorrelationsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ContextualTriggerCorrelationsTableTable,
+      ContextualTriggerCorrelationsTableData,
+      $$ContextualTriggerCorrelationsTableTableFilterComposer,
+      $$ContextualTriggerCorrelationsTableTableOrderingComposer,
+      $$ContextualTriggerCorrelationsTableTableAnnotationComposer,
+      $$ContextualTriggerCorrelationsTableTableCreateCompanionBuilder,
+      $$ContextualTriggerCorrelationsTableTableUpdateCompanionBuilder,
+      (
+        ContextualTriggerCorrelationsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ContextualTriggerCorrelationsTableTable,
+          ContextualTriggerCorrelationsTableData
+        >,
+      ),
+      ContextualTriggerCorrelationsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -12122,5 +13876,13 @@ class $SignalFlowDatabaseManager {
       $$EscalationForecastsTableTableTableManager(
         _db,
         _db.escalationForecastsTable,
+      );
+  $$ContextualEventsTableTableTableManager get contextualEventsTable =>
+      $$ContextualEventsTableTableTableManager(_db, _db.contextualEventsTable);
+  $$ContextualTriggerCorrelationsTableTableTableManager
+  get contextualTriggerCorrelationsTable =>
+      $$ContextualTriggerCorrelationsTableTableTableManager(
+        _db,
+        _db.contextualTriggerCorrelationsTable,
       );
 }

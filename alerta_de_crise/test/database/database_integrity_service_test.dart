@@ -23,8 +23,8 @@ void main() {
     test('returns valid health report for empty database', () async {
       final report = await service.runIntegrityAudit();
 
-      expect(report.schemaVersion, 7);
-      expect(report.tablesChecked, hasLength(12));
+      expect(report.schemaVersion, 8);
+      expect(report.tablesChecked, hasLength(14));
       expect(report.totalRecords, 0);
       expect(report.hasIntegrityIssues, isFalse);
       expect(report.healthScore, 100);

@@ -5,6 +5,7 @@ import '../ui/crisis_detection/autonomic_recovery_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
+import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
@@ -65,6 +66,11 @@ class SignalFlowDebugHubSections {
             label: 'Predictive Forecast',
             description: 'Previsão experimental de escalada fisiológica.',
             builder: (_) => const PredictiveForecastDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Contextual Triggers',
+            description: 'Correlação experimental entre contexto e fisiologia.',
+            builder: (_) => const ContextualTriggersDebugPage(),
           ),
         ],
       ),
