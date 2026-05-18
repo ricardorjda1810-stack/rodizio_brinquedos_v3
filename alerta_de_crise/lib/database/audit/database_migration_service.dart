@@ -71,6 +71,11 @@ class DatabaseMigrationService {
         toVersion: 12,
         description: 'Advanced replay engine persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 12,
+        toVersion: 13,
+        description: 'Experimental insight persistence.',
+      ),
     ];
   }
 

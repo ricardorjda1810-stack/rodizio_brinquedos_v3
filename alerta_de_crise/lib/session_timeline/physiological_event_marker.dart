@@ -27,6 +27,10 @@ enum EventType {
   persistentDeterioration,
   autonomicInstabilityPattern,
   longitudinalRecoveryPattern,
+  recurringEscalationPattern,
+  recoveryImprovementPattern,
+  contextualBehavioralPattern,
+  resilienceShift,
 }
 
 enum Severity { low, medium, high }

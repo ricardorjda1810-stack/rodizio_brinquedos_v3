@@ -7,6 +7,7 @@ import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
 import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
+import '../ui/crisis_detection/experimental_insights_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/longitudinal_analysis_debug_page.dart';
@@ -91,6 +92,11 @@ class SignalFlowDebugHubSections {
             label: 'Realtime Streaming',
             description: 'Streaming experimental com rolling windows.',
             builder: (_) => const RealtimeStreamingDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Experimental Insights',
+            description: 'Insights experimentais de padrões observados.',
+            builder: (_) => const ExperimentalInsightsDebugPage(),
           ),
         ],
       ),

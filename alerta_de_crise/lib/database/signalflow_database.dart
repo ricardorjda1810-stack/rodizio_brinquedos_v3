@@ -8,6 +8,7 @@ import 'baseline_tables.dart';
 import 'consent_tables.dart';
 import 'contextual_trigger_tables.dart';
 import 'crisis_tables.dart';
+import 'experimental_insight_tables.dart';
 import 'intervention_tables.dart';
 import 'longitudinal_analysis_tables.dart';
 import 'personalized_intervention_tables.dart';
@@ -43,6 +44,7 @@ part 'signalflow_database.g.dart';
     RealtimePipelineSnapshotsTable,
     ReplayScenariosTable,
     ReplayValidationResultsTable,
+    ExperimentalInsightsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -56,7 +58,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration {
@@ -104,6 +106,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(replayScenariosTable);
           await migrator.createTable(replayValidationResultsTable);
         }
+        if (from < 13) {
+          await migrator.createTable(experimentalInsightsTable);
+        }
       },
     );
   }
@@ -131,6 +136,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(realtimePipelineSnapshotsTable);
       batch.deleteAll(replayScenariosTable);
       batch.deleteAll(replayValidationResultsTable);
+      batch.deleteAll(experimentalInsightsTable);
     });
   }
 }

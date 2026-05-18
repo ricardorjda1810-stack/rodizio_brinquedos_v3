@@ -38,6 +38,7 @@ class DatabaseIntegrityService {
       'realtime_pipeline_snapshots_table',
       'replay_scenarios_table',
       'replay_validation_results_table',
+      'experimental_insights_table',
     ];
 
     final baselines = await _database
@@ -103,6 +104,9 @@ class DatabaseIntegrityService {
     final replayValidationResults = await _database
         .select(_database.replayValidationResultsTable)
         .get();
+    final experimentalInsights = await _database
+        .select(_database.experimentalInsightsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -129,6 +133,7 @@ class DatabaseIntegrityService {
     _auditRealtimeSnapshots(realtimeSnapshots, issues, warnings);
     _auditReplayScenarios(replayScenarios, issues, warnings);
     _auditReplayValidationResults(replayValidationResults, issues, warnings);
+    _auditExperimentalInsights(experimentalInsights, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -151,7 +156,8 @@ class DatabaseIntegrityService {
         evolutionProfiles.length +
         realtimeSnapshots.length +
         replayScenarios.length +
-        replayValidationResults.length;
+        replayValidationResults.length +
+        experimentalInsights.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -944,6 +950,47 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('validação offline')) {
         warnings.add(
           'Replay validation result ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditExperimentalInsights(
+    List<ExperimentalInsightsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTypes = {
+      'escalationPattern',
+      'recoveryPattern',
+      'contextualPattern',
+      'circadianPattern',
+      'resiliencePattern',
+      'interventionPattern',
+      'longitudinalPattern',
+      'forecastPattern',
+    };
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Experimental insight with empty id.');
+      }
+      if (row.title.trim().isEmpty || row.summary.trim().isEmpty) {
+        issues.add('Experimental insight ${row.id} has empty content.');
+      }
+      if (!_isPercent(row.confidence)) {
+        issues.add('Experimental insight ${row.id} has invalid confidence.');
+      }
+      if (!validTypes.contains(row.insightType)) {
+        issues.add('Experimental insight ${row.id} has invalid type.');
+      }
+      if (row.contributingFactors.trim().isEmpty) {
+        warnings.add(
+          'Experimental insight ${row.id} has no contributing factors.',
+        );
+      }
+      if (!row.safetyCopy.contains('não representa diagnóstico')) {
+        warnings.add(
+          'Experimental insight ${row.id} is missing explicit safety copy.',
         );
       }
     }

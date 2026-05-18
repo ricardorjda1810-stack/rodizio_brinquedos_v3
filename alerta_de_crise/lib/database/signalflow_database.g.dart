@@ -13999,6 +13999,655 @@ class ReplayValidationResultsTableCompanion
   }
 }
 
+class $ExperimentalInsightsTableTable extends ExperimentalInsightsTable
+    with
+        TableInfo<
+          $ExperimentalInsightsTableTable,
+          ExperimentalInsightsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExperimentalInsightsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _summaryMeta = const VerificationMeta(
+    'summary',
+  );
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+    'summary',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _insightTypeMeta = const VerificationMeta(
+    'insightType',
+  );
+  @override
+  late final GeneratedColumn<String> insightType = GeneratedColumn<String>(
+    'insight_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contributingFactorsMeta =
+      const VerificationMeta('contributingFactors');
+  @override
+  late final GeneratedColumn<String> contributingFactors =
+      GeneratedColumn<String>(
+        'contributing_factors',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _relatedMarkersMeta = const VerificationMeta(
+    'relatedMarkers',
+  );
+  @override
+  late final GeneratedColumn<String> relatedMarkers = GeneratedColumn<String>(
+    'related_markers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _relatedForecastsMeta = const VerificationMeta(
+    'relatedForecasts',
+  );
+  @override
+  late final GeneratedColumn<String> relatedForecasts = GeneratedColumn<String>(
+    'related_forecasts',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    title,
+    summary,
+    confidence,
+    insightType,
+    contributingFactors,
+    relatedMarkers,
+    relatedForecasts,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'experimental_insights_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExperimentalInsightsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('summary')) {
+      context.handle(
+        _summaryMeta,
+        summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_summaryMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('insight_type')) {
+      context.handle(
+        _insightTypeMeta,
+        insightType.isAcceptableOrUnknown(
+          data['insight_type']!,
+          _insightTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_insightTypeMeta);
+    }
+    if (data.containsKey('contributing_factors')) {
+      context.handle(
+        _contributingFactorsMeta,
+        contributingFactors.isAcceptableOrUnknown(
+          data['contributing_factors']!,
+          _contributingFactorsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contributingFactorsMeta);
+    }
+    if (data.containsKey('related_markers')) {
+      context.handle(
+        _relatedMarkersMeta,
+        relatedMarkers.isAcceptableOrUnknown(
+          data['related_markers']!,
+          _relatedMarkersMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_relatedMarkersMeta);
+    }
+    if (data.containsKey('related_forecasts')) {
+      context.handle(
+        _relatedForecastsMeta,
+        relatedForecasts.isAcceptableOrUnknown(
+          data['related_forecasts']!,
+          _relatedForecastsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_relatedForecastsMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExperimentalInsightsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExperimentalInsightsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      summary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}summary'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      insightType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}insight_type'],
+      )!,
+      contributingFactors: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contributing_factors'],
+      )!,
+      relatedMarkers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}related_markers'],
+      )!,
+      relatedForecasts: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}related_forecasts'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ExperimentalInsightsTableTable createAlias(String alias) {
+    return $ExperimentalInsightsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExperimentalInsightsTableData extends DataClass
+    implements Insertable<ExperimentalInsightsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final String title;
+  final String summary;
+  final double confidence;
+  final String insightType;
+  final String contributingFactors;
+  final String relatedMarkers;
+  final String relatedForecasts;
+  final String safetyCopy;
+  const ExperimentalInsightsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.title,
+    required this.summary,
+    required this.confidence,
+    required this.insightType,
+    required this.contributingFactors,
+    required this.relatedMarkers,
+    required this.relatedForecasts,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['title'] = Variable<String>(title);
+    map['summary'] = Variable<String>(summary);
+    map['confidence'] = Variable<double>(confidence);
+    map['insight_type'] = Variable<String>(insightType);
+    map['contributing_factors'] = Variable<String>(contributingFactors);
+    map['related_markers'] = Variable<String>(relatedMarkers);
+    map['related_forecasts'] = Variable<String>(relatedForecasts);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ExperimentalInsightsTableCompanion toCompanion(bool nullToAbsent) {
+    return ExperimentalInsightsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      title: Value(title),
+      summary: Value(summary),
+      confidence: Value(confidence),
+      insightType: Value(insightType),
+      contributingFactors: Value(contributingFactors),
+      relatedMarkers: Value(relatedMarkers),
+      relatedForecasts: Value(relatedForecasts),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ExperimentalInsightsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExperimentalInsightsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      title: serializer.fromJson<String>(json['title']),
+      summary: serializer.fromJson<String>(json['summary']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      insightType: serializer.fromJson<String>(json['insightType']),
+      contributingFactors: serializer.fromJson<String>(
+        json['contributingFactors'],
+      ),
+      relatedMarkers: serializer.fromJson<String>(json['relatedMarkers']),
+      relatedForecasts: serializer.fromJson<String>(json['relatedForecasts']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'title': serializer.toJson<String>(title),
+      'summary': serializer.toJson<String>(summary),
+      'confidence': serializer.toJson<double>(confidence),
+      'insightType': serializer.toJson<String>(insightType),
+      'contributingFactors': serializer.toJson<String>(contributingFactors),
+      'relatedMarkers': serializer.toJson<String>(relatedMarkers),
+      'relatedForecasts': serializer.toJson<String>(relatedForecasts),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ExperimentalInsightsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    String? title,
+    String? summary,
+    double? confidence,
+    String? insightType,
+    String? contributingFactors,
+    String? relatedMarkers,
+    String? relatedForecasts,
+    String? safetyCopy,
+  }) => ExperimentalInsightsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    title: title ?? this.title,
+    summary: summary ?? this.summary,
+    confidence: confidence ?? this.confidence,
+    insightType: insightType ?? this.insightType,
+    contributingFactors: contributingFactors ?? this.contributingFactors,
+    relatedMarkers: relatedMarkers ?? this.relatedMarkers,
+    relatedForecasts: relatedForecasts ?? this.relatedForecasts,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ExperimentalInsightsTableData copyWithCompanion(
+    ExperimentalInsightsTableCompanion data,
+  ) {
+    return ExperimentalInsightsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      title: data.title.present ? data.title.value : this.title,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      insightType: data.insightType.present
+          ? data.insightType.value
+          : this.insightType,
+      contributingFactors: data.contributingFactors.present
+          ? data.contributingFactors.value
+          : this.contributingFactors,
+      relatedMarkers: data.relatedMarkers.present
+          ? data.relatedMarkers.value
+          : this.relatedMarkers,
+      relatedForecasts: data.relatedForecasts.present
+          ? data.relatedForecasts.value
+          : this.relatedForecasts,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalInsightsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('confidence: $confidence, ')
+          ..write('insightType: $insightType, ')
+          ..write('contributingFactors: $contributingFactors, ')
+          ..write('relatedMarkers: $relatedMarkers, ')
+          ..write('relatedForecasts: $relatedForecasts, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    title,
+    summary,
+    confidence,
+    insightType,
+    contributingFactors,
+    relatedMarkers,
+    relatedForecasts,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExperimentalInsightsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.title == this.title &&
+          other.summary == this.summary &&
+          other.confidence == this.confidence &&
+          other.insightType == this.insightType &&
+          other.contributingFactors == this.contributingFactors &&
+          other.relatedMarkers == this.relatedMarkers &&
+          other.relatedForecasts == this.relatedForecasts &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ExperimentalInsightsTableCompanion
+    extends UpdateCompanion<ExperimentalInsightsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<String> title;
+  final Value<String> summary;
+  final Value<double> confidence;
+  final Value<String> insightType;
+  final Value<String> contributingFactors;
+  final Value<String> relatedMarkers;
+  final Value<String> relatedForecasts;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ExperimentalInsightsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.insightType = const Value.absent(),
+    this.contributingFactors = const Value.absent(),
+    this.relatedMarkers = const Value.absent(),
+    this.relatedForecasts = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExperimentalInsightsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required String title,
+    required String summary,
+    required double confidence,
+    required String insightType,
+    required String contributingFactors,
+    required String relatedMarkers,
+    required String relatedForecasts,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       title = Value(title),
+       summary = Value(summary),
+       confidence = Value(confidence),
+       insightType = Value(insightType),
+       contributingFactors = Value(contributingFactors),
+       relatedMarkers = Value(relatedMarkers),
+       relatedForecasts = Value(relatedForecasts),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ExperimentalInsightsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? title,
+    Expression<String>? summary,
+    Expression<double>? confidence,
+    Expression<String>? insightType,
+    Expression<String>? contributingFactors,
+    Expression<String>? relatedMarkers,
+    Expression<String>? relatedForecasts,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (title != null) 'title': title,
+      if (summary != null) 'summary': summary,
+      if (confidence != null) 'confidence': confidence,
+      if (insightType != null) 'insight_type': insightType,
+      if (contributingFactors != null)
+        'contributing_factors': contributingFactors,
+      if (relatedMarkers != null) 'related_markers': relatedMarkers,
+      if (relatedForecasts != null) 'related_forecasts': relatedForecasts,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExperimentalInsightsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<String>? title,
+    Value<String>? summary,
+    Value<double>? confidence,
+    Value<String>? insightType,
+    Value<String>? contributingFactors,
+    Value<String>? relatedMarkers,
+    Value<String>? relatedForecasts,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ExperimentalInsightsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      title: title ?? this.title,
+      summary: summary ?? this.summary,
+      confidence: confidence ?? this.confidence,
+      insightType: insightType ?? this.insightType,
+      contributingFactors: contributingFactors ?? this.contributingFactors,
+      relatedMarkers: relatedMarkers ?? this.relatedMarkers,
+      relatedForecasts: relatedForecasts ?? this.relatedForecasts,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (insightType.present) {
+      map['insight_type'] = Variable<String>(insightType.value);
+    }
+    if (contributingFactors.present) {
+      map['contributing_factors'] = Variable<String>(contributingFactors.value);
+    }
+    if (relatedMarkers.present) {
+      map['related_markers'] = Variable<String>(relatedMarkers.value);
+    }
+    if (relatedForecasts.present) {
+      map['related_forecasts'] = Variable<String>(relatedForecasts.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalInsightsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('confidence: $confidence, ')
+          ..write('insightType: $insightType, ')
+          ..write('contributingFactors: $contributingFactors, ')
+          ..write('relatedMarkers: $relatedMarkers, ')
+          ..write('relatedForecasts: $relatedForecasts, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -14050,6 +14699,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $ReplayScenariosTableTable(this);
   late final $ReplayValidationResultsTableTable replayValidationResultsTable =
       $ReplayValidationResultsTableTable(this);
+  late final $ExperimentalInsightsTableTable experimentalInsightsTable =
+      $ExperimentalInsightsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14076,6 +14727,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     realtimePipelineSnapshotsTable,
     replayScenariosTable,
     replayValidationResultsTable,
+    experimentalInsightsTable,
   ];
 }
 
@@ -21016,6 +21668,334 @@ typedef $$ReplayValidationResultsTableTableProcessedTableManager =
       ReplayValidationResultsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ExperimentalInsightsTableTableCreateCompanionBuilder =
+    ExperimentalInsightsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required String title,
+      required String summary,
+      required double confidence,
+      required String insightType,
+      required String contributingFactors,
+      required String relatedMarkers,
+      required String relatedForecasts,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ExperimentalInsightsTableTableUpdateCompanionBuilder =
+    ExperimentalInsightsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<String> title,
+      Value<String> summary,
+      Value<double> confidence,
+      Value<String> insightType,
+      Value<String> contributingFactors,
+      Value<String> relatedMarkers,
+      Value<String> relatedForecasts,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ExperimentalInsightsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalInsightsTableTable> {
+  $$ExperimentalInsightsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contributingFactors => $composableBuilder(
+    column: $table.contributingFactors,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relatedForecasts => $composableBuilder(
+    column: $table.relatedForecasts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExperimentalInsightsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalInsightsTableTable> {
+  $$ExperimentalInsightsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+    column: $table.summary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contributingFactors => $composableBuilder(
+    column: $table.contributingFactors,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relatedForecasts => $composableBuilder(
+    column: $table.relatedForecasts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExperimentalInsightsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalInsightsTableTable> {
+  $$ExperimentalInsightsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contributingFactors => $composableBuilder(
+    column: $table.contributingFactors,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relatedForecasts => $composableBuilder(
+    column: $table.relatedForecasts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ExperimentalInsightsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ExperimentalInsightsTableTable,
+          ExperimentalInsightsTableData,
+          $$ExperimentalInsightsTableTableFilterComposer,
+          $$ExperimentalInsightsTableTableOrderingComposer,
+          $$ExperimentalInsightsTableTableAnnotationComposer,
+          $$ExperimentalInsightsTableTableCreateCompanionBuilder,
+          $$ExperimentalInsightsTableTableUpdateCompanionBuilder,
+          (
+            ExperimentalInsightsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ExperimentalInsightsTableTable,
+              ExperimentalInsightsTableData
+            >,
+          ),
+          ExperimentalInsightsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExperimentalInsightsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ExperimentalInsightsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExperimentalInsightsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExperimentalInsightsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExperimentalInsightsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> summary = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> insightType = const Value.absent(),
+                Value<String> contributingFactors = const Value.absent(),
+                Value<String> relatedMarkers = const Value.absent(),
+                Value<String> relatedForecasts = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalInsightsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                title: title,
+                summary: summary,
+                confidence: confidence,
+                insightType: insightType,
+                contributingFactors: contributingFactors,
+                relatedMarkers: relatedMarkers,
+                relatedForecasts: relatedForecasts,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required String title,
+                required String summary,
+                required double confidence,
+                required String insightType,
+                required String contributingFactors,
+                required String relatedMarkers,
+                required String relatedForecasts,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalInsightsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                title: title,
+                summary: summary,
+                confidence: confidence,
+                insightType: insightType,
+                contributingFactors: contributingFactors,
+                relatedMarkers: relatedMarkers,
+                relatedForecasts: relatedForecasts,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExperimentalInsightsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ExperimentalInsightsTableTable,
+      ExperimentalInsightsTableData,
+      $$ExperimentalInsightsTableTableFilterComposer,
+      $$ExperimentalInsightsTableTableOrderingComposer,
+      $$ExperimentalInsightsTableTableAnnotationComposer,
+      $$ExperimentalInsightsTableTableCreateCompanionBuilder,
+      $$ExperimentalInsightsTableTableUpdateCompanionBuilder,
+      (
+        ExperimentalInsightsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ExperimentalInsightsTableTable,
+          ExperimentalInsightsTableData
+        >,
+      ),
+      ExperimentalInsightsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -21117,5 +22097,10 @@ class $SignalFlowDatabaseManager {
       $$ReplayValidationResultsTableTableTableManager(
         _db,
         _db.replayValidationResultsTable,
+      );
+  $$ExperimentalInsightsTableTableTableManager get experimentalInsightsTable =>
+      $$ExperimentalInsightsTableTableTableManager(
+        _db,
+        _db.experimentalInsightsTable,
       );
 }
