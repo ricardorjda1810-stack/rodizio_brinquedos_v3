@@ -21,6 +21,7 @@ import '../ui/crisis_detection/realtime_streaming_debug_page.dart';
 import '../ui/crisis_detection/replay_engine_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_dashboard_debug_page.dart';
+import '../ui/crisis_detection/research_orchestrator_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
 import '../ui/crisis_detection/sensor_quality_debug_page.dart';
@@ -109,6 +110,11 @@ class SignalFlowDebugHubSections {
             label: 'Cross-Modal Fusion',
             description: 'Fusão experimental e consenso fisiológico integrado.',
             builder: (_) => const CrossModalFusionDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Research Orchestrator',
+            description: 'Orquestração experimental de pipelines.',
+            builder: (_) => const ResearchOrchestratorDebugPage(),
           ),
         ],
       ),

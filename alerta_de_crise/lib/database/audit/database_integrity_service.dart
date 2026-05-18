@@ -41,6 +41,8 @@ class DatabaseIntegrityService {
       'experimental_insights_table',
       'subjective_feedback_entries_table',
       'integrated_consensus_snapshots_table',
+      'experimental_pipeline_runs_table',
+      'orchestrator_workflows_table',
     ];
 
     final baselines = await _database
@@ -115,6 +117,12 @@ class DatabaseIntegrityService {
     final consensusSnapshots = await _database
         .select(_database.integratedConsensusSnapshotsTable)
         .get();
+    final pipelineRuns = await _database
+        .select(_database.experimentalPipelineRunsTable)
+        .get();
+    final orchestratorWorkflows = await _database
+        .select(_database.orchestratorWorkflowsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -144,6 +152,8 @@ class DatabaseIntegrityService {
     _auditExperimentalInsights(experimentalInsights, issues, warnings);
     _auditSubjectiveFeedback(subjectiveFeedback, issues, warnings);
     _auditIntegratedConsensus(consensusSnapshots, issues, warnings);
+    _auditPipelineRuns(pipelineRuns, issues, warnings);
+    _auditOrchestratorWorkflows(orchestratorWorkflows, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -169,7 +179,9 @@ class DatabaseIntegrityService {
         replayValidationResults.length +
         experimentalInsights.length +
         subjectiveFeedback.length +
-        consensusSnapshots.length;
+        consensusSnapshots.length +
+        pipelineRuns.length +
+        orchestratorWorkflows.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -1079,6 +1091,88 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('não representa avaliação clínica')) {
         warnings.add(
           'Integrated consensus ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditPipelineRuns(
+    List<ExperimentalPipelineRunsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTypes = {
+      'realtimeAnalysis',
+      'replayValidation',
+      'longitudinalAnalysis',
+      'forecastSimulation',
+      'recoverySimulation',
+      'multimodalFusion',
+      'syntheticReplay',
+    };
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Experimental pipeline run with empty id.');
+      }
+      if (!validTypes.contains(row.pipelineType)) {
+        issues.add('Experimental pipeline run ${row.id} has invalid type.');
+      }
+      if (row.completedAt != null && row.completedAt!.isBefore(row.startedAt)) {
+        issues.add(
+          'Experimental pipeline run ${row.id} has completedAt before startedAt.',
+        );
+      }
+      if (row.processedSamples < 0 ||
+          row.generatedForecasts < 0 ||
+          row.generatedInsights < 0 ||
+          row.generatedMarkers < 0 ||
+          row.executionDurationMs < 0) {
+        issues.add(
+          'Experimental pipeline run ${row.id} has negative counters.',
+        );
+      }
+      if (!row.safetyCopy.contains('não monitoramento clínico')) {
+        warnings.add(
+          'Experimental pipeline run ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditOrchestratorWorkflows(
+    List<OrchestratorWorkflowsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTypes = {
+      'realtimeAnalysis',
+      'replayValidation',
+      'longitudinalAnalysis',
+      'forecastSimulation',
+      'recoverySimulation',
+      'multimodalFusion',
+      'syntheticReplay',
+    };
+    for (final row in rows) {
+      if (row.workflowId.trim().isEmpty || row.title.trim().isEmpty) {
+        issues.add('Orchestrator workflow with empty id or title.');
+      }
+      final pipelines = row.enabledPipelines.isEmpty
+          ? const <String>[]
+          : row.enabledPipelines.split('|');
+      if (pipelines.any((pipeline) => !validTypes.contains(pipeline))) {
+        issues.add('Orchestrator workflow ${row.workflowId} has invalid type.');
+      }
+      if (row.executionFrequencySeconds < 0 ||
+          row.totalExecutions < 0 ||
+          row.averageExecutionTimeMs < 0) {
+        issues.add(
+          'Orchestrator workflow ${row.workflowId} has negative counters.',
+        );
+      }
+      if (!row.safetyCopy.contains('orquestração experimental')) {
+        warnings.add(
+          'Orchestrator workflow ${row.workflowId} is missing explicit safety copy.',
         );
       }
     }

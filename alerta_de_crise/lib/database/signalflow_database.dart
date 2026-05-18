@@ -18,6 +18,7 @@ import 'physiological_trend_tables.dart';
 import 'predictive_forecast_tables.dart';
 import 'realtime_streaming_tables.dart';
 import 'replay_engine_tables.dart';
+import 'research_orchestrator_tables.dart';
 import 'research_dashboard_tables.dart';
 import 'session_timeline_tables.dart';
 
@@ -49,6 +50,8 @@ part 'signalflow_database.g.dart';
     ExperimentalInsightsTable,
     SubjectiveFeedbackEntriesTable,
     IntegratedConsensusSnapshotsTable,
+    ExperimentalPipelineRunsTable,
+    OrchestratorWorkflowsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -62,7 +65,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
@@ -119,6 +122,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 15) {
           await migrator.createTable(integratedConsensusSnapshotsTable);
         }
+        if (from < 16) {
+          await migrator.createTable(experimentalPipelineRunsTable);
+          await migrator.createTable(orchestratorWorkflowsTable);
+        }
       },
     );
   }
@@ -149,6 +156,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(experimentalInsightsTable);
       batch.deleteAll(subjectiveFeedbackEntriesTable);
       batch.deleteAll(integratedConsensusSnapshotsTable);
+      batch.deleteAll(experimentalPipelineRunsTable);
+      batch.deleteAll(orchestratorWorkflowsTable);
     });
   }
 }

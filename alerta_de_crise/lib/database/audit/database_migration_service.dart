@@ -86,6 +86,11 @@ class DatabaseMigrationService {
         toVersion: 15,
         description: 'Cross-modal fusion persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 15,
+        toVersion: 16,
+        description: 'Research orchestrator persistence.',
+      ),
     ];
   }
 

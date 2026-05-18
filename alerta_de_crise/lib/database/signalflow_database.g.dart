@@ -16299,6 +16299,1291 @@ class IntegratedConsensusSnapshotsTableCompanion
   }
 }
 
+class $ExperimentalPipelineRunsTableTable extends ExperimentalPipelineRunsTable
+    with
+        TableInfo<
+          $ExperimentalPipelineRunsTableTable,
+          ExperimentalPipelineRunsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExperimentalPipelineRunsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pipelineTypeMeta = const VerificationMeta(
+    'pipelineType',
+  );
+  @override
+  late final GeneratedColumn<String> pipelineType = GeneratedColumn<String>(
+    'pipeline_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _processedSamplesMeta = const VerificationMeta(
+    'processedSamples',
+  );
+  @override
+  late final GeneratedColumn<int> processedSamples = GeneratedColumn<int>(
+    'processed_samples',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedForecastsMeta =
+      const VerificationMeta('generatedForecasts');
+  @override
+  late final GeneratedColumn<int> generatedForecasts = GeneratedColumn<int>(
+    'generated_forecasts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedInsightsMeta = const VerificationMeta(
+    'generatedInsights',
+  );
+  @override
+  late final GeneratedColumn<int> generatedInsights = GeneratedColumn<int>(
+    'generated_insights',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedMarkersMeta = const VerificationMeta(
+    'generatedMarkers',
+  );
+  @override
+  late final GeneratedColumn<int> generatedMarkers = GeneratedColumn<int>(
+    'generated_markers',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _executionDurationMsMeta =
+      const VerificationMeta('executionDurationMs');
+  @override
+  late final GeneratedColumn<int> executionDurationMs = GeneratedColumn<int>(
+    'execution_duration_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _successMeta = const VerificationMeta(
+    'success',
+  );
+  @override
+  late final GeneratedColumn<bool> success = GeneratedColumn<bool>(
+    'success',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("success" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    startedAt,
+    completedAt,
+    pipelineType,
+    processedSamples,
+    generatedForecasts,
+    generatedInsights,
+    generatedMarkers,
+    executionDurationMs,
+    success,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'experimental_pipeline_runs_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExperimentalPipelineRunsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pipeline_type')) {
+      context.handle(
+        _pipelineTypeMeta,
+        pipelineType.isAcceptableOrUnknown(
+          data['pipeline_type']!,
+          _pipelineTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_pipelineTypeMeta);
+    }
+    if (data.containsKey('processed_samples')) {
+      context.handle(
+        _processedSamplesMeta,
+        processedSamples.isAcceptableOrUnknown(
+          data['processed_samples']!,
+          _processedSamplesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_processedSamplesMeta);
+    }
+    if (data.containsKey('generated_forecasts')) {
+      context.handle(
+        _generatedForecastsMeta,
+        generatedForecasts.isAcceptableOrUnknown(
+          data['generated_forecasts']!,
+          _generatedForecastsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedForecastsMeta);
+    }
+    if (data.containsKey('generated_insights')) {
+      context.handle(
+        _generatedInsightsMeta,
+        generatedInsights.isAcceptableOrUnknown(
+          data['generated_insights']!,
+          _generatedInsightsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedInsightsMeta);
+    }
+    if (data.containsKey('generated_markers')) {
+      context.handle(
+        _generatedMarkersMeta,
+        generatedMarkers.isAcceptableOrUnknown(
+          data['generated_markers']!,
+          _generatedMarkersMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedMarkersMeta);
+    }
+    if (data.containsKey('execution_duration_ms')) {
+      context.handle(
+        _executionDurationMsMeta,
+        executionDurationMs.isAcceptableOrUnknown(
+          data['execution_duration_ms']!,
+          _executionDurationMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_executionDurationMsMeta);
+    }
+    if (data.containsKey('success')) {
+      context.handle(
+        _successMeta,
+        success.isAcceptableOrUnknown(data['success']!, _successMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_successMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExperimentalPipelineRunsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExperimentalPipelineRunsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      ),
+      pipelineType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pipeline_type'],
+      )!,
+      processedSamples: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}processed_samples'],
+      )!,
+      generatedForecasts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}generated_forecasts'],
+      )!,
+      generatedInsights: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}generated_insights'],
+      )!,
+      generatedMarkers: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}generated_markers'],
+      )!,
+      executionDurationMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}execution_duration_ms'],
+      )!,
+      success: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}success'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ExperimentalPipelineRunsTableTable createAlias(String alias) {
+    return $ExperimentalPipelineRunsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExperimentalPipelineRunsTableData extends DataClass
+    implements Insertable<ExperimentalPipelineRunsTableData> {
+  final String id;
+  final DateTime startedAt;
+  final DateTime? completedAt;
+  final String pipelineType;
+  final int processedSamples;
+  final int generatedForecasts;
+  final int generatedInsights;
+  final int generatedMarkers;
+  final int executionDurationMs;
+  final bool success;
+  final String safetyCopy;
+  const ExperimentalPipelineRunsTableData({
+    required this.id,
+    required this.startedAt,
+    this.completedAt,
+    required this.pipelineType,
+    required this.processedSamples,
+    required this.generatedForecasts,
+    required this.generatedInsights,
+    required this.generatedMarkers,
+    required this.executionDurationMs,
+    required this.success,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    map['pipeline_type'] = Variable<String>(pipelineType);
+    map['processed_samples'] = Variable<int>(processedSamples);
+    map['generated_forecasts'] = Variable<int>(generatedForecasts);
+    map['generated_insights'] = Variable<int>(generatedInsights);
+    map['generated_markers'] = Variable<int>(generatedMarkers);
+    map['execution_duration_ms'] = Variable<int>(executionDurationMs);
+    map['success'] = Variable<bool>(success);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ExperimentalPipelineRunsTableCompanion toCompanion(bool nullToAbsent) {
+    return ExperimentalPipelineRunsTableCompanion(
+      id: Value(id),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      pipelineType: Value(pipelineType),
+      processedSamples: Value(processedSamples),
+      generatedForecasts: Value(generatedForecasts),
+      generatedInsights: Value(generatedInsights),
+      generatedMarkers: Value(generatedMarkers),
+      executionDurationMs: Value(executionDurationMs),
+      success: Value(success),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ExperimentalPipelineRunsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExperimentalPipelineRunsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      pipelineType: serializer.fromJson<String>(json['pipelineType']),
+      processedSamples: serializer.fromJson<int>(json['processedSamples']),
+      generatedForecasts: serializer.fromJson<int>(json['generatedForecasts']),
+      generatedInsights: serializer.fromJson<int>(json['generatedInsights']),
+      generatedMarkers: serializer.fromJson<int>(json['generatedMarkers']),
+      executionDurationMs: serializer.fromJson<int>(
+        json['executionDurationMs'],
+      ),
+      success: serializer.fromJson<bool>(json['success']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'pipelineType': serializer.toJson<String>(pipelineType),
+      'processedSamples': serializer.toJson<int>(processedSamples),
+      'generatedForecasts': serializer.toJson<int>(generatedForecasts),
+      'generatedInsights': serializer.toJson<int>(generatedInsights),
+      'generatedMarkers': serializer.toJson<int>(generatedMarkers),
+      'executionDurationMs': serializer.toJson<int>(executionDurationMs),
+      'success': serializer.toJson<bool>(success),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ExperimentalPipelineRunsTableData copyWith({
+    String? id,
+    DateTime? startedAt,
+    Value<DateTime?> completedAt = const Value.absent(),
+    String? pipelineType,
+    int? processedSamples,
+    int? generatedForecasts,
+    int? generatedInsights,
+    int? generatedMarkers,
+    int? executionDurationMs,
+    bool? success,
+    String? safetyCopy,
+  }) => ExperimentalPipelineRunsTableData(
+    id: id ?? this.id,
+    startedAt: startedAt ?? this.startedAt,
+    completedAt: completedAt.present ? completedAt.value : this.completedAt,
+    pipelineType: pipelineType ?? this.pipelineType,
+    processedSamples: processedSamples ?? this.processedSamples,
+    generatedForecasts: generatedForecasts ?? this.generatedForecasts,
+    generatedInsights: generatedInsights ?? this.generatedInsights,
+    generatedMarkers: generatedMarkers ?? this.generatedMarkers,
+    executionDurationMs: executionDurationMs ?? this.executionDurationMs,
+    success: success ?? this.success,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ExperimentalPipelineRunsTableData copyWithCompanion(
+    ExperimentalPipelineRunsTableCompanion data,
+  ) {
+    return ExperimentalPipelineRunsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+      pipelineType: data.pipelineType.present
+          ? data.pipelineType.value
+          : this.pipelineType,
+      processedSamples: data.processedSamples.present
+          ? data.processedSamples.value
+          : this.processedSamples,
+      generatedForecasts: data.generatedForecasts.present
+          ? data.generatedForecasts.value
+          : this.generatedForecasts,
+      generatedInsights: data.generatedInsights.present
+          ? data.generatedInsights.value
+          : this.generatedInsights,
+      generatedMarkers: data.generatedMarkers.present
+          ? data.generatedMarkers.value
+          : this.generatedMarkers,
+      executionDurationMs: data.executionDurationMs.present
+          ? data.executionDurationMs.value
+          : this.executionDurationMs,
+      success: data.success.present ? data.success.value : this.success,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalPipelineRunsTableData(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('pipelineType: $pipelineType, ')
+          ..write('processedSamples: $processedSamples, ')
+          ..write('generatedForecasts: $generatedForecasts, ')
+          ..write('generatedInsights: $generatedInsights, ')
+          ..write('generatedMarkers: $generatedMarkers, ')
+          ..write('executionDurationMs: $executionDurationMs, ')
+          ..write('success: $success, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    startedAt,
+    completedAt,
+    pipelineType,
+    processedSamples,
+    generatedForecasts,
+    generatedInsights,
+    generatedMarkers,
+    executionDurationMs,
+    success,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExperimentalPipelineRunsTableData &&
+          other.id == this.id &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.pipelineType == this.pipelineType &&
+          other.processedSamples == this.processedSamples &&
+          other.generatedForecasts == this.generatedForecasts &&
+          other.generatedInsights == this.generatedInsights &&
+          other.generatedMarkers == this.generatedMarkers &&
+          other.executionDurationMs == this.executionDurationMs &&
+          other.success == this.success &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ExperimentalPipelineRunsTableCompanion
+    extends UpdateCompanion<ExperimentalPipelineRunsTableData> {
+  final Value<String> id;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> completedAt;
+  final Value<String> pipelineType;
+  final Value<int> processedSamples;
+  final Value<int> generatedForecasts;
+  final Value<int> generatedInsights;
+  final Value<int> generatedMarkers;
+  final Value<int> executionDurationMs;
+  final Value<bool> success;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ExperimentalPipelineRunsTableCompanion({
+    this.id = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.pipelineType = const Value.absent(),
+    this.processedSamples = const Value.absent(),
+    this.generatedForecasts = const Value.absent(),
+    this.generatedInsights = const Value.absent(),
+    this.generatedMarkers = const Value.absent(),
+    this.executionDurationMs = const Value.absent(),
+    this.success = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExperimentalPipelineRunsTableCompanion.insert({
+    required String id,
+    required DateTime startedAt,
+    this.completedAt = const Value.absent(),
+    required String pipelineType,
+    required int processedSamples,
+    required int generatedForecasts,
+    required int generatedInsights,
+    required int generatedMarkers,
+    required int executionDurationMs,
+    required bool success,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       startedAt = Value(startedAt),
+       pipelineType = Value(pipelineType),
+       processedSamples = Value(processedSamples),
+       generatedForecasts = Value(generatedForecasts),
+       generatedInsights = Value(generatedInsights),
+       generatedMarkers = Value(generatedMarkers),
+       executionDurationMs = Value(executionDurationMs),
+       success = Value(success),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ExperimentalPipelineRunsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? completedAt,
+    Expression<String>? pipelineType,
+    Expression<int>? processedSamples,
+    Expression<int>? generatedForecasts,
+    Expression<int>? generatedInsights,
+    Expression<int>? generatedMarkers,
+    Expression<int>? executionDurationMs,
+    Expression<bool>? success,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (pipelineType != null) 'pipeline_type': pipelineType,
+      if (processedSamples != null) 'processed_samples': processedSamples,
+      if (generatedForecasts != null) 'generated_forecasts': generatedForecasts,
+      if (generatedInsights != null) 'generated_insights': generatedInsights,
+      if (generatedMarkers != null) 'generated_markers': generatedMarkers,
+      if (executionDurationMs != null)
+        'execution_duration_ms': executionDurationMs,
+      if (success != null) 'success': success,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExperimentalPipelineRunsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? startedAt,
+    Value<DateTime?>? completedAt,
+    Value<String>? pipelineType,
+    Value<int>? processedSamples,
+    Value<int>? generatedForecasts,
+    Value<int>? generatedInsights,
+    Value<int>? generatedMarkers,
+    Value<int>? executionDurationMs,
+    Value<bool>? success,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ExperimentalPipelineRunsTableCompanion(
+      id: id ?? this.id,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      pipelineType: pipelineType ?? this.pipelineType,
+      processedSamples: processedSamples ?? this.processedSamples,
+      generatedForecasts: generatedForecasts ?? this.generatedForecasts,
+      generatedInsights: generatedInsights ?? this.generatedInsights,
+      generatedMarkers: generatedMarkers ?? this.generatedMarkers,
+      executionDurationMs: executionDurationMs ?? this.executionDurationMs,
+      success: success ?? this.success,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (pipelineType.present) {
+      map['pipeline_type'] = Variable<String>(pipelineType.value);
+    }
+    if (processedSamples.present) {
+      map['processed_samples'] = Variable<int>(processedSamples.value);
+    }
+    if (generatedForecasts.present) {
+      map['generated_forecasts'] = Variable<int>(generatedForecasts.value);
+    }
+    if (generatedInsights.present) {
+      map['generated_insights'] = Variable<int>(generatedInsights.value);
+    }
+    if (generatedMarkers.present) {
+      map['generated_markers'] = Variable<int>(generatedMarkers.value);
+    }
+    if (executionDurationMs.present) {
+      map['execution_duration_ms'] = Variable<int>(executionDurationMs.value);
+    }
+    if (success.present) {
+      map['success'] = Variable<bool>(success.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalPipelineRunsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('pipelineType: $pipelineType, ')
+          ..write('processedSamples: $processedSamples, ')
+          ..write('generatedForecasts: $generatedForecasts, ')
+          ..write('generatedInsights: $generatedInsights, ')
+          ..write('generatedMarkers: $generatedMarkers, ')
+          ..write('executionDurationMs: $executionDurationMs, ')
+          ..write('success: $success, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OrchestratorWorkflowsTableTable extends OrchestratorWorkflowsTable
+    with
+        TableInfo<
+          $OrchestratorWorkflowsTableTable,
+          OrchestratorWorkflowsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OrchestratorWorkflowsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _workflowIdMeta = const VerificationMeta(
+    'workflowId',
+  );
+  @override
+  late final GeneratedColumn<String> workflowId = GeneratedColumn<String>(
+    'workflow_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledPipelinesMeta = const VerificationMeta(
+    'enabledPipelines',
+  );
+  @override
+  late final GeneratedColumn<String> enabledPipelines = GeneratedColumn<String>(
+    'enabled_pipelines',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _executionFrequencySecondsMeta =
+      const VerificationMeta('executionFrequencySeconds');
+  @override
+  late final GeneratedColumn<int> executionFrequencySeconds =
+      GeneratedColumn<int>(
+        'execution_frequency_seconds',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _lastExecutionMeta = const VerificationMeta(
+    'lastExecution',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastExecution =
+      GeneratedColumn<DateTime>(
+        'last_execution',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _totalExecutionsMeta = const VerificationMeta(
+    'totalExecutions',
+  );
+  @override
+  late final GeneratedColumn<int> totalExecutions = GeneratedColumn<int>(
+    'total_executions',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageExecutionTimeMsMeta =
+      const VerificationMeta('averageExecutionTimeMs');
+  @override
+  late final GeneratedColumn<int> averageExecutionTimeMs = GeneratedColumn<int>(
+    'average_execution_time_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    workflowId,
+    title,
+    enabledPipelines,
+    executionFrequencySeconds,
+    lastExecution,
+    totalExecutions,
+    averageExecutionTimeMs,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'orchestrator_workflows_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OrchestratorWorkflowsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('workflow_id')) {
+      context.handle(
+        _workflowIdMeta,
+        workflowId.isAcceptableOrUnknown(data['workflow_id']!, _workflowIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_workflowIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('enabled_pipelines')) {
+      context.handle(
+        _enabledPipelinesMeta,
+        enabledPipelines.isAcceptableOrUnknown(
+          data['enabled_pipelines']!,
+          _enabledPipelinesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_enabledPipelinesMeta);
+    }
+    if (data.containsKey('execution_frequency_seconds')) {
+      context.handle(
+        _executionFrequencySecondsMeta,
+        executionFrequencySeconds.isAcceptableOrUnknown(
+          data['execution_frequency_seconds']!,
+          _executionFrequencySecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_executionFrequencySecondsMeta);
+    }
+    if (data.containsKey('last_execution')) {
+      context.handle(
+        _lastExecutionMeta,
+        lastExecution.isAcceptableOrUnknown(
+          data['last_execution']!,
+          _lastExecutionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('total_executions')) {
+      context.handle(
+        _totalExecutionsMeta,
+        totalExecutions.isAcceptableOrUnknown(
+          data['total_executions']!,
+          _totalExecutionsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalExecutionsMeta);
+    }
+    if (data.containsKey('average_execution_time_ms')) {
+      context.handle(
+        _averageExecutionTimeMsMeta,
+        averageExecutionTimeMs.isAcceptableOrUnknown(
+          data['average_execution_time_ms']!,
+          _averageExecutionTimeMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageExecutionTimeMsMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {workflowId};
+  @override
+  OrchestratorWorkflowsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OrchestratorWorkflowsTableData(
+      workflowId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}workflow_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      enabledPipelines: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}enabled_pipelines'],
+      )!,
+      executionFrequencySeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}execution_frequency_seconds'],
+      )!,
+      lastExecution: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_execution'],
+      ),
+      totalExecutions: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_executions'],
+      )!,
+      averageExecutionTimeMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}average_execution_time_ms'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $OrchestratorWorkflowsTableTable createAlias(String alias) {
+    return $OrchestratorWorkflowsTableTable(attachedDatabase, alias);
+  }
+}
+
+class OrchestratorWorkflowsTableData extends DataClass
+    implements Insertable<OrchestratorWorkflowsTableData> {
+  final String workflowId;
+  final String title;
+  final String enabledPipelines;
+  final int executionFrequencySeconds;
+  final DateTime? lastExecution;
+  final int totalExecutions;
+  final int averageExecutionTimeMs;
+  final String safetyCopy;
+  const OrchestratorWorkflowsTableData({
+    required this.workflowId,
+    required this.title,
+    required this.enabledPipelines,
+    required this.executionFrequencySeconds,
+    this.lastExecution,
+    required this.totalExecutions,
+    required this.averageExecutionTimeMs,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['workflow_id'] = Variable<String>(workflowId);
+    map['title'] = Variable<String>(title);
+    map['enabled_pipelines'] = Variable<String>(enabledPipelines);
+    map['execution_frequency_seconds'] = Variable<int>(
+      executionFrequencySeconds,
+    );
+    if (!nullToAbsent || lastExecution != null) {
+      map['last_execution'] = Variable<DateTime>(lastExecution);
+    }
+    map['total_executions'] = Variable<int>(totalExecutions);
+    map['average_execution_time_ms'] = Variable<int>(averageExecutionTimeMs);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  OrchestratorWorkflowsTableCompanion toCompanion(bool nullToAbsent) {
+    return OrchestratorWorkflowsTableCompanion(
+      workflowId: Value(workflowId),
+      title: Value(title),
+      enabledPipelines: Value(enabledPipelines),
+      executionFrequencySeconds: Value(executionFrequencySeconds),
+      lastExecution: lastExecution == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastExecution),
+      totalExecutions: Value(totalExecutions),
+      averageExecutionTimeMs: Value(averageExecutionTimeMs),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory OrchestratorWorkflowsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OrchestratorWorkflowsTableData(
+      workflowId: serializer.fromJson<String>(json['workflowId']),
+      title: serializer.fromJson<String>(json['title']),
+      enabledPipelines: serializer.fromJson<String>(json['enabledPipelines']),
+      executionFrequencySeconds: serializer.fromJson<int>(
+        json['executionFrequencySeconds'],
+      ),
+      lastExecution: serializer.fromJson<DateTime?>(json['lastExecution']),
+      totalExecutions: serializer.fromJson<int>(json['totalExecutions']),
+      averageExecutionTimeMs: serializer.fromJson<int>(
+        json['averageExecutionTimeMs'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'workflowId': serializer.toJson<String>(workflowId),
+      'title': serializer.toJson<String>(title),
+      'enabledPipelines': serializer.toJson<String>(enabledPipelines),
+      'executionFrequencySeconds': serializer.toJson<int>(
+        executionFrequencySeconds,
+      ),
+      'lastExecution': serializer.toJson<DateTime?>(lastExecution),
+      'totalExecutions': serializer.toJson<int>(totalExecutions),
+      'averageExecutionTimeMs': serializer.toJson<int>(averageExecutionTimeMs),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  OrchestratorWorkflowsTableData copyWith({
+    String? workflowId,
+    String? title,
+    String? enabledPipelines,
+    int? executionFrequencySeconds,
+    Value<DateTime?> lastExecution = const Value.absent(),
+    int? totalExecutions,
+    int? averageExecutionTimeMs,
+    String? safetyCopy,
+  }) => OrchestratorWorkflowsTableData(
+    workflowId: workflowId ?? this.workflowId,
+    title: title ?? this.title,
+    enabledPipelines: enabledPipelines ?? this.enabledPipelines,
+    executionFrequencySeconds:
+        executionFrequencySeconds ?? this.executionFrequencySeconds,
+    lastExecution: lastExecution.present
+        ? lastExecution.value
+        : this.lastExecution,
+    totalExecutions: totalExecutions ?? this.totalExecutions,
+    averageExecutionTimeMs:
+        averageExecutionTimeMs ?? this.averageExecutionTimeMs,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  OrchestratorWorkflowsTableData copyWithCompanion(
+    OrchestratorWorkflowsTableCompanion data,
+  ) {
+    return OrchestratorWorkflowsTableData(
+      workflowId: data.workflowId.present
+          ? data.workflowId.value
+          : this.workflowId,
+      title: data.title.present ? data.title.value : this.title,
+      enabledPipelines: data.enabledPipelines.present
+          ? data.enabledPipelines.value
+          : this.enabledPipelines,
+      executionFrequencySeconds: data.executionFrequencySeconds.present
+          ? data.executionFrequencySeconds.value
+          : this.executionFrequencySeconds,
+      lastExecution: data.lastExecution.present
+          ? data.lastExecution.value
+          : this.lastExecution,
+      totalExecutions: data.totalExecutions.present
+          ? data.totalExecutions.value
+          : this.totalExecutions,
+      averageExecutionTimeMs: data.averageExecutionTimeMs.present
+          ? data.averageExecutionTimeMs.value
+          : this.averageExecutionTimeMs,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OrchestratorWorkflowsTableData(')
+          ..write('workflowId: $workflowId, ')
+          ..write('title: $title, ')
+          ..write('enabledPipelines: $enabledPipelines, ')
+          ..write('executionFrequencySeconds: $executionFrequencySeconds, ')
+          ..write('lastExecution: $lastExecution, ')
+          ..write('totalExecutions: $totalExecutions, ')
+          ..write('averageExecutionTimeMs: $averageExecutionTimeMs, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    workflowId,
+    title,
+    enabledPipelines,
+    executionFrequencySeconds,
+    lastExecution,
+    totalExecutions,
+    averageExecutionTimeMs,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OrchestratorWorkflowsTableData &&
+          other.workflowId == this.workflowId &&
+          other.title == this.title &&
+          other.enabledPipelines == this.enabledPipelines &&
+          other.executionFrequencySeconds == this.executionFrequencySeconds &&
+          other.lastExecution == this.lastExecution &&
+          other.totalExecutions == this.totalExecutions &&
+          other.averageExecutionTimeMs == this.averageExecutionTimeMs &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class OrchestratorWorkflowsTableCompanion
+    extends UpdateCompanion<OrchestratorWorkflowsTableData> {
+  final Value<String> workflowId;
+  final Value<String> title;
+  final Value<String> enabledPipelines;
+  final Value<int> executionFrequencySeconds;
+  final Value<DateTime?> lastExecution;
+  final Value<int> totalExecutions;
+  final Value<int> averageExecutionTimeMs;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const OrchestratorWorkflowsTableCompanion({
+    this.workflowId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.enabledPipelines = const Value.absent(),
+    this.executionFrequencySeconds = const Value.absent(),
+    this.lastExecution = const Value.absent(),
+    this.totalExecutions = const Value.absent(),
+    this.averageExecutionTimeMs = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OrchestratorWorkflowsTableCompanion.insert({
+    required String workflowId,
+    required String title,
+    required String enabledPipelines,
+    required int executionFrequencySeconds,
+    this.lastExecution = const Value.absent(),
+    required int totalExecutions,
+    required int averageExecutionTimeMs,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : workflowId = Value(workflowId),
+       title = Value(title),
+       enabledPipelines = Value(enabledPipelines),
+       executionFrequencySeconds = Value(executionFrequencySeconds),
+       totalExecutions = Value(totalExecutions),
+       averageExecutionTimeMs = Value(averageExecutionTimeMs),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<OrchestratorWorkflowsTableData> custom({
+    Expression<String>? workflowId,
+    Expression<String>? title,
+    Expression<String>? enabledPipelines,
+    Expression<int>? executionFrequencySeconds,
+    Expression<DateTime>? lastExecution,
+    Expression<int>? totalExecutions,
+    Expression<int>? averageExecutionTimeMs,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (workflowId != null) 'workflow_id': workflowId,
+      if (title != null) 'title': title,
+      if (enabledPipelines != null) 'enabled_pipelines': enabledPipelines,
+      if (executionFrequencySeconds != null)
+        'execution_frequency_seconds': executionFrequencySeconds,
+      if (lastExecution != null) 'last_execution': lastExecution,
+      if (totalExecutions != null) 'total_executions': totalExecutions,
+      if (averageExecutionTimeMs != null)
+        'average_execution_time_ms': averageExecutionTimeMs,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OrchestratorWorkflowsTableCompanion copyWith({
+    Value<String>? workflowId,
+    Value<String>? title,
+    Value<String>? enabledPipelines,
+    Value<int>? executionFrequencySeconds,
+    Value<DateTime?>? lastExecution,
+    Value<int>? totalExecutions,
+    Value<int>? averageExecutionTimeMs,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return OrchestratorWorkflowsTableCompanion(
+      workflowId: workflowId ?? this.workflowId,
+      title: title ?? this.title,
+      enabledPipelines: enabledPipelines ?? this.enabledPipelines,
+      executionFrequencySeconds:
+          executionFrequencySeconds ?? this.executionFrequencySeconds,
+      lastExecution: lastExecution ?? this.lastExecution,
+      totalExecutions: totalExecutions ?? this.totalExecutions,
+      averageExecutionTimeMs:
+          averageExecutionTimeMs ?? this.averageExecutionTimeMs,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (workflowId.present) {
+      map['workflow_id'] = Variable<String>(workflowId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (enabledPipelines.present) {
+      map['enabled_pipelines'] = Variable<String>(enabledPipelines.value);
+    }
+    if (executionFrequencySeconds.present) {
+      map['execution_frequency_seconds'] = Variable<int>(
+        executionFrequencySeconds.value,
+      );
+    }
+    if (lastExecution.present) {
+      map['last_execution'] = Variable<DateTime>(lastExecution.value);
+    }
+    if (totalExecutions.present) {
+      map['total_executions'] = Variable<int>(totalExecutions.value);
+    }
+    if (averageExecutionTimeMs.present) {
+      map['average_execution_time_ms'] = Variable<int>(
+        averageExecutionTimeMs.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OrchestratorWorkflowsTableCompanion(')
+          ..write('workflowId: $workflowId, ')
+          ..write('title: $title, ')
+          ..write('enabledPipelines: $enabledPipelines, ')
+          ..write('executionFrequencySeconds: $executionFrequencySeconds, ')
+          ..write('lastExecution: $lastExecution, ')
+          ..write('totalExecutions: $totalExecutions, ')
+          ..write('averageExecutionTimeMs: $averageExecutionTimeMs, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -16358,6 +17643,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   integratedConsensusSnapshotsTable = $IntegratedConsensusSnapshotsTableTable(
     this,
   );
+  late final $ExperimentalPipelineRunsTableTable experimentalPipelineRunsTable =
+      $ExperimentalPipelineRunsTableTable(this);
+  late final $OrchestratorWorkflowsTableTable orchestratorWorkflowsTable =
+      $OrchestratorWorkflowsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -16387,6 +17676,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     experimentalInsightsTable,
     subjectiveFeedbackEntriesTable,
     integratedConsensusSnapshotsTable,
+    experimentalPipelineRunsTable,
+    orchestratorWorkflowsTable,
   ];
 }
 
@@ -24437,6 +25728,648 @@ typedef $$IntegratedConsensusSnapshotsTableTableProcessedTableManager =
       IntegratedConsensusSnapshotsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ExperimentalPipelineRunsTableTableCreateCompanionBuilder =
+    ExperimentalPipelineRunsTableCompanion Function({
+      required String id,
+      required DateTime startedAt,
+      Value<DateTime?> completedAt,
+      required String pipelineType,
+      required int processedSamples,
+      required int generatedForecasts,
+      required int generatedInsights,
+      required int generatedMarkers,
+      required int executionDurationMs,
+      required bool success,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ExperimentalPipelineRunsTableTableUpdateCompanionBuilder =
+    ExperimentalPipelineRunsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> startedAt,
+      Value<DateTime?> completedAt,
+      Value<String> pipelineType,
+      Value<int> processedSamples,
+      Value<int> generatedForecasts,
+      Value<int> generatedInsights,
+      Value<int> generatedMarkers,
+      Value<int> executionDurationMs,
+      Value<bool> success,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ExperimentalPipelineRunsTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalPipelineRunsTableTable> {
+  $$ExperimentalPipelineRunsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pipelineType => $composableBuilder(
+    column: $table.pipelineType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get processedSamples => $composableBuilder(
+    column: $table.processedSamples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get generatedForecasts => $composableBuilder(
+    column: $table.generatedForecasts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get generatedInsights => $composableBuilder(
+    column: $table.generatedInsights,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get generatedMarkers => $composableBuilder(
+    column: $table.generatedMarkers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get executionDurationMs => $composableBuilder(
+    column: $table.executionDurationMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get success => $composableBuilder(
+    column: $table.success,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExperimentalPipelineRunsTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalPipelineRunsTableTable> {
+  $$ExperimentalPipelineRunsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pipelineType => $composableBuilder(
+    column: $table.pipelineType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get processedSamples => $composableBuilder(
+    column: $table.processedSamples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get generatedForecasts => $composableBuilder(
+    column: $table.generatedForecasts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get generatedInsights => $composableBuilder(
+    column: $table.generatedInsights,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get generatedMarkers => $composableBuilder(
+    column: $table.generatedMarkers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get executionDurationMs => $composableBuilder(
+    column: $table.executionDurationMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get success => $composableBuilder(
+    column: $table.success,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExperimentalPipelineRunsTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalPipelineRunsTableTable> {
+  $$ExperimentalPipelineRunsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get pipelineType => $composableBuilder(
+    column: $table.pipelineType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get processedSamples => $composableBuilder(
+    column: $table.processedSamples,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get generatedForecasts => $composableBuilder(
+    column: $table.generatedForecasts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get generatedInsights => $composableBuilder(
+    column: $table.generatedInsights,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get generatedMarkers => $composableBuilder(
+    column: $table.generatedMarkers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get executionDurationMs => $composableBuilder(
+    column: $table.executionDurationMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get success =>
+      $composableBuilder(column: $table.success, builder: (column) => column);
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ExperimentalPipelineRunsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ExperimentalPipelineRunsTableTable,
+          ExperimentalPipelineRunsTableData,
+          $$ExperimentalPipelineRunsTableTableFilterComposer,
+          $$ExperimentalPipelineRunsTableTableOrderingComposer,
+          $$ExperimentalPipelineRunsTableTableAnnotationComposer,
+          $$ExperimentalPipelineRunsTableTableCreateCompanionBuilder,
+          $$ExperimentalPipelineRunsTableTableUpdateCompanionBuilder,
+          (
+            ExperimentalPipelineRunsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ExperimentalPipelineRunsTableTable,
+              ExperimentalPipelineRunsTableData
+            >,
+          ),
+          ExperimentalPipelineRunsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExperimentalPipelineRunsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ExperimentalPipelineRunsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExperimentalPipelineRunsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExperimentalPipelineRunsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExperimentalPipelineRunsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<String> pipelineType = const Value.absent(),
+                Value<int> processedSamples = const Value.absent(),
+                Value<int> generatedForecasts = const Value.absent(),
+                Value<int> generatedInsights = const Value.absent(),
+                Value<int> generatedMarkers = const Value.absent(),
+                Value<int> executionDurationMs = const Value.absent(),
+                Value<bool> success = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalPipelineRunsTableCompanion(
+                id: id,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                pipelineType: pipelineType,
+                processedSamples: processedSamples,
+                generatedForecasts: generatedForecasts,
+                generatedInsights: generatedInsights,
+                generatedMarkers: generatedMarkers,
+                executionDurationMs: executionDurationMs,
+                success: success,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime startedAt,
+                Value<DateTime?> completedAt = const Value.absent(),
+                required String pipelineType,
+                required int processedSamples,
+                required int generatedForecasts,
+                required int generatedInsights,
+                required int generatedMarkers,
+                required int executionDurationMs,
+                required bool success,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalPipelineRunsTableCompanion.insert(
+                id: id,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                pipelineType: pipelineType,
+                processedSamples: processedSamples,
+                generatedForecasts: generatedForecasts,
+                generatedInsights: generatedInsights,
+                generatedMarkers: generatedMarkers,
+                executionDurationMs: executionDurationMs,
+                success: success,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExperimentalPipelineRunsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ExperimentalPipelineRunsTableTable,
+      ExperimentalPipelineRunsTableData,
+      $$ExperimentalPipelineRunsTableTableFilterComposer,
+      $$ExperimentalPipelineRunsTableTableOrderingComposer,
+      $$ExperimentalPipelineRunsTableTableAnnotationComposer,
+      $$ExperimentalPipelineRunsTableTableCreateCompanionBuilder,
+      $$ExperimentalPipelineRunsTableTableUpdateCompanionBuilder,
+      (
+        ExperimentalPipelineRunsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ExperimentalPipelineRunsTableTable,
+          ExperimentalPipelineRunsTableData
+        >,
+      ),
+      ExperimentalPipelineRunsTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$OrchestratorWorkflowsTableTableCreateCompanionBuilder =
+    OrchestratorWorkflowsTableCompanion Function({
+      required String workflowId,
+      required String title,
+      required String enabledPipelines,
+      required int executionFrequencySeconds,
+      Value<DateTime?> lastExecution,
+      required int totalExecutions,
+      required int averageExecutionTimeMs,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$OrchestratorWorkflowsTableTableUpdateCompanionBuilder =
+    OrchestratorWorkflowsTableCompanion Function({
+      Value<String> workflowId,
+      Value<String> title,
+      Value<String> enabledPipelines,
+      Value<int> executionFrequencySeconds,
+      Value<DateTime?> lastExecution,
+      Value<int> totalExecutions,
+      Value<int> averageExecutionTimeMs,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$OrchestratorWorkflowsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $OrchestratorWorkflowsTableTable> {
+  $$OrchestratorWorkflowsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get workflowId => $composableBuilder(
+    column: $table.workflowId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get enabledPipelines => $composableBuilder(
+    column: $table.enabledPipelines,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get executionFrequencySeconds => $composableBuilder(
+    column: $table.executionFrequencySeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastExecution => $composableBuilder(
+    column: $table.lastExecution,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalExecutions => $composableBuilder(
+    column: $table.totalExecutions,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get averageExecutionTimeMs => $composableBuilder(
+    column: $table.averageExecutionTimeMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OrchestratorWorkflowsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $OrchestratorWorkflowsTableTable> {
+  $$OrchestratorWorkflowsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get workflowId => $composableBuilder(
+    column: $table.workflowId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get enabledPipelines => $composableBuilder(
+    column: $table.enabledPipelines,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get executionFrequencySeconds => $composableBuilder(
+    column: $table.executionFrequencySeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastExecution => $composableBuilder(
+    column: $table.lastExecution,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalExecutions => $composableBuilder(
+    column: $table.totalExecutions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get averageExecutionTimeMs => $composableBuilder(
+    column: $table.averageExecutionTimeMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OrchestratorWorkflowsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $OrchestratorWorkflowsTableTable> {
+  $$OrchestratorWorkflowsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get workflowId => $composableBuilder(
+    column: $table.workflowId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get enabledPipelines => $composableBuilder(
+    column: $table.enabledPipelines,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get executionFrequencySeconds => $composableBuilder(
+    column: $table.executionFrequencySeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastExecution => $composableBuilder(
+    column: $table.lastExecution,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalExecutions => $composableBuilder(
+    column: $table.totalExecutions,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get averageExecutionTimeMs => $composableBuilder(
+    column: $table.averageExecutionTimeMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$OrchestratorWorkflowsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $OrchestratorWorkflowsTableTable,
+          OrchestratorWorkflowsTableData,
+          $$OrchestratorWorkflowsTableTableFilterComposer,
+          $$OrchestratorWorkflowsTableTableOrderingComposer,
+          $$OrchestratorWorkflowsTableTableAnnotationComposer,
+          $$OrchestratorWorkflowsTableTableCreateCompanionBuilder,
+          $$OrchestratorWorkflowsTableTableUpdateCompanionBuilder,
+          (
+            OrchestratorWorkflowsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $OrchestratorWorkflowsTableTable,
+              OrchestratorWorkflowsTableData
+            >,
+          ),
+          OrchestratorWorkflowsTableData,
+          PrefetchHooks Function()
+        > {
+  $$OrchestratorWorkflowsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $OrchestratorWorkflowsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OrchestratorWorkflowsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$OrchestratorWorkflowsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$OrchestratorWorkflowsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> workflowId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> enabledPipelines = const Value.absent(),
+                Value<int> executionFrequencySeconds = const Value.absent(),
+                Value<DateTime?> lastExecution = const Value.absent(),
+                Value<int> totalExecutions = const Value.absent(),
+                Value<int> averageExecutionTimeMs = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OrchestratorWorkflowsTableCompanion(
+                workflowId: workflowId,
+                title: title,
+                enabledPipelines: enabledPipelines,
+                executionFrequencySeconds: executionFrequencySeconds,
+                lastExecution: lastExecution,
+                totalExecutions: totalExecutions,
+                averageExecutionTimeMs: averageExecutionTimeMs,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String workflowId,
+                required String title,
+                required String enabledPipelines,
+                required int executionFrequencySeconds,
+                Value<DateTime?> lastExecution = const Value.absent(),
+                required int totalExecutions,
+                required int averageExecutionTimeMs,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => OrchestratorWorkflowsTableCompanion.insert(
+                workflowId: workflowId,
+                title: title,
+                enabledPipelines: enabledPipelines,
+                executionFrequencySeconds: executionFrequencySeconds,
+                lastExecution: lastExecution,
+                totalExecutions: totalExecutions,
+                averageExecutionTimeMs: averageExecutionTimeMs,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OrchestratorWorkflowsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $OrchestratorWorkflowsTableTable,
+      OrchestratorWorkflowsTableData,
+      $$OrchestratorWorkflowsTableTableFilterComposer,
+      $$OrchestratorWorkflowsTableTableOrderingComposer,
+      $$OrchestratorWorkflowsTableTableAnnotationComposer,
+      $$OrchestratorWorkflowsTableTableCreateCompanionBuilder,
+      $$OrchestratorWorkflowsTableTableUpdateCompanionBuilder,
+      (
+        OrchestratorWorkflowsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $OrchestratorWorkflowsTableTable,
+          OrchestratorWorkflowsTableData
+        >,
+      ),
+      OrchestratorWorkflowsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -24555,5 +26488,17 @@ class $SignalFlowDatabaseManager {
       $$IntegratedConsensusSnapshotsTableTableTableManager(
         _db,
         _db.integratedConsensusSnapshotsTable,
+      );
+  $$ExperimentalPipelineRunsTableTableTableManager
+  get experimentalPipelineRunsTable =>
+      $$ExperimentalPipelineRunsTableTableTableManager(
+        _db,
+        _db.experimentalPipelineRunsTable,
+      );
+  $$OrchestratorWorkflowsTableTableTableManager
+  get orchestratorWorkflowsTable =>
+      $$OrchestratorWorkflowsTableTableTableManager(
+        _db,
+        _db.orchestratorWorkflowsTable,
       );
 }

@@ -57,7 +57,7 @@ void main() {
       ]);
       expect(
         sections.fold<int>(0, (total, section) => total + section.itemCount),
-        27,
+        28,
       );
     });
   });

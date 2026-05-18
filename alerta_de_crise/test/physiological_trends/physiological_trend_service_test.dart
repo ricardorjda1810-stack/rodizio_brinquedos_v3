@@ -82,7 +82,7 @@ void main() {
     test('migration 3 to 4 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 15);
+      expect(migrationService.currentSchemaVersion, 16);
       expect(
         migrationService.registeredMigrations.any(
           (migration) =>
