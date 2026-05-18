@@ -91,6 +91,11 @@ class DatabaseMigrationService {
         toVersion: 16,
         description: 'Research orchestrator persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 16,
+        toVersion: 17,
+        description: 'Experimental protocol persistence.',
+      ),
     ];
   }
 

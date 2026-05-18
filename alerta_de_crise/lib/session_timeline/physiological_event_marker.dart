@@ -39,6 +39,10 @@ enum EventType {
   signalConflictDetected,
   subjectivePhysiologyDivergence,
   highIntegratedStress,
+  protocolStarted,
+  protocolPhaseStarted,
+  protocolPhaseCompleted,
+  protocolCompleted,
 }
 
 enum Severity { low, medium, high }

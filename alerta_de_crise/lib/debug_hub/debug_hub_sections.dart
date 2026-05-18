@@ -10,6 +10,7 @@ import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/cross_modal_fusion_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/experimental_insights_debug_page.dart';
+import '../ui/crisis_detection/experimental_protocol_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/longitudinal_analysis_debug_page.dart';
@@ -115,6 +116,11 @@ class SignalFlowDebugHubSections {
             label: 'Research Orchestrator',
             description: 'Orquestração experimental de pipelines.',
             builder: (_) => const ResearchOrchestratorDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Experimental Protocols',
+            description: 'Protocolos experimentais para sessão controlada.',
+            builder: (_) => const ExperimentalProtocolDebugPage(),
           ),
         ],
       ),

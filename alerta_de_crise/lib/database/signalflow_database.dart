@@ -11,6 +11,7 @@ import 'contextual_trigger_tables.dart';
 import 'cross_modal_fusion_tables.dart';
 import 'crisis_tables.dart';
 import 'experimental_insight_tables.dart';
+import 'experimental_protocol_tables.dart';
 import 'intervention_tables.dart';
 import 'longitudinal_analysis_tables.dart';
 import 'personalized_intervention_tables.dart';
@@ -52,6 +53,8 @@ part 'signalflow_database.g.dart';
     IntegratedConsensusSnapshotsTable,
     ExperimentalPipelineRunsTable,
     OrchestratorWorkflowsTable,
+    ExperimentalProtocolsTable,
+    ExperimentalProtocolSessionsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -65,7 +68,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -126,6 +129,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(experimentalPipelineRunsTable);
           await migrator.createTable(orchestratorWorkflowsTable);
         }
+        if (from < 17) {
+          await migrator.createTable(experimentalProtocolsTable);
+          await migrator.createTable(experimentalProtocolSessionsTable);
+        }
       },
     );
   }
@@ -158,6 +165,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(integratedConsensusSnapshotsTable);
       batch.deleteAll(experimentalPipelineRunsTable);
       batch.deleteAll(orchestratorWorkflowsTable);
+      batch.deleteAll(experimentalProtocolsTable);
+      batch.deleteAll(experimentalProtocolSessionsTable);
     });
   }
 }

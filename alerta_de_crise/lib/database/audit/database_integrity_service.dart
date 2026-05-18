@@ -43,6 +43,8 @@ class DatabaseIntegrityService {
       'integrated_consensus_snapshots_table',
       'experimental_pipeline_runs_table',
       'orchestrator_workflows_table',
+      'experimental_protocols_table',
+      'experimental_protocol_sessions_table',
     ];
 
     final baselines = await _database
@@ -123,6 +125,12 @@ class DatabaseIntegrityService {
     final orchestratorWorkflows = await _database
         .select(_database.orchestratorWorkflowsTable)
         .get();
+    final experimentalProtocols = await _database
+        .select(_database.experimentalProtocolsTable)
+        .get();
+    final experimentalProtocolSessions = await _database
+        .select(_database.experimentalProtocolSessionsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -154,6 +162,12 @@ class DatabaseIntegrityService {
     _auditIntegratedConsensus(consensusSnapshots, issues, warnings);
     _auditPipelineRuns(pipelineRuns, issues, warnings);
     _auditOrchestratorWorkflows(orchestratorWorkflows, issues, warnings);
+    _auditExperimentalProtocols(experimentalProtocols, issues, warnings);
+    _auditExperimentalProtocolSessions(
+      experimentalProtocolSessions,
+      issues,
+      warnings,
+    );
 
     final totalRecords =
         baselines.length +
@@ -181,7 +195,9 @@ class DatabaseIntegrityService {
         subjectiveFeedback.length +
         consensusSnapshots.length +
         pipelineRuns.length +
-        orchestratorWorkflows.length;
+        orchestratorWorkflows.length +
+        experimentalProtocols.length +
+        experimentalProtocolSessions.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -421,6 +437,10 @@ class DatabaseIntegrityService {
       'signalConflictDetected',
       'subjectivePhysiologyDivergence',
       'highIntegratedStress',
+      'protocolStarted',
+      'protocolPhaseStarted',
+      'protocolPhaseCompleted',
+      'protocolCompleted',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -1173,6 +1193,65 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('orquestração experimental')) {
         warnings.add(
           'Orchestrator workflow ${row.workflowId} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditExperimentalProtocols(
+    List<ExperimentalProtocolsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.title.trim().isEmpty) {
+        issues.add('Experimental protocol with empty id or title.');
+      }
+      if (row.totalDurationSeconds <= 0) {
+        issues.add(
+          'Experimental protocol ${row.id} has invalid total duration.',
+        );
+      }
+      if (!_isValidJsonList(row.phasesJson) ||
+          !_isValidJsonList(row.recommendedSensorsJson)) {
+        issues.add('Experimental protocol ${row.id} has invalid JSON.');
+      }
+      if (!row.safetyCopy.contains('não representa avaliação clínica')) {
+        warnings.add(
+          'Experimental protocol ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditExperimentalProtocolSessions(
+    List<ExperimentalProtocolSessionsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.protocolId.trim().isEmpty) {
+        issues.add('Experimental protocol session with empty id or protocol.');
+      }
+      if (row.completedAt != null && row.completedAt!.isBefore(row.startedAt)) {
+        issues.add(
+          'Experimental protocol session ${row.id} has completedAt before startedAt.',
+        );
+      }
+      if (row.currentPhaseIndex < 0) {
+        issues.add(
+          'Experimental protocol session ${row.id} has invalid phase index.',
+        );
+      }
+      if (!_isValidJsonList(row.generatedMarkersJson) ||
+          !_isValidJsonMap(row.replayMetadataJson)) {
+        issues.add(
+          'Experimental protocol session ${row.id} has invalid metadata JSON.',
+        );
+      }
+      if (!row.safetyCopy.contains('sessão controlada')) {
+        warnings.add(
+          'Experimental protocol session ${row.id} is missing explicit safety copy.',
         );
       }
     }
