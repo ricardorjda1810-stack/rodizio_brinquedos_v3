@@ -3,6 +3,7 @@ import '../ui/crisis_detection/adaptive_baseline_debug_page.dart';
 import '../ui/crisis_detection/apple_health_debug_page.dart';
 import '../ui/crisis_detection/autonomic_recovery_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
+import '../ui/crisis_detection/calibration_lab_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
 import '../ui/crisis_detection/cognitive_feedback_debug_page.dart';
@@ -183,6 +184,11 @@ class SignalFlowDebugHubSections {
             label: 'Replay Benchmark',
             description: 'Benchmark experimental e comparação de replay.',
             builder: (_) => const ReplayBenchmarkDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Calibration Lab',
+            description: 'Calibração experimental e benchmark de thresholds.',
+            builder: (_) => const CalibrationLabDebugPage(),
           ),
         ],
       ),

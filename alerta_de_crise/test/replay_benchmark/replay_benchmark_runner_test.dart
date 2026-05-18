@@ -85,13 +85,14 @@ void main() {
     test('migration 18 to 19 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 19);
-      expect(migrationService.registeredMigrations.last.fromVersion, 18);
-      expect(migrationService.registeredMigrations.last.toVersion, 19);
-      expect(
-        migrationService.registeredMigrations.last.description,
-        contains('Replay benchmark'),
+      expect(migrationService.currentSchemaVersion, 20);
+      final replayMigration = migrationService.registeredMigrations.firstWhere(
+        (migration) => migration.toVersion == 19,
       );
+
+      expect(replayMigration.fromVersion, 18);
+      expect(replayMigration.toVersion, 19);
+      expect(replayMigration.description, contains('Replay benchmark'));
     });
 
     test('multimodal agreement and analysis are consistent', () async {

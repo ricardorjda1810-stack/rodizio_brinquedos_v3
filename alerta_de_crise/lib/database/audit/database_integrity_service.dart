@@ -48,6 +48,8 @@ class DatabaseIntegrityService {
       'recorded_experimental_sessions_table',
       'session_snapshots_table',
       'replay_benchmark_results_table',
+      'calibration_profiles_table',
+      'calibration_benchmark_results_table',
     ];
 
     final baselines = await _database
@@ -143,6 +145,12 @@ class DatabaseIntegrityService {
     final replayBenchmarkResults = await _database
         .select(_database.replayBenchmarkResultsTable)
         .get();
+    final calibrationProfiles = await _database
+        .select(_database.calibrationProfilesTable)
+        .get();
+    final calibrationBenchmarkResults = await _database
+        .select(_database.calibrationBenchmarkResultsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -183,6 +191,12 @@ class DatabaseIntegrityService {
     _auditRecordedSessions(recordedSessions, issues, warnings);
     _auditSessionSnapshots(sessionSnapshots, issues, warnings);
     _auditReplayBenchmarkResults(replayBenchmarkResults, issues, warnings);
+    _auditCalibrationProfiles(calibrationProfiles, issues, warnings);
+    _auditCalibrationBenchmarkResults(
+      calibrationBenchmarkResults,
+      issues,
+      warnings,
+    );
 
     final totalRecords =
         baselines.length +
@@ -215,7 +229,9 @@ class DatabaseIntegrityService {
         experimentalProtocolSessions.length +
         recordedSessions.length +
         sessionSnapshots.length +
-        replayBenchmarkResults.length;
+        replayBenchmarkResults.length +
+        calibrationProfiles.length +
+        calibrationBenchmarkResults.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -1382,6 +1398,74 @@ class DatabaseIntegrityService {
     }
   }
 
+  void _auditCalibrationProfiles(
+    List<CalibrationProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.name.trim().isEmpty) {
+        issues.add('Calibration profile with empty id or name.');
+      }
+      if (!_isPositive(row.heartRateSensitivity) ||
+          !_isPositive(row.hrvSuppressionSensitivity) ||
+          !_isPositive(row.recoverySensitivity) ||
+          !_isPositive(row.forecastSensitivity) ||
+          !_isPercent(row.escalationThreshold) ||
+          !_isPercent(row.recoveryThreshold)) {
+        issues.add('Calibration profile ${row.id} has invalid parameters.');
+      }
+      if (row.confidenceWeight < 0 ||
+          row.fusionWeight < 0 ||
+          (row.confidenceWeight + row.fusionWeight - 1).abs() > 0.01) {
+        issues.add('Calibration profile ${row.id} has invalid weights.');
+      }
+      if (!row.safetyCopy.contains('calibração experimental') ||
+          !row.safetyCopy.contains('não representa validação clínica')) {
+        warnings.add(
+          'Calibration profile ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditCalibrationBenchmarkResults(
+    List<CalibrationBenchmarkResultsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty ||
+          row.profileId.trim().isEmpty ||
+          row.sessionId.trim().isEmpty) {
+        issues.add(
+          'Calibration benchmark result with empty id, profileId, or sessionId.',
+        );
+      }
+      if (!_isPercent(row.forecastConsistency) ||
+          !_isPercent(row.recoveryConsistency) ||
+          !_isPercent(row.falseEscalationRate) ||
+          !_isPercent(row.multimodalAgreement) ||
+          !_isPercent(row.confidenceConsistency) ||
+          !_isPercent(row.benchmarkScore)) {
+        issues.add(
+          'Calibration benchmark result ${row.id} has metric outside 0..100.',
+        );
+      }
+      if (row.rankingPosition < 0) {
+        issues.add(
+          'Calibration benchmark result ${row.id} has invalid ranking.',
+        );
+      }
+      if (!row.safetyCopy.contains('comparação de configuração') ||
+          !row.safetyCopy.contains('não representa validação clínica')) {
+        warnings.add(
+          'Calibration benchmark result ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
   bool _isValidJsonList(String value) {
     try {
       return jsonDecode(value) is List;
@@ -1404,6 +1488,10 @@ class DatabaseIntegrityService {
 
   bool _isPercent(double value) {
     return value >= 0 && value <= 100;
+  }
+
+  bool _isPositive(double value) {
+    return value > 0;
   }
 
   bool _isScale0To10(int value) {

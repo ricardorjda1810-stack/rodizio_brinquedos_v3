@@ -97,7 +97,7 @@ void main() {
     test('migration 13 to 14 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 19);
+      expect(migrationService.currentSchemaVersion, 20);
       expect(
         migrationService.registeredMigrations.any(
           (migration) =>

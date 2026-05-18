@@ -5,6 +5,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'adaptive_baseline_tables.dart';
 import 'autonomic_recovery_tables.dart';
 import 'baseline_tables.dart';
+import 'calibration_lab_tables.dart';
 import 'cognitive_feedback_tables.dart';
 import 'consent_tables.dart';
 import 'contextual_trigger_tables.dart';
@@ -60,6 +61,8 @@ part 'signalflow_database.g.dart';
     RecordedExperimentalSessionsTable,
     SessionSnapshotsTable,
     ReplayBenchmarkResultsTable,
+    CalibrationProfilesTable,
+    CalibrationBenchmarkResultsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -73,7 +76,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration {
@@ -145,6 +148,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 19) {
           await migrator.createTable(replayBenchmarkResultsTable);
         }
+        if (from < 20) {
+          await migrator.createTable(calibrationProfilesTable);
+          await migrator.createTable(calibrationBenchmarkResultsTable);
+        }
       },
     );
   }
@@ -182,6 +189,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(recordedExperimentalSessionsTable);
       batch.deleteAll(sessionSnapshotsTable);
       batch.deleteAll(replayBenchmarkResultsTable);
+      batch.deleteAll(calibrationProfilesTable);
+      batch.deleteAll(calibrationBenchmarkResultsTable);
     });
   }
 }

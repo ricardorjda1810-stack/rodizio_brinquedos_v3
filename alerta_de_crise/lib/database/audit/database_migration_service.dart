@@ -106,6 +106,11 @@ class DatabaseMigrationService {
         toVersion: 19,
         description: 'Replay benchmark persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 19,
+        toVersion: 20,
+        description: 'Calibration lab persistence.',
+      ),
     ];
   }
 

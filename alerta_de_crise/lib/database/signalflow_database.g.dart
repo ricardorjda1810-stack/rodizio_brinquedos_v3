@@ -21404,6 +21404,1666 @@ class ReplayBenchmarkResultsTableCompanion
   }
 }
 
+class $CalibrationProfilesTableTable extends CalibrationProfilesTable
+    with
+        TableInfo<
+          $CalibrationProfilesTableTable,
+          CalibrationProfilesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalibrationProfilesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heartRateSensitivityMeta =
+      const VerificationMeta('heartRateSensitivity');
+  @override
+  late final GeneratedColumn<double> heartRateSensitivity =
+      GeneratedColumn<double>(
+        'heart_rate_sensitivity',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _hrvSuppressionSensitivityMeta =
+      const VerificationMeta('hrvSuppressionSensitivity');
+  @override
+  late final GeneratedColumn<double> hrvSuppressionSensitivity =
+      GeneratedColumn<double>(
+        'hrv_suppression_sensitivity',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoverySensitivityMeta =
+      const VerificationMeta('recoverySensitivity');
+  @override
+  late final GeneratedColumn<double> recoverySensitivity =
+      GeneratedColumn<double>(
+        'recovery_sensitivity',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _forecastSensitivityMeta =
+      const VerificationMeta('forecastSensitivity');
+  @override
+  late final GeneratedColumn<double> forecastSensitivity =
+      GeneratedColumn<double>(
+        'forecast_sensitivity',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceWeightMeta = const VerificationMeta(
+    'confidenceWeight',
+  );
+  @override
+  late final GeneratedColumn<double> confidenceWeight = GeneratedColumn<double>(
+    'confidence_weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fusionWeightMeta = const VerificationMeta(
+    'fusionWeight',
+  );
+  @override
+  late final GeneratedColumn<double> fusionWeight = GeneratedColumn<double>(
+    'fusion_weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _escalationThresholdMeta =
+      const VerificationMeta('escalationThreshold');
+  @override
+  late final GeneratedColumn<double> escalationThreshold =
+      GeneratedColumn<double>(
+        'escalation_threshold',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryThresholdMeta = const VerificationMeta(
+    'recoveryThreshold',
+  );
+  @override
+  late final GeneratedColumn<double> recoveryThreshold =
+      GeneratedColumn<double>(
+        'recovery_threshold',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    description,
+    createdAt,
+    heartRateSensitivity,
+    hrvSuppressionSensitivity,
+    recoverySensitivity,
+    forecastSensitivity,
+    confidenceWeight,
+    fusionWeight,
+    escalationThreshold,
+    recoveryThreshold,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calibration_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalibrationProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('heart_rate_sensitivity')) {
+      context.handle(
+        _heartRateSensitivityMeta,
+        heartRateSensitivity.isAcceptableOrUnknown(
+          data['heart_rate_sensitivity']!,
+          _heartRateSensitivityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_heartRateSensitivityMeta);
+    }
+    if (data.containsKey('hrv_suppression_sensitivity')) {
+      context.handle(
+        _hrvSuppressionSensitivityMeta,
+        hrvSuppressionSensitivity.isAcceptableOrUnknown(
+          data['hrv_suppression_sensitivity']!,
+          _hrvSuppressionSensitivityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvSuppressionSensitivityMeta);
+    }
+    if (data.containsKey('recovery_sensitivity')) {
+      context.handle(
+        _recoverySensitivityMeta,
+        recoverySensitivity.isAcceptableOrUnknown(
+          data['recovery_sensitivity']!,
+          _recoverySensitivityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoverySensitivityMeta);
+    }
+    if (data.containsKey('forecast_sensitivity')) {
+      context.handle(
+        _forecastSensitivityMeta,
+        forecastSensitivity.isAcceptableOrUnknown(
+          data['forecast_sensitivity']!,
+          _forecastSensitivityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastSensitivityMeta);
+    }
+    if (data.containsKey('confidence_weight')) {
+      context.handle(
+        _confidenceWeightMeta,
+        confidenceWeight.isAcceptableOrUnknown(
+          data['confidence_weight']!,
+          _confidenceWeightMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceWeightMeta);
+    }
+    if (data.containsKey('fusion_weight')) {
+      context.handle(
+        _fusionWeightMeta,
+        fusionWeight.isAcceptableOrUnknown(
+          data['fusion_weight']!,
+          _fusionWeightMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fusionWeightMeta);
+    }
+    if (data.containsKey('escalation_threshold')) {
+      context.handle(
+        _escalationThresholdMeta,
+        escalationThreshold.isAcceptableOrUnknown(
+          data['escalation_threshold']!,
+          _escalationThresholdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationThresholdMeta);
+    }
+    if (data.containsKey('recovery_threshold')) {
+      context.handle(
+        _recoveryThresholdMeta,
+        recoveryThreshold.isAcceptableOrUnknown(
+          data['recovery_threshold']!,
+          _recoveryThresholdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryThresholdMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CalibrationProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalibrationProfilesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      heartRateSensitivity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}heart_rate_sensitivity'],
+      )!,
+      hrvSuppressionSensitivity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv_suppression_sensitivity'],
+      )!,
+      recoverySensitivity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_sensitivity'],
+      )!,
+      forecastSensitivity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}forecast_sensitivity'],
+      )!,
+      confidenceWeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence_weight'],
+      )!,
+      fusionWeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}fusion_weight'],
+      )!,
+      escalationThreshold: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}escalation_threshold'],
+      )!,
+      recoveryThreshold: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_threshold'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $CalibrationProfilesTableTable createAlias(String alias) {
+    return $CalibrationProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class CalibrationProfilesTableData extends DataClass
+    implements Insertable<CalibrationProfilesTableData> {
+  final String id;
+  final String name;
+  final String description;
+  final DateTime createdAt;
+  final double heartRateSensitivity;
+  final double hrvSuppressionSensitivity;
+  final double recoverySensitivity;
+  final double forecastSensitivity;
+  final double confidenceWeight;
+  final double fusionWeight;
+  final double escalationThreshold;
+  final double recoveryThreshold;
+  final String safetyCopy;
+  const CalibrationProfilesTableData({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.createdAt,
+    required this.heartRateSensitivity,
+    required this.hrvSuppressionSensitivity,
+    required this.recoverySensitivity,
+    required this.forecastSensitivity,
+    required this.confidenceWeight,
+    required this.fusionWeight,
+    required this.escalationThreshold,
+    required this.recoveryThreshold,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['description'] = Variable<String>(description);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['heart_rate_sensitivity'] = Variable<double>(heartRateSensitivity);
+    map['hrv_suppression_sensitivity'] = Variable<double>(
+      hrvSuppressionSensitivity,
+    );
+    map['recovery_sensitivity'] = Variable<double>(recoverySensitivity);
+    map['forecast_sensitivity'] = Variable<double>(forecastSensitivity);
+    map['confidence_weight'] = Variable<double>(confidenceWeight);
+    map['fusion_weight'] = Variable<double>(fusionWeight);
+    map['escalation_threshold'] = Variable<double>(escalationThreshold);
+    map['recovery_threshold'] = Variable<double>(recoveryThreshold);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  CalibrationProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return CalibrationProfilesTableCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: Value(description),
+      createdAt: Value(createdAt),
+      heartRateSensitivity: Value(heartRateSensitivity),
+      hrvSuppressionSensitivity: Value(hrvSuppressionSensitivity),
+      recoverySensitivity: Value(recoverySensitivity),
+      forecastSensitivity: Value(forecastSensitivity),
+      confidenceWeight: Value(confidenceWeight),
+      fusionWeight: Value(fusionWeight),
+      escalationThreshold: Value(escalationThreshold),
+      recoveryThreshold: Value(recoveryThreshold),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory CalibrationProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalibrationProfilesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      heartRateSensitivity: serializer.fromJson<double>(
+        json['heartRateSensitivity'],
+      ),
+      hrvSuppressionSensitivity: serializer.fromJson<double>(
+        json['hrvSuppressionSensitivity'],
+      ),
+      recoverySensitivity: serializer.fromJson<double>(
+        json['recoverySensitivity'],
+      ),
+      forecastSensitivity: serializer.fromJson<double>(
+        json['forecastSensitivity'],
+      ),
+      confidenceWeight: serializer.fromJson<double>(json['confidenceWeight']),
+      fusionWeight: serializer.fromJson<double>(json['fusionWeight']),
+      escalationThreshold: serializer.fromJson<double>(
+        json['escalationThreshold'],
+      ),
+      recoveryThreshold: serializer.fromJson<double>(json['recoveryThreshold']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'heartRateSensitivity': serializer.toJson<double>(heartRateSensitivity),
+      'hrvSuppressionSensitivity': serializer.toJson<double>(
+        hrvSuppressionSensitivity,
+      ),
+      'recoverySensitivity': serializer.toJson<double>(recoverySensitivity),
+      'forecastSensitivity': serializer.toJson<double>(forecastSensitivity),
+      'confidenceWeight': serializer.toJson<double>(confidenceWeight),
+      'fusionWeight': serializer.toJson<double>(fusionWeight),
+      'escalationThreshold': serializer.toJson<double>(escalationThreshold),
+      'recoveryThreshold': serializer.toJson<double>(recoveryThreshold),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  CalibrationProfilesTableData copyWith({
+    String? id,
+    String? name,
+    String? description,
+    DateTime? createdAt,
+    double? heartRateSensitivity,
+    double? hrvSuppressionSensitivity,
+    double? recoverySensitivity,
+    double? forecastSensitivity,
+    double? confidenceWeight,
+    double? fusionWeight,
+    double? escalationThreshold,
+    double? recoveryThreshold,
+    String? safetyCopy,
+  }) => CalibrationProfilesTableData(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    createdAt: createdAt ?? this.createdAt,
+    heartRateSensitivity: heartRateSensitivity ?? this.heartRateSensitivity,
+    hrvSuppressionSensitivity:
+        hrvSuppressionSensitivity ?? this.hrvSuppressionSensitivity,
+    recoverySensitivity: recoverySensitivity ?? this.recoverySensitivity,
+    forecastSensitivity: forecastSensitivity ?? this.forecastSensitivity,
+    confidenceWeight: confidenceWeight ?? this.confidenceWeight,
+    fusionWeight: fusionWeight ?? this.fusionWeight,
+    escalationThreshold: escalationThreshold ?? this.escalationThreshold,
+    recoveryThreshold: recoveryThreshold ?? this.recoveryThreshold,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  CalibrationProfilesTableData copyWithCompanion(
+    CalibrationProfilesTableCompanion data,
+  ) {
+    return CalibrationProfilesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      heartRateSensitivity: data.heartRateSensitivity.present
+          ? data.heartRateSensitivity.value
+          : this.heartRateSensitivity,
+      hrvSuppressionSensitivity: data.hrvSuppressionSensitivity.present
+          ? data.hrvSuppressionSensitivity.value
+          : this.hrvSuppressionSensitivity,
+      recoverySensitivity: data.recoverySensitivity.present
+          ? data.recoverySensitivity.value
+          : this.recoverySensitivity,
+      forecastSensitivity: data.forecastSensitivity.present
+          ? data.forecastSensitivity.value
+          : this.forecastSensitivity,
+      confidenceWeight: data.confidenceWeight.present
+          ? data.confidenceWeight.value
+          : this.confidenceWeight,
+      fusionWeight: data.fusionWeight.present
+          ? data.fusionWeight.value
+          : this.fusionWeight,
+      escalationThreshold: data.escalationThreshold.present
+          ? data.escalationThreshold.value
+          : this.escalationThreshold,
+      recoveryThreshold: data.recoveryThreshold.present
+          ? data.recoveryThreshold.value
+          : this.recoveryThreshold,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalibrationProfilesTableData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('heartRateSensitivity: $heartRateSensitivity, ')
+          ..write('hrvSuppressionSensitivity: $hrvSuppressionSensitivity, ')
+          ..write('recoverySensitivity: $recoverySensitivity, ')
+          ..write('forecastSensitivity: $forecastSensitivity, ')
+          ..write('confidenceWeight: $confidenceWeight, ')
+          ..write('fusionWeight: $fusionWeight, ')
+          ..write('escalationThreshold: $escalationThreshold, ')
+          ..write('recoveryThreshold: $recoveryThreshold, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    description,
+    createdAt,
+    heartRateSensitivity,
+    hrvSuppressionSensitivity,
+    recoverySensitivity,
+    forecastSensitivity,
+    confidenceWeight,
+    fusionWeight,
+    escalationThreshold,
+    recoveryThreshold,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalibrationProfilesTableData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.heartRateSensitivity == this.heartRateSensitivity &&
+          other.hrvSuppressionSensitivity == this.hrvSuppressionSensitivity &&
+          other.recoverySensitivity == this.recoverySensitivity &&
+          other.forecastSensitivity == this.forecastSensitivity &&
+          other.confidenceWeight == this.confidenceWeight &&
+          other.fusionWeight == this.fusionWeight &&
+          other.escalationThreshold == this.escalationThreshold &&
+          other.recoveryThreshold == this.recoveryThreshold &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class CalibrationProfilesTableCompanion
+    extends UpdateCompanion<CalibrationProfilesTableData> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> description;
+  final Value<DateTime> createdAt;
+  final Value<double> heartRateSensitivity;
+  final Value<double> hrvSuppressionSensitivity;
+  final Value<double> recoverySensitivity;
+  final Value<double> forecastSensitivity;
+  final Value<double> confidenceWeight;
+  final Value<double> fusionWeight;
+  final Value<double> escalationThreshold;
+  final Value<double> recoveryThreshold;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const CalibrationProfilesTableCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.heartRateSensitivity = const Value.absent(),
+    this.hrvSuppressionSensitivity = const Value.absent(),
+    this.recoverySensitivity = const Value.absent(),
+    this.forecastSensitivity = const Value.absent(),
+    this.confidenceWeight = const Value.absent(),
+    this.fusionWeight = const Value.absent(),
+    this.escalationThreshold = const Value.absent(),
+    this.recoveryThreshold = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CalibrationProfilesTableCompanion.insert({
+    required String id,
+    required String name,
+    required String description,
+    required DateTime createdAt,
+    required double heartRateSensitivity,
+    required double hrvSuppressionSensitivity,
+    required double recoverySensitivity,
+    required double forecastSensitivity,
+    required double confidenceWeight,
+    required double fusionWeight,
+    required double escalationThreshold,
+    required double recoveryThreshold,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       description = Value(description),
+       createdAt = Value(createdAt),
+       heartRateSensitivity = Value(heartRateSensitivity),
+       hrvSuppressionSensitivity = Value(hrvSuppressionSensitivity),
+       recoverySensitivity = Value(recoverySensitivity),
+       forecastSensitivity = Value(forecastSensitivity),
+       confidenceWeight = Value(confidenceWeight),
+       fusionWeight = Value(fusionWeight),
+       escalationThreshold = Value(escalationThreshold),
+       recoveryThreshold = Value(recoveryThreshold),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<CalibrationProfilesTableData> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<double>? heartRateSensitivity,
+    Expression<double>? hrvSuppressionSensitivity,
+    Expression<double>? recoverySensitivity,
+    Expression<double>? forecastSensitivity,
+    Expression<double>? confidenceWeight,
+    Expression<double>? fusionWeight,
+    Expression<double>? escalationThreshold,
+    Expression<double>? recoveryThreshold,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (heartRateSensitivity != null)
+        'heart_rate_sensitivity': heartRateSensitivity,
+      if (hrvSuppressionSensitivity != null)
+        'hrv_suppression_sensitivity': hrvSuppressionSensitivity,
+      if (recoverySensitivity != null)
+        'recovery_sensitivity': recoverySensitivity,
+      if (forecastSensitivity != null)
+        'forecast_sensitivity': forecastSensitivity,
+      if (confidenceWeight != null) 'confidence_weight': confidenceWeight,
+      if (fusionWeight != null) 'fusion_weight': fusionWeight,
+      if (escalationThreshold != null)
+        'escalation_threshold': escalationThreshold,
+      if (recoveryThreshold != null) 'recovery_threshold': recoveryThreshold,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CalibrationProfilesTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? description,
+    Value<DateTime>? createdAt,
+    Value<double>? heartRateSensitivity,
+    Value<double>? hrvSuppressionSensitivity,
+    Value<double>? recoverySensitivity,
+    Value<double>? forecastSensitivity,
+    Value<double>? confidenceWeight,
+    Value<double>? fusionWeight,
+    Value<double>? escalationThreshold,
+    Value<double>? recoveryThreshold,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return CalibrationProfilesTableCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      heartRateSensitivity: heartRateSensitivity ?? this.heartRateSensitivity,
+      hrvSuppressionSensitivity:
+          hrvSuppressionSensitivity ?? this.hrvSuppressionSensitivity,
+      recoverySensitivity: recoverySensitivity ?? this.recoverySensitivity,
+      forecastSensitivity: forecastSensitivity ?? this.forecastSensitivity,
+      confidenceWeight: confidenceWeight ?? this.confidenceWeight,
+      fusionWeight: fusionWeight ?? this.fusionWeight,
+      escalationThreshold: escalationThreshold ?? this.escalationThreshold,
+      recoveryThreshold: recoveryThreshold ?? this.recoveryThreshold,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (heartRateSensitivity.present) {
+      map['heart_rate_sensitivity'] = Variable<double>(
+        heartRateSensitivity.value,
+      );
+    }
+    if (hrvSuppressionSensitivity.present) {
+      map['hrv_suppression_sensitivity'] = Variable<double>(
+        hrvSuppressionSensitivity.value,
+      );
+    }
+    if (recoverySensitivity.present) {
+      map['recovery_sensitivity'] = Variable<double>(recoverySensitivity.value);
+    }
+    if (forecastSensitivity.present) {
+      map['forecast_sensitivity'] = Variable<double>(forecastSensitivity.value);
+    }
+    if (confidenceWeight.present) {
+      map['confidence_weight'] = Variable<double>(confidenceWeight.value);
+    }
+    if (fusionWeight.present) {
+      map['fusion_weight'] = Variable<double>(fusionWeight.value);
+    }
+    if (escalationThreshold.present) {
+      map['escalation_threshold'] = Variable<double>(escalationThreshold.value);
+    }
+    if (recoveryThreshold.present) {
+      map['recovery_threshold'] = Variable<double>(recoveryThreshold.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalibrationProfilesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('heartRateSensitivity: $heartRateSensitivity, ')
+          ..write('hrvSuppressionSensitivity: $hrvSuppressionSensitivity, ')
+          ..write('recoverySensitivity: $recoverySensitivity, ')
+          ..write('forecastSensitivity: $forecastSensitivity, ')
+          ..write('confidenceWeight: $confidenceWeight, ')
+          ..write('fusionWeight: $fusionWeight, ')
+          ..write('escalationThreshold: $escalationThreshold, ')
+          ..write('recoveryThreshold: $recoveryThreshold, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CalibrationBenchmarkResultsTableTable
+    extends CalibrationBenchmarkResultsTable
+    with
+        TableInfo<
+          $CalibrationBenchmarkResultsTableTable,
+          CalibrationBenchmarkResultsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalibrationBenchmarkResultsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileIdMeta = const VerificationMeta(
+    'profileId',
+  );
+  @override
+  late final GeneratedColumn<String> profileId = GeneratedColumn<String>(
+    'profile_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _profileNameMeta = const VerificationMeta(
+    'profileName',
+  );
+  @override
+  late final GeneratedColumn<String> profileName = GeneratedColumn<String>(
+    'profile_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastConsistencyMeta =
+      const VerificationMeta('forecastConsistency');
+  @override
+  late final GeneratedColumn<double> forecastConsistency =
+      GeneratedColumn<double>(
+        'forecast_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryConsistencyMeta =
+      const VerificationMeta('recoveryConsistency');
+  @override
+  late final GeneratedColumn<double> recoveryConsistency =
+      GeneratedColumn<double>(
+        'recovery_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _falseEscalationRateMeta =
+      const VerificationMeta('falseEscalationRate');
+  @override
+  late final GeneratedColumn<double> falseEscalationRate =
+      GeneratedColumn<double>(
+        'false_escalation_rate',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _multimodalAgreementMeta =
+      const VerificationMeta('multimodalAgreement');
+  @override
+  late final GeneratedColumn<double> multimodalAgreement =
+      GeneratedColumn<double>(
+        'multimodal_agreement',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceConsistencyMeta =
+      const VerificationMeta('confidenceConsistency');
+  @override
+  late final GeneratedColumn<double> confidenceConsistency =
+      GeneratedColumn<double>(
+        'confidence_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _benchmarkScoreMeta = const VerificationMeta(
+    'benchmarkScore',
+  );
+  @override
+  late final GeneratedColumn<double> benchmarkScore = GeneratedColumn<double>(
+    'benchmark_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rankingPositionMeta = const VerificationMeta(
+    'rankingPosition',
+  );
+  @override
+  late final GeneratedColumn<int> rankingPosition = GeneratedColumn<int>(
+    'ranking_position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    profileId,
+    profileName,
+    sessionId,
+    forecastConsistency,
+    recoveryConsistency,
+    falseEscalationRate,
+    multimodalAgreement,
+    confidenceConsistency,
+    benchmarkScore,
+    rankingPosition,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calibration_benchmark_results_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalibrationBenchmarkResultsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('profile_id')) {
+      context.handle(
+        _profileIdMeta,
+        profileId.isAcceptableOrUnknown(data['profile_id']!, _profileIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_profileIdMeta);
+    }
+    if (data.containsKey('profile_name')) {
+      context.handle(
+        _profileNameMeta,
+        profileName.isAcceptableOrUnknown(
+          data['profile_name']!,
+          _profileNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_profileNameMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('forecast_consistency')) {
+      context.handle(
+        _forecastConsistencyMeta,
+        forecastConsistency.isAcceptableOrUnknown(
+          data['forecast_consistency']!,
+          _forecastConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastConsistencyMeta);
+    }
+    if (data.containsKey('recovery_consistency')) {
+      context.handle(
+        _recoveryConsistencyMeta,
+        recoveryConsistency.isAcceptableOrUnknown(
+          data['recovery_consistency']!,
+          _recoveryConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryConsistencyMeta);
+    }
+    if (data.containsKey('false_escalation_rate')) {
+      context.handle(
+        _falseEscalationRateMeta,
+        falseEscalationRate.isAcceptableOrUnknown(
+          data['false_escalation_rate']!,
+          _falseEscalationRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_falseEscalationRateMeta);
+    }
+    if (data.containsKey('multimodal_agreement')) {
+      context.handle(
+        _multimodalAgreementMeta,
+        multimodalAgreement.isAcceptableOrUnknown(
+          data['multimodal_agreement']!,
+          _multimodalAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalAgreementMeta);
+    }
+    if (data.containsKey('confidence_consistency')) {
+      context.handle(
+        _confidenceConsistencyMeta,
+        confidenceConsistency.isAcceptableOrUnknown(
+          data['confidence_consistency']!,
+          _confidenceConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceConsistencyMeta);
+    }
+    if (data.containsKey('benchmark_score')) {
+      context.handle(
+        _benchmarkScoreMeta,
+        benchmarkScore.isAcceptableOrUnknown(
+          data['benchmark_score']!,
+          _benchmarkScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_benchmarkScoreMeta);
+    }
+    if (data.containsKey('ranking_position')) {
+      context.handle(
+        _rankingPositionMeta,
+        rankingPosition.isAcceptableOrUnknown(
+          data['ranking_position']!,
+          _rankingPositionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rankingPositionMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CalibrationBenchmarkResultsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalibrationBenchmarkResultsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      profileId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_id'],
+      )!,
+      profileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}profile_name'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      forecastConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}forecast_consistency'],
+      )!,
+      recoveryConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_consistency'],
+      )!,
+      falseEscalationRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}false_escalation_rate'],
+      )!,
+      multimodalAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}multimodal_agreement'],
+      )!,
+      confidenceConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence_consistency'],
+      )!,
+      benchmarkScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}benchmark_score'],
+      )!,
+      rankingPosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ranking_position'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $CalibrationBenchmarkResultsTableTable createAlias(String alias) {
+    return $CalibrationBenchmarkResultsTableTable(attachedDatabase, alias);
+  }
+}
+
+class CalibrationBenchmarkResultsTableData extends DataClass
+    implements Insertable<CalibrationBenchmarkResultsTableData> {
+  final String id;
+  final DateTime createdAt;
+  final String profileId;
+  final String profileName;
+  final String sessionId;
+  final double forecastConsistency;
+  final double recoveryConsistency;
+  final double falseEscalationRate;
+  final double multimodalAgreement;
+  final double confidenceConsistency;
+  final double benchmarkScore;
+  final int rankingPosition;
+  final String safetyCopy;
+  const CalibrationBenchmarkResultsTableData({
+    required this.id,
+    required this.createdAt,
+    required this.profileId,
+    required this.profileName,
+    required this.sessionId,
+    required this.forecastConsistency,
+    required this.recoveryConsistency,
+    required this.falseEscalationRate,
+    required this.multimodalAgreement,
+    required this.confidenceConsistency,
+    required this.benchmarkScore,
+    required this.rankingPosition,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['profile_id'] = Variable<String>(profileId);
+    map['profile_name'] = Variable<String>(profileName);
+    map['session_id'] = Variable<String>(sessionId);
+    map['forecast_consistency'] = Variable<double>(forecastConsistency);
+    map['recovery_consistency'] = Variable<double>(recoveryConsistency);
+    map['false_escalation_rate'] = Variable<double>(falseEscalationRate);
+    map['multimodal_agreement'] = Variable<double>(multimodalAgreement);
+    map['confidence_consistency'] = Variable<double>(confidenceConsistency);
+    map['benchmark_score'] = Variable<double>(benchmarkScore);
+    map['ranking_position'] = Variable<int>(rankingPosition);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  CalibrationBenchmarkResultsTableCompanion toCompanion(bool nullToAbsent) {
+    return CalibrationBenchmarkResultsTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      profileId: Value(profileId),
+      profileName: Value(profileName),
+      sessionId: Value(sessionId),
+      forecastConsistency: Value(forecastConsistency),
+      recoveryConsistency: Value(recoveryConsistency),
+      falseEscalationRate: Value(falseEscalationRate),
+      multimodalAgreement: Value(multimodalAgreement),
+      confidenceConsistency: Value(confidenceConsistency),
+      benchmarkScore: Value(benchmarkScore),
+      rankingPosition: Value(rankingPosition),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory CalibrationBenchmarkResultsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalibrationBenchmarkResultsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      profileId: serializer.fromJson<String>(json['profileId']),
+      profileName: serializer.fromJson<String>(json['profileName']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      forecastConsistency: serializer.fromJson<double>(
+        json['forecastConsistency'],
+      ),
+      recoveryConsistency: serializer.fromJson<double>(
+        json['recoveryConsistency'],
+      ),
+      falseEscalationRate: serializer.fromJson<double>(
+        json['falseEscalationRate'],
+      ),
+      multimodalAgreement: serializer.fromJson<double>(
+        json['multimodalAgreement'],
+      ),
+      confidenceConsistency: serializer.fromJson<double>(
+        json['confidenceConsistency'],
+      ),
+      benchmarkScore: serializer.fromJson<double>(json['benchmarkScore']),
+      rankingPosition: serializer.fromJson<int>(json['rankingPosition']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'profileId': serializer.toJson<String>(profileId),
+      'profileName': serializer.toJson<String>(profileName),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'forecastConsistency': serializer.toJson<double>(forecastConsistency),
+      'recoveryConsistency': serializer.toJson<double>(recoveryConsistency),
+      'falseEscalationRate': serializer.toJson<double>(falseEscalationRate),
+      'multimodalAgreement': serializer.toJson<double>(multimodalAgreement),
+      'confidenceConsistency': serializer.toJson<double>(confidenceConsistency),
+      'benchmarkScore': serializer.toJson<double>(benchmarkScore),
+      'rankingPosition': serializer.toJson<int>(rankingPosition),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  CalibrationBenchmarkResultsTableData copyWith({
+    String? id,
+    DateTime? createdAt,
+    String? profileId,
+    String? profileName,
+    String? sessionId,
+    double? forecastConsistency,
+    double? recoveryConsistency,
+    double? falseEscalationRate,
+    double? multimodalAgreement,
+    double? confidenceConsistency,
+    double? benchmarkScore,
+    int? rankingPosition,
+    String? safetyCopy,
+  }) => CalibrationBenchmarkResultsTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    profileId: profileId ?? this.profileId,
+    profileName: profileName ?? this.profileName,
+    sessionId: sessionId ?? this.sessionId,
+    forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+    recoveryConsistency: recoveryConsistency ?? this.recoveryConsistency,
+    falseEscalationRate: falseEscalationRate ?? this.falseEscalationRate,
+    multimodalAgreement: multimodalAgreement ?? this.multimodalAgreement,
+    confidenceConsistency: confidenceConsistency ?? this.confidenceConsistency,
+    benchmarkScore: benchmarkScore ?? this.benchmarkScore,
+    rankingPosition: rankingPosition ?? this.rankingPosition,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  CalibrationBenchmarkResultsTableData copyWithCompanion(
+    CalibrationBenchmarkResultsTableCompanion data,
+  ) {
+    return CalibrationBenchmarkResultsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      profileId: data.profileId.present ? data.profileId.value : this.profileId,
+      profileName: data.profileName.present
+          ? data.profileName.value
+          : this.profileName,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      forecastConsistency: data.forecastConsistency.present
+          ? data.forecastConsistency.value
+          : this.forecastConsistency,
+      recoveryConsistency: data.recoveryConsistency.present
+          ? data.recoveryConsistency.value
+          : this.recoveryConsistency,
+      falseEscalationRate: data.falseEscalationRate.present
+          ? data.falseEscalationRate.value
+          : this.falseEscalationRate,
+      multimodalAgreement: data.multimodalAgreement.present
+          ? data.multimodalAgreement.value
+          : this.multimodalAgreement,
+      confidenceConsistency: data.confidenceConsistency.present
+          ? data.confidenceConsistency.value
+          : this.confidenceConsistency,
+      benchmarkScore: data.benchmarkScore.present
+          ? data.benchmarkScore.value
+          : this.benchmarkScore,
+      rankingPosition: data.rankingPosition.present
+          ? data.rankingPosition.value
+          : this.rankingPosition,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalibrationBenchmarkResultsTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('profileId: $profileId, ')
+          ..write('profileName: $profileName, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('recoveryConsistency: $recoveryConsistency, ')
+          ..write('falseEscalationRate: $falseEscalationRate, ')
+          ..write('multimodalAgreement: $multimodalAgreement, ')
+          ..write('confidenceConsistency: $confidenceConsistency, ')
+          ..write('benchmarkScore: $benchmarkScore, ')
+          ..write('rankingPosition: $rankingPosition, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    profileId,
+    profileName,
+    sessionId,
+    forecastConsistency,
+    recoveryConsistency,
+    falseEscalationRate,
+    multimodalAgreement,
+    confidenceConsistency,
+    benchmarkScore,
+    rankingPosition,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalibrationBenchmarkResultsTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.profileId == this.profileId &&
+          other.profileName == this.profileName &&
+          other.sessionId == this.sessionId &&
+          other.forecastConsistency == this.forecastConsistency &&
+          other.recoveryConsistency == this.recoveryConsistency &&
+          other.falseEscalationRate == this.falseEscalationRate &&
+          other.multimodalAgreement == this.multimodalAgreement &&
+          other.confidenceConsistency == this.confidenceConsistency &&
+          other.benchmarkScore == this.benchmarkScore &&
+          other.rankingPosition == this.rankingPosition &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class CalibrationBenchmarkResultsTableCompanion
+    extends UpdateCompanion<CalibrationBenchmarkResultsTableData> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<String> profileId;
+  final Value<String> profileName;
+  final Value<String> sessionId;
+  final Value<double> forecastConsistency;
+  final Value<double> recoveryConsistency;
+  final Value<double> falseEscalationRate;
+  final Value<double> multimodalAgreement;
+  final Value<double> confidenceConsistency;
+  final Value<double> benchmarkScore;
+  final Value<int> rankingPosition;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const CalibrationBenchmarkResultsTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.profileId = const Value.absent(),
+    this.profileName = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.forecastConsistency = const Value.absent(),
+    this.recoveryConsistency = const Value.absent(),
+    this.falseEscalationRate = const Value.absent(),
+    this.multimodalAgreement = const Value.absent(),
+    this.confidenceConsistency = const Value.absent(),
+    this.benchmarkScore = const Value.absent(),
+    this.rankingPosition = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CalibrationBenchmarkResultsTableCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required String profileId,
+    required String profileName,
+    required String sessionId,
+    required double forecastConsistency,
+    required double recoveryConsistency,
+    required double falseEscalationRate,
+    required double multimodalAgreement,
+    required double confidenceConsistency,
+    required double benchmarkScore,
+    required int rankingPosition,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       profileId = Value(profileId),
+       profileName = Value(profileName),
+       sessionId = Value(sessionId),
+       forecastConsistency = Value(forecastConsistency),
+       recoveryConsistency = Value(recoveryConsistency),
+       falseEscalationRate = Value(falseEscalationRate),
+       multimodalAgreement = Value(multimodalAgreement),
+       confidenceConsistency = Value(confidenceConsistency),
+       benchmarkScore = Value(benchmarkScore),
+       rankingPosition = Value(rankingPosition),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<CalibrationBenchmarkResultsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<String>? profileId,
+    Expression<String>? profileName,
+    Expression<String>? sessionId,
+    Expression<double>? forecastConsistency,
+    Expression<double>? recoveryConsistency,
+    Expression<double>? falseEscalationRate,
+    Expression<double>? multimodalAgreement,
+    Expression<double>? confidenceConsistency,
+    Expression<double>? benchmarkScore,
+    Expression<int>? rankingPosition,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (profileId != null) 'profile_id': profileId,
+      if (profileName != null) 'profile_name': profileName,
+      if (sessionId != null) 'session_id': sessionId,
+      if (forecastConsistency != null)
+        'forecast_consistency': forecastConsistency,
+      if (recoveryConsistency != null)
+        'recovery_consistency': recoveryConsistency,
+      if (falseEscalationRate != null)
+        'false_escalation_rate': falseEscalationRate,
+      if (multimodalAgreement != null)
+        'multimodal_agreement': multimodalAgreement,
+      if (confidenceConsistency != null)
+        'confidence_consistency': confidenceConsistency,
+      if (benchmarkScore != null) 'benchmark_score': benchmarkScore,
+      if (rankingPosition != null) 'ranking_position': rankingPosition,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CalibrationBenchmarkResultsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<String>? profileId,
+    Value<String>? profileName,
+    Value<String>? sessionId,
+    Value<double>? forecastConsistency,
+    Value<double>? recoveryConsistency,
+    Value<double>? falseEscalationRate,
+    Value<double>? multimodalAgreement,
+    Value<double>? confidenceConsistency,
+    Value<double>? benchmarkScore,
+    Value<int>? rankingPosition,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return CalibrationBenchmarkResultsTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      profileId: profileId ?? this.profileId,
+      profileName: profileName ?? this.profileName,
+      sessionId: sessionId ?? this.sessionId,
+      forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+      recoveryConsistency: recoveryConsistency ?? this.recoveryConsistency,
+      falseEscalationRate: falseEscalationRate ?? this.falseEscalationRate,
+      multimodalAgreement: multimodalAgreement ?? this.multimodalAgreement,
+      confidenceConsistency:
+          confidenceConsistency ?? this.confidenceConsistency,
+      benchmarkScore: benchmarkScore ?? this.benchmarkScore,
+      rankingPosition: rankingPosition ?? this.rankingPosition,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (profileId.present) {
+      map['profile_id'] = Variable<String>(profileId.value);
+    }
+    if (profileName.present) {
+      map['profile_name'] = Variable<String>(profileName.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (forecastConsistency.present) {
+      map['forecast_consistency'] = Variable<double>(forecastConsistency.value);
+    }
+    if (recoveryConsistency.present) {
+      map['recovery_consistency'] = Variable<double>(recoveryConsistency.value);
+    }
+    if (falseEscalationRate.present) {
+      map['false_escalation_rate'] = Variable<double>(
+        falseEscalationRate.value,
+      );
+    }
+    if (multimodalAgreement.present) {
+      map['multimodal_agreement'] = Variable<double>(multimodalAgreement.value);
+    }
+    if (confidenceConsistency.present) {
+      map['confidence_consistency'] = Variable<double>(
+        confidenceConsistency.value,
+      );
+    }
+    if (benchmarkScore.present) {
+      map['benchmark_score'] = Variable<double>(benchmarkScore.value);
+    }
+    if (rankingPosition.present) {
+      map['ranking_position'] = Variable<int>(rankingPosition.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalibrationBenchmarkResultsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('profileId: $profileId, ')
+          ..write('profileName: $profileName, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('recoveryConsistency: $recoveryConsistency, ')
+          ..write('falseEscalationRate: $falseEscalationRate, ')
+          ..write('multimodalAgreement: $multimodalAgreement, ')
+          ..write('confidenceConsistency: $confidenceConsistency, ')
+          ..write('benchmarkScore: $benchmarkScore, ')
+          ..write('rankingPosition: $rankingPosition, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -21481,6 +23141,12 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $SessionSnapshotsTableTable(this);
   late final $ReplayBenchmarkResultsTableTable replayBenchmarkResultsTable =
       $ReplayBenchmarkResultsTableTable(this);
+  late final $CalibrationProfilesTableTable calibrationProfilesTable =
+      $CalibrationProfilesTableTable(this);
+  late final $CalibrationBenchmarkResultsTableTable
+  calibrationBenchmarkResultsTable = $CalibrationBenchmarkResultsTableTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -21517,6 +23183,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     recordedExperimentalSessionsTable,
     sessionSnapshotsTable,
     replayBenchmarkResultsTable,
+    calibrationProfilesTable,
+    calibrationBenchmarkResultsTable,
   ];
 }
 
@@ -32079,6 +33747,789 @@ typedef $$ReplayBenchmarkResultsTableTableProcessedTableManager =
       ReplayBenchmarkResultsTableData,
       PrefetchHooks Function()
     >;
+typedef $$CalibrationProfilesTableTableCreateCompanionBuilder =
+    CalibrationProfilesTableCompanion Function({
+      required String id,
+      required String name,
+      required String description,
+      required DateTime createdAt,
+      required double heartRateSensitivity,
+      required double hrvSuppressionSensitivity,
+      required double recoverySensitivity,
+      required double forecastSensitivity,
+      required double confidenceWeight,
+      required double fusionWeight,
+      required double escalationThreshold,
+      required double recoveryThreshold,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$CalibrationProfilesTableTableUpdateCompanionBuilder =
+    CalibrationProfilesTableCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> description,
+      Value<DateTime> createdAt,
+      Value<double> heartRateSensitivity,
+      Value<double> hrvSuppressionSensitivity,
+      Value<double> recoverySensitivity,
+      Value<double> forecastSensitivity,
+      Value<double> confidenceWeight,
+      Value<double> fusionWeight,
+      Value<double> escalationThreshold,
+      Value<double> recoveryThreshold,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$CalibrationProfilesTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $CalibrationProfilesTableTable> {
+  $$CalibrationProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heartRateSensitivity => $composableBuilder(
+    column: $table.heartRateSensitivity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrvSuppressionSensitivity => $composableBuilder(
+    column: $table.hrvSuppressionSensitivity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoverySensitivity => $composableBuilder(
+    column: $table.recoverySensitivity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get forecastSensitivity => $composableBuilder(
+    column: $table.forecastSensitivity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidenceWeight => $composableBuilder(
+    column: $table.confidenceWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get fusionWeight => $composableBuilder(
+    column: $table.fusionWeight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get escalationThreshold => $composableBuilder(
+    column: $table.escalationThreshold,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryThreshold => $composableBuilder(
+    column: $table.recoveryThreshold,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalibrationProfilesTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $CalibrationProfilesTableTable> {
+  $$CalibrationProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heartRateSensitivity => $composableBuilder(
+    column: $table.heartRateSensitivity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrvSuppressionSensitivity => $composableBuilder(
+    column: $table.hrvSuppressionSensitivity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoverySensitivity => $composableBuilder(
+    column: $table.recoverySensitivity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get forecastSensitivity => $composableBuilder(
+    column: $table.forecastSensitivity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidenceWeight => $composableBuilder(
+    column: $table.confidenceWeight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get fusionWeight => $composableBuilder(
+    column: $table.fusionWeight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get escalationThreshold => $composableBuilder(
+    column: $table.escalationThreshold,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryThreshold => $composableBuilder(
+    column: $table.recoveryThreshold,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalibrationProfilesTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $CalibrationProfilesTableTable> {
+  $$CalibrationProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<double> get heartRateSensitivity => $composableBuilder(
+    column: $table.heartRateSensitivity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get hrvSuppressionSensitivity => $composableBuilder(
+    column: $table.hrvSuppressionSensitivity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoverySensitivity => $composableBuilder(
+    column: $table.recoverySensitivity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get forecastSensitivity => $composableBuilder(
+    column: $table.forecastSensitivity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidenceWeight => $composableBuilder(
+    column: $table.confidenceWeight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get fusionWeight => $composableBuilder(
+    column: $table.fusionWeight,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get escalationThreshold => $composableBuilder(
+    column: $table.escalationThreshold,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryThreshold => $composableBuilder(
+    column: $table.recoveryThreshold,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$CalibrationProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $CalibrationProfilesTableTable,
+          CalibrationProfilesTableData,
+          $$CalibrationProfilesTableTableFilterComposer,
+          $$CalibrationProfilesTableTableOrderingComposer,
+          $$CalibrationProfilesTableTableAnnotationComposer,
+          $$CalibrationProfilesTableTableCreateCompanionBuilder,
+          $$CalibrationProfilesTableTableUpdateCompanionBuilder,
+          (
+            CalibrationProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $CalibrationProfilesTableTable,
+              CalibrationProfilesTableData
+            >,
+          ),
+          CalibrationProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$CalibrationProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $CalibrationProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CalibrationProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CalibrationProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CalibrationProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<double> heartRateSensitivity = const Value.absent(),
+                Value<double> hrvSuppressionSensitivity = const Value.absent(),
+                Value<double> recoverySensitivity = const Value.absent(),
+                Value<double> forecastSensitivity = const Value.absent(),
+                Value<double> confidenceWeight = const Value.absent(),
+                Value<double> fusionWeight = const Value.absent(),
+                Value<double> escalationThreshold = const Value.absent(),
+                Value<double> recoveryThreshold = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CalibrationProfilesTableCompanion(
+                id: id,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                heartRateSensitivity: heartRateSensitivity,
+                hrvSuppressionSensitivity: hrvSuppressionSensitivity,
+                recoverySensitivity: recoverySensitivity,
+                forecastSensitivity: forecastSensitivity,
+                confidenceWeight: confidenceWeight,
+                fusionWeight: fusionWeight,
+                escalationThreshold: escalationThreshold,
+                recoveryThreshold: recoveryThreshold,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String description,
+                required DateTime createdAt,
+                required double heartRateSensitivity,
+                required double hrvSuppressionSensitivity,
+                required double recoverySensitivity,
+                required double forecastSensitivity,
+                required double confidenceWeight,
+                required double fusionWeight,
+                required double escalationThreshold,
+                required double recoveryThreshold,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => CalibrationProfilesTableCompanion.insert(
+                id: id,
+                name: name,
+                description: description,
+                createdAt: createdAt,
+                heartRateSensitivity: heartRateSensitivity,
+                hrvSuppressionSensitivity: hrvSuppressionSensitivity,
+                recoverySensitivity: recoverySensitivity,
+                forecastSensitivity: forecastSensitivity,
+                confidenceWeight: confidenceWeight,
+                fusionWeight: fusionWeight,
+                escalationThreshold: escalationThreshold,
+                recoveryThreshold: recoveryThreshold,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalibrationProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $CalibrationProfilesTableTable,
+      CalibrationProfilesTableData,
+      $$CalibrationProfilesTableTableFilterComposer,
+      $$CalibrationProfilesTableTableOrderingComposer,
+      $$CalibrationProfilesTableTableAnnotationComposer,
+      $$CalibrationProfilesTableTableCreateCompanionBuilder,
+      $$CalibrationProfilesTableTableUpdateCompanionBuilder,
+      (
+        CalibrationProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $CalibrationProfilesTableTable,
+          CalibrationProfilesTableData
+        >,
+      ),
+      CalibrationProfilesTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$CalibrationBenchmarkResultsTableTableCreateCompanionBuilder =
+    CalibrationBenchmarkResultsTableCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required String profileId,
+      required String profileName,
+      required String sessionId,
+      required double forecastConsistency,
+      required double recoveryConsistency,
+      required double falseEscalationRate,
+      required double multimodalAgreement,
+      required double confidenceConsistency,
+      required double benchmarkScore,
+      required int rankingPosition,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$CalibrationBenchmarkResultsTableTableUpdateCompanionBuilder =
+    CalibrationBenchmarkResultsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<String> profileId,
+      Value<String> profileName,
+      Value<String> sessionId,
+      Value<double> forecastConsistency,
+      Value<double> recoveryConsistency,
+      Value<double> falseEscalationRate,
+      Value<double> multimodalAgreement,
+      Value<double> confidenceConsistency,
+      Value<double> benchmarkScore,
+      Value<int> rankingPosition,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$CalibrationBenchmarkResultsTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $CalibrationBenchmarkResultsTableTable> {
+  $$CalibrationBenchmarkResultsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get profileName => $composableBuilder(
+    column: $table.profileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rankingPosition => $composableBuilder(
+    column: $table.rankingPosition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalibrationBenchmarkResultsTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $CalibrationBenchmarkResultsTableTable> {
+  $$CalibrationBenchmarkResultsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileId => $composableBuilder(
+    column: $table.profileId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get profileName => $composableBuilder(
+    column: $table.profileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get rankingPosition => $composableBuilder(
+    column: $table.rankingPosition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalibrationBenchmarkResultsTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $CalibrationBenchmarkResultsTableTable> {
+  $$CalibrationBenchmarkResultsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get profileId =>
+      $composableBuilder(column: $table.profileId, builder: (column) => column);
+
+  GeneratedColumn<String> get profileName => $composableBuilder(
+    column: $table.profileName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get rankingPosition => $composableBuilder(
+    column: $table.rankingPosition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$CalibrationBenchmarkResultsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $CalibrationBenchmarkResultsTableTable,
+          CalibrationBenchmarkResultsTableData,
+          $$CalibrationBenchmarkResultsTableTableFilterComposer,
+          $$CalibrationBenchmarkResultsTableTableOrderingComposer,
+          $$CalibrationBenchmarkResultsTableTableAnnotationComposer,
+          $$CalibrationBenchmarkResultsTableTableCreateCompanionBuilder,
+          $$CalibrationBenchmarkResultsTableTableUpdateCompanionBuilder,
+          (
+            CalibrationBenchmarkResultsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $CalibrationBenchmarkResultsTableTable,
+              CalibrationBenchmarkResultsTableData
+            >,
+          ),
+          CalibrationBenchmarkResultsTableData,
+          PrefetchHooks Function()
+        > {
+  $$CalibrationBenchmarkResultsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $CalibrationBenchmarkResultsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CalibrationBenchmarkResultsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CalibrationBenchmarkResultsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CalibrationBenchmarkResultsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<String> profileId = const Value.absent(),
+                Value<String> profileName = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<double> forecastConsistency = const Value.absent(),
+                Value<double> recoveryConsistency = const Value.absent(),
+                Value<double> falseEscalationRate = const Value.absent(),
+                Value<double> multimodalAgreement = const Value.absent(),
+                Value<double> confidenceConsistency = const Value.absent(),
+                Value<double> benchmarkScore = const Value.absent(),
+                Value<int> rankingPosition = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CalibrationBenchmarkResultsTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                profileId: profileId,
+                profileName: profileName,
+                sessionId: sessionId,
+                forecastConsistency: forecastConsistency,
+                recoveryConsistency: recoveryConsistency,
+                falseEscalationRate: falseEscalationRate,
+                multimodalAgreement: multimodalAgreement,
+                confidenceConsistency: confidenceConsistency,
+                benchmarkScore: benchmarkScore,
+                rankingPosition: rankingPosition,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required String profileId,
+                required String profileName,
+                required String sessionId,
+                required double forecastConsistency,
+                required double recoveryConsistency,
+                required double falseEscalationRate,
+                required double multimodalAgreement,
+                required double confidenceConsistency,
+                required double benchmarkScore,
+                required int rankingPosition,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => CalibrationBenchmarkResultsTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                profileId: profileId,
+                profileName: profileName,
+                sessionId: sessionId,
+                forecastConsistency: forecastConsistency,
+                recoveryConsistency: recoveryConsistency,
+                falseEscalationRate: falseEscalationRate,
+                multimodalAgreement: multimodalAgreement,
+                confidenceConsistency: confidenceConsistency,
+                benchmarkScore: benchmarkScore,
+                rankingPosition: rankingPosition,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalibrationBenchmarkResultsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $CalibrationBenchmarkResultsTableTable,
+      CalibrationBenchmarkResultsTableData,
+      $$CalibrationBenchmarkResultsTableTableFilterComposer,
+      $$CalibrationBenchmarkResultsTableTableOrderingComposer,
+      $$CalibrationBenchmarkResultsTableTableAnnotationComposer,
+      $$CalibrationBenchmarkResultsTableTableCreateCompanionBuilder,
+      $$CalibrationBenchmarkResultsTableTableUpdateCompanionBuilder,
+      (
+        CalibrationBenchmarkResultsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $CalibrationBenchmarkResultsTableTable,
+          CalibrationBenchmarkResultsTableData
+        >,
+      ),
+      CalibrationBenchmarkResultsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -32235,5 +34686,16 @@ class $SignalFlowDatabaseManager {
       $$ReplayBenchmarkResultsTableTableTableManager(
         _db,
         _db.replayBenchmarkResultsTable,
+      );
+  $$CalibrationProfilesTableTableTableManager get calibrationProfilesTable =>
+      $$CalibrationProfilesTableTableTableManager(
+        _db,
+        _db.calibrationProfilesTable,
+      );
+  $$CalibrationBenchmarkResultsTableTableTableManager
+  get calibrationBenchmarkResultsTable =>
+      $$CalibrationBenchmarkResultsTableTableTableManager(
+        _db,
+        _db.calibrationBenchmarkResultsTable,
       );
 }
