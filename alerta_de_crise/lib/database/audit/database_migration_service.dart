@@ -61,6 +61,11 @@ class DatabaseMigrationService {
         toVersion: 10,
         description: 'Longitudinal cohort analysis persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 10,
+        toVersion: 11,
+        description: 'Realtime streaming persistence.',
+      ),
     ];
   }
 

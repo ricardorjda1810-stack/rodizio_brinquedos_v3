@@ -35,6 +35,7 @@ class DatabaseIntegrityService {
       'contextual_intervention_recommendations_table',
       'cohort_analysis_results_table',
       'physiological_evolution_profiles_table',
+      'realtime_pipeline_snapshots_table',
     ];
 
     final baselines = await _database
@@ -91,6 +92,9 @@ class DatabaseIntegrityService {
     final evolutionProfiles = await _database
         .select(_database.physiologicalEvolutionProfilesTable)
         .get();
+    final realtimeSnapshots = await _database
+        .select(_database.realtimePipelineSnapshotsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -114,6 +118,7 @@ class DatabaseIntegrityService {
     );
     _auditCohortAnalyses(cohortAnalyses, issues, warnings);
     _auditEvolutionProfiles(evolutionProfiles, issues, warnings);
+    _auditRealtimeSnapshots(realtimeSnapshots, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -133,7 +138,8 @@ class DatabaseIntegrityService {
         learningProfiles.length +
         interventionRecommendations.length +
         cohortAnalyses.length +
-        evolutionProfiles.length;
+        evolutionProfiles.length +
+        realtimeSnapshots.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -838,6 +844,37 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('não representa diagnóstico')) {
         warnings.add(
           'Evolution profile ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditRealtimeSnapshots(
+    List<RealtimePipelineSnapshotsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validStates = {'stopped', 'running', 'paused'};
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Realtime snapshot with empty id.');
+      }
+      if (row.bufferSize < 0) {
+        issues.add('Realtime snapshot ${row.id} has negative buffer size.');
+      }
+      if (row.rollingHeartRate < 0 ||
+          row.rollingHrv < 0 ||
+          !_isPercent(row.rollingConfidence) ||
+          !_isPercent(row.rollingEscalationDensity) ||
+          !_isPercent(row.latestEscalationProbability)) {
+        issues.add('Realtime snapshot ${row.id} has invalid rolling metrics.');
+      }
+      if (!validStates.contains(row.streamingState)) {
+        issues.add('Realtime snapshot ${row.id} has invalid streaming state.');
+      }
+      if (!row.safetyCopy.contains('não monitoramento médico contínuo')) {
+        warnings.add(
+          'Realtime snapshot ${row.id} is missing explicit safety copy.',
         );
       }
     }

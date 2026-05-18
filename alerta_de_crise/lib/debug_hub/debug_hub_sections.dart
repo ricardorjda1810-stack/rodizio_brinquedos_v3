@@ -14,6 +14,7 @@ import '../ui/crisis_detection/personalized_intervention_debug_page.dart';
 import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/predictive_forecast_debug_page.dart';
+import '../ui/crisis_detection/realtime_streaming_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_dashboard_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
@@ -84,6 +85,11 @@ class SignalFlowDebugHubSections {
             label: 'Longitudinal Analysis',
             description: 'Tendência longitudinal e padrões ao longo do tempo.',
             builder: (_) => const LongitudinalAnalysisDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Realtime Streaming',
+            description: 'Streaming experimental com rolling windows.',
+            builder: (_) => const RealtimeStreamingDebugPage(),
           ),
         ],
       ),

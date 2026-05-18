@@ -11980,6 +11980,686 @@ class PhysiologicalEvolutionProfilesTableCompanion
   }
 }
 
+class $RealtimePipelineSnapshotsTableTable
+    extends RealtimePipelineSnapshotsTable
+    with
+        TableInfo<
+          $RealtimePipelineSnapshotsTableTable,
+          RealtimePipelineSnapshotsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RealtimePipelineSnapshotsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bufferSizeMeta = const VerificationMeta(
+    'bufferSize',
+  );
+  @override
+  late final GeneratedColumn<int> bufferSize = GeneratedColumn<int>(
+    'buffer_size',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rollingHeartRateMeta = const VerificationMeta(
+    'rollingHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> rollingHeartRate = GeneratedColumn<double>(
+    'rolling_heart_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rollingHrvMeta = const VerificationMeta(
+    'rollingHrv',
+  );
+  @override
+  late final GeneratedColumn<double> rollingHrv = GeneratedColumn<double>(
+    'rolling_hrv',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _rollingConfidenceMeta = const VerificationMeta(
+    'rollingConfidence',
+  );
+  @override
+  late final GeneratedColumn<double> rollingConfidence =
+      GeneratedColumn<double>(
+        'rolling_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _rollingEscalationDensityMeta =
+      const VerificationMeta('rollingEscalationDensity');
+  @override
+  late final GeneratedColumn<double> rollingEscalationDensity =
+      GeneratedColumn<double>(
+        'rolling_escalation_density',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _latestEscalationProbabilityMeta =
+      const VerificationMeta('latestEscalationProbability');
+  @override
+  late final GeneratedColumn<double> latestEscalationProbability =
+      GeneratedColumn<double>(
+        'latest_escalation_probability',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _streamingStateMeta = const VerificationMeta(
+    'streamingState',
+  );
+  @override
+  late final GeneratedColumn<String> streamingState = GeneratedColumn<String>(
+    'streaming_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    bufferSize,
+    rollingHeartRate,
+    rollingHrv,
+    rollingConfidence,
+    rollingEscalationDensity,
+    latestEscalationProbability,
+    streamingState,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'realtime_pipeline_snapshots_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RealtimePipelineSnapshotsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('buffer_size')) {
+      context.handle(
+        _bufferSizeMeta,
+        bufferSize.isAcceptableOrUnknown(data['buffer_size']!, _bufferSizeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bufferSizeMeta);
+    }
+    if (data.containsKey('rolling_heart_rate')) {
+      context.handle(
+        _rollingHeartRateMeta,
+        rollingHeartRate.isAcceptableOrUnknown(
+          data['rolling_heart_rate']!,
+          _rollingHeartRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rollingHeartRateMeta);
+    }
+    if (data.containsKey('rolling_hrv')) {
+      context.handle(
+        _rollingHrvMeta,
+        rollingHrv.isAcceptableOrUnknown(data['rolling_hrv']!, _rollingHrvMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rollingHrvMeta);
+    }
+    if (data.containsKey('rolling_confidence')) {
+      context.handle(
+        _rollingConfidenceMeta,
+        rollingConfidence.isAcceptableOrUnknown(
+          data['rolling_confidence']!,
+          _rollingConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rollingConfidenceMeta);
+    }
+    if (data.containsKey('rolling_escalation_density')) {
+      context.handle(
+        _rollingEscalationDensityMeta,
+        rollingEscalationDensity.isAcceptableOrUnknown(
+          data['rolling_escalation_density']!,
+          _rollingEscalationDensityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_rollingEscalationDensityMeta);
+    }
+    if (data.containsKey('latest_escalation_probability')) {
+      context.handle(
+        _latestEscalationProbabilityMeta,
+        latestEscalationProbability.isAcceptableOrUnknown(
+          data['latest_escalation_probability']!,
+          _latestEscalationProbabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_latestEscalationProbabilityMeta);
+    }
+    if (data.containsKey('streaming_state')) {
+      context.handle(
+        _streamingStateMeta,
+        streamingState.isAcceptableOrUnknown(
+          data['streaming_state']!,
+          _streamingStateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_streamingStateMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RealtimePipelineSnapshotsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RealtimePipelineSnapshotsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      bufferSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}buffer_size'],
+      )!,
+      rollingHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rolling_heart_rate'],
+      )!,
+      rollingHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rolling_hrv'],
+      )!,
+      rollingConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rolling_confidence'],
+      )!,
+      rollingEscalationDensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}rolling_escalation_density'],
+      )!,
+      latestEscalationProbability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}latest_escalation_probability'],
+      )!,
+      streamingState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}streaming_state'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $RealtimePipelineSnapshotsTableTable createAlias(String alias) {
+    return $RealtimePipelineSnapshotsTableTable(attachedDatabase, alias);
+  }
+}
+
+class RealtimePipelineSnapshotsTableData extends DataClass
+    implements Insertable<RealtimePipelineSnapshotsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final int bufferSize;
+  final double rollingHeartRate;
+  final double rollingHrv;
+  final double rollingConfidence;
+  final double rollingEscalationDensity;
+  final double latestEscalationProbability;
+  final String streamingState;
+  final String safetyCopy;
+  const RealtimePipelineSnapshotsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.bufferSize,
+    required this.rollingHeartRate,
+    required this.rollingHrv,
+    required this.rollingConfidence,
+    required this.rollingEscalationDensity,
+    required this.latestEscalationProbability,
+    required this.streamingState,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['buffer_size'] = Variable<int>(bufferSize);
+    map['rolling_heart_rate'] = Variable<double>(rollingHeartRate);
+    map['rolling_hrv'] = Variable<double>(rollingHrv);
+    map['rolling_confidence'] = Variable<double>(rollingConfidence);
+    map['rolling_escalation_density'] = Variable<double>(
+      rollingEscalationDensity,
+    );
+    map['latest_escalation_probability'] = Variable<double>(
+      latestEscalationProbability,
+    );
+    map['streaming_state'] = Variable<String>(streamingState);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  RealtimePipelineSnapshotsTableCompanion toCompanion(bool nullToAbsent) {
+    return RealtimePipelineSnapshotsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      bufferSize: Value(bufferSize),
+      rollingHeartRate: Value(rollingHeartRate),
+      rollingHrv: Value(rollingHrv),
+      rollingConfidence: Value(rollingConfidence),
+      rollingEscalationDensity: Value(rollingEscalationDensity),
+      latestEscalationProbability: Value(latestEscalationProbability),
+      streamingState: Value(streamingState),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory RealtimePipelineSnapshotsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RealtimePipelineSnapshotsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      bufferSize: serializer.fromJson<int>(json['bufferSize']),
+      rollingHeartRate: serializer.fromJson<double>(json['rollingHeartRate']),
+      rollingHrv: serializer.fromJson<double>(json['rollingHrv']),
+      rollingConfidence: serializer.fromJson<double>(json['rollingConfidence']),
+      rollingEscalationDensity: serializer.fromJson<double>(
+        json['rollingEscalationDensity'],
+      ),
+      latestEscalationProbability: serializer.fromJson<double>(
+        json['latestEscalationProbability'],
+      ),
+      streamingState: serializer.fromJson<String>(json['streamingState']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'bufferSize': serializer.toJson<int>(bufferSize),
+      'rollingHeartRate': serializer.toJson<double>(rollingHeartRate),
+      'rollingHrv': serializer.toJson<double>(rollingHrv),
+      'rollingConfidence': serializer.toJson<double>(rollingConfidence),
+      'rollingEscalationDensity': serializer.toJson<double>(
+        rollingEscalationDensity,
+      ),
+      'latestEscalationProbability': serializer.toJson<double>(
+        latestEscalationProbability,
+      ),
+      'streamingState': serializer.toJson<String>(streamingState),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  RealtimePipelineSnapshotsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    int? bufferSize,
+    double? rollingHeartRate,
+    double? rollingHrv,
+    double? rollingConfidence,
+    double? rollingEscalationDensity,
+    double? latestEscalationProbability,
+    String? streamingState,
+    String? safetyCopy,
+  }) => RealtimePipelineSnapshotsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    bufferSize: bufferSize ?? this.bufferSize,
+    rollingHeartRate: rollingHeartRate ?? this.rollingHeartRate,
+    rollingHrv: rollingHrv ?? this.rollingHrv,
+    rollingConfidence: rollingConfidence ?? this.rollingConfidence,
+    rollingEscalationDensity:
+        rollingEscalationDensity ?? this.rollingEscalationDensity,
+    latestEscalationProbability:
+        latestEscalationProbability ?? this.latestEscalationProbability,
+    streamingState: streamingState ?? this.streamingState,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  RealtimePipelineSnapshotsTableData copyWithCompanion(
+    RealtimePipelineSnapshotsTableCompanion data,
+  ) {
+    return RealtimePipelineSnapshotsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      bufferSize: data.bufferSize.present
+          ? data.bufferSize.value
+          : this.bufferSize,
+      rollingHeartRate: data.rollingHeartRate.present
+          ? data.rollingHeartRate.value
+          : this.rollingHeartRate,
+      rollingHrv: data.rollingHrv.present
+          ? data.rollingHrv.value
+          : this.rollingHrv,
+      rollingConfidence: data.rollingConfidence.present
+          ? data.rollingConfidence.value
+          : this.rollingConfidence,
+      rollingEscalationDensity: data.rollingEscalationDensity.present
+          ? data.rollingEscalationDensity.value
+          : this.rollingEscalationDensity,
+      latestEscalationProbability: data.latestEscalationProbability.present
+          ? data.latestEscalationProbability.value
+          : this.latestEscalationProbability,
+      streamingState: data.streamingState.present
+          ? data.streamingState.value
+          : this.streamingState,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RealtimePipelineSnapshotsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('bufferSize: $bufferSize, ')
+          ..write('rollingHeartRate: $rollingHeartRate, ')
+          ..write('rollingHrv: $rollingHrv, ')
+          ..write('rollingConfidence: $rollingConfidence, ')
+          ..write('rollingEscalationDensity: $rollingEscalationDensity, ')
+          ..write('latestEscalationProbability: $latestEscalationProbability, ')
+          ..write('streamingState: $streamingState, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    bufferSize,
+    rollingHeartRate,
+    rollingHrv,
+    rollingConfidence,
+    rollingEscalationDensity,
+    latestEscalationProbability,
+    streamingState,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RealtimePipelineSnapshotsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.bufferSize == this.bufferSize &&
+          other.rollingHeartRate == this.rollingHeartRate &&
+          other.rollingHrv == this.rollingHrv &&
+          other.rollingConfidence == this.rollingConfidence &&
+          other.rollingEscalationDensity == this.rollingEscalationDensity &&
+          other.latestEscalationProbability ==
+              this.latestEscalationProbability &&
+          other.streamingState == this.streamingState &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class RealtimePipelineSnapshotsTableCompanion
+    extends UpdateCompanion<RealtimePipelineSnapshotsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<int> bufferSize;
+  final Value<double> rollingHeartRate;
+  final Value<double> rollingHrv;
+  final Value<double> rollingConfidence;
+  final Value<double> rollingEscalationDensity;
+  final Value<double> latestEscalationProbability;
+  final Value<String> streamingState;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const RealtimePipelineSnapshotsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.bufferSize = const Value.absent(),
+    this.rollingHeartRate = const Value.absent(),
+    this.rollingHrv = const Value.absent(),
+    this.rollingConfidence = const Value.absent(),
+    this.rollingEscalationDensity = const Value.absent(),
+    this.latestEscalationProbability = const Value.absent(),
+    this.streamingState = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RealtimePipelineSnapshotsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required int bufferSize,
+    required double rollingHeartRate,
+    required double rollingHrv,
+    required double rollingConfidence,
+    required double rollingEscalationDensity,
+    required double latestEscalationProbability,
+    required String streamingState,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       bufferSize = Value(bufferSize),
+       rollingHeartRate = Value(rollingHeartRate),
+       rollingHrv = Value(rollingHrv),
+       rollingConfidence = Value(rollingConfidence),
+       rollingEscalationDensity = Value(rollingEscalationDensity),
+       latestEscalationProbability = Value(latestEscalationProbability),
+       streamingState = Value(streamingState),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<RealtimePipelineSnapshotsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<int>? bufferSize,
+    Expression<double>? rollingHeartRate,
+    Expression<double>? rollingHrv,
+    Expression<double>? rollingConfidence,
+    Expression<double>? rollingEscalationDensity,
+    Expression<double>? latestEscalationProbability,
+    Expression<String>? streamingState,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (bufferSize != null) 'buffer_size': bufferSize,
+      if (rollingHeartRate != null) 'rolling_heart_rate': rollingHeartRate,
+      if (rollingHrv != null) 'rolling_hrv': rollingHrv,
+      if (rollingConfidence != null) 'rolling_confidence': rollingConfidence,
+      if (rollingEscalationDensity != null)
+        'rolling_escalation_density': rollingEscalationDensity,
+      if (latestEscalationProbability != null)
+        'latest_escalation_probability': latestEscalationProbability,
+      if (streamingState != null) 'streaming_state': streamingState,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RealtimePipelineSnapshotsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<int>? bufferSize,
+    Value<double>? rollingHeartRate,
+    Value<double>? rollingHrv,
+    Value<double>? rollingConfidence,
+    Value<double>? rollingEscalationDensity,
+    Value<double>? latestEscalationProbability,
+    Value<String>? streamingState,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return RealtimePipelineSnapshotsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      bufferSize: bufferSize ?? this.bufferSize,
+      rollingHeartRate: rollingHeartRate ?? this.rollingHeartRate,
+      rollingHrv: rollingHrv ?? this.rollingHrv,
+      rollingConfidence: rollingConfidence ?? this.rollingConfidence,
+      rollingEscalationDensity:
+          rollingEscalationDensity ?? this.rollingEscalationDensity,
+      latestEscalationProbability:
+          latestEscalationProbability ?? this.latestEscalationProbability,
+      streamingState: streamingState ?? this.streamingState,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (bufferSize.present) {
+      map['buffer_size'] = Variable<int>(bufferSize.value);
+    }
+    if (rollingHeartRate.present) {
+      map['rolling_heart_rate'] = Variable<double>(rollingHeartRate.value);
+    }
+    if (rollingHrv.present) {
+      map['rolling_hrv'] = Variable<double>(rollingHrv.value);
+    }
+    if (rollingConfidence.present) {
+      map['rolling_confidence'] = Variable<double>(rollingConfidence.value);
+    }
+    if (rollingEscalationDensity.present) {
+      map['rolling_escalation_density'] = Variable<double>(
+        rollingEscalationDensity.value,
+      );
+    }
+    if (latestEscalationProbability.present) {
+      map['latest_escalation_probability'] = Variable<double>(
+        latestEscalationProbability.value,
+      );
+    }
+    if (streamingState.present) {
+      map['streaming_state'] = Variable<String>(streamingState.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RealtimePipelineSnapshotsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('bufferSize: $bufferSize, ')
+          ..write('rollingHeartRate: $rollingHeartRate, ')
+          ..write('rollingHrv: $rollingHrv, ')
+          ..write('rollingConfidence: $rollingConfidence, ')
+          ..write('rollingEscalationDensity: $rollingEscalationDensity, ')
+          ..write('latestEscalationProbability: $latestEscalationProbability, ')
+          ..write('streamingState: $streamingState, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -12025,6 +12705,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   late final $PhysiologicalEvolutionProfilesTableTable
   physiologicalEvolutionProfilesTable =
       $PhysiologicalEvolutionProfilesTableTable(this);
+  late final $RealtimePipelineSnapshotsTableTable
+  realtimePipelineSnapshotsTable = $RealtimePipelineSnapshotsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12048,6 +12730,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     contextualInterventionRecommendationsTable,
     cohortAnalysisResultsTable,
     physiologicalEvolutionProfilesTable,
+    realtimePipelineSnapshotsTable,
   ];
 }
 
@@ -17995,6 +18678,342 @@ typedef $$PhysiologicalEvolutionProfilesTableTableProcessedTableManager =
       PhysiologicalEvolutionProfilesTableData,
       PrefetchHooks Function()
     >;
+typedef $$RealtimePipelineSnapshotsTableTableCreateCompanionBuilder =
+    RealtimePipelineSnapshotsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required int bufferSize,
+      required double rollingHeartRate,
+      required double rollingHrv,
+      required double rollingConfidence,
+      required double rollingEscalationDensity,
+      required double latestEscalationProbability,
+      required String streamingState,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$RealtimePipelineSnapshotsTableTableUpdateCompanionBuilder =
+    RealtimePipelineSnapshotsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<int> bufferSize,
+      Value<double> rollingHeartRate,
+      Value<double> rollingHrv,
+      Value<double> rollingConfidence,
+      Value<double> rollingEscalationDensity,
+      Value<double> latestEscalationProbability,
+      Value<String> streamingState,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$RealtimePipelineSnapshotsTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $RealtimePipelineSnapshotsTableTable> {
+  $$RealtimePipelineSnapshotsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get bufferSize => $composableBuilder(
+    column: $table.bufferSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get rollingHeartRate => $composableBuilder(
+    column: $table.rollingHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get rollingHrv => $composableBuilder(
+    column: $table.rollingHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get rollingConfidence => $composableBuilder(
+    column: $table.rollingConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get rollingEscalationDensity => $composableBuilder(
+    column: $table.rollingEscalationDensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get latestEscalationProbability => $composableBuilder(
+    column: $table.latestEscalationProbability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get streamingState => $composableBuilder(
+    column: $table.streamingState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RealtimePipelineSnapshotsTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $RealtimePipelineSnapshotsTableTable> {
+  $$RealtimePipelineSnapshotsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get bufferSize => $composableBuilder(
+    column: $table.bufferSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get rollingHeartRate => $composableBuilder(
+    column: $table.rollingHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get rollingHrv => $composableBuilder(
+    column: $table.rollingHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get rollingConfidence => $composableBuilder(
+    column: $table.rollingConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get rollingEscalationDensity => $composableBuilder(
+    column: $table.rollingEscalationDensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get latestEscalationProbability => $composableBuilder(
+    column: $table.latestEscalationProbability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get streamingState => $composableBuilder(
+    column: $table.streamingState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RealtimePipelineSnapshotsTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $RealtimePipelineSnapshotsTableTable> {
+  $$RealtimePipelineSnapshotsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get bufferSize => $composableBuilder(
+    column: $table.bufferSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get rollingHeartRate => $composableBuilder(
+    column: $table.rollingHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get rollingHrv => $composableBuilder(
+    column: $table.rollingHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get rollingConfidence => $composableBuilder(
+    column: $table.rollingConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get rollingEscalationDensity => $composableBuilder(
+    column: $table.rollingEscalationDensity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get latestEscalationProbability => $composableBuilder(
+    column: $table.latestEscalationProbability,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get streamingState => $composableBuilder(
+    column: $table.streamingState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$RealtimePipelineSnapshotsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $RealtimePipelineSnapshotsTableTable,
+          RealtimePipelineSnapshotsTableData,
+          $$RealtimePipelineSnapshotsTableTableFilterComposer,
+          $$RealtimePipelineSnapshotsTableTableOrderingComposer,
+          $$RealtimePipelineSnapshotsTableTableAnnotationComposer,
+          $$RealtimePipelineSnapshotsTableTableCreateCompanionBuilder,
+          $$RealtimePipelineSnapshotsTableTableUpdateCompanionBuilder,
+          (
+            RealtimePipelineSnapshotsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $RealtimePipelineSnapshotsTableTable,
+              RealtimePipelineSnapshotsTableData
+            >,
+          ),
+          RealtimePipelineSnapshotsTableData,
+          PrefetchHooks Function()
+        > {
+  $$RealtimePipelineSnapshotsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $RealtimePipelineSnapshotsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RealtimePipelineSnapshotsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$RealtimePipelineSnapshotsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$RealtimePipelineSnapshotsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<int> bufferSize = const Value.absent(),
+                Value<double> rollingHeartRate = const Value.absent(),
+                Value<double> rollingHrv = const Value.absent(),
+                Value<double> rollingConfidence = const Value.absent(),
+                Value<double> rollingEscalationDensity = const Value.absent(),
+                Value<double> latestEscalationProbability =
+                    const Value.absent(),
+                Value<String> streamingState = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RealtimePipelineSnapshotsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                bufferSize: bufferSize,
+                rollingHeartRate: rollingHeartRate,
+                rollingHrv: rollingHrv,
+                rollingConfidence: rollingConfidence,
+                rollingEscalationDensity: rollingEscalationDensity,
+                latestEscalationProbability: latestEscalationProbability,
+                streamingState: streamingState,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required int bufferSize,
+                required double rollingHeartRate,
+                required double rollingHrv,
+                required double rollingConfidence,
+                required double rollingEscalationDensity,
+                required double latestEscalationProbability,
+                required String streamingState,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => RealtimePipelineSnapshotsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                bufferSize: bufferSize,
+                rollingHeartRate: rollingHeartRate,
+                rollingHrv: rollingHrv,
+                rollingConfidence: rollingConfidence,
+                rollingEscalationDensity: rollingEscalationDensity,
+                latestEscalationProbability: latestEscalationProbability,
+                streamingState: streamingState,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RealtimePipelineSnapshotsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $RealtimePipelineSnapshotsTableTable,
+      RealtimePipelineSnapshotsTableData,
+      $$RealtimePipelineSnapshotsTableTableFilterComposer,
+      $$RealtimePipelineSnapshotsTableTableOrderingComposer,
+      $$RealtimePipelineSnapshotsTableTableAnnotationComposer,
+      $$RealtimePipelineSnapshotsTableTableCreateCompanionBuilder,
+      $$RealtimePipelineSnapshotsTableTableUpdateCompanionBuilder,
+      (
+        RealtimePipelineSnapshotsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $RealtimePipelineSnapshotsTableTable,
+          RealtimePipelineSnapshotsTableData
+        >,
+      ),
+      RealtimePipelineSnapshotsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -18082,5 +19101,11 @@ class $SignalFlowDatabaseManager {
       $$PhysiologicalEvolutionProfilesTableTableTableManager(
         _db,
         _db.physiologicalEvolutionProfilesTable,
+      );
+  $$RealtimePipelineSnapshotsTableTableTableManager
+  get realtimePipelineSnapshotsTable =>
+      $$RealtimePipelineSnapshotsTableTableTableManager(
+        _db,
+        _db.realtimePipelineSnapshotsTable,
       );
 }

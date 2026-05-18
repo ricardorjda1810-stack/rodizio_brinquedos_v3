@@ -13,6 +13,7 @@ import 'longitudinal_analysis_tables.dart';
 import 'personalized_intervention_tables.dart';
 import 'physiological_trend_tables.dart';
 import 'predictive_forecast_tables.dart';
+import 'realtime_streaming_tables.dart';
 import 'research_dashboard_tables.dart';
 import 'session_timeline_tables.dart';
 
@@ -38,6 +39,7 @@ part 'signalflow_database.g.dart';
     ContextualInterventionRecommendationsTable,
     CohortAnalysisResultsTable,
     PhysiologicalEvolutionProfilesTable,
+    RealtimePipelineSnapshotsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -51,7 +53,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -92,6 +94,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(cohortAnalysisResultsTable);
           await migrator.createTable(physiologicalEvolutionProfilesTable);
         }
+        if (from < 11) {
+          await migrator.createTable(realtimePipelineSnapshotsTable);
+        }
       },
     );
   }
@@ -116,6 +121,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(contextualInterventionRecommendationsTable);
       batch.deleteAll(cohortAnalysisResultsTable);
       batch.deleteAll(physiologicalEvolutionProfilesTable);
+      batch.deleteAll(realtimePipelineSnapshotsTable);
     });
   }
 }
