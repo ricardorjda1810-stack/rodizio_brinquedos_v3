@@ -36,6 +36,8 @@ class DatabaseIntegrityService {
       'cohort_analysis_results_table',
       'physiological_evolution_profiles_table',
       'realtime_pipeline_snapshots_table',
+      'replay_scenarios_table',
+      'replay_validation_results_table',
     ];
 
     final baselines = await _database
@@ -95,6 +97,12 @@ class DatabaseIntegrityService {
     final realtimeSnapshots = await _database
         .select(_database.realtimePipelineSnapshotsTable)
         .get();
+    final replayScenarios = await _database
+        .select(_database.replayScenariosTable)
+        .get();
+    final replayValidationResults = await _database
+        .select(_database.replayValidationResultsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -119,6 +127,8 @@ class DatabaseIntegrityService {
     _auditCohortAnalyses(cohortAnalyses, issues, warnings);
     _auditEvolutionProfiles(evolutionProfiles, issues, warnings);
     _auditRealtimeSnapshots(realtimeSnapshots, issues, warnings);
+    _auditReplayScenarios(replayScenarios, issues, warnings);
+    _auditReplayValidationResults(replayValidationResults, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -139,7 +149,9 @@ class DatabaseIntegrityService {
         interventionRecommendations.length +
         cohortAnalyses.length +
         evolutionProfiles.length +
-        realtimeSnapshots.length;
+        realtimeSnapshots.length +
+        replayScenarios.length +
+        replayValidationResults.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -875,6 +887,63 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('não monitoramento médico contínuo')) {
         warnings.add(
           'Realtime snapshot ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditReplayScenarios(
+    List<ReplayScenariosTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTypes = {
+      'stable',
+      'escalating',
+      'recovery',
+      'noisySignal',
+      'prolongedStress',
+      'circadianShift',
+      'contextualTrigger',
+      'syntheticMixed',
+    };
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Replay scenario with empty id.');
+      }
+      if (row.durationSeconds < 0 || row.sampleCount < 0) {
+        issues.add('Replay scenario ${row.id} has invalid duration or count.');
+      }
+      if (!validTypes.contains(row.scenarioType)) {
+        issues.add('Replay scenario ${row.id} has invalid scenario type.');
+      }
+      if (!row.safetyCopy.contains('não representa evento real')) {
+        warnings.add(
+          'Replay scenario ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditReplayValidationResults(
+    List<ReplayValidationResultsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.scenarioId.trim().isEmpty) {
+        issues.add('Replay validation result with empty id.');
+      }
+      if (!_isPercent(row.replayConsistency) ||
+          !_isPercent(row.timelineConsistency) ||
+          !_isPercent(row.forecastConsistency) ||
+          !_isPercent(row.escalationDetectionScore) ||
+          !_isPercent(row.recoveryModelingScore)) {
+        issues.add('Replay validation result ${row.id} has invalid scores.');
+      }
+      if (!row.safetyCopy.contains('validação offline')) {
+        warnings.add(
+          'Replay validation result ${row.id} is missing explicit safety copy.',
         );
       }
     }

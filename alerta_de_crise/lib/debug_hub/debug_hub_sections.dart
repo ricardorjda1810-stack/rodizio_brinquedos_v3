@@ -15,6 +15,7 @@ import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/predictive_forecast_debug_page.dart';
 import '../ui/crisis_detection/realtime_streaming_debug_page.dart';
+import '../ui/crisis_detection/replay_engine_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_dashboard_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
@@ -135,6 +136,11 @@ class SignalFlowDebugHubSections {
             label: 'CSV Replay',
             description: 'Replay local de datasets fisiológicos em CSV.',
             builder: (_) => const CsvReplayDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Replay Engine',
+            description: 'Replay fisiológico e cenários sintéticos offline.',
+            builder: (_) => const ReplayEngineDebugPage(),
           ),
         ],
       ),

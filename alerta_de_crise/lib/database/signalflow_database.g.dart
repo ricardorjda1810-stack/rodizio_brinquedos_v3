@@ -12660,6 +12660,1345 @@ class RealtimePipelineSnapshotsTableCompanion
   }
 }
 
+class $ReplayScenariosTableTable extends ReplayScenariosTable
+    with TableInfo<$ReplayScenariosTableTable, ReplayScenariosTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReplayScenariosTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationSecondsMeta = const VerificationMeta(
+    'durationSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> durationSeconds = GeneratedColumn<int>(
+    'duration_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sampleCountMeta = const VerificationMeta(
+    'sampleCount',
+  );
+  @override
+  late final GeneratedColumn<int> sampleCount = GeneratedColumn<int>(
+    'sample_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scenarioTypeMeta = const VerificationMeta(
+    'scenarioType',
+  );
+  @override
+  late final GeneratedColumn<String> scenarioType = GeneratedColumn<String>(
+    'scenario_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expectedEscalationLevelMeta =
+      const VerificationMeta('expectedEscalationLevel');
+  @override
+  late final GeneratedColumn<String> expectedEscalationLevel =
+      GeneratedColumn<String>(
+        'expected_escalation_level',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _contextualFactorsMeta = const VerificationMeta(
+    'contextualFactors',
+  );
+  @override
+  late final GeneratedColumn<String> contextualFactors =
+      GeneratedColumn<String>(
+        'contextual_factors',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    description,
+    generatedAt,
+    durationSeconds,
+    sampleCount,
+    scenarioType,
+    expectedEscalationLevel,
+    contextualFactors,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'replay_scenarios_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReplayScenariosTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('duration_seconds')) {
+      context.handle(
+        _durationSecondsMeta,
+        durationSeconds.isAcceptableOrUnknown(
+          data['duration_seconds']!,
+          _durationSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_durationSecondsMeta);
+    }
+    if (data.containsKey('sample_count')) {
+      context.handle(
+        _sampleCountMeta,
+        sampleCount.isAcceptableOrUnknown(
+          data['sample_count']!,
+          _sampleCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sampleCountMeta);
+    }
+    if (data.containsKey('scenario_type')) {
+      context.handle(
+        _scenarioTypeMeta,
+        scenarioType.isAcceptableOrUnknown(
+          data['scenario_type']!,
+          _scenarioTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_scenarioTypeMeta);
+    }
+    if (data.containsKey('expected_escalation_level')) {
+      context.handle(
+        _expectedEscalationLevelMeta,
+        expectedEscalationLevel.isAcceptableOrUnknown(
+          data['expected_escalation_level']!,
+          _expectedEscalationLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_expectedEscalationLevelMeta);
+    }
+    if (data.containsKey('contextual_factors')) {
+      context.handle(
+        _contextualFactorsMeta,
+        contextualFactors.isAcceptableOrUnknown(
+          data['contextual_factors']!,
+          _contextualFactorsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualFactorsMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReplayScenariosTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReplayScenariosTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      durationSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_seconds'],
+      )!,
+      sampleCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sample_count'],
+      )!,
+      scenarioType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scenario_type'],
+      )!,
+      expectedEscalationLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expected_escalation_level'],
+      )!,
+      contextualFactors: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contextual_factors'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ReplayScenariosTableTable createAlias(String alias) {
+    return $ReplayScenariosTableTable(attachedDatabase, alias);
+  }
+}
+
+class ReplayScenariosTableData extends DataClass
+    implements Insertable<ReplayScenariosTableData> {
+  final String id;
+  final String title;
+  final String description;
+  final DateTime generatedAt;
+  final int durationSeconds;
+  final int sampleCount;
+  final String scenarioType;
+  final String expectedEscalationLevel;
+  final String contextualFactors;
+  final String safetyCopy;
+  const ReplayScenariosTableData({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.generatedAt,
+    required this.durationSeconds,
+    required this.sampleCount,
+    required this.scenarioType,
+    required this.expectedEscalationLevel,
+    required this.contextualFactors,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['duration_seconds'] = Variable<int>(durationSeconds);
+    map['sample_count'] = Variable<int>(sampleCount);
+    map['scenario_type'] = Variable<String>(scenarioType);
+    map['expected_escalation_level'] = Variable<String>(
+      expectedEscalationLevel,
+    );
+    map['contextual_factors'] = Variable<String>(contextualFactors);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ReplayScenariosTableCompanion toCompanion(bool nullToAbsent) {
+    return ReplayScenariosTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: Value(description),
+      generatedAt: Value(generatedAt),
+      durationSeconds: Value(durationSeconds),
+      sampleCount: Value(sampleCount),
+      scenarioType: Value(scenarioType),
+      expectedEscalationLevel: Value(expectedEscalationLevel),
+      contextualFactors: Value(contextualFactors),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ReplayScenariosTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReplayScenariosTableData(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      durationSeconds: serializer.fromJson<int>(json['durationSeconds']),
+      sampleCount: serializer.fromJson<int>(json['sampleCount']),
+      scenarioType: serializer.fromJson<String>(json['scenarioType']),
+      expectedEscalationLevel: serializer.fromJson<String>(
+        json['expectedEscalationLevel'],
+      ),
+      contextualFactors: serializer.fromJson<String>(json['contextualFactors']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'durationSeconds': serializer.toJson<int>(durationSeconds),
+      'sampleCount': serializer.toJson<int>(sampleCount),
+      'scenarioType': serializer.toJson<String>(scenarioType),
+      'expectedEscalationLevel': serializer.toJson<String>(
+        expectedEscalationLevel,
+      ),
+      'contextualFactors': serializer.toJson<String>(contextualFactors),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ReplayScenariosTableData copyWith({
+    String? id,
+    String? title,
+    String? description,
+    DateTime? generatedAt,
+    int? durationSeconds,
+    int? sampleCount,
+    String? scenarioType,
+    String? expectedEscalationLevel,
+    String? contextualFactors,
+    String? safetyCopy,
+  }) => ReplayScenariosTableData(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    generatedAt: generatedAt ?? this.generatedAt,
+    durationSeconds: durationSeconds ?? this.durationSeconds,
+    sampleCount: sampleCount ?? this.sampleCount,
+    scenarioType: scenarioType ?? this.scenarioType,
+    expectedEscalationLevel:
+        expectedEscalationLevel ?? this.expectedEscalationLevel,
+    contextualFactors: contextualFactors ?? this.contextualFactors,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ReplayScenariosTableData copyWithCompanion(
+    ReplayScenariosTableCompanion data,
+  ) {
+    return ReplayScenariosTableData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
+      sampleCount: data.sampleCount.present
+          ? data.sampleCount.value
+          : this.sampleCount,
+      scenarioType: data.scenarioType.present
+          ? data.scenarioType.value
+          : this.scenarioType,
+      expectedEscalationLevel: data.expectedEscalationLevel.present
+          ? data.expectedEscalationLevel.value
+          : this.expectedEscalationLevel,
+      contextualFactors: data.contextualFactors.present
+          ? data.contextualFactors.value
+          : this.contextualFactors,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayScenariosTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('scenarioType: $scenarioType, ')
+          ..write('expectedEscalationLevel: $expectedEscalationLevel, ')
+          ..write('contextualFactors: $contextualFactors, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    description,
+    generatedAt,
+    durationSeconds,
+    sampleCount,
+    scenarioType,
+    expectedEscalationLevel,
+    contextualFactors,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReplayScenariosTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.generatedAt == this.generatedAt &&
+          other.durationSeconds == this.durationSeconds &&
+          other.sampleCount == this.sampleCount &&
+          other.scenarioType == this.scenarioType &&
+          other.expectedEscalationLevel == this.expectedEscalationLevel &&
+          other.contextualFactors == this.contextualFactors &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ReplayScenariosTableCompanion
+    extends UpdateCompanion<ReplayScenariosTableData> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<DateTime> generatedAt;
+  final Value<int> durationSeconds;
+  final Value<int> sampleCount;
+  final Value<String> scenarioType;
+  final Value<String> expectedEscalationLevel;
+  final Value<String> contextualFactors;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ReplayScenariosTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.sampleCount = const Value.absent(),
+    this.scenarioType = const Value.absent(),
+    this.expectedEscalationLevel = const Value.absent(),
+    this.contextualFactors = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReplayScenariosTableCompanion.insert({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime generatedAt,
+    required int durationSeconds,
+    required int sampleCount,
+    required String scenarioType,
+    required String expectedEscalationLevel,
+    required String contextualFactors,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       description = Value(description),
+       generatedAt = Value(generatedAt),
+       durationSeconds = Value(durationSeconds),
+       sampleCount = Value(sampleCount),
+       scenarioType = Value(scenarioType),
+       expectedEscalationLevel = Value(expectedEscalationLevel),
+       contextualFactors = Value(contextualFactors),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ReplayScenariosTableData> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? generatedAt,
+    Expression<int>? durationSeconds,
+    Expression<int>? sampleCount,
+    Expression<String>? scenarioType,
+    Expression<String>? expectedEscalationLevel,
+    Expression<String>? contextualFactors,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (sampleCount != null) 'sample_count': sampleCount,
+      if (scenarioType != null) 'scenario_type': scenarioType,
+      if (expectedEscalationLevel != null)
+        'expected_escalation_level': expectedEscalationLevel,
+      if (contextualFactors != null) 'contextual_factors': contextualFactors,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReplayScenariosTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String>? description,
+    Value<DateTime>? generatedAt,
+    Value<int>? durationSeconds,
+    Value<int>? sampleCount,
+    Value<String>? scenarioType,
+    Value<String>? expectedEscalationLevel,
+    Value<String>? contextualFactors,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ReplayScenariosTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      generatedAt: generatedAt ?? this.generatedAt,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      sampleCount: sampleCount ?? this.sampleCount,
+      scenarioType: scenarioType ?? this.scenarioType,
+      expectedEscalationLevel:
+          expectedEscalationLevel ?? this.expectedEscalationLevel,
+      contextualFactors: contextualFactors ?? this.contextualFactors,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (durationSeconds.present) {
+      map['duration_seconds'] = Variable<int>(durationSeconds.value);
+    }
+    if (sampleCount.present) {
+      map['sample_count'] = Variable<int>(sampleCount.value);
+    }
+    if (scenarioType.present) {
+      map['scenario_type'] = Variable<String>(scenarioType.value);
+    }
+    if (expectedEscalationLevel.present) {
+      map['expected_escalation_level'] = Variable<String>(
+        expectedEscalationLevel.value,
+      );
+    }
+    if (contextualFactors.present) {
+      map['contextual_factors'] = Variable<String>(contextualFactors.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayScenariosTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('scenarioType: $scenarioType, ')
+          ..write('expectedEscalationLevel: $expectedEscalationLevel, ')
+          ..write('contextualFactors: $contextualFactors, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReplayValidationResultsTableTable extends ReplayValidationResultsTable
+    with
+        TableInfo<
+          $ReplayValidationResultsTableTable,
+          ReplayValidationResultsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReplayValidationResultsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scenarioIdMeta = const VerificationMeta(
+    'scenarioId',
+  );
+  @override
+  late final GeneratedColumn<String> scenarioId = GeneratedColumn<String>(
+    'scenario_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _replayConsistencyMeta = const VerificationMeta(
+    'replayConsistency',
+  );
+  @override
+  late final GeneratedColumn<double> replayConsistency =
+      GeneratedColumn<double>(
+        'replay_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _timelineConsistencyMeta =
+      const VerificationMeta('timelineConsistency');
+  @override
+  late final GeneratedColumn<double> timelineConsistency =
+      GeneratedColumn<double>(
+        'timeline_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _forecastConsistencyMeta =
+      const VerificationMeta('forecastConsistency');
+  @override
+  late final GeneratedColumn<double> forecastConsistency =
+      GeneratedColumn<double>(
+        'forecast_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationDetectionScoreMeta =
+      const VerificationMeta('escalationDetectionScore');
+  @override
+  late final GeneratedColumn<double> escalationDetectionScore =
+      GeneratedColumn<double>(
+        'escalation_detection_score',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryModelingScoreMeta =
+      const VerificationMeta('recoveryModelingScore');
+  @override
+  late final GeneratedColumn<double> recoveryModelingScore =
+      GeneratedColumn<double>(
+        'recovery_modeling_score',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _findingsMeta = const VerificationMeta(
+    'findings',
+  );
+  @override
+  late final GeneratedColumn<String> findings = GeneratedColumn<String>(
+    'findings',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    scenarioId,
+    generatedAt,
+    replayConsistency,
+    timelineConsistency,
+    forecastConsistency,
+    escalationDetectionScore,
+    recoveryModelingScore,
+    findings,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'replay_validation_results_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReplayValidationResultsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('scenario_id')) {
+      context.handle(
+        _scenarioIdMeta,
+        scenarioId.isAcceptableOrUnknown(data['scenario_id']!, _scenarioIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scenarioIdMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('replay_consistency')) {
+      context.handle(
+        _replayConsistencyMeta,
+        replayConsistency.isAcceptableOrUnknown(
+          data['replay_consistency']!,
+          _replayConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_replayConsistencyMeta);
+    }
+    if (data.containsKey('timeline_consistency')) {
+      context.handle(
+        _timelineConsistencyMeta,
+        timelineConsistency.isAcceptableOrUnknown(
+          data['timeline_consistency']!,
+          _timelineConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timelineConsistencyMeta);
+    }
+    if (data.containsKey('forecast_consistency')) {
+      context.handle(
+        _forecastConsistencyMeta,
+        forecastConsistency.isAcceptableOrUnknown(
+          data['forecast_consistency']!,
+          _forecastConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastConsistencyMeta);
+    }
+    if (data.containsKey('escalation_detection_score')) {
+      context.handle(
+        _escalationDetectionScoreMeta,
+        escalationDetectionScore.isAcceptableOrUnknown(
+          data['escalation_detection_score']!,
+          _escalationDetectionScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationDetectionScoreMeta);
+    }
+    if (data.containsKey('recovery_modeling_score')) {
+      context.handle(
+        _recoveryModelingScoreMeta,
+        recoveryModelingScore.isAcceptableOrUnknown(
+          data['recovery_modeling_score']!,
+          _recoveryModelingScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryModelingScoreMeta);
+    }
+    if (data.containsKey('findings')) {
+      context.handle(
+        _findingsMeta,
+        findings.isAcceptableOrUnknown(data['findings']!, _findingsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_findingsMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReplayValidationResultsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReplayValidationResultsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      scenarioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scenario_id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      replayConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}replay_consistency'],
+      )!,
+      timelineConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}timeline_consistency'],
+      )!,
+      forecastConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}forecast_consistency'],
+      )!,
+      escalationDetectionScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}escalation_detection_score'],
+      )!,
+      recoveryModelingScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_modeling_score'],
+      )!,
+      findings: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}findings'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ReplayValidationResultsTableTable createAlias(String alias) {
+    return $ReplayValidationResultsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ReplayValidationResultsTableData extends DataClass
+    implements Insertable<ReplayValidationResultsTableData> {
+  final String id;
+  final String scenarioId;
+  final DateTime generatedAt;
+  final double replayConsistency;
+  final double timelineConsistency;
+  final double forecastConsistency;
+  final double escalationDetectionScore;
+  final double recoveryModelingScore;
+  final String findings;
+  final String safetyCopy;
+  const ReplayValidationResultsTableData({
+    required this.id,
+    required this.scenarioId,
+    required this.generatedAt,
+    required this.replayConsistency,
+    required this.timelineConsistency,
+    required this.forecastConsistency,
+    required this.escalationDetectionScore,
+    required this.recoveryModelingScore,
+    required this.findings,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['scenario_id'] = Variable<String>(scenarioId);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['replay_consistency'] = Variable<double>(replayConsistency);
+    map['timeline_consistency'] = Variable<double>(timelineConsistency);
+    map['forecast_consistency'] = Variable<double>(forecastConsistency);
+    map['escalation_detection_score'] = Variable<double>(
+      escalationDetectionScore,
+    );
+    map['recovery_modeling_score'] = Variable<double>(recoveryModelingScore);
+    map['findings'] = Variable<String>(findings);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ReplayValidationResultsTableCompanion toCompanion(bool nullToAbsent) {
+    return ReplayValidationResultsTableCompanion(
+      id: Value(id),
+      scenarioId: Value(scenarioId),
+      generatedAt: Value(generatedAt),
+      replayConsistency: Value(replayConsistency),
+      timelineConsistency: Value(timelineConsistency),
+      forecastConsistency: Value(forecastConsistency),
+      escalationDetectionScore: Value(escalationDetectionScore),
+      recoveryModelingScore: Value(recoveryModelingScore),
+      findings: Value(findings),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ReplayValidationResultsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReplayValidationResultsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      scenarioId: serializer.fromJson<String>(json['scenarioId']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      replayConsistency: serializer.fromJson<double>(json['replayConsistency']),
+      timelineConsistency: serializer.fromJson<double>(
+        json['timelineConsistency'],
+      ),
+      forecastConsistency: serializer.fromJson<double>(
+        json['forecastConsistency'],
+      ),
+      escalationDetectionScore: serializer.fromJson<double>(
+        json['escalationDetectionScore'],
+      ),
+      recoveryModelingScore: serializer.fromJson<double>(
+        json['recoveryModelingScore'],
+      ),
+      findings: serializer.fromJson<String>(json['findings']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'scenarioId': serializer.toJson<String>(scenarioId),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'replayConsistency': serializer.toJson<double>(replayConsistency),
+      'timelineConsistency': serializer.toJson<double>(timelineConsistency),
+      'forecastConsistency': serializer.toJson<double>(forecastConsistency),
+      'escalationDetectionScore': serializer.toJson<double>(
+        escalationDetectionScore,
+      ),
+      'recoveryModelingScore': serializer.toJson<double>(recoveryModelingScore),
+      'findings': serializer.toJson<String>(findings),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ReplayValidationResultsTableData copyWith({
+    String? id,
+    String? scenarioId,
+    DateTime? generatedAt,
+    double? replayConsistency,
+    double? timelineConsistency,
+    double? forecastConsistency,
+    double? escalationDetectionScore,
+    double? recoveryModelingScore,
+    String? findings,
+    String? safetyCopy,
+  }) => ReplayValidationResultsTableData(
+    id: id ?? this.id,
+    scenarioId: scenarioId ?? this.scenarioId,
+    generatedAt: generatedAt ?? this.generatedAt,
+    replayConsistency: replayConsistency ?? this.replayConsistency,
+    timelineConsistency: timelineConsistency ?? this.timelineConsistency,
+    forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+    escalationDetectionScore:
+        escalationDetectionScore ?? this.escalationDetectionScore,
+    recoveryModelingScore: recoveryModelingScore ?? this.recoveryModelingScore,
+    findings: findings ?? this.findings,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ReplayValidationResultsTableData copyWithCompanion(
+    ReplayValidationResultsTableCompanion data,
+  ) {
+    return ReplayValidationResultsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      scenarioId: data.scenarioId.present
+          ? data.scenarioId.value
+          : this.scenarioId,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      replayConsistency: data.replayConsistency.present
+          ? data.replayConsistency.value
+          : this.replayConsistency,
+      timelineConsistency: data.timelineConsistency.present
+          ? data.timelineConsistency.value
+          : this.timelineConsistency,
+      forecastConsistency: data.forecastConsistency.present
+          ? data.forecastConsistency.value
+          : this.forecastConsistency,
+      escalationDetectionScore: data.escalationDetectionScore.present
+          ? data.escalationDetectionScore.value
+          : this.escalationDetectionScore,
+      recoveryModelingScore: data.recoveryModelingScore.present
+          ? data.recoveryModelingScore.value
+          : this.recoveryModelingScore,
+      findings: data.findings.present ? data.findings.value : this.findings,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayValidationResultsTableData(')
+          ..write('id: $id, ')
+          ..write('scenarioId: $scenarioId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('replayConsistency: $replayConsistency, ')
+          ..write('timelineConsistency: $timelineConsistency, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('escalationDetectionScore: $escalationDetectionScore, ')
+          ..write('recoveryModelingScore: $recoveryModelingScore, ')
+          ..write('findings: $findings, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    scenarioId,
+    generatedAt,
+    replayConsistency,
+    timelineConsistency,
+    forecastConsistency,
+    escalationDetectionScore,
+    recoveryModelingScore,
+    findings,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReplayValidationResultsTableData &&
+          other.id == this.id &&
+          other.scenarioId == this.scenarioId &&
+          other.generatedAt == this.generatedAt &&
+          other.replayConsistency == this.replayConsistency &&
+          other.timelineConsistency == this.timelineConsistency &&
+          other.forecastConsistency == this.forecastConsistency &&
+          other.escalationDetectionScore == this.escalationDetectionScore &&
+          other.recoveryModelingScore == this.recoveryModelingScore &&
+          other.findings == this.findings &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ReplayValidationResultsTableCompanion
+    extends UpdateCompanion<ReplayValidationResultsTableData> {
+  final Value<String> id;
+  final Value<String> scenarioId;
+  final Value<DateTime> generatedAt;
+  final Value<double> replayConsistency;
+  final Value<double> timelineConsistency;
+  final Value<double> forecastConsistency;
+  final Value<double> escalationDetectionScore;
+  final Value<double> recoveryModelingScore;
+  final Value<String> findings;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ReplayValidationResultsTableCompanion({
+    this.id = const Value.absent(),
+    this.scenarioId = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.replayConsistency = const Value.absent(),
+    this.timelineConsistency = const Value.absent(),
+    this.forecastConsistency = const Value.absent(),
+    this.escalationDetectionScore = const Value.absent(),
+    this.recoveryModelingScore = const Value.absent(),
+    this.findings = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReplayValidationResultsTableCompanion.insert({
+    required String id,
+    required String scenarioId,
+    required DateTime generatedAt,
+    required double replayConsistency,
+    required double timelineConsistency,
+    required double forecastConsistency,
+    required double escalationDetectionScore,
+    required double recoveryModelingScore,
+    required String findings,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       scenarioId = Value(scenarioId),
+       generatedAt = Value(generatedAt),
+       replayConsistency = Value(replayConsistency),
+       timelineConsistency = Value(timelineConsistency),
+       forecastConsistency = Value(forecastConsistency),
+       escalationDetectionScore = Value(escalationDetectionScore),
+       recoveryModelingScore = Value(recoveryModelingScore),
+       findings = Value(findings),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ReplayValidationResultsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? scenarioId,
+    Expression<DateTime>? generatedAt,
+    Expression<double>? replayConsistency,
+    Expression<double>? timelineConsistency,
+    Expression<double>? forecastConsistency,
+    Expression<double>? escalationDetectionScore,
+    Expression<double>? recoveryModelingScore,
+    Expression<String>? findings,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (scenarioId != null) 'scenario_id': scenarioId,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (replayConsistency != null) 'replay_consistency': replayConsistency,
+      if (timelineConsistency != null)
+        'timeline_consistency': timelineConsistency,
+      if (forecastConsistency != null)
+        'forecast_consistency': forecastConsistency,
+      if (escalationDetectionScore != null)
+        'escalation_detection_score': escalationDetectionScore,
+      if (recoveryModelingScore != null)
+        'recovery_modeling_score': recoveryModelingScore,
+      if (findings != null) 'findings': findings,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReplayValidationResultsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? scenarioId,
+    Value<DateTime>? generatedAt,
+    Value<double>? replayConsistency,
+    Value<double>? timelineConsistency,
+    Value<double>? forecastConsistency,
+    Value<double>? escalationDetectionScore,
+    Value<double>? recoveryModelingScore,
+    Value<String>? findings,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ReplayValidationResultsTableCompanion(
+      id: id ?? this.id,
+      scenarioId: scenarioId ?? this.scenarioId,
+      generatedAt: generatedAt ?? this.generatedAt,
+      replayConsistency: replayConsistency ?? this.replayConsistency,
+      timelineConsistency: timelineConsistency ?? this.timelineConsistency,
+      forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+      escalationDetectionScore:
+          escalationDetectionScore ?? this.escalationDetectionScore,
+      recoveryModelingScore:
+          recoveryModelingScore ?? this.recoveryModelingScore,
+      findings: findings ?? this.findings,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (scenarioId.present) {
+      map['scenario_id'] = Variable<String>(scenarioId.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (replayConsistency.present) {
+      map['replay_consistency'] = Variable<double>(replayConsistency.value);
+    }
+    if (timelineConsistency.present) {
+      map['timeline_consistency'] = Variable<double>(timelineConsistency.value);
+    }
+    if (forecastConsistency.present) {
+      map['forecast_consistency'] = Variable<double>(forecastConsistency.value);
+    }
+    if (escalationDetectionScore.present) {
+      map['escalation_detection_score'] = Variable<double>(
+        escalationDetectionScore.value,
+      );
+    }
+    if (recoveryModelingScore.present) {
+      map['recovery_modeling_score'] = Variable<double>(
+        recoveryModelingScore.value,
+      );
+    }
+    if (findings.present) {
+      map['findings'] = Variable<String>(findings.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayValidationResultsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('scenarioId: $scenarioId, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('replayConsistency: $replayConsistency, ')
+          ..write('timelineConsistency: $timelineConsistency, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('escalationDetectionScore: $escalationDetectionScore, ')
+          ..write('recoveryModelingScore: $recoveryModelingScore, ')
+          ..write('findings: $findings, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -12707,6 +14046,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $PhysiologicalEvolutionProfilesTableTable(this);
   late final $RealtimePipelineSnapshotsTableTable
   realtimePipelineSnapshotsTable = $RealtimePipelineSnapshotsTableTable(this);
+  late final $ReplayScenariosTableTable replayScenariosTable =
+      $ReplayScenariosTableTable(this);
+  late final $ReplayValidationResultsTableTable replayValidationResultsTable =
+      $ReplayValidationResultsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12731,6 +14074,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     cohortAnalysisResultsTable,
     physiologicalEvolutionProfilesTable,
     realtimePipelineSnapshotsTable,
+    replayScenariosTable,
+    replayValidationResultsTable,
   ];
 }
 
@@ -19014,6 +20359,663 @@ typedef $$RealtimePipelineSnapshotsTableTableProcessedTableManager =
       RealtimePipelineSnapshotsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ReplayScenariosTableTableCreateCompanionBuilder =
+    ReplayScenariosTableCompanion Function({
+      required String id,
+      required String title,
+      required String description,
+      required DateTime generatedAt,
+      required int durationSeconds,
+      required int sampleCount,
+      required String scenarioType,
+      required String expectedEscalationLevel,
+      required String contextualFactors,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ReplayScenariosTableTableUpdateCompanionBuilder =
+    ReplayScenariosTableCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String> description,
+      Value<DateTime> generatedAt,
+      Value<int> durationSeconds,
+      Value<int> sampleCount,
+      Value<String> scenarioType,
+      Value<String> expectedEscalationLevel,
+      Value<String> contextualFactors,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ReplayScenariosTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayScenariosTableTable> {
+  $$ReplayScenariosTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get scenarioType => $composableBuilder(
+    column: $table.scenarioType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get expectedEscalationLevel => $composableBuilder(
+    column: $table.expectedEscalationLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReplayScenariosTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayScenariosTableTable> {
+  $$ReplayScenariosTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get scenarioType => $composableBuilder(
+    column: $table.scenarioType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get expectedEscalationLevel => $composableBuilder(
+    column: $table.expectedEscalationLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReplayScenariosTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayScenariosTableTable> {
+  $$ReplayScenariosTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get scenarioType => $composableBuilder(
+    column: $table.scenarioType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get expectedEscalationLevel => $composableBuilder(
+    column: $table.expectedEscalationLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ReplayScenariosTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ReplayScenariosTableTable,
+          ReplayScenariosTableData,
+          $$ReplayScenariosTableTableFilterComposer,
+          $$ReplayScenariosTableTableOrderingComposer,
+          $$ReplayScenariosTableTableAnnotationComposer,
+          $$ReplayScenariosTableTableCreateCompanionBuilder,
+          $$ReplayScenariosTableTableUpdateCompanionBuilder,
+          (
+            ReplayScenariosTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ReplayScenariosTableTable,
+              ReplayScenariosTableData
+            >,
+          ),
+          ReplayScenariosTableData,
+          PrefetchHooks Function()
+        > {
+  $$ReplayScenariosTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ReplayScenariosTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReplayScenariosTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReplayScenariosTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ReplayScenariosTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<int> durationSeconds = const Value.absent(),
+                Value<int> sampleCount = const Value.absent(),
+                Value<String> scenarioType = const Value.absent(),
+                Value<String> expectedEscalationLevel = const Value.absent(),
+                Value<String> contextualFactors = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayScenariosTableCompanion(
+                id: id,
+                title: title,
+                description: description,
+                generatedAt: generatedAt,
+                durationSeconds: durationSeconds,
+                sampleCount: sampleCount,
+                scenarioType: scenarioType,
+                expectedEscalationLevel: expectedEscalationLevel,
+                contextualFactors: contextualFactors,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required String description,
+                required DateTime generatedAt,
+                required int durationSeconds,
+                required int sampleCount,
+                required String scenarioType,
+                required String expectedEscalationLevel,
+                required String contextualFactors,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayScenariosTableCompanion.insert(
+                id: id,
+                title: title,
+                description: description,
+                generatedAt: generatedAt,
+                durationSeconds: durationSeconds,
+                sampleCount: sampleCount,
+                scenarioType: scenarioType,
+                expectedEscalationLevel: expectedEscalationLevel,
+                contextualFactors: contextualFactors,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReplayScenariosTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ReplayScenariosTableTable,
+      ReplayScenariosTableData,
+      $$ReplayScenariosTableTableFilterComposer,
+      $$ReplayScenariosTableTableOrderingComposer,
+      $$ReplayScenariosTableTableAnnotationComposer,
+      $$ReplayScenariosTableTableCreateCompanionBuilder,
+      $$ReplayScenariosTableTableUpdateCompanionBuilder,
+      (
+        ReplayScenariosTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ReplayScenariosTableTable,
+          ReplayScenariosTableData
+        >,
+      ),
+      ReplayScenariosTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$ReplayValidationResultsTableTableCreateCompanionBuilder =
+    ReplayValidationResultsTableCompanion Function({
+      required String id,
+      required String scenarioId,
+      required DateTime generatedAt,
+      required double replayConsistency,
+      required double timelineConsistency,
+      required double forecastConsistency,
+      required double escalationDetectionScore,
+      required double recoveryModelingScore,
+      required String findings,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ReplayValidationResultsTableTableUpdateCompanionBuilder =
+    ReplayValidationResultsTableCompanion Function({
+      Value<String> id,
+      Value<String> scenarioId,
+      Value<DateTime> generatedAt,
+      Value<double> replayConsistency,
+      Value<double> timelineConsistency,
+      Value<double> forecastConsistency,
+      Value<double> escalationDetectionScore,
+      Value<double> recoveryModelingScore,
+      Value<String> findings,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ReplayValidationResultsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayValidationResultsTableTable> {
+  $$ReplayValidationResultsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get scenarioId => $composableBuilder(
+    column: $table.scenarioId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get replayConsistency => $composableBuilder(
+    column: $table.replayConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get timelineConsistency => $composableBuilder(
+    column: $table.timelineConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get escalationDetectionScore => $composableBuilder(
+    column: $table.escalationDetectionScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryModelingScore => $composableBuilder(
+    column: $table.recoveryModelingScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get findings => $composableBuilder(
+    column: $table.findings,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReplayValidationResultsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayValidationResultsTableTable> {
+  $$ReplayValidationResultsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get scenarioId => $composableBuilder(
+    column: $table.scenarioId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get replayConsistency => $composableBuilder(
+    column: $table.replayConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get timelineConsistency => $composableBuilder(
+    column: $table.timelineConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get escalationDetectionScore => $composableBuilder(
+    column: $table.escalationDetectionScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryModelingScore => $composableBuilder(
+    column: $table.recoveryModelingScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get findings => $composableBuilder(
+    column: $table.findings,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReplayValidationResultsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayValidationResultsTableTable> {
+  $$ReplayValidationResultsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get scenarioId => $composableBuilder(
+    column: $table.scenarioId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get replayConsistency => $composableBuilder(
+    column: $table.replayConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get timelineConsistency => $composableBuilder(
+    column: $table.timelineConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get escalationDetectionScore => $composableBuilder(
+    column: $table.escalationDetectionScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryModelingScore => $composableBuilder(
+    column: $table.recoveryModelingScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get findings =>
+      $composableBuilder(column: $table.findings, builder: (column) => column);
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ReplayValidationResultsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ReplayValidationResultsTableTable,
+          ReplayValidationResultsTableData,
+          $$ReplayValidationResultsTableTableFilterComposer,
+          $$ReplayValidationResultsTableTableOrderingComposer,
+          $$ReplayValidationResultsTableTableAnnotationComposer,
+          $$ReplayValidationResultsTableTableCreateCompanionBuilder,
+          $$ReplayValidationResultsTableTableUpdateCompanionBuilder,
+          (
+            ReplayValidationResultsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ReplayValidationResultsTableTable,
+              ReplayValidationResultsTableData
+            >,
+          ),
+          ReplayValidationResultsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ReplayValidationResultsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ReplayValidationResultsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReplayValidationResultsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ReplayValidationResultsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ReplayValidationResultsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> scenarioId = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<double> replayConsistency = const Value.absent(),
+                Value<double> timelineConsistency = const Value.absent(),
+                Value<double> forecastConsistency = const Value.absent(),
+                Value<double> escalationDetectionScore = const Value.absent(),
+                Value<double> recoveryModelingScore = const Value.absent(),
+                Value<String> findings = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayValidationResultsTableCompanion(
+                id: id,
+                scenarioId: scenarioId,
+                generatedAt: generatedAt,
+                replayConsistency: replayConsistency,
+                timelineConsistency: timelineConsistency,
+                forecastConsistency: forecastConsistency,
+                escalationDetectionScore: escalationDetectionScore,
+                recoveryModelingScore: recoveryModelingScore,
+                findings: findings,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String scenarioId,
+                required DateTime generatedAt,
+                required double replayConsistency,
+                required double timelineConsistency,
+                required double forecastConsistency,
+                required double escalationDetectionScore,
+                required double recoveryModelingScore,
+                required String findings,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayValidationResultsTableCompanion.insert(
+                id: id,
+                scenarioId: scenarioId,
+                generatedAt: generatedAt,
+                replayConsistency: replayConsistency,
+                timelineConsistency: timelineConsistency,
+                forecastConsistency: forecastConsistency,
+                escalationDetectionScore: escalationDetectionScore,
+                recoveryModelingScore: recoveryModelingScore,
+                findings: findings,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReplayValidationResultsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ReplayValidationResultsTableTable,
+      ReplayValidationResultsTableData,
+      $$ReplayValidationResultsTableTableFilterComposer,
+      $$ReplayValidationResultsTableTableOrderingComposer,
+      $$ReplayValidationResultsTableTableAnnotationComposer,
+      $$ReplayValidationResultsTableTableCreateCompanionBuilder,
+      $$ReplayValidationResultsTableTableUpdateCompanionBuilder,
+      (
+        ReplayValidationResultsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ReplayValidationResultsTableTable,
+          ReplayValidationResultsTableData
+        >,
+      ),
+      ReplayValidationResultsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -19107,5 +21109,13 @@ class $SignalFlowDatabaseManager {
       $$RealtimePipelineSnapshotsTableTableTableManager(
         _db,
         _db.realtimePipelineSnapshotsTable,
+      );
+  $$ReplayScenariosTableTableTableManager get replayScenariosTable =>
+      $$ReplayScenariosTableTableTableManager(_db, _db.replayScenariosTable);
+  $$ReplayValidationResultsTableTableTableManager
+  get replayValidationResultsTable =>
+      $$ReplayValidationResultsTableTableTableManager(
+        _db,
+        _db.replayValidationResultsTable,
       );
 }

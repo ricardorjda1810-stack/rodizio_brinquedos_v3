@@ -14,6 +14,7 @@ import 'personalized_intervention_tables.dart';
 import 'physiological_trend_tables.dart';
 import 'predictive_forecast_tables.dart';
 import 'realtime_streaming_tables.dart';
+import 'replay_engine_tables.dart';
 import 'research_dashboard_tables.dart';
 import 'session_timeline_tables.dart';
 
@@ -40,6 +41,8 @@ part 'signalflow_database.g.dart';
     CohortAnalysisResultsTable,
     PhysiologicalEvolutionProfilesTable,
     RealtimePipelineSnapshotsTable,
+    ReplayScenariosTable,
+    ReplayValidationResultsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -53,7 +56,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -97,6 +100,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 11) {
           await migrator.createTable(realtimePipelineSnapshotsTable);
         }
+        if (from < 12) {
+          await migrator.createTable(replayScenariosTable);
+          await migrator.createTable(replayValidationResultsTable);
+        }
       },
     );
   }
@@ -122,6 +129,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(cohortAnalysisResultsTable);
       batch.deleteAll(physiologicalEvolutionProfilesTable);
       batch.deleteAll(realtimePipelineSnapshotsTable);
+      batch.deleteAll(replayScenariosTable);
+      batch.deleteAll(replayValidationResultsTable);
     });
   }
 }
