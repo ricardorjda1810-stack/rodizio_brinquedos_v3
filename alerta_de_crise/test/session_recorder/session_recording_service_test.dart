@@ -72,7 +72,7 @@ void main() {
     test('migration 17 to 18 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 20);
+      expect(migrationService.currentSchemaVersion, 21);
       final migration = migrationService.registeredMigrations.firstWhere(
         (migration) => migration.toVersion == 18,
       );

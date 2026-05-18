@@ -50,6 +50,8 @@ class DatabaseIntegrityService {
       'replay_benchmark_results_table',
       'calibration_profiles_table',
       'calibration_benchmark_results_table',
+      'sensor_reliability_profiles_table',
+      'sensor_comparison_results_table',
     ];
 
     final baselines = await _database
@@ -151,6 +153,12 @@ class DatabaseIntegrityService {
     final calibrationBenchmarkResults = await _database
         .select(_database.calibrationBenchmarkResultsTable)
         .get();
+    final sensorReliabilityProfiles = await _database
+        .select(_database.sensorReliabilityProfilesTable)
+        .get();
+    final sensorComparisonResults = await _database
+        .select(_database.sensorComparisonResultsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -197,6 +205,12 @@ class DatabaseIntegrityService {
       issues,
       warnings,
     );
+    _auditSensorReliabilityProfiles(
+      sensorReliabilityProfiles,
+      issues,
+      warnings,
+    );
+    _auditSensorComparisonResults(sensorComparisonResults, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -231,7 +245,9 @@ class DatabaseIntegrityService {
         sessionSnapshots.length +
         replayBenchmarkResults.length +
         calibrationProfiles.length +
-        calibrationBenchmarkResults.length;
+        calibrationBenchmarkResults.length +
+        sensorReliabilityProfiles.length +
+        sensorComparisonResults.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -1461,6 +1477,65 @@ class DatabaseIntegrityService {
           !row.safetyCopy.contains('não representa validação clínica')) {
         warnings.add(
           'Calibration benchmark result ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditSensorReliabilityProfiles(
+    List<SensorReliabilityProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.sensorType.trim().isEmpty) {
+        issues.add('Sensor reliability profile with empty sensorType.');
+      }
+      if (row.sampleCount < 0 ||
+          !_isPercent(row.averageConfidence) ||
+          !_isPercent(row.artifactRate) ||
+          !_isPercent(row.missingDataRate) ||
+          row.timingDriftMs < 0 ||
+          !_isPercent(row.agreementWithReference) ||
+          !_isPercent(row.reliabilityScore)) {
+        issues.add(
+          'Sensor reliability profile ${row.sensorType} has invalid metrics.',
+        );
+      }
+      if (!row.safetyCopy.contains('referência experimental') ||
+          !row.safetyCopy.contains('não representa validação clínica')) {
+        warnings.add(
+          'Sensor reliability profile ${row.sensorType} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditSensorComparisonResults(
+    List<SensorComparisonResultsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty ||
+          row.primarySensor.trim().isEmpty ||
+          row.referenceSensor.trim().isEmpty) {
+        issues.add(
+          'Sensor comparison result with empty id, primarySensor, or referenceSensor.',
+        );
+      }
+      if (!_isPercent(row.heartRateAgreement) ||
+          !_isPercent(row.hrvAgreement) ||
+          !_isPercent(row.timingAgreement) ||
+          row.divergenceCount < 0 ||
+          row.averageDriftMs < 0 ||
+          row.confidenceDelta < 0) {
+        issues.add('Sensor comparison result ${row.id} has invalid metrics.');
+      }
+      if (!row.safetyCopy.contains('comparação técnica de sinais') ||
+          !row.safetyCopy.contains('não representa validação clínica')) {
+        warnings.add(
+          'Sensor comparison result ${row.id} is missing explicit safety copy.',
         );
       }
     }

@@ -85,7 +85,7 @@ void main() {
     test('migration 18 to 19 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 20);
+      expect(migrationService.currentSchemaVersion, 21);
       final replayMigration = migrationService.registeredMigrations.firstWhere(
         (migration) => migration.toVersion == 19,
       );

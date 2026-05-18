@@ -23064,6 +23064,1402 @@ class CalibrationBenchmarkResultsTableCompanion
   }
 }
 
+class $SensorReliabilityProfilesTableTable
+    extends SensorReliabilityProfilesTable
+    with
+        TableInfo<
+          $SensorReliabilityProfilesTableTable,
+          SensorReliabilityProfilesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SensorReliabilityProfilesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sensorTypeMeta = const VerificationMeta(
+    'sensorType',
+  );
+  @override
+  late final GeneratedColumn<String> sensorType = GeneratedColumn<String>(
+    'sensor_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sampleCountMeta = const VerificationMeta(
+    'sampleCount',
+  );
+  @override
+  late final GeneratedColumn<int> sampleCount = GeneratedColumn<int>(
+    'sample_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageConfidenceMeta = const VerificationMeta(
+    'averageConfidence',
+  );
+  @override
+  late final GeneratedColumn<double> averageConfidence =
+      GeneratedColumn<double>(
+        'average_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _artifactRateMeta = const VerificationMeta(
+    'artifactRate',
+  );
+  @override
+  late final GeneratedColumn<double> artifactRate = GeneratedColumn<double>(
+    'artifact_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _missingDataRateMeta = const VerificationMeta(
+    'missingDataRate',
+  );
+  @override
+  late final GeneratedColumn<double> missingDataRate = GeneratedColumn<double>(
+    'missing_data_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timingDriftMsMeta = const VerificationMeta(
+    'timingDriftMs',
+  );
+  @override
+  late final GeneratedColumn<double> timingDriftMs = GeneratedColumn<double>(
+    'timing_drift_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _agreementWithReferenceMeta =
+      const VerificationMeta('agreementWithReference');
+  @override
+  late final GeneratedColumn<double> agreementWithReference =
+      GeneratedColumn<double>(
+        'agreement_with_reference',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _reliabilityScoreMeta = const VerificationMeta(
+    'reliabilityScore',
+  );
+  @override
+  late final GeneratedColumn<double> reliabilityScore = GeneratedColumn<double>(
+    'reliability_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    sensorType,
+    sampleCount,
+    averageConfidence,
+    artifactRate,
+    missingDataRate,
+    timingDriftMs,
+    agreementWithReference,
+    reliabilityScore,
+    generatedAt,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sensor_reliability_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SensorReliabilityProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('sensor_type')) {
+      context.handle(
+        _sensorTypeMeta,
+        sensorType.isAcceptableOrUnknown(data['sensor_type']!, _sensorTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sensorTypeMeta);
+    }
+    if (data.containsKey('sample_count')) {
+      context.handle(
+        _sampleCountMeta,
+        sampleCount.isAcceptableOrUnknown(
+          data['sample_count']!,
+          _sampleCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sampleCountMeta);
+    }
+    if (data.containsKey('average_confidence')) {
+      context.handle(
+        _averageConfidenceMeta,
+        averageConfidence.isAcceptableOrUnknown(
+          data['average_confidence']!,
+          _averageConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageConfidenceMeta);
+    }
+    if (data.containsKey('artifact_rate')) {
+      context.handle(
+        _artifactRateMeta,
+        artifactRate.isAcceptableOrUnknown(
+          data['artifact_rate']!,
+          _artifactRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_artifactRateMeta);
+    }
+    if (data.containsKey('missing_data_rate')) {
+      context.handle(
+        _missingDataRateMeta,
+        missingDataRate.isAcceptableOrUnknown(
+          data['missing_data_rate']!,
+          _missingDataRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_missingDataRateMeta);
+    }
+    if (data.containsKey('timing_drift_ms')) {
+      context.handle(
+        _timingDriftMsMeta,
+        timingDriftMs.isAcceptableOrUnknown(
+          data['timing_drift_ms']!,
+          _timingDriftMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timingDriftMsMeta);
+    }
+    if (data.containsKey('agreement_with_reference')) {
+      context.handle(
+        _agreementWithReferenceMeta,
+        agreementWithReference.isAcceptableOrUnknown(
+          data['agreement_with_reference']!,
+          _agreementWithReferenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_agreementWithReferenceMeta);
+    }
+    if (data.containsKey('reliability_score')) {
+      context.handle(
+        _reliabilityScoreMeta,
+        reliabilityScore.isAcceptableOrUnknown(
+          data['reliability_score']!,
+          _reliabilityScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reliabilityScoreMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {sensorType};
+  @override
+  SensorReliabilityProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SensorReliabilityProfilesTableData(
+      sensorType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sensor_type'],
+      )!,
+      sampleCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sample_count'],
+      )!,
+      averageConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_confidence'],
+      )!,
+      artifactRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}artifact_rate'],
+      )!,
+      missingDataRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}missing_data_rate'],
+      )!,
+      timingDriftMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}timing_drift_ms'],
+      )!,
+      agreementWithReference: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}agreement_with_reference'],
+      )!,
+      reliabilityScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}reliability_score'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $SensorReliabilityProfilesTableTable createAlias(String alias) {
+    return $SensorReliabilityProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class SensorReliabilityProfilesTableData extends DataClass
+    implements Insertable<SensorReliabilityProfilesTableData> {
+  final String sensorType;
+  final int sampleCount;
+  final double averageConfidence;
+  final double artifactRate;
+  final double missingDataRate;
+  final double timingDriftMs;
+  final double agreementWithReference;
+  final double reliabilityScore;
+  final DateTime generatedAt;
+  final String safetyCopy;
+  const SensorReliabilityProfilesTableData({
+    required this.sensorType,
+    required this.sampleCount,
+    required this.averageConfidence,
+    required this.artifactRate,
+    required this.missingDataRate,
+    required this.timingDriftMs,
+    required this.agreementWithReference,
+    required this.reliabilityScore,
+    required this.generatedAt,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['sensor_type'] = Variable<String>(sensorType);
+    map['sample_count'] = Variable<int>(sampleCount);
+    map['average_confidence'] = Variable<double>(averageConfidence);
+    map['artifact_rate'] = Variable<double>(artifactRate);
+    map['missing_data_rate'] = Variable<double>(missingDataRate);
+    map['timing_drift_ms'] = Variable<double>(timingDriftMs);
+    map['agreement_with_reference'] = Variable<double>(agreementWithReference);
+    map['reliability_score'] = Variable<double>(reliabilityScore);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  SensorReliabilityProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return SensorReliabilityProfilesTableCompanion(
+      sensorType: Value(sensorType),
+      sampleCount: Value(sampleCount),
+      averageConfidence: Value(averageConfidence),
+      artifactRate: Value(artifactRate),
+      missingDataRate: Value(missingDataRate),
+      timingDriftMs: Value(timingDriftMs),
+      agreementWithReference: Value(agreementWithReference),
+      reliabilityScore: Value(reliabilityScore),
+      generatedAt: Value(generatedAt),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory SensorReliabilityProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SensorReliabilityProfilesTableData(
+      sensorType: serializer.fromJson<String>(json['sensorType']),
+      sampleCount: serializer.fromJson<int>(json['sampleCount']),
+      averageConfidence: serializer.fromJson<double>(json['averageConfidence']),
+      artifactRate: serializer.fromJson<double>(json['artifactRate']),
+      missingDataRate: serializer.fromJson<double>(json['missingDataRate']),
+      timingDriftMs: serializer.fromJson<double>(json['timingDriftMs']),
+      agreementWithReference: serializer.fromJson<double>(
+        json['agreementWithReference'],
+      ),
+      reliabilityScore: serializer.fromJson<double>(json['reliabilityScore']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'sensorType': serializer.toJson<String>(sensorType),
+      'sampleCount': serializer.toJson<int>(sampleCount),
+      'averageConfidence': serializer.toJson<double>(averageConfidence),
+      'artifactRate': serializer.toJson<double>(artifactRate),
+      'missingDataRate': serializer.toJson<double>(missingDataRate),
+      'timingDriftMs': serializer.toJson<double>(timingDriftMs),
+      'agreementWithReference': serializer.toJson<double>(
+        agreementWithReference,
+      ),
+      'reliabilityScore': serializer.toJson<double>(reliabilityScore),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  SensorReliabilityProfilesTableData copyWith({
+    String? sensorType,
+    int? sampleCount,
+    double? averageConfidence,
+    double? artifactRate,
+    double? missingDataRate,
+    double? timingDriftMs,
+    double? agreementWithReference,
+    double? reliabilityScore,
+    DateTime? generatedAt,
+    String? safetyCopy,
+  }) => SensorReliabilityProfilesTableData(
+    sensorType: sensorType ?? this.sensorType,
+    sampleCount: sampleCount ?? this.sampleCount,
+    averageConfidence: averageConfidence ?? this.averageConfidence,
+    artifactRate: artifactRate ?? this.artifactRate,
+    missingDataRate: missingDataRate ?? this.missingDataRate,
+    timingDriftMs: timingDriftMs ?? this.timingDriftMs,
+    agreementWithReference:
+        agreementWithReference ?? this.agreementWithReference,
+    reliabilityScore: reliabilityScore ?? this.reliabilityScore,
+    generatedAt: generatedAt ?? this.generatedAt,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  SensorReliabilityProfilesTableData copyWithCompanion(
+    SensorReliabilityProfilesTableCompanion data,
+  ) {
+    return SensorReliabilityProfilesTableData(
+      sensorType: data.sensorType.present
+          ? data.sensorType.value
+          : this.sensorType,
+      sampleCount: data.sampleCount.present
+          ? data.sampleCount.value
+          : this.sampleCount,
+      averageConfidence: data.averageConfidence.present
+          ? data.averageConfidence.value
+          : this.averageConfidence,
+      artifactRate: data.artifactRate.present
+          ? data.artifactRate.value
+          : this.artifactRate,
+      missingDataRate: data.missingDataRate.present
+          ? data.missingDataRate.value
+          : this.missingDataRate,
+      timingDriftMs: data.timingDriftMs.present
+          ? data.timingDriftMs.value
+          : this.timingDriftMs,
+      agreementWithReference: data.agreementWithReference.present
+          ? data.agreementWithReference.value
+          : this.agreementWithReference,
+      reliabilityScore: data.reliabilityScore.present
+          ? data.reliabilityScore.value
+          : this.reliabilityScore,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SensorReliabilityProfilesTableData(')
+          ..write('sensorType: $sensorType, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('artifactRate: $artifactRate, ')
+          ..write('missingDataRate: $missingDataRate, ')
+          ..write('timingDriftMs: $timingDriftMs, ')
+          ..write('agreementWithReference: $agreementWithReference, ')
+          ..write('reliabilityScore: $reliabilityScore, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    sensorType,
+    sampleCount,
+    averageConfidence,
+    artifactRate,
+    missingDataRate,
+    timingDriftMs,
+    agreementWithReference,
+    reliabilityScore,
+    generatedAt,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SensorReliabilityProfilesTableData &&
+          other.sensorType == this.sensorType &&
+          other.sampleCount == this.sampleCount &&
+          other.averageConfidence == this.averageConfidence &&
+          other.artifactRate == this.artifactRate &&
+          other.missingDataRate == this.missingDataRate &&
+          other.timingDriftMs == this.timingDriftMs &&
+          other.agreementWithReference == this.agreementWithReference &&
+          other.reliabilityScore == this.reliabilityScore &&
+          other.generatedAt == this.generatedAt &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class SensorReliabilityProfilesTableCompanion
+    extends UpdateCompanion<SensorReliabilityProfilesTableData> {
+  final Value<String> sensorType;
+  final Value<int> sampleCount;
+  final Value<double> averageConfidence;
+  final Value<double> artifactRate;
+  final Value<double> missingDataRate;
+  final Value<double> timingDriftMs;
+  final Value<double> agreementWithReference;
+  final Value<double> reliabilityScore;
+  final Value<DateTime> generatedAt;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const SensorReliabilityProfilesTableCompanion({
+    this.sensorType = const Value.absent(),
+    this.sampleCount = const Value.absent(),
+    this.averageConfidence = const Value.absent(),
+    this.artifactRate = const Value.absent(),
+    this.missingDataRate = const Value.absent(),
+    this.timingDriftMs = const Value.absent(),
+    this.agreementWithReference = const Value.absent(),
+    this.reliabilityScore = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SensorReliabilityProfilesTableCompanion.insert({
+    required String sensorType,
+    required int sampleCount,
+    required double averageConfidence,
+    required double artifactRate,
+    required double missingDataRate,
+    required double timingDriftMs,
+    required double agreementWithReference,
+    required double reliabilityScore,
+    required DateTime generatedAt,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : sensorType = Value(sensorType),
+       sampleCount = Value(sampleCount),
+       averageConfidence = Value(averageConfidence),
+       artifactRate = Value(artifactRate),
+       missingDataRate = Value(missingDataRate),
+       timingDriftMs = Value(timingDriftMs),
+       agreementWithReference = Value(agreementWithReference),
+       reliabilityScore = Value(reliabilityScore),
+       generatedAt = Value(generatedAt),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<SensorReliabilityProfilesTableData> custom({
+    Expression<String>? sensorType,
+    Expression<int>? sampleCount,
+    Expression<double>? averageConfidence,
+    Expression<double>? artifactRate,
+    Expression<double>? missingDataRate,
+    Expression<double>? timingDriftMs,
+    Expression<double>? agreementWithReference,
+    Expression<double>? reliabilityScore,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (sensorType != null) 'sensor_type': sensorType,
+      if (sampleCount != null) 'sample_count': sampleCount,
+      if (averageConfidence != null) 'average_confidence': averageConfidence,
+      if (artifactRate != null) 'artifact_rate': artifactRate,
+      if (missingDataRate != null) 'missing_data_rate': missingDataRate,
+      if (timingDriftMs != null) 'timing_drift_ms': timingDriftMs,
+      if (agreementWithReference != null)
+        'agreement_with_reference': agreementWithReference,
+      if (reliabilityScore != null) 'reliability_score': reliabilityScore,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SensorReliabilityProfilesTableCompanion copyWith({
+    Value<String>? sensorType,
+    Value<int>? sampleCount,
+    Value<double>? averageConfidence,
+    Value<double>? artifactRate,
+    Value<double>? missingDataRate,
+    Value<double>? timingDriftMs,
+    Value<double>? agreementWithReference,
+    Value<double>? reliabilityScore,
+    Value<DateTime>? generatedAt,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return SensorReliabilityProfilesTableCompanion(
+      sensorType: sensorType ?? this.sensorType,
+      sampleCount: sampleCount ?? this.sampleCount,
+      averageConfidence: averageConfidence ?? this.averageConfidence,
+      artifactRate: artifactRate ?? this.artifactRate,
+      missingDataRate: missingDataRate ?? this.missingDataRate,
+      timingDriftMs: timingDriftMs ?? this.timingDriftMs,
+      agreementWithReference:
+          agreementWithReference ?? this.agreementWithReference,
+      reliabilityScore: reliabilityScore ?? this.reliabilityScore,
+      generatedAt: generatedAt ?? this.generatedAt,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (sensorType.present) {
+      map['sensor_type'] = Variable<String>(sensorType.value);
+    }
+    if (sampleCount.present) {
+      map['sample_count'] = Variable<int>(sampleCount.value);
+    }
+    if (averageConfidence.present) {
+      map['average_confidence'] = Variable<double>(averageConfidence.value);
+    }
+    if (artifactRate.present) {
+      map['artifact_rate'] = Variable<double>(artifactRate.value);
+    }
+    if (missingDataRate.present) {
+      map['missing_data_rate'] = Variable<double>(missingDataRate.value);
+    }
+    if (timingDriftMs.present) {
+      map['timing_drift_ms'] = Variable<double>(timingDriftMs.value);
+    }
+    if (agreementWithReference.present) {
+      map['agreement_with_reference'] = Variable<double>(
+        agreementWithReference.value,
+      );
+    }
+    if (reliabilityScore.present) {
+      map['reliability_score'] = Variable<double>(reliabilityScore.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SensorReliabilityProfilesTableCompanion(')
+          ..write('sensorType: $sensorType, ')
+          ..write('sampleCount: $sampleCount, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('artifactRate: $artifactRate, ')
+          ..write('missingDataRate: $missingDataRate, ')
+          ..write('timingDriftMs: $timingDriftMs, ')
+          ..write('agreementWithReference: $agreementWithReference, ')
+          ..write('reliabilityScore: $reliabilityScore, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SensorComparisonResultsTableTable extends SensorComparisonResultsTable
+    with
+        TableInfo<
+          $SensorComparisonResultsTableTable,
+          SensorComparisonResultsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SensorComparisonResultsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _primarySensorMeta = const VerificationMeta(
+    'primarySensor',
+  );
+  @override
+  late final GeneratedColumn<String> primarySensor = GeneratedColumn<String>(
+    'primary_sensor',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _referenceSensorMeta = const VerificationMeta(
+    'referenceSensor',
+  );
+  @override
+  late final GeneratedColumn<String> referenceSensor = GeneratedColumn<String>(
+    'reference_sensor',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heartRateAgreementMeta =
+      const VerificationMeta('heartRateAgreement');
+  @override
+  late final GeneratedColumn<double> heartRateAgreement =
+      GeneratedColumn<double>(
+        'heart_rate_agreement',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _hrvAgreementMeta = const VerificationMeta(
+    'hrvAgreement',
+  );
+  @override
+  late final GeneratedColumn<double> hrvAgreement = GeneratedColumn<double>(
+    'hrv_agreement',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timingAgreementMeta = const VerificationMeta(
+    'timingAgreement',
+  );
+  @override
+  late final GeneratedColumn<double> timingAgreement = GeneratedColumn<double>(
+    'timing_agreement',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _divergenceCountMeta = const VerificationMeta(
+    'divergenceCount',
+  );
+  @override
+  late final GeneratedColumn<int> divergenceCount = GeneratedColumn<int>(
+    'divergence_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageDriftMsMeta = const VerificationMeta(
+    'averageDriftMs',
+  );
+  @override
+  late final GeneratedColumn<double> averageDriftMs = GeneratedColumn<double>(
+    'average_drift_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceDeltaMeta = const VerificationMeta(
+    'confidenceDelta',
+  );
+  @override
+  late final GeneratedColumn<double> confidenceDelta = GeneratedColumn<double>(
+    'confidence_delta',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    primarySensor,
+    referenceSensor,
+    heartRateAgreement,
+    hrvAgreement,
+    timingAgreement,
+    divergenceCount,
+    averageDriftMs,
+    confidenceDelta,
+    generatedAt,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sensor_comparison_results_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SensorComparisonResultsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('primary_sensor')) {
+      context.handle(
+        _primarySensorMeta,
+        primarySensor.isAcceptableOrUnknown(
+          data['primary_sensor']!,
+          _primarySensorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_primarySensorMeta);
+    }
+    if (data.containsKey('reference_sensor')) {
+      context.handle(
+        _referenceSensorMeta,
+        referenceSensor.isAcceptableOrUnknown(
+          data['reference_sensor']!,
+          _referenceSensorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_referenceSensorMeta);
+    }
+    if (data.containsKey('heart_rate_agreement')) {
+      context.handle(
+        _heartRateAgreementMeta,
+        heartRateAgreement.isAcceptableOrUnknown(
+          data['heart_rate_agreement']!,
+          _heartRateAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_heartRateAgreementMeta);
+    }
+    if (data.containsKey('hrv_agreement')) {
+      context.handle(
+        _hrvAgreementMeta,
+        hrvAgreement.isAcceptableOrUnknown(
+          data['hrv_agreement']!,
+          _hrvAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvAgreementMeta);
+    }
+    if (data.containsKey('timing_agreement')) {
+      context.handle(
+        _timingAgreementMeta,
+        timingAgreement.isAcceptableOrUnknown(
+          data['timing_agreement']!,
+          _timingAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timingAgreementMeta);
+    }
+    if (data.containsKey('divergence_count')) {
+      context.handle(
+        _divergenceCountMeta,
+        divergenceCount.isAcceptableOrUnknown(
+          data['divergence_count']!,
+          _divergenceCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_divergenceCountMeta);
+    }
+    if (data.containsKey('average_drift_ms')) {
+      context.handle(
+        _averageDriftMsMeta,
+        averageDriftMs.isAcceptableOrUnknown(
+          data['average_drift_ms']!,
+          _averageDriftMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageDriftMsMeta);
+    }
+    if (data.containsKey('confidence_delta')) {
+      context.handle(
+        _confidenceDeltaMeta,
+        confidenceDelta.isAcceptableOrUnknown(
+          data['confidence_delta']!,
+          _confidenceDeltaMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceDeltaMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SensorComparisonResultsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SensorComparisonResultsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      primarySensor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}primary_sensor'],
+      )!,
+      referenceSensor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_sensor'],
+      )!,
+      heartRateAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}heart_rate_agreement'],
+      )!,
+      hrvAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv_agreement'],
+      )!,
+      timingAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}timing_agreement'],
+      )!,
+      divergenceCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}divergence_count'],
+      )!,
+      averageDriftMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_drift_ms'],
+      )!,
+      confidenceDelta: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence_delta'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $SensorComparisonResultsTableTable createAlias(String alias) {
+    return $SensorComparisonResultsTableTable(attachedDatabase, alias);
+  }
+}
+
+class SensorComparisonResultsTableData extends DataClass
+    implements Insertable<SensorComparisonResultsTableData> {
+  final String id;
+  final String primarySensor;
+  final String referenceSensor;
+  final double heartRateAgreement;
+  final double hrvAgreement;
+  final double timingAgreement;
+  final int divergenceCount;
+  final double averageDriftMs;
+  final double confidenceDelta;
+  final DateTime generatedAt;
+  final String safetyCopy;
+  const SensorComparisonResultsTableData({
+    required this.id,
+    required this.primarySensor,
+    required this.referenceSensor,
+    required this.heartRateAgreement,
+    required this.hrvAgreement,
+    required this.timingAgreement,
+    required this.divergenceCount,
+    required this.averageDriftMs,
+    required this.confidenceDelta,
+    required this.generatedAt,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['primary_sensor'] = Variable<String>(primarySensor);
+    map['reference_sensor'] = Variable<String>(referenceSensor);
+    map['heart_rate_agreement'] = Variable<double>(heartRateAgreement);
+    map['hrv_agreement'] = Variable<double>(hrvAgreement);
+    map['timing_agreement'] = Variable<double>(timingAgreement);
+    map['divergence_count'] = Variable<int>(divergenceCount);
+    map['average_drift_ms'] = Variable<double>(averageDriftMs);
+    map['confidence_delta'] = Variable<double>(confidenceDelta);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  SensorComparisonResultsTableCompanion toCompanion(bool nullToAbsent) {
+    return SensorComparisonResultsTableCompanion(
+      id: Value(id),
+      primarySensor: Value(primarySensor),
+      referenceSensor: Value(referenceSensor),
+      heartRateAgreement: Value(heartRateAgreement),
+      hrvAgreement: Value(hrvAgreement),
+      timingAgreement: Value(timingAgreement),
+      divergenceCount: Value(divergenceCount),
+      averageDriftMs: Value(averageDriftMs),
+      confidenceDelta: Value(confidenceDelta),
+      generatedAt: Value(generatedAt),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory SensorComparisonResultsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SensorComparisonResultsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      primarySensor: serializer.fromJson<String>(json['primarySensor']),
+      referenceSensor: serializer.fromJson<String>(json['referenceSensor']),
+      heartRateAgreement: serializer.fromJson<double>(
+        json['heartRateAgreement'],
+      ),
+      hrvAgreement: serializer.fromJson<double>(json['hrvAgreement']),
+      timingAgreement: serializer.fromJson<double>(json['timingAgreement']),
+      divergenceCount: serializer.fromJson<int>(json['divergenceCount']),
+      averageDriftMs: serializer.fromJson<double>(json['averageDriftMs']),
+      confidenceDelta: serializer.fromJson<double>(json['confidenceDelta']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'primarySensor': serializer.toJson<String>(primarySensor),
+      'referenceSensor': serializer.toJson<String>(referenceSensor),
+      'heartRateAgreement': serializer.toJson<double>(heartRateAgreement),
+      'hrvAgreement': serializer.toJson<double>(hrvAgreement),
+      'timingAgreement': serializer.toJson<double>(timingAgreement),
+      'divergenceCount': serializer.toJson<int>(divergenceCount),
+      'averageDriftMs': serializer.toJson<double>(averageDriftMs),
+      'confidenceDelta': serializer.toJson<double>(confidenceDelta),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  SensorComparisonResultsTableData copyWith({
+    String? id,
+    String? primarySensor,
+    String? referenceSensor,
+    double? heartRateAgreement,
+    double? hrvAgreement,
+    double? timingAgreement,
+    int? divergenceCount,
+    double? averageDriftMs,
+    double? confidenceDelta,
+    DateTime? generatedAt,
+    String? safetyCopy,
+  }) => SensorComparisonResultsTableData(
+    id: id ?? this.id,
+    primarySensor: primarySensor ?? this.primarySensor,
+    referenceSensor: referenceSensor ?? this.referenceSensor,
+    heartRateAgreement: heartRateAgreement ?? this.heartRateAgreement,
+    hrvAgreement: hrvAgreement ?? this.hrvAgreement,
+    timingAgreement: timingAgreement ?? this.timingAgreement,
+    divergenceCount: divergenceCount ?? this.divergenceCount,
+    averageDriftMs: averageDriftMs ?? this.averageDriftMs,
+    confidenceDelta: confidenceDelta ?? this.confidenceDelta,
+    generatedAt: generatedAt ?? this.generatedAt,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  SensorComparisonResultsTableData copyWithCompanion(
+    SensorComparisonResultsTableCompanion data,
+  ) {
+    return SensorComparisonResultsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      primarySensor: data.primarySensor.present
+          ? data.primarySensor.value
+          : this.primarySensor,
+      referenceSensor: data.referenceSensor.present
+          ? data.referenceSensor.value
+          : this.referenceSensor,
+      heartRateAgreement: data.heartRateAgreement.present
+          ? data.heartRateAgreement.value
+          : this.heartRateAgreement,
+      hrvAgreement: data.hrvAgreement.present
+          ? data.hrvAgreement.value
+          : this.hrvAgreement,
+      timingAgreement: data.timingAgreement.present
+          ? data.timingAgreement.value
+          : this.timingAgreement,
+      divergenceCount: data.divergenceCount.present
+          ? data.divergenceCount.value
+          : this.divergenceCount,
+      averageDriftMs: data.averageDriftMs.present
+          ? data.averageDriftMs.value
+          : this.averageDriftMs,
+      confidenceDelta: data.confidenceDelta.present
+          ? data.confidenceDelta.value
+          : this.confidenceDelta,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SensorComparisonResultsTableData(')
+          ..write('id: $id, ')
+          ..write('primarySensor: $primarySensor, ')
+          ..write('referenceSensor: $referenceSensor, ')
+          ..write('heartRateAgreement: $heartRateAgreement, ')
+          ..write('hrvAgreement: $hrvAgreement, ')
+          ..write('timingAgreement: $timingAgreement, ')
+          ..write('divergenceCount: $divergenceCount, ')
+          ..write('averageDriftMs: $averageDriftMs, ')
+          ..write('confidenceDelta: $confidenceDelta, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    primarySensor,
+    referenceSensor,
+    heartRateAgreement,
+    hrvAgreement,
+    timingAgreement,
+    divergenceCount,
+    averageDriftMs,
+    confidenceDelta,
+    generatedAt,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SensorComparisonResultsTableData &&
+          other.id == this.id &&
+          other.primarySensor == this.primarySensor &&
+          other.referenceSensor == this.referenceSensor &&
+          other.heartRateAgreement == this.heartRateAgreement &&
+          other.hrvAgreement == this.hrvAgreement &&
+          other.timingAgreement == this.timingAgreement &&
+          other.divergenceCount == this.divergenceCount &&
+          other.averageDriftMs == this.averageDriftMs &&
+          other.confidenceDelta == this.confidenceDelta &&
+          other.generatedAt == this.generatedAt &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class SensorComparisonResultsTableCompanion
+    extends UpdateCompanion<SensorComparisonResultsTableData> {
+  final Value<String> id;
+  final Value<String> primarySensor;
+  final Value<String> referenceSensor;
+  final Value<double> heartRateAgreement;
+  final Value<double> hrvAgreement;
+  final Value<double> timingAgreement;
+  final Value<int> divergenceCount;
+  final Value<double> averageDriftMs;
+  final Value<double> confidenceDelta;
+  final Value<DateTime> generatedAt;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const SensorComparisonResultsTableCompanion({
+    this.id = const Value.absent(),
+    this.primarySensor = const Value.absent(),
+    this.referenceSensor = const Value.absent(),
+    this.heartRateAgreement = const Value.absent(),
+    this.hrvAgreement = const Value.absent(),
+    this.timingAgreement = const Value.absent(),
+    this.divergenceCount = const Value.absent(),
+    this.averageDriftMs = const Value.absent(),
+    this.confidenceDelta = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SensorComparisonResultsTableCompanion.insert({
+    required String id,
+    required String primarySensor,
+    required String referenceSensor,
+    required double heartRateAgreement,
+    required double hrvAgreement,
+    required double timingAgreement,
+    required int divergenceCount,
+    required double averageDriftMs,
+    required double confidenceDelta,
+    required DateTime generatedAt,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       primarySensor = Value(primarySensor),
+       referenceSensor = Value(referenceSensor),
+       heartRateAgreement = Value(heartRateAgreement),
+       hrvAgreement = Value(hrvAgreement),
+       timingAgreement = Value(timingAgreement),
+       divergenceCount = Value(divergenceCount),
+       averageDriftMs = Value(averageDriftMs),
+       confidenceDelta = Value(confidenceDelta),
+       generatedAt = Value(generatedAt),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<SensorComparisonResultsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? primarySensor,
+    Expression<String>? referenceSensor,
+    Expression<double>? heartRateAgreement,
+    Expression<double>? hrvAgreement,
+    Expression<double>? timingAgreement,
+    Expression<int>? divergenceCount,
+    Expression<double>? averageDriftMs,
+    Expression<double>? confidenceDelta,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (primarySensor != null) 'primary_sensor': primarySensor,
+      if (referenceSensor != null) 'reference_sensor': referenceSensor,
+      if (heartRateAgreement != null)
+        'heart_rate_agreement': heartRateAgreement,
+      if (hrvAgreement != null) 'hrv_agreement': hrvAgreement,
+      if (timingAgreement != null) 'timing_agreement': timingAgreement,
+      if (divergenceCount != null) 'divergence_count': divergenceCount,
+      if (averageDriftMs != null) 'average_drift_ms': averageDriftMs,
+      if (confidenceDelta != null) 'confidence_delta': confidenceDelta,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SensorComparisonResultsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? primarySensor,
+    Value<String>? referenceSensor,
+    Value<double>? heartRateAgreement,
+    Value<double>? hrvAgreement,
+    Value<double>? timingAgreement,
+    Value<int>? divergenceCount,
+    Value<double>? averageDriftMs,
+    Value<double>? confidenceDelta,
+    Value<DateTime>? generatedAt,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return SensorComparisonResultsTableCompanion(
+      id: id ?? this.id,
+      primarySensor: primarySensor ?? this.primarySensor,
+      referenceSensor: referenceSensor ?? this.referenceSensor,
+      heartRateAgreement: heartRateAgreement ?? this.heartRateAgreement,
+      hrvAgreement: hrvAgreement ?? this.hrvAgreement,
+      timingAgreement: timingAgreement ?? this.timingAgreement,
+      divergenceCount: divergenceCount ?? this.divergenceCount,
+      averageDriftMs: averageDriftMs ?? this.averageDriftMs,
+      confidenceDelta: confidenceDelta ?? this.confidenceDelta,
+      generatedAt: generatedAt ?? this.generatedAt,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (primarySensor.present) {
+      map['primary_sensor'] = Variable<String>(primarySensor.value);
+    }
+    if (referenceSensor.present) {
+      map['reference_sensor'] = Variable<String>(referenceSensor.value);
+    }
+    if (heartRateAgreement.present) {
+      map['heart_rate_agreement'] = Variable<double>(heartRateAgreement.value);
+    }
+    if (hrvAgreement.present) {
+      map['hrv_agreement'] = Variable<double>(hrvAgreement.value);
+    }
+    if (timingAgreement.present) {
+      map['timing_agreement'] = Variable<double>(timingAgreement.value);
+    }
+    if (divergenceCount.present) {
+      map['divergence_count'] = Variable<int>(divergenceCount.value);
+    }
+    if (averageDriftMs.present) {
+      map['average_drift_ms'] = Variable<double>(averageDriftMs.value);
+    }
+    if (confidenceDelta.present) {
+      map['confidence_delta'] = Variable<double>(confidenceDelta.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SensorComparisonResultsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('primarySensor: $primarySensor, ')
+          ..write('referenceSensor: $referenceSensor, ')
+          ..write('heartRateAgreement: $heartRateAgreement, ')
+          ..write('hrvAgreement: $hrvAgreement, ')
+          ..write('timingAgreement: $timingAgreement, ')
+          ..write('divergenceCount: $divergenceCount, ')
+          ..write('averageDriftMs: $averageDriftMs, ')
+          ..write('confidenceDelta: $confidenceDelta, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -23147,6 +24543,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   calibrationBenchmarkResultsTable = $CalibrationBenchmarkResultsTableTable(
     this,
   );
+  late final $SensorReliabilityProfilesTableTable
+  sensorReliabilityProfilesTable = $SensorReliabilityProfilesTableTable(this);
+  late final $SensorComparisonResultsTableTable sensorComparisonResultsTable =
+      $SensorComparisonResultsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -23185,6 +24585,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     replayBenchmarkResultsTable,
     calibrationProfilesTable,
     calibrationBenchmarkResultsTable,
+    sensorReliabilityProfilesTable,
+    sensorComparisonResultsTable,
   ];
 }
 
@@ -34530,6 +35932,696 @@ typedef $$CalibrationBenchmarkResultsTableTableProcessedTableManager =
       CalibrationBenchmarkResultsTableData,
       PrefetchHooks Function()
     >;
+typedef $$SensorReliabilityProfilesTableTableCreateCompanionBuilder =
+    SensorReliabilityProfilesTableCompanion Function({
+      required String sensorType,
+      required int sampleCount,
+      required double averageConfidence,
+      required double artifactRate,
+      required double missingDataRate,
+      required double timingDriftMs,
+      required double agreementWithReference,
+      required double reliabilityScore,
+      required DateTime generatedAt,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$SensorReliabilityProfilesTableTableUpdateCompanionBuilder =
+    SensorReliabilityProfilesTableCompanion Function({
+      Value<String> sensorType,
+      Value<int> sampleCount,
+      Value<double> averageConfidence,
+      Value<double> artifactRate,
+      Value<double> missingDataRate,
+      Value<double> timingDriftMs,
+      Value<double> agreementWithReference,
+      Value<double> reliabilityScore,
+      Value<DateTime> generatedAt,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$SensorReliabilityProfilesTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SensorReliabilityProfilesTableTable> {
+  $$SensorReliabilityProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get sensorType => $composableBuilder(
+    column: $table.sensorType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get artifactRate => $composableBuilder(
+    column: $table.artifactRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get missingDataRate => $composableBuilder(
+    column: $table.missingDataRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get timingDriftMs => $composableBuilder(
+    column: $table.timingDriftMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get agreementWithReference => $composableBuilder(
+    column: $table.agreementWithReference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get reliabilityScore => $composableBuilder(
+    column: $table.reliabilityScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SensorReliabilityProfilesTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SensorReliabilityProfilesTableTable> {
+  $$SensorReliabilityProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get sensorType => $composableBuilder(
+    column: $table.sensorType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get artifactRate => $composableBuilder(
+    column: $table.artifactRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get missingDataRate => $composableBuilder(
+    column: $table.missingDataRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get timingDriftMs => $composableBuilder(
+    column: $table.timingDriftMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get agreementWithReference => $composableBuilder(
+    column: $table.agreementWithReference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get reliabilityScore => $composableBuilder(
+    column: $table.reliabilityScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SensorReliabilityProfilesTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SensorReliabilityProfilesTableTable> {
+  $$SensorReliabilityProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get sensorType => $composableBuilder(
+    column: $table.sensorType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sampleCount => $composableBuilder(
+    column: $table.sampleCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get artifactRate => $composableBuilder(
+    column: $table.artifactRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get missingDataRate => $composableBuilder(
+    column: $table.missingDataRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get timingDriftMs => $composableBuilder(
+    column: $table.timingDriftMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get agreementWithReference => $composableBuilder(
+    column: $table.agreementWithReference,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get reliabilityScore => $composableBuilder(
+    column: $table.reliabilityScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$SensorReliabilityProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $SensorReliabilityProfilesTableTable,
+          SensorReliabilityProfilesTableData,
+          $$SensorReliabilityProfilesTableTableFilterComposer,
+          $$SensorReliabilityProfilesTableTableOrderingComposer,
+          $$SensorReliabilityProfilesTableTableAnnotationComposer,
+          $$SensorReliabilityProfilesTableTableCreateCompanionBuilder,
+          $$SensorReliabilityProfilesTableTableUpdateCompanionBuilder,
+          (
+            SensorReliabilityProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $SensorReliabilityProfilesTableTable,
+              SensorReliabilityProfilesTableData
+            >,
+          ),
+          SensorReliabilityProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$SensorReliabilityProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $SensorReliabilityProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SensorReliabilityProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SensorReliabilityProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SensorReliabilityProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> sensorType = const Value.absent(),
+                Value<int> sampleCount = const Value.absent(),
+                Value<double> averageConfidence = const Value.absent(),
+                Value<double> artifactRate = const Value.absent(),
+                Value<double> missingDataRate = const Value.absent(),
+                Value<double> timingDriftMs = const Value.absent(),
+                Value<double> agreementWithReference = const Value.absent(),
+                Value<double> reliabilityScore = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SensorReliabilityProfilesTableCompanion(
+                sensorType: sensorType,
+                sampleCount: sampleCount,
+                averageConfidence: averageConfidence,
+                artifactRate: artifactRate,
+                missingDataRate: missingDataRate,
+                timingDriftMs: timingDriftMs,
+                agreementWithReference: agreementWithReference,
+                reliabilityScore: reliabilityScore,
+                generatedAt: generatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String sensorType,
+                required int sampleCount,
+                required double averageConfidence,
+                required double artifactRate,
+                required double missingDataRate,
+                required double timingDriftMs,
+                required double agreementWithReference,
+                required double reliabilityScore,
+                required DateTime generatedAt,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => SensorReliabilityProfilesTableCompanion.insert(
+                sensorType: sensorType,
+                sampleCount: sampleCount,
+                averageConfidence: averageConfidence,
+                artifactRate: artifactRate,
+                missingDataRate: missingDataRate,
+                timingDriftMs: timingDriftMs,
+                agreementWithReference: agreementWithReference,
+                reliabilityScore: reliabilityScore,
+                generatedAt: generatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SensorReliabilityProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $SensorReliabilityProfilesTableTable,
+      SensorReliabilityProfilesTableData,
+      $$SensorReliabilityProfilesTableTableFilterComposer,
+      $$SensorReliabilityProfilesTableTableOrderingComposer,
+      $$SensorReliabilityProfilesTableTableAnnotationComposer,
+      $$SensorReliabilityProfilesTableTableCreateCompanionBuilder,
+      $$SensorReliabilityProfilesTableTableUpdateCompanionBuilder,
+      (
+        SensorReliabilityProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $SensorReliabilityProfilesTableTable,
+          SensorReliabilityProfilesTableData
+        >,
+      ),
+      SensorReliabilityProfilesTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$SensorComparisonResultsTableTableCreateCompanionBuilder =
+    SensorComparisonResultsTableCompanion Function({
+      required String id,
+      required String primarySensor,
+      required String referenceSensor,
+      required double heartRateAgreement,
+      required double hrvAgreement,
+      required double timingAgreement,
+      required int divergenceCount,
+      required double averageDriftMs,
+      required double confidenceDelta,
+      required DateTime generatedAt,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$SensorComparisonResultsTableTableUpdateCompanionBuilder =
+    SensorComparisonResultsTableCompanion Function({
+      Value<String> id,
+      Value<String> primarySensor,
+      Value<String> referenceSensor,
+      Value<double> heartRateAgreement,
+      Value<double> hrvAgreement,
+      Value<double> timingAgreement,
+      Value<int> divergenceCount,
+      Value<double> averageDriftMs,
+      Value<double> confidenceDelta,
+      Value<DateTime> generatedAt,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$SensorComparisonResultsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $SensorComparisonResultsTableTable> {
+  $$SensorComparisonResultsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get primarySensor => $composableBuilder(
+    column: $table.primarySensor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get referenceSensor => $composableBuilder(
+    column: $table.referenceSensor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heartRateAgreement => $composableBuilder(
+    column: $table.heartRateAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrvAgreement => $composableBuilder(
+    column: $table.hrvAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get timingAgreement => $composableBuilder(
+    column: $table.timingAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get divergenceCount => $composableBuilder(
+    column: $table.divergenceCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageDriftMs => $composableBuilder(
+    column: $table.averageDriftMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidenceDelta => $composableBuilder(
+    column: $table.confidenceDelta,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SensorComparisonResultsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $SensorComparisonResultsTableTable> {
+  $$SensorComparisonResultsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get primarySensor => $composableBuilder(
+    column: $table.primarySensor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get referenceSensor => $composableBuilder(
+    column: $table.referenceSensor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heartRateAgreement => $composableBuilder(
+    column: $table.heartRateAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrvAgreement => $composableBuilder(
+    column: $table.hrvAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get timingAgreement => $composableBuilder(
+    column: $table.timingAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get divergenceCount => $composableBuilder(
+    column: $table.divergenceCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageDriftMs => $composableBuilder(
+    column: $table.averageDriftMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidenceDelta => $composableBuilder(
+    column: $table.confidenceDelta,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SensorComparisonResultsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $SensorComparisonResultsTableTable> {
+  $$SensorComparisonResultsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get primarySensor => $composableBuilder(
+    column: $table.primarySensor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get referenceSensor => $composableBuilder(
+    column: $table.referenceSensor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get heartRateAgreement => $composableBuilder(
+    column: $table.heartRateAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get hrvAgreement => $composableBuilder(
+    column: $table.hrvAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get timingAgreement => $composableBuilder(
+    column: $table.timingAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get divergenceCount => $composableBuilder(
+    column: $table.divergenceCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageDriftMs => $composableBuilder(
+    column: $table.averageDriftMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidenceDelta => $composableBuilder(
+    column: $table.confidenceDelta,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$SensorComparisonResultsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $SensorComparisonResultsTableTable,
+          SensorComparisonResultsTableData,
+          $$SensorComparisonResultsTableTableFilterComposer,
+          $$SensorComparisonResultsTableTableOrderingComposer,
+          $$SensorComparisonResultsTableTableAnnotationComposer,
+          $$SensorComparisonResultsTableTableCreateCompanionBuilder,
+          $$SensorComparisonResultsTableTableUpdateCompanionBuilder,
+          (
+            SensorComparisonResultsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $SensorComparisonResultsTableTable,
+              SensorComparisonResultsTableData
+            >,
+          ),
+          SensorComparisonResultsTableData,
+          PrefetchHooks Function()
+        > {
+  $$SensorComparisonResultsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $SensorComparisonResultsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SensorComparisonResultsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SensorComparisonResultsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SensorComparisonResultsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> primarySensor = const Value.absent(),
+                Value<String> referenceSensor = const Value.absent(),
+                Value<double> heartRateAgreement = const Value.absent(),
+                Value<double> hrvAgreement = const Value.absent(),
+                Value<double> timingAgreement = const Value.absent(),
+                Value<int> divergenceCount = const Value.absent(),
+                Value<double> averageDriftMs = const Value.absent(),
+                Value<double> confidenceDelta = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SensorComparisonResultsTableCompanion(
+                id: id,
+                primarySensor: primarySensor,
+                referenceSensor: referenceSensor,
+                heartRateAgreement: heartRateAgreement,
+                hrvAgreement: hrvAgreement,
+                timingAgreement: timingAgreement,
+                divergenceCount: divergenceCount,
+                averageDriftMs: averageDriftMs,
+                confidenceDelta: confidenceDelta,
+                generatedAt: generatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String primarySensor,
+                required String referenceSensor,
+                required double heartRateAgreement,
+                required double hrvAgreement,
+                required double timingAgreement,
+                required int divergenceCount,
+                required double averageDriftMs,
+                required double confidenceDelta,
+                required DateTime generatedAt,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => SensorComparisonResultsTableCompanion.insert(
+                id: id,
+                primarySensor: primarySensor,
+                referenceSensor: referenceSensor,
+                heartRateAgreement: heartRateAgreement,
+                hrvAgreement: hrvAgreement,
+                timingAgreement: timingAgreement,
+                divergenceCount: divergenceCount,
+                averageDriftMs: averageDriftMs,
+                confidenceDelta: confidenceDelta,
+                generatedAt: generatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SensorComparisonResultsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $SensorComparisonResultsTableTable,
+      SensorComparisonResultsTableData,
+      $$SensorComparisonResultsTableTableFilterComposer,
+      $$SensorComparisonResultsTableTableOrderingComposer,
+      $$SensorComparisonResultsTableTableAnnotationComposer,
+      $$SensorComparisonResultsTableTableCreateCompanionBuilder,
+      $$SensorComparisonResultsTableTableUpdateCompanionBuilder,
+      (
+        SensorComparisonResultsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $SensorComparisonResultsTableTable,
+          SensorComparisonResultsTableData
+        >,
+      ),
+      SensorComparisonResultsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -34697,5 +36789,17 @@ class $SignalFlowDatabaseManager {
       $$CalibrationBenchmarkResultsTableTableTableManager(
         _db,
         _db.calibrationBenchmarkResultsTable,
+      );
+  $$SensorReliabilityProfilesTableTableTableManager
+  get sensorReliabilityProfilesTable =>
+      $$SensorReliabilityProfilesTableTableTableManager(
+        _db,
+        _db.sensorReliabilityProfilesTable,
+      );
+  $$SensorComparisonResultsTableTableTableManager
+  get sensorComparisonResultsTable =>
+      $$SensorComparisonResultsTableTableTableManager(
+        _db,
+        _db.sensorComparisonResultsTable,
       );
 }

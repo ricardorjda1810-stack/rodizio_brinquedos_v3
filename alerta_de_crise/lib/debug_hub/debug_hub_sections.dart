@@ -29,6 +29,7 @@ import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/session_recorder_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
 import '../ui/crisis_detection/sensor_quality_debug_page.dart';
+import '../ui/crisis_detection/sensor_reliability_debug_page.dart';
 import '../ui/crisis_detection/session_timeline_debug_page.dart';
 import '../ui/crisis_detection/watch_live_session_debug_page.dart';
 import 'debug_hub_models.dart';
@@ -154,6 +155,12 @@ class SignalFlowDebugHubSections {
             label: 'Sensor Quality',
             description: 'Confiança do sinal e artefatos RR.',
             builder: (_) => const SensorQualityDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Sensor Reliability',
+            description:
+                'Confiabilidade do sensor e comparação técnica de sinais.',
+            builder: (_) => const SensorReliabilityDebugPage(),
           ),
         ],
       ),

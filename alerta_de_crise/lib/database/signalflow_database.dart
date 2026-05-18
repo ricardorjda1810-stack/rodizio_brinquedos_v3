@@ -25,6 +25,7 @@ import 'research_orchestrator_tables.dart';
 import 'research_dashboard_tables.dart';
 import 'session_recorder_tables.dart';
 import 'session_timeline_tables.dart';
+import 'sensor_reliability_tables.dart';
 
 part 'signalflow_database.g.dart';
 
@@ -63,6 +64,8 @@ part 'signalflow_database.g.dart';
     ReplayBenchmarkResultsTable,
     CalibrationProfilesTable,
     CalibrationBenchmarkResultsTable,
+    SensorReliabilityProfilesTable,
+    SensorComparisonResultsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -76,7 +79,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -152,6 +155,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(calibrationProfilesTable);
           await migrator.createTable(calibrationBenchmarkResultsTable);
         }
+        if (from < 21) {
+          await migrator.createTable(sensorReliabilityProfilesTable);
+          await migrator.createTable(sensorComparisonResultsTable);
+        }
       },
     );
   }
@@ -191,6 +198,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(replayBenchmarkResultsTable);
       batch.deleteAll(calibrationProfilesTable);
       batch.deleteAll(calibrationBenchmarkResultsTable);
+      batch.deleteAll(sensorReliabilityProfilesTable);
+      batch.deleteAll(sensorComparisonResultsTable);
     });
   }
 }

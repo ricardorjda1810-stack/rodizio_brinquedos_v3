@@ -81,13 +81,13 @@ void main() {
     test('migration 19 to 20 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 20);
-      expect(migrationService.registeredMigrations.last.fromVersion, 19);
-      expect(migrationService.registeredMigrations.last.toVersion, 20);
-      expect(
-        migrationService.registeredMigrations.last.description,
-        contains('Calibration lab'),
-      );
+      expect(migrationService.currentSchemaVersion, 21);
+      final calibrationMigration = migrationService.registeredMigrations
+          .firstWhere((migration) => migration.toVersion == 20);
+
+      expect(calibrationMigration.fromVersion, 19);
+      expect(calibrationMigration.toVersion, 20);
+      expect(calibrationMigration.description, contains('Calibration lab'));
     });
 
     test('ranking is consistent', () async {
