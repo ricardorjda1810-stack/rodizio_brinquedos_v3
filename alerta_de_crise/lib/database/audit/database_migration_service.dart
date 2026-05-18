@@ -51,6 +51,11 @@ class DatabaseMigrationService {
         toVersion: 8,
         description: 'Contextual trigger persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 8,
+        toVersion: 9,
+        description: 'Personalized intervention persistence.',
+      ),
     ];
   }
 

@@ -9,6 +9,7 @@ import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
+import '../ui/crisis_detection/personalized_intervention_debug_page.dart';
 import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/predictive_forecast_debug_page.dart';
@@ -71,6 +72,12 @@ class SignalFlowDebugHubSections {
             label: 'Contextual Triggers',
             description: 'Correlação experimental entre contexto e fisiologia.',
             builder: (_) => const ContextualTriggersDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Personalized Interventions',
+            description:
+                'Adaptação experimental baseada em intervenções observadas.',
+            builder: (_) => const PersonalizedInterventionDebugPage(),
           ),
         ],
       ),

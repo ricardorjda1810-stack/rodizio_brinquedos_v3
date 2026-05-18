@@ -20,6 +20,9 @@ enum EventType {
   repeatedContextTrigger,
   contextualEscalationPattern,
   recoveryContextAssociation,
+  interventionEffective,
+  interventionLowEffect,
+  contextualRecommendationGenerated,
 }
 
 enum Severity { low, medium, high }

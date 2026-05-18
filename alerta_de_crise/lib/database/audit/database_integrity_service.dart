@@ -31,6 +31,8 @@ class DatabaseIntegrityService {
       'escalation_forecasts_table',
       'contextual_events_table',
       'contextual_trigger_correlations_table',
+      'intervention_learning_profiles_table',
+      'contextual_intervention_recommendations_table',
     ];
 
     final baselines = await _database
@@ -75,6 +77,12 @@ class DatabaseIntegrityService {
     final contextualCorrelations = await _database
         .select(_database.contextualTriggerCorrelationsTable)
         .get();
+    final learningProfiles = await _database
+        .select(_database.interventionLearningProfilesTable)
+        .get();
+    final interventionRecommendations = await _database
+        .select(_database.contextualInterventionRecommendationsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -90,6 +98,12 @@ class DatabaseIntegrityService {
     _auditForecasts(forecasts, issues, warnings);
     _auditContextualEvents(contextualEvents, issues, warnings);
     _auditContextualCorrelations(contextualCorrelations, issues, warnings);
+    _auditLearningProfiles(learningProfiles, issues, warnings);
+    _auditInterventionRecommendations(
+      interventionRecommendations,
+      issues,
+      warnings,
+    );
 
     final totalRecords =
         baselines.length +
@@ -105,7 +119,9 @@ class DatabaseIntegrityService {
         dashboardSnapshots.length +
         forecasts.length +
         contextualEvents.length +
-        contextualCorrelations.length;
+        contextualCorrelations.length +
+        learningProfiles.length +
+        interventionRecommendations.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -326,6 +342,9 @@ class DatabaseIntegrityService {
       'repeatedContextTrigger',
       'contextualEscalationPattern',
       'recoveryContextAssociation',
+      'interventionEffective',
+      'interventionLowEffect',
+      'contextualRecommendationGenerated',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -649,9 +668,118 @@ class DatabaseIntegrityService {
     }
   }
 
+  void _auditLearningProfiles(
+    List<InterventionLearningProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.interventionType.trim().isEmpty) {
+        issues.add('Intervention learning profile with empty type.');
+      }
+      if (row.successRate < 0 || row.successRate > 100) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has successRate outside 0..100.',
+        );
+      }
+      if (row.averageRecoveryTimeSeconds < 0) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has negative recovery time.',
+        );
+      }
+      if (row.averageRecoveryImprovement < 0 ||
+          row.averageRecoveryImprovement > 100) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has recovery improvement outside 0..100.',
+        );
+      }
+      if (row.confidence < 0 || row.confidence > 100) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has confidence outside 0..100.',
+        );
+      }
+      if (row.usageCount < 0) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has negative usage count.',
+        );
+      }
+      if (!_isValidJsonMap(row.contextualPerformanceJson)) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has invalid contextual performance.',
+        );
+      }
+      if (!_isValidJsonMap(row.circadianPerformanceJson)) {
+        issues.add(
+          'Intervention profile ${row.interventionType} has invalid circadian performance.',
+        );
+      }
+      if (!row.safetyCopy.contains('não garante eficácia')) {
+        warnings.add(
+          'Intervention profile ${row.interventionType} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditInterventionRecommendations(
+    List<ContextualInterventionRecommendationsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.interventionType.trim().isEmpty) {
+        issues.add('Intervention recommendation with empty id or type.');
+      }
+      if (row.recommendationScore < 0 || row.recommendationScore > 100) {
+        issues.add(
+          'Intervention recommendation ${row.id} has recommendationScore outside 0..100.',
+        );
+      }
+      if (row.expectedRecoveryBenefit < 0 ||
+          row.expectedRecoveryBenefit > 100) {
+        issues.add(
+          'Intervention recommendation ${row.id} has expectedRecoveryBenefit outside 0..100.',
+        );
+      }
+      if (row.confidence < 0 || row.confidence > 100) {
+        issues.add(
+          'Intervention recommendation ${row.id} has confidence outside 0..100.',
+        );
+      }
+      if (!_isValidJsonList(row.contextualFactorsJson)) {
+        issues.add(
+          'Intervention recommendation ${row.id} has invalid contextual factors.',
+        );
+      }
+      if (!_isValidJsonList(row.physiologicalFactorsJson)) {
+        issues.add(
+          'Intervention recommendation ${row.id} has invalid physiological factors.',
+        );
+      }
+      if (!_isValidJsonList(row.recoveryFactorsJson)) {
+        issues.add(
+          'Intervention recommendation ${row.id} has invalid recovery factors.',
+        );
+      }
+      if (!row.safetyCopy.contains('não garante eficácia')) {
+        warnings.add(
+          'Intervention recommendation ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
   bool _isValidJsonList(String value) {
     try {
       return jsonDecode(value) is List;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  bool _isValidJsonMap(String value) {
+    try {
+      return jsonDecode(value) is Map;
     } catch (_) {
       return false;
     }

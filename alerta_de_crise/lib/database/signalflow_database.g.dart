@@ -9189,6 +9189,1414 @@ class ContextualTriggerCorrelationsTableCompanion
   }
 }
 
+class $InterventionLearningProfilesTableTable
+    extends InterventionLearningProfilesTable
+    with
+        TableInfo<
+          $InterventionLearningProfilesTableTable,
+          InterventionLearningProfilesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InterventionLearningProfilesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _interventionTypeMeta = const VerificationMeta(
+    'interventionType',
+  );
+  @override
+  late final GeneratedColumn<String> interventionType = GeneratedColumn<String>(
+    'intervention_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _successRateMeta = const VerificationMeta(
+    'successRate',
+  );
+  @override
+  late final GeneratedColumn<double> successRate = GeneratedColumn<double>(
+    'success_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageRecoveryTimeSecondsMeta =
+      const VerificationMeta('averageRecoveryTimeSeconds');
+  @override
+  late final GeneratedColumn<int> averageRecoveryTimeSeconds =
+      GeneratedColumn<int>(
+        'average_recovery_time_seconds',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _averageRecoveryImprovementMeta =
+      const VerificationMeta('averageRecoveryImprovement');
+  @override
+  late final GeneratedColumn<double> averageRecoveryImprovement =
+      GeneratedColumn<double>(
+        'average_recovery_improvement',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _contextualPerformanceJsonMeta =
+      const VerificationMeta('contextualPerformanceJson');
+  @override
+  late final GeneratedColumn<String> contextualPerformanceJson =
+      GeneratedColumn<String>(
+        'contextual_performance_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _circadianPerformanceJsonMeta =
+      const VerificationMeta('circadianPerformanceJson');
+  @override
+  late final GeneratedColumn<String> circadianPerformanceJson =
+      GeneratedColumn<String>(
+        'circadian_performance_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usageCountMeta = const VerificationMeta(
+    'usageCount',
+  );
+  @override
+  late final GeneratedColumn<int> usageCount = GeneratedColumn<int>(
+    'usage_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    interventionType,
+    successRate,
+    averageRecoveryTimeSeconds,
+    averageRecoveryImprovement,
+    contextualPerformanceJson,
+    circadianPerformanceJson,
+    confidence,
+    usageCount,
+    updatedAt,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'intervention_learning_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<InterventionLearningProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('intervention_type')) {
+      context.handle(
+        _interventionTypeMeta,
+        interventionType.isAcceptableOrUnknown(
+          data['intervention_type']!,
+          _interventionTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_interventionTypeMeta);
+    }
+    if (data.containsKey('success_rate')) {
+      context.handle(
+        _successRateMeta,
+        successRate.isAcceptableOrUnknown(
+          data['success_rate']!,
+          _successRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_successRateMeta);
+    }
+    if (data.containsKey('average_recovery_time_seconds')) {
+      context.handle(
+        _averageRecoveryTimeSecondsMeta,
+        averageRecoveryTimeSeconds.isAcceptableOrUnknown(
+          data['average_recovery_time_seconds']!,
+          _averageRecoveryTimeSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageRecoveryTimeSecondsMeta);
+    }
+    if (data.containsKey('average_recovery_improvement')) {
+      context.handle(
+        _averageRecoveryImprovementMeta,
+        averageRecoveryImprovement.isAcceptableOrUnknown(
+          data['average_recovery_improvement']!,
+          _averageRecoveryImprovementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageRecoveryImprovementMeta);
+    }
+    if (data.containsKey('contextual_performance_json')) {
+      context.handle(
+        _contextualPerformanceJsonMeta,
+        contextualPerformanceJson.isAcceptableOrUnknown(
+          data['contextual_performance_json']!,
+          _contextualPerformanceJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualPerformanceJsonMeta);
+    }
+    if (data.containsKey('circadian_performance_json')) {
+      context.handle(
+        _circadianPerformanceJsonMeta,
+        circadianPerformanceJson.isAcceptableOrUnknown(
+          data['circadian_performance_json']!,
+          _circadianPerformanceJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_circadianPerformanceJsonMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('usage_count')) {
+      context.handle(
+        _usageCountMeta,
+        usageCount.isAcceptableOrUnknown(data['usage_count']!, _usageCountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_usageCountMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {interventionType};
+  @override
+  InterventionLearningProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return InterventionLearningProfilesTableData(
+      interventionType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}intervention_type'],
+      )!,
+      successRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}success_rate'],
+      )!,
+      averageRecoveryTimeSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}average_recovery_time_seconds'],
+      )!,
+      averageRecoveryImprovement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_recovery_improvement'],
+      )!,
+      contextualPerformanceJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contextual_performance_json'],
+      )!,
+      circadianPerformanceJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}circadian_performance_json'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      usageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}usage_count'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $InterventionLearningProfilesTableTable createAlias(String alias) {
+    return $InterventionLearningProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class InterventionLearningProfilesTableData extends DataClass
+    implements Insertable<InterventionLearningProfilesTableData> {
+  final String interventionType;
+  final double successRate;
+  final int averageRecoveryTimeSeconds;
+  final double averageRecoveryImprovement;
+  final String contextualPerformanceJson;
+  final String circadianPerformanceJson;
+  final double confidence;
+  final int usageCount;
+  final DateTime updatedAt;
+  final String safetyCopy;
+  const InterventionLearningProfilesTableData({
+    required this.interventionType,
+    required this.successRate,
+    required this.averageRecoveryTimeSeconds,
+    required this.averageRecoveryImprovement,
+    required this.contextualPerformanceJson,
+    required this.circadianPerformanceJson,
+    required this.confidence,
+    required this.usageCount,
+    required this.updatedAt,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['intervention_type'] = Variable<String>(interventionType);
+    map['success_rate'] = Variable<double>(successRate);
+    map['average_recovery_time_seconds'] = Variable<int>(
+      averageRecoveryTimeSeconds,
+    );
+    map['average_recovery_improvement'] = Variable<double>(
+      averageRecoveryImprovement,
+    );
+    map['contextual_performance_json'] = Variable<String>(
+      contextualPerformanceJson,
+    );
+    map['circadian_performance_json'] = Variable<String>(
+      circadianPerformanceJson,
+    );
+    map['confidence'] = Variable<double>(confidence);
+    map['usage_count'] = Variable<int>(usageCount);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  InterventionLearningProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return InterventionLearningProfilesTableCompanion(
+      interventionType: Value(interventionType),
+      successRate: Value(successRate),
+      averageRecoveryTimeSeconds: Value(averageRecoveryTimeSeconds),
+      averageRecoveryImprovement: Value(averageRecoveryImprovement),
+      contextualPerformanceJson: Value(contextualPerformanceJson),
+      circadianPerformanceJson: Value(circadianPerformanceJson),
+      confidence: Value(confidence),
+      usageCount: Value(usageCount),
+      updatedAt: Value(updatedAt),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory InterventionLearningProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return InterventionLearningProfilesTableData(
+      interventionType: serializer.fromJson<String>(json['interventionType']),
+      successRate: serializer.fromJson<double>(json['successRate']),
+      averageRecoveryTimeSeconds: serializer.fromJson<int>(
+        json['averageRecoveryTimeSeconds'],
+      ),
+      averageRecoveryImprovement: serializer.fromJson<double>(
+        json['averageRecoveryImprovement'],
+      ),
+      contextualPerformanceJson: serializer.fromJson<String>(
+        json['contextualPerformanceJson'],
+      ),
+      circadianPerformanceJson: serializer.fromJson<String>(
+        json['circadianPerformanceJson'],
+      ),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      usageCount: serializer.fromJson<int>(json['usageCount']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'interventionType': serializer.toJson<String>(interventionType),
+      'successRate': serializer.toJson<double>(successRate),
+      'averageRecoveryTimeSeconds': serializer.toJson<int>(
+        averageRecoveryTimeSeconds,
+      ),
+      'averageRecoveryImprovement': serializer.toJson<double>(
+        averageRecoveryImprovement,
+      ),
+      'contextualPerformanceJson': serializer.toJson<String>(
+        contextualPerformanceJson,
+      ),
+      'circadianPerformanceJson': serializer.toJson<String>(
+        circadianPerformanceJson,
+      ),
+      'confidence': serializer.toJson<double>(confidence),
+      'usageCount': serializer.toJson<int>(usageCount),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  InterventionLearningProfilesTableData copyWith({
+    String? interventionType,
+    double? successRate,
+    int? averageRecoveryTimeSeconds,
+    double? averageRecoveryImprovement,
+    String? contextualPerformanceJson,
+    String? circadianPerformanceJson,
+    double? confidence,
+    int? usageCount,
+    DateTime? updatedAt,
+    String? safetyCopy,
+  }) => InterventionLearningProfilesTableData(
+    interventionType: interventionType ?? this.interventionType,
+    successRate: successRate ?? this.successRate,
+    averageRecoveryTimeSeconds:
+        averageRecoveryTimeSeconds ?? this.averageRecoveryTimeSeconds,
+    averageRecoveryImprovement:
+        averageRecoveryImprovement ?? this.averageRecoveryImprovement,
+    contextualPerformanceJson:
+        contextualPerformanceJson ?? this.contextualPerformanceJson,
+    circadianPerformanceJson:
+        circadianPerformanceJson ?? this.circadianPerformanceJson,
+    confidence: confidence ?? this.confidence,
+    usageCount: usageCount ?? this.usageCount,
+    updatedAt: updatedAt ?? this.updatedAt,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  InterventionLearningProfilesTableData copyWithCompanion(
+    InterventionLearningProfilesTableCompanion data,
+  ) {
+    return InterventionLearningProfilesTableData(
+      interventionType: data.interventionType.present
+          ? data.interventionType.value
+          : this.interventionType,
+      successRate: data.successRate.present
+          ? data.successRate.value
+          : this.successRate,
+      averageRecoveryTimeSeconds: data.averageRecoveryTimeSeconds.present
+          ? data.averageRecoveryTimeSeconds.value
+          : this.averageRecoveryTimeSeconds,
+      averageRecoveryImprovement: data.averageRecoveryImprovement.present
+          ? data.averageRecoveryImprovement.value
+          : this.averageRecoveryImprovement,
+      contextualPerformanceJson: data.contextualPerformanceJson.present
+          ? data.contextualPerformanceJson.value
+          : this.contextualPerformanceJson,
+      circadianPerformanceJson: data.circadianPerformanceJson.present
+          ? data.circadianPerformanceJson.value
+          : this.circadianPerformanceJson,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      usageCount: data.usageCount.present
+          ? data.usageCount.value
+          : this.usageCount,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InterventionLearningProfilesTableData(')
+          ..write('interventionType: $interventionType, ')
+          ..write('successRate: $successRate, ')
+          ..write('averageRecoveryTimeSeconds: $averageRecoveryTimeSeconds, ')
+          ..write('averageRecoveryImprovement: $averageRecoveryImprovement, ')
+          ..write('contextualPerformanceJson: $contextualPerformanceJson, ')
+          ..write('circadianPerformanceJson: $circadianPerformanceJson, ')
+          ..write('confidence: $confidence, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    interventionType,
+    successRate,
+    averageRecoveryTimeSeconds,
+    averageRecoveryImprovement,
+    contextualPerformanceJson,
+    circadianPerformanceJson,
+    confidence,
+    usageCount,
+    updatedAt,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is InterventionLearningProfilesTableData &&
+          other.interventionType == this.interventionType &&
+          other.successRate == this.successRate &&
+          other.averageRecoveryTimeSeconds == this.averageRecoveryTimeSeconds &&
+          other.averageRecoveryImprovement == this.averageRecoveryImprovement &&
+          other.contextualPerformanceJson == this.contextualPerformanceJson &&
+          other.circadianPerformanceJson == this.circadianPerformanceJson &&
+          other.confidence == this.confidence &&
+          other.usageCount == this.usageCount &&
+          other.updatedAt == this.updatedAt &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class InterventionLearningProfilesTableCompanion
+    extends UpdateCompanion<InterventionLearningProfilesTableData> {
+  final Value<String> interventionType;
+  final Value<double> successRate;
+  final Value<int> averageRecoveryTimeSeconds;
+  final Value<double> averageRecoveryImprovement;
+  final Value<String> contextualPerformanceJson;
+  final Value<String> circadianPerformanceJson;
+  final Value<double> confidence;
+  final Value<int> usageCount;
+  final Value<DateTime> updatedAt;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const InterventionLearningProfilesTableCompanion({
+    this.interventionType = const Value.absent(),
+    this.successRate = const Value.absent(),
+    this.averageRecoveryTimeSeconds = const Value.absent(),
+    this.averageRecoveryImprovement = const Value.absent(),
+    this.contextualPerformanceJson = const Value.absent(),
+    this.circadianPerformanceJson = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  InterventionLearningProfilesTableCompanion.insert({
+    required String interventionType,
+    required double successRate,
+    required int averageRecoveryTimeSeconds,
+    required double averageRecoveryImprovement,
+    required String contextualPerformanceJson,
+    required String circadianPerformanceJson,
+    required double confidence,
+    required int usageCount,
+    required DateTime updatedAt,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : interventionType = Value(interventionType),
+       successRate = Value(successRate),
+       averageRecoveryTimeSeconds = Value(averageRecoveryTimeSeconds),
+       averageRecoveryImprovement = Value(averageRecoveryImprovement),
+       contextualPerformanceJson = Value(contextualPerformanceJson),
+       circadianPerformanceJson = Value(circadianPerformanceJson),
+       confidence = Value(confidence),
+       usageCount = Value(usageCount),
+       updatedAt = Value(updatedAt),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<InterventionLearningProfilesTableData> custom({
+    Expression<String>? interventionType,
+    Expression<double>? successRate,
+    Expression<int>? averageRecoveryTimeSeconds,
+    Expression<double>? averageRecoveryImprovement,
+    Expression<String>? contextualPerformanceJson,
+    Expression<String>? circadianPerformanceJson,
+    Expression<double>? confidence,
+    Expression<int>? usageCount,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (interventionType != null) 'intervention_type': interventionType,
+      if (successRate != null) 'success_rate': successRate,
+      if (averageRecoveryTimeSeconds != null)
+        'average_recovery_time_seconds': averageRecoveryTimeSeconds,
+      if (averageRecoveryImprovement != null)
+        'average_recovery_improvement': averageRecoveryImprovement,
+      if (contextualPerformanceJson != null)
+        'contextual_performance_json': contextualPerformanceJson,
+      if (circadianPerformanceJson != null)
+        'circadian_performance_json': circadianPerformanceJson,
+      if (confidence != null) 'confidence': confidence,
+      if (usageCount != null) 'usage_count': usageCount,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  InterventionLearningProfilesTableCompanion copyWith({
+    Value<String>? interventionType,
+    Value<double>? successRate,
+    Value<int>? averageRecoveryTimeSeconds,
+    Value<double>? averageRecoveryImprovement,
+    Value<String>? contextualPerformanceJson,
+    Value<String>? circadianPerformanceJson,
+    Value<double>? confidence,
+    Value<int>? usageCount,
+    Value<DateTime>? updatedAt,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return InterventionLearningProfilesTableCompanion(
+      interventionType: interventionType ?? this.interventionType,
+      successRate: successRate ?? this.successRate,
+      averageRecoveryTimeSeconds:
+          averageRecoveryTimeSeconds ?? this.averageRecoveryTimeSeconds,
+      averageRecoveryImprovement:
+          averageRecoveryImprovement ?? this.averageRecoveryImprovement,
+      contextualPerformanceJson:
+          contextualPerformanceJson ?? this.contextualPerformanceJson,
+      circadianPerformanceJson:
+          circadianPerformanceJson ?? this.circadianPerformanceJson,
+      confidence: confidence ?? this.confidence,
+      usageCount: usageCount ?? this.usageCount,
+      updatedAt: updatedAt ?? this.updatedAt,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (interventionType.present) {
+      map['intervention_type'] = Variable<String>(interventionType.value);
+    }
+    if (successRate.present) {
+      map['success_rate'] = Variable<double>(successRate.value);
+    }
+    if (averageRecoveryTimeSeconds.present) {
+      map['average_recovery_time_seconds'] = Variable<int>(
+        averageRecoveryTimeSeconds.value,
+      );
+    }
+    if (averageRecoveryImprovement.present) {
+      map['average_recovery_improvement'] = Variable<double>(
+        averageRecoveryImprovement.value,
+      );
+    }
+    if (contextualPerformanceJson.present) {
+      map['contextual_performance_json'] = Variable<String>(
+        contextualPerformanceJson.value,
+      );
+    }
+    if (circadianPerformanceJson.present) {
+      map['circadian_performance_json'] = Variable<String>(
+        circadianPerformanceJson.value,
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (usageCount.present) {
+      map['usage_count'] = Variable<int>(usageCount.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InterventionLearningProfilesTableCompanion(')
+          ..write('interventionType: $interventionType, ')
+          ..write('successRate: $successRate, ')
+          ..write('averageRecoveryTimeSeconds: $averageRecoveryTimeSeconds, ')
+          ..write('averageRecoveryImprovement: $averageRecoveryImprovement, ')
+          ..write('contextualPerformanceJson: $contextualPerformanceJson, ')
+          ..write('circadianPerformanceJson: $circadianPerformanceJson, ')
+          ..write('confidence: $confidence, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ContextualInterventionRecommendationsTableTable
+    extends ContextualInterventionRecommendationsTable
+    with
+        TableInfo<
+          $ContextualInterventionRecommendationsTableTable,
+          ContextualInterventionRecommendationsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ContextualInterventionRecommendationsTableTable(
+    this.attachedDatabase, [
+    this._alias,
+  ]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _interventionTypeMeta = const VerificationMeta(
+    'interventionType',
+  );
+  @override
+  late final GeneratedColumn<String> interventionType = GeneratedColumn<String>(
+    'intervention_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recommendationScoreMeta =
+      const VerificationMeta('recommendationScore');
+  @override
+  late final GeneratedColumn<double> recommendationScore =
+      GeneratedColumn<double>(
+        'recommendation_score',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _expectedRecoveryBenefitMeta =
+      const VerificationMeta('expectedRecoveryBenefit');
+  @override
+  late final GeneratedColumn<double> expectedRecoveryBenefit =
+      GeneratedColumn<double>(
+        'expected_recovery_benefit',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextualFactorsJsonMeta =
+      const VerificationMeta('contextualFactorsJson');
+  @override
+  late final GeneratedColumn<String> contextualFactorsJson =
+      GeneratedColumn<String>(
+        'contextual_factors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _physiologicalFactorsJsonMeta =
+      const VerificationMeta('physiologicalFactorsJson');
+  @override
+  late final GeneratedColumn<String> physiologicalFactorsJson =
+      GeneratedColumn<String>(
+        'physiological_factors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryFactorsJsonMeta =
+      const VerificationMeta('recoveryFactorsJson');
+  @override
+  late final GeneratedColumn<String> recoveryFactorsJson =
+      GeneratedColumn<String>(
+        'recovery_factors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    interventionType,
+    recommendationScore,
+    expectedRecoveryBenefit,
+    confidence,
+    contextualFactorsJson,
+    physiologicalFactorsJson,
+    recoveryFactorsJson,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'contextual_intervention_recommendations_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ContextualInterventionRecommendationsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('intervention_type')) {
+      context.handle(
+        _interventionTypeMeta,
+        interventionType.isAcceptableOrUnknown(
+          data['intervention_type']!,
+          _interventionTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_interventionTypeMeta);
+    }
+    if (data.containsKey('recommendation_score')) {
+      context.handle(
+        _recommendationScoreMeta,
+        recommendationScore.isAcceptableOrUnknown(
+          data['recommendation_score']!,
+          _recommendationScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recommendationScoreMeta);
+    }
+    if (data.containsKey('expected_recovery_benefit')) {
+      context.handle(
+        _expectedRecoveryBenefitMeta,
+        expectedRecoveryBenefit.isAcceptableOrUnknown(
+          data['expected_recovery_benefit']!,
+          _expectedRecoveryBenefitMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_expectedRecoveryBenefitMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('contextual_factors_json')) {
+      context.handle(
+        _contextualFactorsJsonMeta,
+        contextualFactorsJson.isAcceptableOrUnknown(
+          data['contextual_factors_json']!,
+          _contextualFactorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualFactorsJsonMeta);
+    }
+    if (data.containsKey('physiological_factors_json')) {
+      context.handle(
+        _physiologicalFactorsJsonMeta,
+        physiologicalFactorsJson.isAcceptableOrUnknown(
+          data['physiological_factors_json']!,
+          _physiologicalFactorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_physiologicalFactorsJsonMeta);
+    }
+    if (data.containsKey('recovery_factors_json')) {
+      context.handle(
+        _recoveryFactorsJsonMeta,
+        recoveryFactorsJson.isAcceptableOrUnknown(
+          data['recovery_factors_json']!,
+          _recoveryFactorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryFactorsJsonMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ContextualInterventionRecommendationsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ContextualInterventionRecommendationsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      interventionType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}intervention_type'],
+      )!,
+      recommendationScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recommendation_score'],
+      )!,
+      expectedRecoveryBenefit: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}expected_recovery_benefit'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      contextualFactorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contextual_factors_json'],
+      )!,
+      physiologicalFactorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}physiological_factors_json'],
+      )!,
+      recoveryFactorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recovery_factors_json'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ContextualInterventionRecommendationsTableTable createAlias(String alias) {
+    return $ContextualInterventionRecommendationsTableTable(
+      attachedDatabase,
+      alias,
+    );
+  }
+}
+
+class ContextualInterventionRecommendationsTableData extends DataClass
+    implements Insertable<ContextualInterventionRecommendationsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final String interventionType;
+  final double recommendationScore;
+  final double expectedRecoveryBenefit;
+  final double confidence;
+  final String contextualFactorsJson;
+  final String physiologicalFactorsJson;
+  final String recoveryFactorsJson;
+  final String safetyCopy;
+  const ContextualInterventionRecommendationsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.interventionType,
+    required this.recommendationScore,
+    required this.expectedRecoveryBenefit,
+    required this.confidence,
+    required this.contextualFactorsJson,
+    required this.physiologicalFactorsJson,
+    required this.recoveryFactorsJson,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['intervention_type'] = Variable<String>(interventionType);
+    map['recommendation_score'] = Variable<double>(recommendationScore);
+    map['expected_recovery_benefit'] = Variable<double>(
+      expectedRecoveryBenefit,
+    );
+    map['confidence'] = Variable<double>(confidence);
+    map['contextual_factors_json'] = Variable<String>(contextualFactorsJson);
+    map['physiological_factors_json'] = Variable<String>(
+      physiologicalFactorsJson,
+    );
+    map['recovery_factors_json'] = Variable<String>(recoveryFactorsJson);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ContextualInterventionRecommendationsTableCompanion toCompanion(
+    bool nullToAbsent,
+  ) {
+    return ContextualInterventionRecommendationsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      interventionType: Value(interventionType),
+      recommendationScore: Value(recommendationScore),
+      expectedRecoveryBenefit: Value(expectedRecoveryBenefit),
+      confidence: Value(confidence),
+      contextualFactorsJson: Value(contextualFactorsJson),
+      physiologicalFactorsJson: Value(physiologicalFactorsJson),
+      recoveryFactorsJson: Value(recoveryFactorsJson),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ContextualInterventionRecommendationsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ContextualInterventionRecommendationsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      interventionType: serializer.fromJson<String>(json['interventionType']),
+      recommendationScore: serializer.fromJson<double>(
+        json['recommendationScore'],
+      ),
+      expectedRecoveryBenefit: serializer.fromJson<double>(
+        json['expectedRecoveryBenefit'],
+      ),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      contextualFactorsJson: serializer.fromJson<String>(
+        json['contextualFactorsJson'],
+      ),
+      physiologicalFactorsJson: serializer.fromJson<String>(
+        json['physiologicalFactorsJson'],
+      ),
+      recoveryFactorsJson: serializer.fromJson<String>(
+        json['recoveryFactorsJson'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'interventionType': serializer.toJson<String>(interventionType),
+      'recommendationScore': serializer.toJson<double>(recommendationScore),
+      'expectedRecoveryBenefit': serializer.toJson<double>(
+        expectedRecoveryBenefit,
+      ),
+      'confidence': serializer.toJson<double>(confidence),
+      'contextualFactorsJson': serializer.toJson<String>(contextualFactorsJson),
+      'physiologicalFactorsJson': serializer.toJson<String>(
+        physiologicalFactorsJson,
+      ),
+      'recoveryFactorsJson': serializer.toJson<String>(recoveryFactorsJson),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ContextualInterventionRecommendationsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    String? interventionType,
+    double? recommendationScore,
+    double? expectedRecoveryBenefit,
+    double? confidence,
+    String? contextualFactorsJson,
+    String? physiologicalFactorsJson,
+    String? recoveryFactorsJson,
+    String? safetyCopy,
+  }) => ContextualInterventionRecommendationsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    interventionType: interventionType ?? this.interventionType,
+    recommendationScore: recommendationScore ?? this.recommendationScore,
+    expectedRecoveryBenefit:
+        expectedRecoveryBenefit ?? this.expectedRecoveryBenefit,
+    confidence: confidence ?? this.confidence,
+    contextualFactorsJson: contextualFactorsJson ?? this.contextualFactorsJson,
+    physiologicalFactorsJson:
+        physiologicalFactorsJson ?? this.physiologicalFactorsJson,
+    recoveryFactorsJson: recoveryFactorsJson ?? this.recoveryFactorsJson,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ContextualInterventionRecommendationsTableData copyWithCompanion(
+    ContextualInterventionRecommendationsTableCompanion data,
+  ) {
+    return ContextualInterventionRecommendationsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      interventionType: data.interventionType.present
+          ? data.interventionType.value
+          : this.interventionType,
+      recommendationScore: data.recommendationScore.present
+          ? data.recommendationScore.value
+          : this.recommendationScore,
+      expectedRecoveryBenefit: data.expectedRecoveryBenefit.present
+          ? data.expectedRecoveryBenefit.value
+          : this.expectedRecoveryBenefit,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      contextualFactorsJson: data.contextualFactorsJson.present
+          ? data.contextualFactorsJson.value
+          : this.contextualFactorsJson,
+      physiologicalFactorsJson: data.physiologicalFactorsJson.present
+          ? data.physiologicalFactorsJson.value
+          : this.physiologicalFactorsJson,
+      recoveryFactorsJson: data.recoveryFactorsJson.present
+          ? data.recoveryFactorsJson.value
+          : this.recoveryFactorsJson,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualInterventionRecommendationsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('interventionType: $interventionType, ')
+          ..write('recommendationScore: $recommendationScore, ')
+          ..write('expectedRecoveryBenefit: $expectedRecoveryBenefit, ')
+          ..write('confidence: $confidence, ')
+          ..write('contextualFactorsJson: $contextualFactorsJson, ')
+          ..write('physiologicalFactorsJson: $physiologicalFactorsJson, ')
+          ..write('recoveryFactorsJson: $recoveryFactorsJson, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    interventionType,
+    recommendationScore,
+    expectedRecoveryBenefit,
+    confidence,
+    contextualFactorsJson,
+    physiologicalFactorsJson,
+    recoveryFactorsJson,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ContextualInterventionRecommendationsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.interventionType == this.interventionType &&
+          other.recommendationScore == this.recommendationScore &&
+          other.expectedRecoveryBenefit == this.expectedRecoveryBenefit &&
+          other.confidence == this.confidence &&
+          other.contextualFactorsJson == this.contextualFactorsJson &&
+          other.physiologicalFactorsJson == this.physiologicalFactorsJson &&
+          other.recoveryFactorsJson == this.recoveryFactorsJson &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ContextualInterventionRecommendationsTableCompanion
+    extends UpdateCompanion<ContextualInterventionRecommendationsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<String> interventionType;
+  final Value<double> recommendationScore;
+  final Value<double> expectedRecoveryBenefit;
+  final Value<double> confidence;
+  final Value<String> contextualFactorsJson;
+  final Value<String> physiologicalFactorsJson;
+  final Value<String> recoveryFactorsJson;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ContextualInterventionRecommendationsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.interventionType = const Value.absent(),
+    this.recommendationScore = const Value.absent(),
+    this.expectedRecoveryBenefit = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.contextualFactorsJson = const Value.absent(),
+    this.physiologicalFactorsJson = const Value.absent(),
+    this.recoveryFactorsJson = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ContextualInterventionRecommendationsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required String interventionType,
+    required double recommendationScore,
+    required double expectedRecoveryBenefit,
+    required double confidence,
+    required String contextualFactorsJson,
+    required String physiologicalFactorsJson,
+    required String recoveryFactorsJson,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       interventionType = Value(interventionType),
+       recommendationScore = Value(recommendationScore),
+       expectedRecoveryBenefit = Value(expectedRecoveryBenefit),
+       confidence = Value(confidence),
+       contextualFactorsJson = Value(contextualFactorsJson),
+       physiologicalFactorsJson = Value(physiologicalFactorsJson),
+       recoveryFactorsJson = Value(recoveryFactorsJson),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ContextualInterventionRecommendationsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? interventionType,
+    Expression<double>? recommendationScore,
+    Expression<double>? expectedRecoveryBenefit,
+    Expression<double>? confidence,
+    Expression<String>? contextualFactorsJson,
+    Expression<String>? physiologicalFactorsJson,
+    Expression<String>? recoveryFactorsJson,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (interventionType != null) 'intervention_type': interventionType,
+      if (recommendationScore != null)
+        'recommendation_score': recommendationScore,
+      if (expectedRecoveryBenefit != null)
+        'expected_recovery_benefit': expectedRecoveryBenefit,
+      if (confidence != null) 'confidence': confidence,
+      if (contextualFactorsJson != null)
+        'contextual_factors_json': contextualFactorsJson,
+      if (physiologicalFactorsJson != null)
+        'physiological_factors_json': physiologicalFactorsJson,
+      if (recoveryFactorsJson != null)
+        'recovery_factors_json': recoveryFactorsJson,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ContextualInterventionRecommendationsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<String>? interventionType,
+    Value<double>? recommendationScore,
+    Value<double>? expectedRecoveryBenefit,
+    Value<double>? confidence,
+    Value<String>? contextualFactorsJson,
+    Value<String>? physiologicalFactorsJson,
+    Value<String>? recoveryFactorsJson,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ContextualInterventionRecommendationsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      interventionType: interventionType ?? this.interventionType,
+      recommendationScore: recommendationScore ?? this.recommendationScore,
+      expectedRecoveryBenefit:
+          expectedRecoveryBenefit ?? this.expectedRecoveryBenefit,
+      confidence: confidence ?? this.confidence,
+      contextualFactorsJson:
+          contextualFactorsJson ?? this.contextualFactorsJson,
+      physiologicalFactorsJson:
+          physiologicalFactorsJson ?? this.physiologicalFactorsJson,
+      recoveryFactorsJson: recoveryFactorsJson ?? this.recoveryFactorsJson,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (interventionType.present) {
+      map['intervention_type'] = Variable<String>(interventionType.value);
+    }
+    if (recommendationScore.present) {
+      map['recommendation_score'] = Variable<double>(recommendationScore.value);
+    }
+    if (expectedRecoveryBenefit.present) {
+      map['expected_recovery_benefit'] = Variable<double>(
+        expectedRecoveryBenefit.value,
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (contextualFactorsJson.present) {
+      map['contextual_factors_json'] = Variable<String>(
+        contextualFactorsJson.value,
+      );
+    }
+    if (physiologicalFactorsJson.present) {
+      map['physiological_factors_json'] = Variable<String>(
+        physiologicalFactorsJson.value,
+      );
+    }
+    if (recoveryFactorsJson.present) {
+      map['recovery_factors_json'] = Variable<String>(
+        recoveryFactorsJson.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ContextualInterventionRecommendationsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('interventionType: $interventionType, ')
+          ..write('recommendationScore: $recommendationScore, ')
+          ..write('expectedRecoveryBenefit: $expectedRecoveryBenefit, ')
+          ..write('confidence: $confidence, ')
+          ..write('contextualFactorsJson: $contextualFactorsJson, ')
+          ..write('physiologicalFactorsJson: $physiologicalFactorsJson, ')
+          ..write('recoveryFactorsJson: $recoveryFactorsJson, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -9222,6 +10630,13 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   contextualTriggerCorrelationsTable = $ContextualTriggerCorrelationsTableTable(
     this,
   );
+  late final $InterventionLearningProfilesTableTable
+  interventionLearningProfilesTable = $InterventionLearningProfilesTableTable(
+    this,
+  );
+  late final $ContextualInterventionRecommendationsTableTable
+  contextualInterventionRecommendationsTable =
+      $ContextualInterventionRecommendationsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9241,6 +10656,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     escalationForecastsTable,
     contextualEventsTable,
     contextualTriggerCorrelationsTable,
+    interventionLearningProfilesTable,
+    contextualInterventionRecommendationsTable,
   ];
 }
 
@@ -13821,6 +15238,694 @@ typedef $$ContextualTriggerCorrelationsTableTableProcessedTableManager =
       ContextualTriggerCorrelationsTableData,
       PrefetchHooks Function()
     >;
+typedef $$InterventionLearningProfilesTableTableCreateCompanionBuilder =
+    InterventionLearningProfilesTableCompanion Function({
+      required String interventionType,
+      required double successRate,
+      required int averageRecoveryTimeSeconds,
+      required double averageRecoveryImprovement,
+      required String contextualPerformanceJson,
+      required String circadianPerformanceJson,
+      required double confidence,
+      required int usageCount,
+      required DateTime updatedAt,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$InterventionLearningProfilesTableTableUpdateCompanionBuilder =
+    InterventionLearningProfilesTableCompanion Function({
+      Value<String> interventionType,
+      Value<double> successRate,
+      Value<int> averageRecoveryTimeSeconds,
+      Value<double> averageRecoveryImprovement,
+      Value<String> contextualPerformanceJson,
+      Value<String> circadianPerformanceJson,
+      Value<double> confidence,
+      Value<int> usageCount,
+      Value<DateTime> updatedAt,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$InterventionLearningProfilesTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $InterventionLearningProfilesTableTable
+        > {
+  $$InterventionLearningProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get successRate => $composableBuilder(
+    column: $table.successRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get averageRecoveryTimeSeconds => $composableBuilder(
+    column: $table.averageRecoveryTimeSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageRecoveryImprovement => $composableBuilder(
+    column: $table.averageRecoveryImprovement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contextualPerformanceJson => $composableBuilder(
+    column: $table.contextualPerformanceJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get circadianPerformanceJson => $composableBuilder(
+    column: $table.circadianPerformanceJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$InterventionLearningProfilesTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $InterventionLearningProfilesTableTable
+        > {
+  $$InterventionLearningProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get successRate => $composableBuilder(
+    column: $table.successRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get averageRecoveryTimeSeconds => $composableBuilder(
+    column: $table.averageRecoveryTimeSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageRecoveryImprovement => $composableBuilder(
+    column: $table.averageRecoveryImprovement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contextualPerformanceJson => $composableBuilder(
+    column: $table.contextualPerformanceJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get circadianPerformanceJson => $composableBuilder(
+    column: $table.circadianPerformanceJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$InterventionLearningProfilesTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $InterventionLearningProfilesTableTable
+        > {
+  $$InterventionLearningProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get successRate => $composableBuilder(
+    column: $table.successRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get averageRecoveryTimeSeconds => $composableBuilder(
+    column: $table.averageRecoveryTimeSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageRecoveryImprovement => $composableBuilder(
+    column: $table.averageRecoveryImprovement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contextualPerformanceJson => $composableBuilder(
+    column: $table.contextualPerformanceJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get circadianPerformanceJson => $composableBuilder(
+    column: $table.circadianPerformanceJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$InterventionLearningProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $InterventionLearningProfilesTableTable,
+          InterventionLearningProfilesTableData,
+          $$InterventionLearningProfilesTableTableFilterComposer,
+          $$InterventionLearningProfilesTableTableOrderingComposer,
+          $$InterventionLearningProfilesTableTableAnnotationComposer,
+          $$InterventionLearningProfilesTableTableCreateCompanionBuilder,
+          $$InterventionLearningProfilesTableTableUpdateCompanionBuilder,
+          (
+            InterventionLearningProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $InterventionLearningProfilesTableTable,
+              InterventionLearningProfilesTableData
+            >,
+          ),
+          InterventionLearningProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$InterventionLearningProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $InterventionLearningProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$InterventionLearningProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$InterventionLearningProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$InterventionLearningProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> interventionType = const Value.absent(),
+                Value<double> successRate = const Value.absent(),
+                Value<int> averageRecoveryTimeSeconds = const Value.absent(),
+                Value<double> averageRecoveryImprovement = const Value.absent(),
+                Value<String> contextualPerformanceJson = const Value.absent(),
+                Value<String> circadianPerformanceJson = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => InterventionLearningProfilesTableCompanion(
+                interventionType: interventionType,
+                successRate: successRate,
+                averageRecoveryTimeSeconds: averageRecoveryTimeSeconds,
+                averageRecoveryImprovement: averageRecoveryImprovement,
+                contextualPerformanceJson: contextualPerformanceJson,
+                circadianPerformanceJson: circadianPerformanceJson,
+                confidence: confidence,
+                usageCount: usageCount,
+                updatedAt: updatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String interventionType,
+                required double successRate,
+                required int averageRecoveryTimeSeconds,
+                required double averageRecoveryImprovement,
+                required String contextualPerformanceJson,
+                required String circadianPerformanceJson,
+                required double confidence,
+                required int usageCount,
+                required DateTime updatedAt,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => InterventionLearningProfilesTableCompanion.insert(
+                interventionType: interventionType,
+                successRate: successRate,
+                averageRecoveryTimeSeconds: averageRecoveryTimeSeconds,
+                averageRecoveryImprovement: averageRecoveryImprovement,
+                contextualPerformanceJson: contextualPerformanceJson,
+                circadianPerformanceJson: circadianPerformanceJson,
+                confidence: confidence,
+                usageCount: usageCount,
+                updatedAt: updatedAt,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$InterventionLearningProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $InterventionLearningProfilesTableTable,
+      InterventionLearningProfilesTableData,
+      $$InterventionLearningProfilesTableTableFilterComposer,
+      $$InterventionLearningProfilesTableTableOrderingComposer,
+      $$InterventionLearningProfilesTableTableAnnotationComposer,
+      $$InterventionLearningProfilesTableTableCreateCompanionBuilder,
+      $$InterventionLearningProfilesTableTableUpdateCompanionBuilder,
+      (
+        InterventionLearningProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $InterventionLearningProfilesTableTable,
+          InterventionLearningProfilesTableData
+        >,
+      ),
+      InterventionLearningProfilesTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$ContextualInterventionRecommendationsTableTableCreateCompanionBuilder =
+    ContextualInterventionRecommendationsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required String interventionType,
+      required double recommendationScore,
+      required double expectedRecoveryBenefit,
+      required double confidence,
+      required String contextualFactorsJson,
+      required String physiologicalFactorsJson,
+      required String recoveryFactorsJson,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ContextualInterventionRecommendationsTableTableUpdateCompanionBuilder =
+    ContextualInterventionRecommendationsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<String> interventionType,
+      Value<double> recommendationScore,
+      Value<double> expectedRecoveryBenefit,
+      Value<double> confidence,
+      Value<String> contextualFactorsJson,
+      Value<String> physiologicalFactorsJson,
+      Value<String> recoveryFactorsJson,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ContextualInterventionRecommendationsTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualInterventionRecommendationsTableTable
+        > {
+  $$ContextualInterventionRecommendationsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recommendationScore => $composableBuilder(
+    column: $table.recommendationScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get expectedRecoveryBenefit => $composableBuilder(
+    column: $table.expectedRecoveryBenefit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contextualFactorsJson => $composableBuilder(
+    column: $table.contextualFactorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get physiologicalFactorsJson => $composableBuilder(
+    column: $table.physiologicalFactorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recoveryFactorsJson => $composableBuilder(
+    column: $table.recoveryFactorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ContextualInterventionRecommendationsTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualInterventionRecommendationsTableTable
+        > {
+  $$ContextualInterventionRecommendationsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recommendationScore => $composableBuilder(
+    column: $table.recommendationScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get expectedRecoveryBenefit => $composableBuilder(
+    column: $table.expectedRecoveryBenefit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contextualFactorsJson => $composableBuilder(
+    column: $table.contextualFactorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get physiologicalFactorsJson => $composableBuilder(
+    column: $table.physiologicalFactorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recoveryFactorsJson => $composableBuilder(
+    column: $table.recoveryFactorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ContextualInterventionRecommendationsTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $ContextualInterventionRecommendationsTableTable
+        > {
+  $$ContextualInterventionRecommendationsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get interventionType => $composableBuilder(
+    column: $table.interventionType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recommendationScore => $composableBuilder(
+    column: $table.recommendationScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get expectedRecoveryBenefit => $composableBuilder(
+    column: $table.expectedRecoveryBenefit,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contextualFactorsJson => $composableBuilder(
+    column: $table.contextualFactorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get physiologicalFactorsJson => $composableBuilder(
+    column: $table.physiologicalFactorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recoveryFactorsJson => $composableBuilder(
+    column: $table.recoveryFactorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ContextualInterventionRecommendationsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ContextualInterventionRecommendationsTableTable,
+          ContextualInterventionRecommendationsTableData,
+          $$ContextualInterventionRecommendationsTableTableFilterComposer,
+          $$ContextualInterventionRecommendationsTableTableOrderingComposer,
+          $$ContextualInterventionRecommendationsTableTableAnnotationComposer,
+          $$ContextualInterventionRecommendationsTableTableCreateCompanionBuilder,
+          $$ContextualInterventionRecommendationsTableTableUpdateCompanionBuilder,
+          (
+            ContextualInterventionRecommendationsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ContextualInterventionRecommendationsTableTable,
+              ContextualInterventionRecommendationsTableData
+            >,
+          ),
+          ContextualInterventionRecommendationsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ContextualInterventionRecommendationsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ContextualInterventionRecommendationsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ContextualInterventionRecommendationsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ContextualInterventionRecommendationsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ContextualInterventionRecommendationsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> interventionType = const Value.absent(),
+                Value<double> recommendationScore = const Value.absent(),
+                Value<double> expectedRecoveryBenefit = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> contextualFactorsJson = const Value.absent(),
+                Value<String> physiologicalFactorsJson = const Value.absent(),
+                Value<String> recoveryFactorsJson = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualInterventionRecommendationsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                interventionType: interventionType,
+                recommendationScore: recommendationScore,
+                expectedRecoveryBenefit: expectedRecoveryBenefit,
+                confidence: confidence,
+                contextualFactorsJson: contextualFactorsJson,
+                physiologicalFactorsJson: physiologicalFactorsJson,
+                recoveryFactorsJson: recoveryFactorsJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required String interventionType,
+                required double recommendationScore,
+                required double expectedRecoveryBenefit,
+                required double confidence,
+                required String contextualFactorsJson,
+                required String physiologicalFactorsJson,
+                required String recoveryFactorsJson,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ContextualInterventionRecommendationsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                interventionType: interventionType,
+                recommendationScore: recommendationScore,
+                expectedRecoveryBenefit: expectedRecoveryBenefit,
+                confidence: confidence,
+                contextualFactorsJson: contextualFactorsJson,
+                physiologicalFactorsJson: physiologicalFactorsJson,
+                recoveryFactorsJson: recoveryFactorsJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ContextualInterventionRecommendationsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ContextualInterventionRecommendationsTableTable,
+      ContextualInterventionRecommendationsTableData,
+      $$ContextualInterventionRecommendationsTableTableFilterComposer,
+      $$ContextualInterventionRecommendationsTableTableOrderingComposer,
+      $$ContextualInterventionRecommendationsTableTableAnnotationComposer,
+      $$ContextualInterventionRecommendationsTableTableCreateCompanionBuilder,
+      $$ContextualInterventionRecommendationsTableTableUpdateCompanionBuilder,
+      (
+        ContextualInterventionRecommendationsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ContextualInterventionRecommendationsTableTable,
+          ContextualInterventionRecommendationsTableData
+        >,
+      ),
+      ContextualInterventionRecommendationsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -13884,5 +15989,17 @@ class $SignalFlowDatabaseManager {
       $$ContextualTriggerCorrelationsTableTableTableManager(
         _db,
         _db.contextualTriggerCorrelationsTable,
+      );
+  $$InterventionLearningProfilesTableTableTableManager
+  get interventionLearningProfilesTable =>
+      $$InterventionLearningProfilesTableTableTableManager(
+        _db,
+        _db.interventionLearningProfilesTable,
+      );
+  $$ContextualInterventionRecommendationsTableTableTableManager
+  get contextualInterventionRecommendationsTable =>
+      $$ContextualInterventionRecommendationsTableTableTableManager(
+        _db,
+        _db.contextualInterventionRecommendationsTable,
       );
 }

@@ -9,6 +9,7 @@ import 'consent_tables.dart';
 import 'contextual_trigger_tables.dart';
 import 'crisis_tables.dart';
 import 'intervention_tables.dart';
+import 'personalized_intervention_tables.dart';
 import 'physiological_trend_tables.dart';
 import 'predictive_forecast_tables.dart';
 import 'research_dashboard_tables.dart';
@@ -32,6 +33,8 @@ part 'signalflow_database.g.dart';
     EscalationForecastsTable,
     ContextualEventsTable,
     ContextualTriggerCorrelationsTable,
+    InterventionLearningProfilesTable,
+    ContextualInterventionRecommendationsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -45,7 +48,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -76,6 +79,12 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(contextualEventsTable);
           await migrator.createTable(contextualTriggerCorrelationsTable);
         }
+        if (from < 9) {
+          await migrator.createTable(interventionLearningProfilesTable);
+          await migrator.createTable(
+            contextualInterventionRecommendationsTable,
+          );
+        }
       },
     );
   }
@@ -96,6 +105,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(escalationForecastsTable);
       batch.deleteAll(contextualEventsTable);
       batch.deleteAll(contextualTriggerCorrelationsTable);
+      batch.deleteAll(interventionLearningProfilesTable);
+      batch.deleteAll(contextualInterventionRecommendationsTable);
     });
   }
 }
