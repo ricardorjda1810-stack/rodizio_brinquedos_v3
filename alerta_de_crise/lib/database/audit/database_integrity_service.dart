@@ -27,6 +27,7 @@ class DatabaseIntegrityService {
       'physiological_event_markers_table',
       'physiological_trends_table',
       'autonomic_recovery_profiles_table',
+      'research_dashboard_snapshots_table',
     ];
 
     final baselines = await _database
@@ -59,6 +60,9 @@ class DatabaseIntegrityService {
     final recoveryProfiles = await _database
         .select(_database.autonomicRecoveryProfilesTable)
         .get();
+    final dashboardSnapshots = await _database
+        .select(_database.researchDashboardSnapshotsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -70,6 +74,7 @@ class DatabaseIntegrityService {
     _auditEventMarkers(markers, issues, warnings);
     _auditTrends(trends, issues, warnings);
     _auditRecoveryProfiles(recoveryProfiles, issues, warnings);
+    _auditDashboardSnapshots(dashboardSnapshots, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -81,7 +86,8 @@ class DatabaseIntegrityService {
         timelines.length +
         markers.length +
         trends.length +
-        recoveryProfiles.length;
+        recoveryProfiles.length +
+        dashboardSnapshots.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -395,6 +401,68 @@ class DatabaseIntegrityService {
       if (row.baselineReturnSeconds != null && row.baselineReturnSeconds! < 0) {
         warnings.add(
           'Autonomic recovery profile ${row.id} has negative baseline return.',
+        );
+      }
+    }
+  }
+
+  void _auditDashboardSnapshots(
+    List<ResearchDashboardSnapshotsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Research dashboard snapshot with empty id.');
+      }
+      if (row.averageConfidence < 0 || row.averageConfidence > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has confidence outside 0..100.',
+        );
+      }
+      if (row.recoveryEfficiency < 0 || row.recoveryEfficiency > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has recoveryEfficiency outside 0..100.',
+        );
+      }
+      if (row.resilienceScore < 0 || row.resilienceScore > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has resilienceScore outside 0..100.',
+        );
+      }
+      if (row.fatigueScore < 0 || row.fatigueScore > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has fatigueScore outside 0..100.',
+        );
+      }
+      if (row.activationDensity < 0 || row.activationDensity > 1) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has activationDensity outside 0..1.',
+        );
+      }
+      if (row.baselineStability < 0 || row.baselineStability > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has baselineStability outside 0..100.',
+        );
+      }
+      if (row.stressCarryover < 0 || row.stressCarryover > 1) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has stressCarryover outside 0..1.',
+        );
+      }
+      if (row.autonomicLoad < 0 || row.autonomicLoad > 100) {
+        issues.add(
+          'Research dashboard snapshot ${row.id} has autonomicLoad outside 0..100.',
+        );
+      }
+      if (row.averageHeartRate != null && row.averageHeartRate! <= 0) {
+        warnings.add(
+          'Research dashboard snapshot ${row.id} has invalid average HR.',
+        );
+      }
+      if (row.averageHrv != null && row.averageHrv! <= 0) {
+        warnings.add(
+          'Research dashboard snapshot ${row.id} has non-positive HRV.',
         );
       }
     }

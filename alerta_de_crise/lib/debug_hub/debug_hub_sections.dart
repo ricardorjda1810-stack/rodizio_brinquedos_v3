@@ -11,6 +11,7 @@ import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
+import '../ui/crisis_detection/research_dashboard_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
 import '../ui/crisis_detection/sensor_quality_debug_page.dart';
@@ -53,6 +54,11 @@ class SignalFlowDebugHubSections {
             label: 'Autonomic Recovery',
             description: 'Recuperação fisiológica e resiliência longitudinal.',
             builder: (_) => const AutonomicRecoveryDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Research Dashboard',
+            description: 'Métricas consolidadas e indicadores experimentais.',
+            builder: (_) => const ResearchDashboardDebugPage(),
           ),
         ],
       ),

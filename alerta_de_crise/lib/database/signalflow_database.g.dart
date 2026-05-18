@@ -6071,6 +6071,1168 @@ class AutonomicRecoveryProfilesTableCompanion
   }
 }
 
+class $ResearchDashboardSnapshotsTableTable
+    extends ResearchDashboardSnapshotsTable
+    with
+        TableInfo<
+          $ResearchDashboardSnapshotsTableTable,
+          ResearchDashboardSnapshotsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ResearchDashboardSnapshotsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHeartRateMeta = const VerificationMeta(
+    'averageHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> averageHeartRate = GeneratedColumn<double>(
+    'average_heart_rate',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _averageHrvMeta = const VerificationMeta(
+    'averageHrv',
+  );
+  @override
+  late final GeneratedColumn<double> averageHrv = GeneratedColumn<double>(
+    'average_hrv',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _averageConfidenceMeta = const VerificationMeta(
+    'averageConfidence',
+  );
+  @override
+  late final GeneratedColumn<double> averageConfidence =
+      GeneratedColumn<double>(
+        'average_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationCountMeta = const VerificationMeta(
+    'escalationCount',
+  );
+  @override
+  late final GeneratedColumn<int> escalationCount = GeneratedColumn<int>(
+    'escalation_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _interventionCountMeta = const VerificationMeta(
+    'interventionCount',
+  );
+  @override
+  late final GeneratedColumn<int> interventionCount = GeneratedColumn<int>(
+    'intervention_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recoveryEfficiencyMeta =
+      const VerificationMeta('recoveryEfficiency');
+  @override
+  late final GeneratedColumn<double> recoveryEfficiency =
+      GeneratedColumn<double>(
+        'recovery_efficiency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _resilienceScoreMeta = const VerificationMeta(
+    'resilienceScore',
+  );
+  @override
+  late final GeneratedColumn<int> resilienceScore = GeneratedColumn<int>(
+    'resilience_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fatigueScoreMeta = const VerificationMeta(
+    'fatigueScore',
+  );
+  @override
+  late final GeneratedColumn<int> fatigueScore = GeneratedColumn<int>(
+    'fatigue_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activationDensityMeta = const VerificationMeta(
+    'activationDensity',
+  );
+  @override
+  late final GeneratedColumn<double> activationDensity =
+      GeneratedColumn<double>(
+        'activation_density',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _baselineStabilityMeta = const VerificationMeta(
+    'baselineStability',
+  );
+  @override
+  late final GeneratedColumn<double> baselineStability =
+      GeneratedColumn<double>(
+        'baseline_stability',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _stressCarryoverMeta = const VerificationMeta(
+    'stressCarryover',
+  );
+  @override
+  late final GeneratedColumn<double> stressCarryover = GeneratedColumn<double>(
+    'stress_carryover',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _improvingTrendMeta = const VerificationMeta(
+    'improvingTrend',
+  );
+  @override
+  late final GeneratedColumn<bool> improvingTrend = GeneratedColumn<bool>(
+    'improving_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("improving_trend" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _worseningTrendMeta = const VerificationMeta(
+    'worseningTrend',
+  );
+  @override
+  late final GeneratedColumn<bool> worseningTrend = GeneratedColumn<bool>(
+    'worsening_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("worsening_trend" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _recoveryTrendMeta = const VerificationMeta(
+    'recoveryTrend',
+  );
+  @override
+  late final GeneratedColumn<bool> recoveryTrend = GeneratedColumn<bool>(
+    'recovery_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("recovery_trend" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _confidenceTrendMeta = const VerificationMeta(
+    'confidenceTrend',
+  );
+  @override
+  late final GeneratedColumn<bool> confidenceTrend = GeneratedColumn<bool>(
+    'confidence_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("confidence_trend" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _circadianStabilityMeta =
+      const VerificationMeta('circadianStability');
+  @override
+  late final GeneratedColumn<bool> circadianStability = GeneratedColumn<bool>(
+    'circadian_stability',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("circadian_stability" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _autonomicLoadMeta = const VerificationMeta(
+    'autonomicLoad',
+  );
+  @override
+  late final GeneratedColumn<double> autonomicLoad = GeneratedColumn<double>(
+    'autonomic_load',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    averageHeartRate,
+    averageHrv,
+    averageConfidence,
+    escalationCount,
+    interventionCount,
+    recoveryEfficiency,
+    resilienceScore,
+    fatigueScore,
+    activationDensity,
+    baselineStability,
+    stressCarryover,
+    improvingTrend,
+    worseningTrend,
+    recoveryTrend,
+    confidenceTrend,
+    circadianStability,
+    autonomicLoad,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'research_dashboard_snapshots_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ResearchDashboardSnapshotsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('average_heart_rate')) {
+      context.handle(
+        _averageHeartRateMeta,
+        averageHeartRate.isAcceptableOrUnknown(
+          data['average_heart_rate']!,
+          _averageHeartRateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('average_hrv')) {
+      context.handle(
+        _averageHrvMeta,
+        averageHrv.isAcceptableOrUnknown(data['average_hrv']!, _averageHrvMeta),
+      );
+    }
+    if (data.containsKey('average_confidence')) {
+      context.handle(
+        _averageConfidenceMeta,
+        averageConfidence.isAcceptableOrUnknown(
+          data['average_confidence']!,
+          _averageConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageConfidenceMeta);
+    }
+    if (data.containsKey('escalation_count')) {
+      context.handle(
+        _escalationCountMeta,
+        escalationCount.isAcceptableOrUnknown(
+          data['escalation_count']!,
+          _escalationCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationCountMeta);
+    }
+    if (data.containsKey('intervention_count')) {
+      context.handle(
+        _interventionCountMeta,
+        interventionCount.isAcceptableOrUnknown(
+          data['intervention_count']!,
+          _interventionCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_interventionCountMeta);
+    }
+    if (data.containsKey('recovery_efficiency')) {
+      context.handle(
+        _recoveryEfficiencyMeta,
+        recoveryEfficiency.isAcceptableOrUnknown(
+          data['recovery_efficiency']!,
+          _recoveryEfficiencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryEfficiencyMeta);
+    }
+    if (data.containsKey('resilience_score')) {
+      context.handle(
+        _resilienceScoreMeta,
+        resilienceScore.isAcceptableOrUnknown(
+          data['resilience_score']!,
+          _resilienceScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_resilienceScoreMeta);
+    }
+    if (data.containsKey('fatigue_score')) {
+      context.handle(
+        _fatigueScoreMeta,
+        fatigueScore.isAcceptableOrUnknown(
+          data['fatigue_score']!,
+          _fatigueScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_fatigueScoreMeta);
+    }
+    if (data.containsKey('activation_density')) {
+      context.handle(
+        _activationDensityMeta,
+        activationDensity.isAcceptableOrUnknown(
+          data['activation_density']!,
+          _activationDensityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activationDensityMeta);
+    }
+    if (data.containsKey('baseline_stability')) {
+      context.handle(
+        _baselineStabilityMeta,
+        baselineStability.isAcceptableOrUnknown(
+          data['baseline_stability']!,
+          _baselineStabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_baselineStabilityMeta);
+    }
+    if (data.containsKey('stress_carryover')) {
+      context.handle(
+        _stressCarryoverMeta,
+        stressCarryover.isAcceptableOrUnknown(
+          data['stress_carryover']!,
+          _stressCarryoverMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_stressCarryoverMeta);
+    }
+    if (data.containsKey('improving_trend')) {
+      context.handle(
+        _improvingTrendMeta,
+        improvingTrend.isAcceptableOrUnknown(
+          data['improving_trend']!,
+          _improvingTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_improvingTrendMeta);
+    }
+    if (data.containsKey('worsening_trend')) {
+      context.handle(
+        _worseningTrendMeta,
+        worseningTrend.isAcceptableOrUnknown(
+          data['worsening_trend']!,
+          _worseningTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_worseningTrendMeta);
+    }
+    if (data.containsKey('recovery_trend')) {
+      context.handle(
+        _recoveryTrendMeta,
+        recoveryTrend.isAcceptableOrUnknown(
+          data['recovery_trend']!,
+          _recoveryTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryTrendMeta);
+    }
+    if (data.containsKey('confidence_trend')) {
+      context.handle(
+        _confidenceTrendMeta,
+        confidenceTrend.isAcceptableOrUnknown(
+          data['confidence_trend']!,
+          _confidenceTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceTrendMeta);
+    }
+    if (data.containsKey('circadian_stability')) {
+      context.handle(
+        _circadianStabilityMeta,
+        circadianStability.isAcceptableOrUnknown(
+          data['circadian_stability']!,
+          _circadianStabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_circadianStabilityMeta);
+    }
+    if (data.containsKey('autonomic_load')) {
+      context.handle(
+        _autonomicLoadMeta,
+        autonomicLoad.isAcceptableOrUnknown(
+          data['autonomic_load']!,
+          _autonomicLoadMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_autonomicLoadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ResearchDashboardSnapshotsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ResearchDashboardSnapshotsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      averageHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_heart_rate'],
+      ),
+      averageHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_hrv'],
+      ),
+      averageConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_confidence'],
+      )!,
+      escalationCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}escalation_count'],
+      )!,
+      interventionCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}intervention_count'],
+      )!,
+      recoveryEfficiency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_efficiency'],
+      )!,
+      resilienceScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}resilience_score'],
+      )!,
+      fatigueScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}fatigue_score'],
+      )!,
+      activationDensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}activation_density'],
+      )!,
+      baselineStability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}baseline_stability'],
+      )!,
+      stressCarryover: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}stress_carryover'],
+      )!,
+      improvingTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}improving_trend'],
+      )!,
+      worseningTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}worsening_trend'],
+      )!,
+      recoveryTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}recovery_trend'],
+      )!,
+      confidenceTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}confidence_trend'],
+      )!,
+      circadianStability: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}circadian_stability'],
+      )!,
+      autonomicLoad: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}autonomic_load'],
+      )!,
+    );
+  }
+
+  @override
+  $ResearchDashboardSnapshotsTableTable createAlias(String alias) {
+    return $ResearchDashboardSnapshotsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ResearchDashboardSnapshotsTableData extends DataClass
+    implements Insertable<ResearchDashboardSnapshotsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final double? averageHeartRate;
+  final double? averageHrv;
+  final double averageConfidence;
+  final int escalationCount;
+  final int interventionCount;
+  final double recoveryEfficiency;
+  final int resilienceScore;
+  final int fatigueScore;
+  final double activationDensity;
+  final double baselineStability;
+  final double stressCarryover;
+  final bool improvingTrend;
+  final bool worseningTrend;
+  final bool recoveryTrend;
+  final bool confidenceTrend;
+  final bool circadianStability;
+  final double autonomicLoad;
+  const ResearchDashboardSnapshotsTableData({
+    required this.id,
+    required this.generatedAt,
+    this.averageHeartRate,
+    this.averageHrv,
+    required this.averageConfidence,
+    required this.escalationCount,
+    required this.interventionCount,
+    required this.recoveryEfficiency,
+    required this.resilienceScore,
+    required this.fatigueScore,
+    required this.activationDensity,
+    required this.baselineStability,
+    required this.stressCarryover,
+    required this.improvingTrend,
+    required this.worseningTrend,
+    required this.recoveryTrend,
+    required this.confidenceTrend,
+    required this.circadianStability,
+    required this.autonomicLoad,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    if (!nullToAbsent || averageHeartRate != null) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate);
+    }
+    if (!nullToAbsent || averageHrv != null) {
+      map['average_hrv'] = Variable<double>(averageHrv);
+    }
+    map['average_confidence'] = Variable<double>(averageConfidence);
+    map['escalation_count'] = Variable<int>(escalationCount);
+    map['intervention_count'] = Variable<int>(interventionCount);
+    map['recovery_efficiency'] = Variable<double>(recoveryEfficiency);
+    map['resilience_score'] = Variable<int>(resilienceScore);
+    map['fatigue_score'] = Variable<int>(fatigueScore);
+    map['activation_density'] = Variable<double>(activationDensity);
+    map['baseline_stability'] = Variable<double>(baselineStability);
+    map['stress_carryover'] = Variable<double>(stressCarryover);
+    map['improving_trend'] = Variable<bool>(improvingTrend);
+    map['worsening_trend'] = Variable<bool>(worseningTrend);
+    map['recovery_trend'] = Variable<bool>(recoveryTrend);
+    map['confidence_trend'] = Variable<bool>(confidenceTrend);
+    map['circadian_stability'] = Variable<bool>(circadianStability);
+    map['autonomic_load'] = Variable<double>(autonomicLoad);
+    return map;
+  }
+
+  ResearchDashboardSnapshotsTableCompanion toCompanion(bool nullToAbsent) {
+    return ResearchDashboardSnapshotsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      averageHeartRate: averageHeartRate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHeartRate),
+      averageHrv: averageHrv == null && nullToAbsent
+          ? const Value.absent()
+          : Value(averageHrv),
+      averageConfidence: Value(averageConfidence),
+      escalationCount: Value(escalationCount),
+      interventionCount: Value(interventionCount),
+      recoveryEfficiency: Value(recoveryEfficiency),
+      resilienceScore: Value(resilienceScore),
+      fatigueScore: Value(fatigueScore),
+      activationDensity: Value(activationDensity),
+      baselineStability: Value(baselineStability),
+      stressCarryover: Value(stressCarryover),
+      improvingTrend: Value(improvingTrend),
+      worseningTrend: Value(worseningTrend),
+      recoveryTrend: Value(recoveryTrend),
+      confidenceTrend: Value(confidenceTrend),
+      circadianStability: Value(circadianStability),
+      autonomicLoad: Value(autonomicLoad),
+    );
+  }
+
+  factory ResearchDashboardSnapshotsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ResearchDashboardSnapshotsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      averageHeartRate: serializer.fromJson<double?>(json['averageHeartRate']),
+      averageHrv: serializer.fromJson<double?>(json['averageHrv']),
+      averageConfidence: serializer.fromJson<double>(json['averageConfidence']),
+      escalationCount: serializer.fromJson<int>(json['escalationCount']),
+      interventionCount: serializer.fromJson<int>(json['interventionCount']),
+      recoveryEfficiency: serializer.fromJson<double>(
+        json['recoveryEfficiency'],
+      ),
+      resilienceScore: serializer.fromJson<int>(json['resilienceScore']),
+      fatigueScore: serializer.fromJson<int>(json['fatigueScore']),
+      activationDensity: serializer.fromJson<double>(json['activationDensity']),
+      baselineStability: serializer.fromJson<double>(json['baselineStability']),
+      stressCarryover: serializer.fromJson<double>(json['stressCarryover']),
+      improvingTrend: serializer.fromJson<bool>(json['improvingTrend']),
+      worseningTrend: serializer.fromJson<bool>(json['worseningTrend']),
+      recoveryTrend: serializer.fromJson<bool>(json['recoveryTrend']),
+      confidenceTrend: serializer.fromJson<bool>(json['confidenceTrend']),
+      circadianStability: serializer.fromJson<bool>(json['circadianStability']),
+      autonomicLoad: serializer.fromJson<double>(json['autonomicLoad']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'averageHeartRate': serializer.toJson<double?>(averageHeartRate),
+      'averageHrv': serializer.toJson<double?>(averageHrv),
+      'averageConfidence': serializer.toJson<double>(averageConfidence),
+      'escalationCount': serializer.toJson<int>(escalationCount),
+      'interventionCount': serializer.toJson<int>(interventionCount),
+      'recoveryEfficiency': serializer.toJson<double>(recoveryEfficiency),
+      'resilienceScore': serializer.toJson<int>(resilienceScore),
+      'fatigueScore': serializer.toJson<int>(fatigueScore),
+      'activationDensity': serializer.toJson<double>(activationDensity),
+      'baselineStability': serializer.toJson<double>(baselineStability),
+      'stressCarryover': serializer.toJson<double>(stressCarryover),
+      'improvingTrend': serializer.toJson<bool>(improvingTrend),
+      'worseningTrend': serializer.toJson<bool>(worseningTrend),
+      'recoveryTrend': serializer.toJson<bool>(recoveryTrend),
+      'confidenceTrend': serializer.toJson<bool>(confidenceTrend),
+      'circadianStability': serializer.toJson<bool>(circadianStability),
+      'autonomicLoad': serializer.toJson<double>(autonomicLoad),
+    };
+  }
+
+  ResearchDashboardSnapshotsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    Value<double?> averageHeartRate = const Value.absent(),
+    Value<double?> averageHrv = const Value.absent(),
+    double? averageConfidence,
+    int? escalationCount,
+    int? interventionCount,
+    double? recoveryEfficiency,
+    int? resilienceScore,
+    int? fatigueScore,
+    double? activationDensity,
+    double? baselineStability,
+    double? stressCarryover,
+    bool? improvingTrend,
+    bool? worseningTrend,
+    bool? recoveryTrend,
+    bool? confidenceTrend,
+    bool? circadianStability,
+    double? autonomicLoad,
+  }) => ResearchDashboardSnapshotsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    averageHeartRate: averageHeartRate.present
+        ? averageHeartRate.value
+        : this.averageHeartRate,
+    averageHrv: averageHrv.present ? averageHrv.value : this.averageHrv,
+    averageConfidence: averageConfidence ?? this.averageConfidence,
+    escalationCount: escalationCount ?? this.escalationCount,
+    interventionCount: interventionCount ?? this.interventionCount,
+    recoveryEfficiency: recoveryEfficiency ?? this.recoveryEfficiency,
+    resilienceScore: resilienceScore ?? this.resilienceScore,
+    fatigueScore: fatigueScore ?? this.fatigueScore,
+    activationDensity: activationDensity ?? this.activationDensity,
+    baselineStability: baselineStability ?? this.baselineStability,
+    stressCarryover: stressCarryover ?? this.stressCarryover,
+    improvingTrend: improvingTrend ?? this.improvingTrend,
+    worseningTrend: worseningTrend ?? this.worseningTrend,
+    recoveryTrend: recoveryTrend ?? this.recoveryTrend,
+    confidenceTrend: confidenceTrend ?? this.confidenceTrend,
+    circadianStability: circadianStability ?? this.circadianStability,
+    autonomicLoad: autonomicLoad ?? this.autonomicLoad,
+  );
+  ResearchDashboardSnapshotsTableData copyWithCompanion(
+    ResearchDashboardSnapshotsTableCompanion data,
+  ) {
+    return ResearchDashboardSnapshotsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      averageHeartRate: data.averageHeartRate.present
+          ? data.averageHeartRate.value
+          : this.averageHeartRate,
+      averageHrv: data.averageHrv.present
+          ? data.averageHrv.value
+          : this.averageHrv,
+      averageConfidence: data.averageConfidence.present
+          ? data.averageConfidence.value
+          : this.averageConfidence,
+      escalationCount: data.escalationCount.present
+          ? data.escalationCount.value
+          : this.escalationCount,
+      interventionCount: data.interventionCount.present
+          ? data.interventionCount.value
+          : this.interventionCount,
+      recoveryEfficiency: data.recoveryEfficiency.present
+          ? data.recoveryEfficiency.value
+          : this.recoveryEfficiency,
+      resilienceScore: data.resilienceScore.present
+          ? data.resilienceScore.value
+          : this.resilienceScore,
+      fatigueScore: data.fatigueScore.present
+          ? data.fatigueScore.value
+          : this.fatigueScore,
+      activationDensity: data.activationDensity.present
+          ? data.activationDensity.value
+          : this.activationDensity,
+      baselineStability: data.baselineStability.present
+          ? data.baselineStability.value
+          : this.baselineStability,
+      stressCarryover: data.stressCarryover.present
+          ? data.stressCarryover.value
+          : this.stressCarryover,
+      improvingTrend: data.improvingTrend.present
+          ? data.improvingTrend.value
+          : this.improvingTrend,
+      worseningTrend: data.worseningTrend.present
+          ? data.worseningTrend.value
+          : this.worseningTrend,
+      recoveryTrend: data.recoveryTrend.present
+          ? data.recoveryTrend.value
+          : this.recoveryTrend,
+      confidenceTrend: data.confidenceTrend.present
+          ? data.confidenceTrend.value
+          : this.confidenceTrend,
+      circadianStability: data.circadianStability.present
+          ? data.circadianStability.value
+          : this.circadianStability,
+      autonomicLoad: data.autonomicLoad.present
+          ? data.autonomicLoad.value
+          : this.autonomicLoad,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchDashboardSnapshotsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('escalationCount: $escalationCount, ')
+          ..write('interventionCount: $interventionCount, ')
+          ..write('recoveryEfficiency: $recoveryEfficiency, ')
+          ..write('resilienceScore: $resilienceScore, ')
+          ..write('fatigueScore: $fatigueScore, ')
+          ..write('activationDensity: $activationDensity, ')
+          ..write('baselineStability: $baselineStability, ')
+          ..write('stressCarryover: $stressCarryover, ')
+          ..write('improvingTrend: $improvingTrend, ')
+          ..write('worseningTrend: $worseningTrend, ')
+          ..write('recoveryTrend: $recoveryTrend, ')
+          ..write('confidenceTrend: $confidenceTrend, ')
+          ..write('circadianStability: $circadianStability, ')
+          ..write('autonomicLoad: $autonomicLoad')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    averageHeartRate,
+    averageHrv,
+    averageConfidence,
+    escalationCount,
+    interventionCount,
+    recoveryEfficiency,
+    resilienceScore,
+    fatigueScore,
+    activationDensity,
+    baselineStability,
+    stressCarryover,
+    improvingTrend,
+    worseningTrend,
+    recoveryTrend,
+    confidenceTrend,
+    circadianStability,
+    autonomicLoad,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ResearchDashboardSnapshotsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.averageHeartRate == this.averageHeartRate &&
+          other.averageHrv == this.averageHrv &&
+          other.averageConfidence == this.averageConfidence &&
+          other.escalationCount == this.escalationCount &&
+          other.interventionCount == this.interventionCount &&
+          other.recoveryEfficiency == this.recoveryEfficiency &&
+          other.resilienceScore == this.resilienceScore &&
+          other.fatigueScore == this.fatigueScore &&
+          other.activationDensity == this.activationDensity &&
+          other.baselineStability == this.baselineStability &&
+          other.stressCarryover == this.stressCarryover &&
+          other.improvingTrend == this.improvingTrend &&
+          other.worseningTrend == this.worseningTrend &&
+          other.recoveryTrend == this.recoveryTrend &&
+          other.confidenceTrend == this.confidenceTrend &&
+          other.circadianStability == this.circadianStability &&
+          other.autonomicLoad == this.autonomicLoad);
+}
+
+class ResearchDashboardSnapshotsTableCompanion
+    extends UpdateCompanion<ResearchDashboardSnapshotsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<double?> averageHeartRate;
+  final Value<double?> averageHrv;
+  final Value<double> averageConfidence;
+  final Value<int> escalationCount;
+  final Value<int> interventionCount;
+  final Value<double> recoveryEfficiency;
+  final Value<int> resilienceScore;
+  final Value<int> fatigueScore;
+  final Value<double> activationDensity;
+  final Value<double> baselineStability;
+  final Value<double> stressCarryover;
+  final Value<bool> improvingTrend;
+  final Value<bool> worseningTrend;
+  final Value<bool> recoveryTrend;
+  final Value<bool> confidenceTrend;
+  final Value<bool> circadianStability;
+  final Value<double> autonomicLoad;
+  final Value<int> rowid;
+  const ResearchDashboardSnapshotsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.averageConfidence = const Value.absent(),
+    this.escalationCount = const Value.absent(),
+    this.interventionCount = const Value.absent(),
+    this.recoveryEfficiency = const Value.absent(),
+    this.resilienceScore = const Value.absent(),
+    this.fatigueScore = const Value.absent(),
+    this.activationDensity = const Value.absent(),
+    this.baselineStability = const Value.absent(),
+    this.stressCarryover = const Value.absent(),
+    this.improvingTrend = const Value.absent(),
+    this.worseningTrend = const Value.absent(),
+    this.recoveryTrend = const Value.absent(),
+    this.confidenceTrend = const Value.absent(),
+    this.circadianStability = const Value.absent(),
+    this.autonomicLoad = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ResearchDashboardSnapshotsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    required double averageConfidence,
+    required int escalationCount,
+    required int interventionCount,
+    required double recoveryEfficiency,
+    required int resilienceScore,
+    required int fatigueScore,
+    required double activationDensity,
+    required double baselineStability,
+    required double stressCarryover,
+    required bool improvingTrend,
+    required bool worseningTrend,
+    required bool recoveryTrend,
+    required bool confidenceTrend,
+    required bool circadianStability,
+    required double autonomicLoad,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       averageConfidence = Value(averageConfidence),
+       escalationCount = Value(escalationCount),
+       interventionCount = Value(interventionCount),
+       recoveryEfficiency = Value(recoveryEfficiency),
+       resilienceScore = Value(resilienceScore),
+       fatigueScore = Value(fatigueScore),
+       activationDensity = Value(activationDensity),
+       baselineStability = Value(baselineStability),
+       stressCarryover = Value(stressCarryover),
+       improvingTrend = Value(improvingTrend),
+       worseningTrend = Value(worseningTrend),
+       recoveryTrend = Value(recoveryTrend),
+       confidenceTrend = Value(confidenceTrend),
+       circadianStability = Value(circadianStability),
+       autonomicLoad = Value(autonomicLoad);
+  static Insertable<ResearchDashboardSnapshotsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<double>? averageHeartRate,
+    Expression<double>? averageHrv,
+    Expression<double>? averageConfidence,
+    Expression<int>? escalationCount,
+    Expression<int>? interventionCount,
+    Expression<double>? recoveryEfficiency,
+    Expression<int>? resilienceScore,
+    Expression<int>? fatigueScore,
+    Expression<double>? activationDensity,
+    Expression<double>? baselineStability,
+    Expression<double>? stressCarryover,
+    Expression<bool>? improvingTrend,
+    Expression<bool>? worseningTrend,
+    Expression<bool>? recoveryTrend,
+    Expression<bool>? confidenceTrend,
+    Expression<bool>? circadianStability,
+    Expression<double>? autonomicLoad,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
+      if (averageHrv != null) 'average_hrv': averageHrv,
+      if (averageConfidence != null) 'average_confidence': averageConfidence,
+      if (escalationCount != null) 'escalation_count': escalationCount,
+      if (interventionCount != null) 'intervention_count': interventionCount,
+      if (recoveryEfficiency != null) 'recovery_efficiency': recoveryEfficiency,
+      if (resilienceScore != null) 'resilience_score': resilienceScore,
+      if (fatigueScore != null) 'fatigue_score': fatigueScore,
+      if (activationDensity != null) 'activation_density': activationDensity,
+      if (baselineStability != null) 'baseline_stability': baselineStability,
+      if (stressCarryover != null) 'stress_carryover': stressCarryover,
+      if (improvingTrend != null) 'improving_trend': improvingTrend,
+      if (worseningTrend != null) 'worsening_trend': worseningTrend,
+      if (recoveryTrend != null) 'recovery_trend': recoveryTrend,
+      if (confidenceTrend != null) 'confidence_trend': confidenceTrend,
+      if (circadianStability != null) 'circadian_stability': circadianStability,
+      if (autonomicLoad != null) 'autonomic_load': autonomicLoad,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ResearchDashboardSnapshotsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<double?>? averageHeartRate,
+    Value<double?>? averageHrv,
+    Value<double>? averageConfidence,
+    Value<int>? escalationCount,
+    Value<int>? interventionCount,
+    Value<double>? recoveryEfficiency,
+    Value<int>? resilienceScore,
+    Value<int>? fatigueScore,
+    Value<double>? activationDensity,
+    Value<double>? baselineStability,
+    Value<double>? stressCarryover,
+    Value<bool>? improvingTrend,
+    Value<bool>? worseningTrend,
+    Value<bool>? recoveryTrend,
+    Value<bool>? confidenceTrend,
+    Value<bool>? circadianStability,
+    Value<double>? autonomicLoad,
+    Value<int>? rowid,
+  }) {
+    return ResearchDashboardSnapshotsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      averageHrv: averageHrv ?? this.averageHrv,
+      averageConfidence: averageConfidence ?? this.averageConfidence,
+      escalationCount: escalationCount ?? this.escalationCount,
+      interventionCount: interventionCount ?? this.interventionCount,
+      recoveryEfficiency: recoveryEfficiency ?? this.recoveryEfficiency,
+      resilienceScore: resilienceScore ?? this.resilienceScore,
+      fatigueScore: fatigueScore ?? this.fatigueScore,
+      activationDensity: activationDensity ?? this.activationDensity,
+      baselineStability: baselineStability ?? this.baselineStability,
+      stressCarryover: stressCarryover ?? this.stressCarryover,
+      improvingTrend: improvingTrend ?? this.improvingTrend,
+      worseningTrend: worseningTrend ?? this.worseningTrend,
+      recoveryTrend: recoveryTrend ?? this.recoveryTrend,
+      confidenceTrend: confidenceTrend ?? this.confidenceTrend,
+      circadianStability: circadianStability ?? this.circadianStability,
+      autonomicLoad: autonomicLoad ?? this.autonomicLoad,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (averageHeartRate.present) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate.value);
+    }
+    if (averageHrv.present) {
+      map['average_hrv'] = Variable<double>(averageHrv.value);
+    }
+    if (averageConfidence.present) {
+      map['average_confidence'] = Variable<double>(averageConfidence.value);
+    }
+    if (escalationCount.present) {
+      map['escalation_count'] = Variable<int>(escalationCount.value);
+    }
+    if (interventionCount.present) {
+      map['intervention_count'] = Variable<int>(interventionCount.value);
+    }
+    if (recoveryEfficiency.present) {
+      map['recovery_efficiency'] = Variable<double>(recoveryEfficiency.value);
+    }
+    if (resilienceScore.present) {
+      map['resilience_score'] = Variable<int>(resilienceScore.value);
+    }
+    if (fatigueScore.present) {
+      map['fatigue_score'] = Variable<int>(fatigueScore.value);
+    }
+    if (activationDensity.present) {
+      map['activation_density'] = Variable<double>(activationDensity.value);
+    }
+    if (baselineStability.present) {
+      map['baseline_stability'] = Variable<double>(baselineStability.value);
+    }
+    if (stressCarryover.present) {
+      map['stress_carryover'] = Variable<double>(stressCarryover.value);
+    }
+    if (improvingTrend.present) {
+      map['improving_trend'] = Variable<bool>(improvingTrend.value);
+    }
+    if (worseningTrend.present) {
+      map['worsening_trend'] = Variable<bool>(worseningTrend.value);
+    }
+    if (recoveryTrend.present) {
+      map['recovery_trend'] = Variable<bool>(recoveryTrend.value);
+    }
+    if (confidenceTrend.present) {
+      map['confidence_trend'] = Variable<bool>(confidenceTrend.value);
+    }
+    if (circadianStability.present) {
+      map['circadian_stability'] = Variable<bool>(circadianStability.value);
+    }
+    if (autonomicLoad.present) {
+      map['autonomic_load'] = Variable<double>(autonomicLoad.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ResearchDashboardSnapshotsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('escalationCount: $escalationCount, ')
+          ..write('interventionCount: $interventionCount, ')
+          ..write('recoveryEfficiency: $recoveryEfficiency, ')
+          ..write('resilienceScore: $resilienceScore, ')
+          ..write('fatigueScore: $fatigueScore, ')
+          ..write('activationDensity: $activationDensity, ')
+          ..write('baselineStability: $baselineStability, ')
+          ..write('stressCarryover: $stressCarryover, ')
+          ..write('improvingTrend: $improvingTrend, ')
+          ..write('worseningTrend: $worseningTrend, ')
+          ..write('recoveryTrend: $recoveryTrend, ')
+          ..write('confidenceTrend: $confidenceTrend, ')
+          ..write('circadianStability: $circadianStability, ')
+          ..write('autonomicLoad: $autonomicLoad, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -6094,6 +7256,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $PhysiologicalTrendsTableTable(this);
   late final $AutonomicRecoveryProfilesTableTable
   autonomicRecoveryProfilesTable = $AutonomicRecoveryProfilesTableTable(this);
+  late final $ResearchDashboardSnapshotsTableTable
+  researchDashboardSnapshotsTable = $ResearchDashboardSnapshotsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6109,6 +7273,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     physiologicalEventMarkersTable,
     physiologicalTrendsTable,
     autonomicRecoveryProfilesTable,
+    researchDashboardSnapshotsTable,
   ];
 }
 
@@ -9190,6 +10355,530 @@ typedef $$AutonomicRecoveryProfilesTableTableProcessedTableManager =
       AutonomicRecoveryProfilesTableData,
       PrefetchHooks Function()
     >;
+typedef $$ResearchDashboardSnapshotsTableTableCreateCompanionBuilder =
+    ResearchDashboardSnapshotsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      required double averageConfidence,
+      required int escalationCount,
+      required int interventionCount,
+      required double recoveryEfficiency,
+      required int resilienceScore,
+      required int fatigueScore,
+      required double activationDensity,
+      required double baselineStability,
+      required double stressCarryover,
+      required bool improvingTrend,
+      required bool worseningTrend,
+      required bool recoveryTrend,
+      required bool confidenceTrend,
+      required bool circadianStability,
+      required double autonomicLoad,
+      Value<int> rowid,
+    });
+typedef $$ResearchDashboardSnapshotsTableTableUpdateCompanionBuilder =
+    ResearchDashboardSnapshotsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<double?> averageHeartRate,
+      Value<double?> averageHrv,
+      Value<double> averageConfidence,
+      Value<int> escalationCount,
+      Value<int> interventionCount,
+      Value<double> recoveryEfficiency,
+      Value<int> resilienceScore,
+      Value<int> fatigueScore,
+      Value<double> activationDensity,
+      Value<double> baselineStability,
+      Value<double> stressCarryover,
+      Value<bool> improvingTrend,
+      Value<bool> worseningTrend,
+      Value<bool> recoveryTrend,
+      Value<bool> confidenceTrend,
+      Value<bool> circadianStability,
+      Value<double> autonomicLoad,
+      Value<int> rowid,
+    });
+
+class $$ResearchDashboardSnapshotsTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ResearchDashboardSnapshotsTableTable> {
+  $$ResearchDashboardSnapshotsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get escalationCount => $composableBuilder(
+    column: $table.escalationCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get interventionCount => $composableBuilder(
+    column: $table.interventionCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryEfficiency => $composableBuilder(
+    column: $table.recoveryEfficiency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get baselineStability => $composableBuilder(
+    column: $table.baselineStability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get improvingTrend => $composableBuilder(
+    column: $table.improvingTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get worseningTrend => $composableBuilder(
+    column: $table.worseningTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get confidenceTrend => $composableBuilder(
+    column: $table.confidenceTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get circadianStability => $composableBuilder(
+    column: $table.circadianStability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ResearchDashboardSnapshotsTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ResearchDashboardSnapshotsTableTable> {
+  $$ResearchDashboardSnapshotsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get escalationCount => $composableBuilder(
+    column: $table.escalationCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get interventionCount => $composableBuilder(
+    column: $table.interventionCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryEfficiency => $composableBuilder(
+    column: $table.recoveryEfficiency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get baselineStability => $composableBuilder(
+    column: $table.baselineStability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get improvingTrend => $composableBuilder(
+    column: $table.improvingTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get worseningTrend => $composableBuilder(
+    column: $table.worseningTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get confidenceTrend => $composableBuilder(
+    column: $table.confidenceTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get circadianStability => $composableBuilder(
+    column: $table.circadianStability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ResearchDashboardSnapshotsTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ResearchDashboardSnapshotsTableTable> {
+  $$ResearchDashboardSnapshotsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get escalationCount => $composableBuilder(
+    column: $table.escalationCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get interventionCount => $composableBuilder(
+    column: $table.interventionCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryEfficiency => $composableBuilder(
+    column: $table.recoveryEfficiency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get resilienceScore => $composableBuilder(
+    column: $table.resilienceScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get fatigueScore => $composableBuilder(
+    column: $table.fatigueScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get activationDensity => $composableBuilder(
+    column: $table.activationDensity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get baselineStability => $composableBuilder(
+    column: $table.baselineStability,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get stressCarryover => $composableBuilder(
+    column: $table.stressCarryover,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get improvingTrend => $composableBuilder(
+    column: $table.improvingTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get worseningTrend => $composableBuilder(
+    column: $table.worseningTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get confidenceTrend => $composableBuilder(
+    column: $table.confidenceTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get circadianStability => $composableBuilder(
+    column: $table.circadianStability,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => column,
+  );
+}
+
+class $$ResearchDashboardSnapshotsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ResearchDashboardSnapshotsTableTable,
+          ResearchDashboardSnapshotsTableData,
+          $$ResearchDashboardSnapshotsTableTableFilterComposer,
+          $$ResearchDashboardSnapshotsTableTableOrderingComposer,
+          $$ResearchDashboardSnapshotsTableTableAnnotationComposer,
+          $$ResearchDashboardSnapshotsTableTableCreateCompanionBuilder,
+          $$ResearchDashboardSnapshotsTableTableUpdateCompanionBuilder,
+          (
+            ResearchDashboardSnapshotsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ResearchDashboardSnapshotsTableTable,
+              ResearchDashboardSnapshotsTableData
+            >,
+          ),
+          ResearchDashboardSnapshotsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ResearchDashboardSnapshotsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ResearchDashboardSnapshotsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ResearchDashboardSnapshotsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ResearchDashboardSnapshotsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ResearchDashboardSnapshotsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                Value<double> averageConfidence = const Value.absent(),
+                Value<int> escalationCount = const Value.absent(),
+                Value<int> interventionCount = const Value.absent(),
+                Value<double> recoveryEfficiency = const Value.absent(),
+                Value<int> resilienceScore = const Value.absent(),
+                Value<int> fatigueScore = const Value.absent(),
+                Value<double> activationDensity = const Value.absent(),
+                Value<double> baselineStability = const Value.absent(),
+                Value<double> stressCarryover = const Value.absent(),
+                Value<bool> improvingTrend = const Value.absent(),
+                Value<bool> worseningTrend = const Value.absent(),
+                Value<bool> recoveryTrend = const Value.absent(),
+                Value<bool> confidenceTrend = const Value.absent(),
+                Value<bool> circadianStability = const Value.absent(),
+                Value<double> autonomicLoad = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchDashboardSnapshotsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageConfidence: averageConfidence,
+                escalationCount: escalationCount,
+                interventionCount: interventionCount,
+                recoveryEfficiency: recoveryEfficiency,
+                resilienceScore: resilienceScore,
+                fatigueScore: fatigueScore,
+                activationDensity: activationDensity,
+                baselineStability: baselineStability,
+                stressCarryover: stressCarryover,
+                improvingTrend: improvingTrend,
+                worseningTrend: worseningTrend,
+                recoveryTrend: recoveryTrend,
+                confidenceTrend: confidenceTrend,
+                circadianStability: circadianStability,
+                autonomicLoad: autonomicLoad,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                Value<double?> averageHeartRate = const Value.absent(),
+                Value<double?> averageHrv = const Value.absent(),
+                required double averageConfidence,
+                required int escalationCount,
+                required int interventionCount,
+                required double recoveryEfficiency,
+                required int resilienceScore,
+                required int fatigueScore,
+                required double activationDensity,
+                required double baselineStability,
+                required double stressCarryover,
+                required bool improvingTrend,
+                required bool worseningTrend,
+                required bool recoveryTrend,
+                required bool confidenceTrend,
+                required bool circadianStability,
+                required double autonomicLoad,
+                Value<int> rowid = const Value.absent(),
+              }) => ResearchDashboardSnapshotsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageConfidence: averageConfidence,
+                escalationCount: escalationCount,
+                interventionCount: interventionCount,
+                recoveryEfficiency: recoveryEfficiency,
+                resilienceScore: resilienceScore,
+                fatigueScore: fatigueScore,
+                activationDensity: activationDensity,
+                baselineStability: baselineStability,
+                stressCarryover: stressCarryover,
+                improvingTrend: improvingTrend,
+                worseningTrend: worseningTrend,
+                recoveryTrend: recoveryTrend,
+                confidenceTrend: confidenceTrend,
+                circadianStability: circadianStability,
+                autonomicLoad: autonomicLoad,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ResearchDashboardSnapshotsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ResearchDashboardSnapshotsTableTable,
+      ResearchDashboardSnapshotsTableData,
+      $$ResearchDashboardSnapshotsTableTableFilterComposer,
+      $$ResearchDashboardSnapshotsTableTableOrderingComposer,
+      $$ResearchDashboardSnapshotsTableTableAnnotationComposer,
+      $$ResearchDashboardSnapshotsTableTableCreateCompanionBuilder,
+      $$ResearchDashboardSnapshotsTableTableUpdateCompanionBuilder,
+      (
+        ResearchDashboardSnapshotsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ResearchDashboardSnapshotsTableTable,
+          ResearchDashboardSnapshotsTableData
+        >,
+      ),
+      ResearchDashboardSnapshotsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -9234,5 +10923,11 @@ class $SignalFlowDatabaseManager {
       $$AutonomicRecoveryProfilesTableTableTableManager(
         _db,
         _db.autonomicRecoveryProfilesTable,
+      );
+  $$ResearchDashboardSnapshotsTableTableTableManager
+  get researchDashboardSnapshotsTable =>
+      $$ResearchDashboardSnapshotsTableTableTableManager(
+        _db,
+        _db.researchDashboardSnapshotsTable,
       );
 }

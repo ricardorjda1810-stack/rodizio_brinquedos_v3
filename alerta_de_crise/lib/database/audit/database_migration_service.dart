@@ -36,6 +36,11 @@ class DatabaseMigrationService {
         toVersion: 5,
         description: 'Autonomic recovery persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 5,
+        toVersion: 6,
+        description: 'Research dashboard persistence.',
+      ),
     ];
   }
 
