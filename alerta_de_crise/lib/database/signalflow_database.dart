@@ -5,6 +5,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'adaptive_baseline_tables.dart';
 import 'autonomic_recovery_tables.dart';
 import 'baseline_tables.dart';
+import 'cognitive_feedback_tables.dart';
 import 'consent_tables.dart';
 import 'contextual_trigger_tables.dart';
 import 'crisis_tables.dart';
@@ -45,6 +46,7 @@ part 'signalflow_database.g.dart';
     ReplayScenariosTable,
     ReplayValidationResultsTable,
     ExperimentalInsightsTable,
+    SubjectiveFeedbackEntriesTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -58,7 +60,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -109,6 +111,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 13) {
           await migrator.createTable(experimentalInsightsTable);
         }
+        if (from < 14) {
+          await migrator.createTable(subjectiveFeedbackEntriesTable);
+        }
       },
     );
   }
@@ -137,6 +142,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(replayScenariosTable);
       batch.deleteAll(replayValidationResultsTable);
       batch.deleteAll(experimentalInsightsTable);
+      batch.deleteAll(subjectiveFeedbackEntriesTable);
     });
   }
 }

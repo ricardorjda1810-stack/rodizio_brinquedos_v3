@@ -5,6 +5,7 @@ import '../ui/crisis_detection/autonomic_recovery_debug_page.dart';
 import '../ui/crisis_detection/baseline_calibration_debug_page.dart';
 import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
+import '../ui/crisis_detection/cognitive_feedback_debug_page.dart';
 import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/experimental_insights_debug_page.dart';
@@ -97,6 +98,11 @@ class SignalFlowDebugHubSections {
             label: 'Experimental Insights',
             description: 'Insights experimentais de padrões observados.',
             builder: (_) => const ExperimentalInsightsDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Cognitive Feedback',
+            description: 'Feedback subjetivo experimental e autoavaliação.',
+            builder: (_) => const CognitiveFeedbackDebugPage(),
           ),
         ],
       ),

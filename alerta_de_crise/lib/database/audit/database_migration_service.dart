@@ -76,6 +76,11 @@ class DatabaseMigrationService {
         toVersion: 13,
         description: 'Experimental insight persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 13,
+        toVersion: 14,
+        description: 'Subjective feedback persistence.',
+      ),
     ];
   }
 

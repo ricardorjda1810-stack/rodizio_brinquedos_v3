@@ -31,6 +31,10 @@ enum EventType {
   recoveryImprovementPattern,
   contextualBehavioralPattern,
   resilienceShift,
+  perceivedHighStress,
+  perceivedRecovery,
+  subjectivePhysiologyMismatch,
+  sustainedSubjectiveFatigue,
 }
 
 enum Severity { low, medium, high }

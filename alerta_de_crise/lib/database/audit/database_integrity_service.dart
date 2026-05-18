@@ -39,6 +39,7 @@ class DatabaseIntegrityService {
       'replay_scenarios_table',
       'replay_validation_results_table',
       'experimental_insights_table',
+      'subjective_feedback_entries_table',
     ];
 
     final baselines = await _database
@@ -107,6 +108,9 @@ class DatabaseIntegrityService {
     final experimentalInsights = await _database
         .select(_database.experimentalInsightsTable)
         .get();
+    final subjectiveFeedback = await _database
+        .select(_database.subjectiveFeedbackEntriesTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -134,6 +138,7 @@ class DatabaseIntegrityService {
     _auditReplayScenarios(replayScenarios, issues, warnings);
     _auditReplayValidationResults(replayValidationResults, issues, warnings);
     _auditExperimentalInsights(experimentalInsights, issues, warnings);
+    _auditSubjectiveFeedback(subjectiveFeedback, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -157,7 +162,8 @@ class DatabaseIntegrityService {
         realtimeSnapshots.length +
         replayScenarios.length +
         replayValidationResults.length +
-        experimentalInsights.length;
+        experimentalInsights.length +
+        subjectiveFeedback.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -385,6 +391,14 @@ class DatabaseIntegrityService {
       'persistentDeterioration',
       'autonomicInstabilityPattern',
       'longitudinalRecoveryPattern',
+      'recurringEscalationPattern',
+      'recoveryImprovementPattern',
+      'contextualBehavioralPattern',
+      'resilienceShift',
+      'perceivedHighStress',
+      'perceivedRecovery',
+      'subjectivePhysiologyMismatch',
+      'sustainedSubjectiveFatigue',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -996,6 +1010,38 @@ class DatabaseIntegrityService {
     }
   }
 
+  void _auditSubjectiveFeedback(
+    List<SubjectiveFeedbackEntriesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Subjective feedback with empty id.');
+      }
+      if (!_isScale0To10(row.perceivedStress) ||
+          !_isScale0To10(row.perceivedFatigue) ||
+          !_isScale0To10(row.perceivedControl) ||
+          !_isScale0To10(row.perceivedRecovery) ||
+          !_isScale0To10(row.emotionalIntensity)) {
+        issues.add(
+          'Subjective feedback ${row.id} has invalid perceived state scale.',
+        );
+      }
+      if (!_isPercent(row.physiologicalCorrelation) ||
+          !_isPercent(row.confidence)) {
+        issues.add(
+          'Subjective feedback ${row.id} has invalid correlation metrics.',
+        );
+      }
+      if (!row.safetyCopy.contains('não representa avaliação clínica')) {
+        warnings.add(
+          'Subjective feedback ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
   bool _isValidJsonList(String value) {
     try {
       return jsonDecode(value) is List;
@@ -1018,6 +1064,10 @@ class DatabaseIntegrityService {
 
   bool _isPercent(double value) {
     return value >= 0 && value <= 100;
+  }
+
+  bool _isScale0To10(int value) {
+    return value >= 0 && value <= 10;
   }
 
   int _healthScore({

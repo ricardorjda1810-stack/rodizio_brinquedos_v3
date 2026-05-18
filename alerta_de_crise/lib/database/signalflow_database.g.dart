@@ -14648,6 +14648,883 @@ class ExperimentalInsightsTableCompanion
   }
 }
 
+class $SubjectiveFeedbackEntriesTableTable
+    extends SubjectiveFeedbackEntriesTable
+    with
+        TableInfo<
+          $SubjectiveFeedbackEntriesTableTable,
+          SubjectiveFeedbackEntriesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SubjectiveFeedbackEntriesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _perceivedTimestampMeta =
+      const VerificationMeta('perceivedTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> perceivedTimestamp =
+      GeneratedColumn<DateTime>(
+        'perceived_timestamp',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _perceivedStressMeta = const VerificationMeta(
+    'perceivedStress',
+  );
+  @override
+  late final GeneratedColumn<int> perceivedStress = GeneratedColumn<int>(
+    'perceived_stress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _perceivedFatigueMeta = const VerificationMeta(
+    'perceivedFatigue',
+  );
+  @override
+  late final GeneratedColumn<int> perceivedFatigue = GeneratedColumn<int>(
+    'perceived_fatigue',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _perceivedControlMeta = const VerificationMeta(
+    'perceivedControl',
+  );
+  @override
+  late final GeneratedColumn<int> perceivedControl = GeneratedColumn<int>(
+    'perceived_control',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _perceivedRecoveryMeta = const VerificationMeta(
+    'perceivedRecovery',
+  );
+  @override
+  late final GeneratedColumn<int> perceivedRecovery = GeneratedColumn<int>(
+    'perceived_recovery',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _emotionalIntensityMeta =
+      const VerificationMeta('emotionalIntensity');
+  @override
+  late final GeneratedColumn<int> emotionalIntensity = GeneratedColumn<int>(
+    'emotional_intensity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextualFactorsMeta = const VerificationMeta(
+    'contextualFactors',
+  );
+  @override
+  late final GeneratedColumn<String> contextualFactors =
+      GeneratedColumn<String>(
+        'contextual_factors',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _physiologicalCorrelationMeta =
+      const VerificationMeta('physiologicalCorrelation');
+  @override
+  late final GeneratedColumn<double> physiologicalCorrelation =
+      GeneratedColumn<double>(
+        'physiological_correlation',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _relatedMarkersMeta = const VerificationMeta(
+    'relatedMarkers',
+  );
+  @override
+  late final GeneratedColumn<String> relatedMarkers = GeneratedColumn<String>(
+    'related_markers',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    perceivedTimestamp,
+    perceivedStress,
+    perceivedFatigue,
+    perceivedControl,
+    perceivedRecovery,
+    emotionalIntensity,
+    notes,
+    contextualFactors,
+    physiologicalCorrelation,
+    confidence,
+    relatedMarkers,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'subjective_feedback_entries_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SubjectiveFeedbackEntriesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('perceived_timestamp')) {
+      context.handle(
+        _perceivedTimestampMeta,
+        perceivedTimestamp.isAcceptableOrUnknown(
+          data['perceived_timestamp']!,
+          _perceivedTimestampMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_perceivedTimestampMeta);
+    }
+    if (data.containsKey('perceived_stress')) {
+      context.handle(
+        _perceivedStressMeta,
+        perceivedStress.isAcceptableOrUnknown(
+          data['perceived_stress']!,
+          _perceivedStressMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_perceivedStressMeta);
+    }
+    if (data.containsKey('perceived_fatigue')) {
+      context.handle(
+        _perceivedFatigueMeta,
+        perceivedFatigue.isAcceptableOrUnknown(
+          data['perceived_fatigue']!,
+          _perceivedFatigueMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_perceivedFatigueMeta);
+    }
+    if (data.containsKey('perceived_control')) {
+      context.handle(
+        _perceivedControlMeta,
+        perceivedControl.isAcceptableOrUnknown(
+          data['perceived_control']!,
+          _perceivedControlMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_perceivedControlMeta);
+    }
+    if (data.containsKey('perceived_recovery')) {
+      context.handle(
+        _perceivedRecoveryMeta,
+        perceivedRecovery.isAcceptableOrUnknown(
+          data['perceived_recovery']!,
+          _perceivedRecoveryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_perceivedRecoveryMeta);
+    }
+    if (data.containsKey('emotional_intensity')) {
+      context.handle(
+        _emotionalIntensityMeta,
+        emotionalIntensity.isAcceptableOrUnknown(
+          data['emotional_intensity']!,
+          _emotionalIntensityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_emotionalIntensityMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_notesMeta);
+    }
+    if (data.containsKey('contextual_factors')) {
+      context.handle(
+        _contextualFactorsMeta,
+        contextualFactors.isAcceptableOrUnknown(
+          data['contextual_factors']!,
+          _contextualFactorsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualFactorsMeta);
+    }
+    if (data.containsKey('physiological_correlation')) {
+      context.handle(
+        _physiologicalCorrelationMeta,
+        physiologicalCorrelation.isAcceptableOrUnknown(
+          data['physiological_correlation']!,
+          _physiologicalCorrelationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_physiologicalCorrelationMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('related_markers')) {
+      context.handle(
+        _relatedMarkersMeta,
+        relatedMarkers.isAcceptableOrUnknown(
+          data['related_markers']!,
+          _relatedMarkersMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_relatedMarkersMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SubjectiveFeedbackEntriesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SubjectiveFeedbackEntriesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      perceivedTimestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}perceived_timestamp'],
+      )!,
+      perceivedStress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}perceived_stress'],
+      )!,
+      perceivedFatigue: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}perceived_fatigue'],
+      )!,
+      perceivedControl: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}perceived_control'],
+      )!,
+      perceivedRecovery: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}perceived_recovery'],
+      )!,
+      emotionalIntensity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}emotional_intensity'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      contextualFactors: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contextual_factors'],
+      )!,
+      physiologicalCorrelation: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}physiological_correlation'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      relatedMarkers: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}related_markers'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $SubjectiveFeedbackEntriesTableTable createAlias(String alias) {
+    return $SubjectiveFeedbackEntriesTableTable(attachedDatabase, alias);
+  }
+}
+
+class SubjectiveFeedbackEntriesTableData extends DataClass
+    implements Insertable<SubjectiveFeedbackEntriesTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final DateTime perceivedTimestamp;
+  final int perceivedStress;
+  final int perceivedFatigue;
+  final int perceivedControl;
+  final int perceivedRecovery;
+  final int emotionalIntensity;
+  final String notes;
+  final String contextualFactors;
+  final double physiologicalCorrelation;
+  final double confidence;
+  final String relatedMarkers;
+  final String safetyCopy;
+  const SubjectiveFeedbackEntriesTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.perceivedTimestamp,
+    required this.perceivedStress,
+    required this.perceivedFatigue,
+    required this.perceivedControl,
+    required this.perceivedRecovery,
+    required this.emotionalIntensity,
+    required this.notes,
+    required this.contextualFactors,
+    required this.physiologicalCorrelation,
+    required this.confidence,
+    required this.relatedMarkers,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['perceived_timestamp'] = Variable<DateTime>(perceivedTimestamp);
+    map['perceived_stress'] = Variable<int>(perceivedStress);
+    map['perceived_fatigue'] = Variable<int>(perceivedFatigue);
+    map['perceived_control'] = Variable<int>(perceivedControl);
+    map['perceived_recovery'] = Variable<int>(perceivedRecovery);
+    map['emotional_intensity'] = Variable<int>(emotionalIntensity);
+    map['notes'] = Variable<String>(notes);
+    map['contextual_factors'] = Variable<String>(contextualFactors);
+    map['physiological_correlation'] = Variable<double>(
+      physiologicalCorrelation,
+    );
+    map['confidence'] = Variable<double>(confidence);
+    map['related_markers'] = Variable<String>(relatedMarkers);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  SubjectiveFeedbackEntriesTableCompanion toCompanion(bool nullToAbsent) {
+    return SubjectiveFeedbackEntriesTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      perceivedTimestamp: Value(perceivedTimestamp),
+      perceivedStress: Value(perceivedStress),
+      perceivedFatigue: Value(perceivedFatigue),
+      perceivedControl: Value(perceivedControl),
+      perceivedRecovery: Value(perceivedRecovery),
+      emotionalIntensity: Value(emotionalIntensity),
+      notes: Value(notes),
+      contextualFactors: Value(contextualFactors),
+      physiologicalCorrelation: Value(physiologicalCorrelation),
+      confidence: Value(confidence),
+      relatedMarkers: Value(relatedMarkers),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory SubjectiveFeedbackEntriesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SubjectiveFeedbackEntriesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      perceivedTimestamp: serializer.fromJson<DateTime>(
+        json['perceivedTimestamp'],
+      ),
+      perceivedStress: serializer.fromJson<int>(json['perceivedStress']),
+      perceivedFatigue: serializer.fromJson<int>(json['perceivedFatigue']),
+      perceivedControl: serializer.fromJson<int>(json['perceivedControl']),
+      perceivedRecovery: serializer.fromJson<int>(json['perceivedRecovery']),
+      emotionalIntensity: serializer.fromJson<int>(json['emotionalIntensity']),
+      notes: serializer.fromJson<String>(json['notes']),
+      contextualFactors: serializer.fromJson<String>(json['contextualFactors']),
+      physiologicalCorrelation: serializer.fromJson<double>(
+        json['physiologicalCorrelation'],
+      ),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      relatedMarkers: serializer.fromJson<String>(json['relatedMarkers']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'perceivedTimestamp': serializer.toJson<DateTime>(perceivedTimestamp),
+      'perceivedStress': serializer.toJson<int>(perceivedStress),
+      'perceivedFatigue': serializer.toJson<int>(perceivedFatigue),
+      'perceivedControl': serializer.toJson<int>(perceivedControl),
+      'perceivedRecovery': serializer.toJson<int>(perceivedRecovery),
+      'emotionalIntensity': serializer.toJson<int>(emotionalIntensity),
+      'notes': serializer.toJson<String>(notes),
+      'contextualFactors': serializer.toJson<String>(contextualFactors),
+      'physiologicalCorrelation': serializer.toJson<double>(
+        physiologicalCorrelation,
+      ),
+      'confidence': serializer.toJson<double>(confidence),
+      'relatedMarkers': serializer.toJson<String>(relatedMarkers),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  SubjectiveFeedbackEntriesTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    DateTime? perceivedTimestamp,
+    int? perceivedStress,
+    int? perceivedFatigue,
+    int? perceivedControl,
+    int? perceivedRecovery,
+    int? emotionalIntensity,
+    String? notes,
+    String? contextualFactors,
+    double? physiologicalCorrelation,
+    double? confidence,
+    String? relatedMarkers,
+    String? safetyCopy,
+  }) => SubjectiveFeedbackEntriesTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    perceivedTimestamp: perceivedTimestamp ?? this.perceivedTimestamp,
+    perceivedStress: perceivedStress ?? this.perceivedStress,
+    perceivedFatigue: perceivedFatigue ?? this.perceivedFatigue,
+    perceivedControl: perceivedControl ?? this.perceivedControl,
+    perceivedRecovery: perceivedRecovery ?? this.perceivedRecovery,
+    emotionalIntensity: emotionalIntensity ?? this.emotionalIntensity,
+    notes: notes ?? this.notes,
+    contextualFactors: contextualFactors ?? this.contextualFactors,
+    physiologicalCorrelation:
+        physiologicalCorrelation ?? this.physiologicalCorrelation,
+    confidence: confidence ?? this.confidence,
+    relatedMarkers: relatedMarkers ?? this.relatedMarkers,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  SubjectiveFeedbackEntriesTableData copyWithCompanion(
+    SubjectiveFeedbackEntriesTableCompanion data,
+  ) {
+    return SubjectiveFeedbackEntriesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      perceivedTimestamp: data.perceivedTimestamp.present
+          ? data.perceivedTimestamp.value
+          : this.perceivedTimestamp,
+      perceivedStress: data.perceivedStress.present
+          ? data.perceivedStress.value
+          : this.perceivedStress,
+      perceivedFatigue: data.perceivedFatigue.present
+          ? data.perceivedFatigue.value
+          : this.perceivedFatigue,
+      perceivedControl: data.perceivedControl.present
+          ? data.perceivedControl.value
+          : this.perceivedControl,
+      perceivedRecovery: data.perceivedRecovery.present
+          ? data.perceivedRecovery.value
+          : this.perceivedRecovery,
+      emotionalIntensity: data.emotionalIntensity.present
+          ? data.emotionalIntensity.value
+          : this.emotionalIntensity,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      contextualFactors: data.contextualFactors.present
+          ? data.contextualFactors.value
+          : this.contextualFactors,
+      physiologicalCorrelation: data.physiologicalCorrelation.present
+          ? data.physiologicalCorrelation.value
+          : this.physiologicalCorrelation,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      relatedMarkers: data.relatedMarkers.present
+          ? data.relatedMarkers.value
+          : this.relatedMarkers,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubjectiveFeedbackEntriesTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('perceivedTimestamp: $perceivedTimestamp, ')
+          ..write('perceivedStress: $perceivedStress, ')
+          ..write('perceivedFatigue: $perceivedFatigue, ')
+          ..write('perceivedControl: $perceivedControl, ')
+          ..write('perceivedRecovery: $perceivedRecovery, ')
+          ..write('emotionalIntensity: $emotionalIntensity, ')
+          ..write('notes: $notes, ')
+          ..write('contextualFactors: $contextualFactors, ')
+          ..write('physiologicalCorrelation: $physiologicalCorrelation, ')
+          ..write('confidence: $confidence, ')
+          ..write('relatedMarkers: $relatedMarkers, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    perceivedTimestamp,
+    perceivedStress,
+    perceivedFatigue,
+    perceivedControl,
+    perceivedRecovery,
+    emotionalIntensity,
+    notes,
+    contextualFactors,
+    physiologicalCorrelation,
+    confidence,
+    relatedMarkers,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SubjectiveFeedbackEntriesTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.perceivedTimestamp == this.perceivedTimestamp &&
+          other.perceivedStress == this.perceivedStress &&
+          other.perceivedFatigue == this.perceivedFatigue &&
+          other.perceivedControl == this.perceivedControl &&
+          other.perceivedRecovery == this.perceivedRecovery &&
+          other.emotionalIntensity == this.emotionalIntensity &&
+          other.notes == this.notes &&
+          other.contextualFactors == this.contextualFactors &&
+          other.physiologicalCorrelation == this.physiologicalCorrelation &&
+          other.confidence == this.confidence &&
+          other.relatedMarkers == this.relatedMarkers &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class SubjectiveFeedbackEntriesTableCompanion
+    extends UpdateCompanion<SubjectiveFeedbackEntriesTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<DateTime> perceivedTimestamp;
+  final Value<int> perceivedStress;
+  final Value<int> perceivedFatigue;
+  final Value<int> perceivedControl;
+  final Value<int> perceivedRecovery;
+  final Value<int> emotionalIntensity;
+  final Value<String> notes;
+  final Value<String> contextualFactors;
+  final Value<double> physiologicalCorrelation;
+  final Value<double> confidence;
+  final Value<String> relatedMarkers;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const SubjectiveFeedbackEntriesTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.perceivedTimestamp = const Value.absent(),
+    this.perceivedStress = const Value.absent(),
+    this.perceivedFatigue = const Value.absent(),
+    this.perceivedControl = const Value.absent(),
+    this.perceivedRecovery = const Value.absent(),
+    this.emotionalIntensity = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.contextualFactors = const Value.absent(),
+    this.physiologicalCorrelation = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.relatedMarkers = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SubjectiveFeedbackEntriesTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required DateTime perceivedTimestamp,
+    required int perceivedStress,
+    required int perceivedFatigue,
+    required int perceivedControl,
+    required int perceivedRecovery,
+    required int emotionalIntensity,
+    required String notes,
+    required String contextualFactors,
+    required double physiologicalCorrelation,
+    required double confidence,
+    required String relatedMarkers,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       perceivedTimestamp = Value(perceivedTimestamp),
+       perceivedStress = Value(perceivedStress),
+       perceivedFatigue = Value(perceivedFatigue),
+       perceivedControl = Value(perceivedControl),
+       perceivedRecovery = Value(perceivedRecovery),
+       emotionalIntensity = Value(emotionalIntensity),
+       notes = Value(notes),
+       contextualFactors = Value(contextualFactors),
+       physiologicalCorrelation = Value(physiologicalCorrelation),
+       confidence = Value(confidence),
+       relatedMarkers = Value(relatedMarkers),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<SubjectiveFeedbackEntriesTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<DateTime>? perceivedTimestamp,
+    Expression<int>? perceivedStress,
+    Expression<int>? perceivedFatigue,
+    Expression<int>? perceivedControl,
+    Expression<int>? perceivedRecovery,
+    Expression<int>? emotionalIntensity,
+    Expression<String>? notes,
+    Expression<String>? contextualFactors,
+    Expression<double>? physiologicalCorrelation,
+    Expression<double>? confidence,
+    Expression<String>? relatedMarkers,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (perceivedTimestamp != null) 'perceived_timestamp': perceivedTimestamp,
+      if (perceivedStress != null) 'perceived_stress': perceivedStress,
+      if (perceivedFatigue != null) 'perceived_fatigue': perceivedFatigue,
+      if (perceivedControl != null) 'perceived_control': perceivedControl,
+      if (perceivedRecovery != null) 'perceived_recovery': perceivedRecovery,
+      if (emotionalIntensity != null) 'emotional_intensity': emotionalIntensity,
+      if (notes != null) 'notes': notes,
+      if (contextualFactors != null) 'contextual_factors': contextualFactors,
+      if (physiologicalCorrelation != null)
+        'physiological_correlation': physiologicalCorrelation,
+      if (confidence != null) 'confidence': confidence,
+      if (relatedMarkers != null) 'related_markers': relatedMarkers,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SubjectiveFeedbackEntriesTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<DateTime>? perceivedTimestamp,
+    Value<int>? perceivedStress,
+    Value<int>? perceivedFatigue,
+    Value<int>? perceivedControl,
+    Value<int>? perceivedRecovery,
+    Value<int>? emotionalIntensity,
+    Value<String>? notes,
+    Value<String>? contextualFactors,
+    Value<double>? physiologicalCorrelation,
+    Value<double>? confidence,
+    Value<String>? relatedMarkers,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return SubjectiveFeedbackEntriesTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      perceivedTimestamp: perceivedTimestamp ?? this.perceivedTimestamp,
+      perceivedStress: perceivedStress ?? this.perceivedStress,
+      perceivedFatigue: perceivedFatigue ?? this.perceivedFatigue,
+      perceivedControl: perceivedControl ?? this.perceivedControl,
+      perceivedRecovery: perceivedRecovery ?? this.perceivedRecovery,
+      emotionalIntensity: emotionalIntensity ?? this.emotionalIntensity,
+      notes: notes ?? this.notes,
+      contextualFactors: contextualFactors ?? this.contextualFactors,
+      physiologicalCorrelation:
+          physiologicalCorrelation ?? this.physiologicalCorrelation,
+      confidence: confidence ?? this.confidence,
+      relatedMarkers: relatedMarkers ?? this.relatedMarkers,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (perceivedTimestamp.present) {
+      map['perceived_timestamp'] = Variable<DateTime>(perceivedTimestamp.value);
+    }
+    if (perceivedStress.present) {
+      map['perceived_stress'] = Variable<int>(perceivedStress.value);
+    }
+    if (perceivedFatigue.present) {
+      map['perceived_fatigue'] = Variable<int>(perceivedFatigue.value);
+    }
+    if (perceivedControl.present) {
+      map['perceived_control'] = Variable<int>(perceivedControl.value);
+    }
+    if (perceivedRecovery.present) {
+      map['perceived_recovery'] = Variable<int>(perceivedRecovery.value);
+    }
+    if (emotionalIntensity.present) {
+      map['emotional_intensity'] = Variable<int>(emotionalIntensity.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (contextualFactors.present) {
+      map['contextual_factors'] = Variable<String>(contextualFactors.value);
+    }
+    if (physiologicalCorrelation.present) {
+      map['physiological_correlation'] = Variable<double>(
+        physiologicalCorrelation.value,
+      );
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (relatedMarkers.present) {
+      map['related_markers'] = Variable<String>(relatedMarkers.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SubjectiveFeedbackEntriesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('perceivedTimestamp: $perceivedTimestamp, ')
+          ..write('perceivedStress: $perceivedStress, ')
+          ..write('perceivedFatigue: $perceivedFatigue, ')
+          ..write('perceivedControl: $perceivedControl, ')
+          ..write('perceivedRecovery: $perceivedRecovery, ')
+          ..write('emotionalIntensity: $emotionalIntensity, ')
+          ..write('notes: $notes, ')
+          ..write('contextualFactors: $contextualFactors, ')
+          ..write('physiologicalCorrelation: $physiologicalCorrelation, ')
+          ..write('confidence: $confidence, ')
+          ..write('relatedMarkers: $relatedMarkers, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -14701,6 +15578,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $ReplayValidationResultsTableTable(this);
   late final $ExperimentalInsightsTableTable experimentalInsightsTable =
       $ExperimentalInsightsTableTable(this);
+  late final $SubjectiveFeedbackEntriesTableTable
+  subjectiveFeedbackEntriesTable = $SubjectiveFeedbackEntriesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14728,6 +15607,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     replayScenariosTable,
     replayValidationResultsTable,
     experimentalInsightsTable,
+    subjectiveFeedbackEntriesTable,
   ];
 }
 
@@ -21996,6 +22876,423 @@ typedef $$ExperimentalInsightsTableTableProcessedTableManager =
       ExperimentalInsightsTableData,
       PrefetchHooks Function()
     >;
+typedef $$SubjectiveFeedbackEntriesTableTableCreateCompanionBuilder =
+    SubjectiveFeedbackEntriesTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required DateTime perceivedTimestamp,
+      required int perceivedStress,
+      required int perceivedFatigue,
+      required int perceivedControl,
+      required int perceivedRecovery,
+      required int emotionalIntensity,
+      required String notes,
+      required String contextualFactors,
+      required double physiologicalCorrelation,
+      required double confidence,
+      required String relatedMarkers,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$SubjectiveFeedbackEntriesTableTableUpdateCompanionBuilder =
+    SubjectiveFeedbackEntriesTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<DateTime> perceivedTimestamp,
+      Value<int> perceivedStress,
+      Value<int> perceivedFatigue,
+      Value<int> perceivedControl,
+      Value<int> perceivedRecovery,
+      Value<int> emotionalIntensity,
+      Value<String> notes,
+      Value<String> contextualFactors,
+      Value<double> physiologicalCorrelation,
+      Value<double> confidence,
+      Value<String> relatedMarkers,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$SubjectiveFeedbackEntriesTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SubjectiveFeedbackEntriesTableTable> {
+  $$SubjectiveFeedbackEntriesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get perceivedTimestamp => $composableBuilder(
+    column: $table.perceivedTimestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get perceivedStress => $composableBuilder(
+    column: $table.perceivedStress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get perceivedFatigue => $composableBuilder(
+    column: $table.perceivedFatigue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get perceivedControl => $composableBuilder(
+    column: $table.perceivedControl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get perceivedRecovery => $composableBuilder(
+    column: $table.perceivedRecovery,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get emotionalIntensity => $composableBuilder(
+    column: $table.emotionalIntensity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get physiologicalCorrelation => $composableBuilder(
+    column: $table.physiologicalCorrelation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SubjectiveFeedbackEntriesTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SubjectiveFeedbackEntriesTableTable> {
+  $$SubjectiveFeedbackEntriesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get perceivedTimestamp => $composableBuilder(
+    column: $table.perceivedTimestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get perceivedStress => $composableBuilder(
+    column: $table.perceivedStress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get perceivedFatigue => $composableBuilder(
+    column: $table.perceivedFatigue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get perceivedControl => $composableBuilder(
+    column: $table.perceivedControl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get perceivedRecovery => $composableBuilder(
+    column: $table.perceivedRecovery,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get emotionalIntensity => $composableBuilder(
+    column: $table.emotionalIntensity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get physiologicalCorrelation => $composableBuilder(
+    column: $table.physiologicalCorrelation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SubjectiveFeedbackEntriesTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $SubjectiveFeedbackEntriesTableTable> {
+  $$SubjectiveFeedbackEntriesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get perceivedTimestamp => $composableBuilder(
+    column: $table.perceivedTimestamp,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get perceivedStress => $composableBuilder(
+    column: $table.perceivedStress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get perceivedFatigue => $composableBuilder(
+    column: $table.perceivedFatigue,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get perceivedControl => $composableBuilder(
+    column: $table.perceivedControl,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get perceivedRecovery => $composableBuilder(
+    column: $table.perceivedRecovery,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get emotionalIntensity => $composableBuilder(
+    column: $table.emotionalIntensity,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get contextualFactors => $composableBuilder(
+    column: $table.contextualFactors,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get physiologicalCorrelation => $composableBuilder(
+    column: $table.physiologicalCorrelation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relatedMarkers => $composableBuilder(
+    column: $table.relatedMarkers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$SubjectiveFeedbackEntriesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $SubjectiveFeedbackEntriesTableTable,
+          SubjectiveFeedbackEntriesTableData,
+          $$SubjectiveFeedbackEntriesTableTableFilterComposer,
+          $$SubjectiveFeedbackEntriesTableTableOrderingComposer,
+          $$SubjectiveFeedbackEntriesTableTableAnnotationComposer,
+          $$SubjectiveFeedbackEntriesTableTableCreateCompanionBuilder,
+          $$SubjectiveFeedbackEntriesTableTableUpdateCompanionBuilder,
+          (
+            SubjectiveFeedbackEntriesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $SubjectiveFeedbackEntriesTableTable,
+              SubjectiveFeedbackEntriesTableData
+            >,
+          ),
+          SubjectiveFeedbackEntriesTableData,
+          PrefetchHooks Function()
+        > {
+  $$SubjectiveFeedbackEntriesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $SubjectiveFeedbackEntriesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SubjectiveFeedbackEntriesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SubjectiveFeedbackEntriesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SubjectiveFeedbackEntriesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<DateTime> perceivedTimestamp = const Value.absent(),
+                Value<int> perceivedStress = const Value.absent(),
+                Value<int> perceivedFatigue = const Value.absent(),
+                Value<int> perceivedControl = const Value.absent(),
+                Value<int> perceivedRecovery = const Value.absent(),
+                Value<int> emotionalIntensity = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<String> contextualFactors = const Value.absent(),
+                Value<double> physiologicalCorrelation = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> relatedMarkers = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SubjectiveFeedbackEntriesTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                perceivedTimestamp: perceivedTimestamp,
+                perceivedStress: perceivedStress,
+                perceivedFatigue: perceivedFatigue,
+                perceivedControl: perceivedControl,
+                perceivedRecovery: perceivedRecovery,
+                emotionalIntensity: emotionalIntensity,
+                notes: notes,
+                contextualFactors: contextualFactors,
+                physiologicalCorrelation: physiologicalCorrelation,
+                confidence: confidence,
+                relatedMarkers: relatedMarkers,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required DateTime perceivedTimestamp,
+                required int perceivedStress,
+                required int perceivedFatigue,
+                required int perceivedControl,
+                required int perceivedRecovery,
+                required int emotionalIntensity,
+                required String notes,
+                required String contextualFactors,
+                required double physiologicalCorrelation,
+                required double confidence,
+                required String relatedMarkers,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => SubjectiveFeedbackEntriesTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                perceivedTimestamp: perceivedTimestamp,
+                perceivedStress: perceivedStress,
+                perceivedFatigue: perceivedFatigue,
+                perceivedControl: perceivedControl,
+                perceivedRecovery: perceivedRecovery,
+                emotionalIntensity: emotionalIntensity,
+                notes: notes,
+                contextualFactors: contextualFactors,
+                physiologicalCorrelation: physiologicalCorrelation,
+                confidence: confidence,
+                relatedMarkers: relatedMarkers,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SubjectiveFeedbackEntriesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $SubjectiveFeedbackEntriesTableTable,
+      SubjectiveFeedbackEntriesTableData,
+      $$SubjectiveFeedbackEntriesTableTableFilterComposer,
+      $$SubjectiveFeedbackEntriesTableTableOrderingComposer,
+      $$SubjectiveFeedbackEntriesTableTableAnnotationComposer,
+      $$SubjectiveFeedbackEntriesTableTableCreateCompanionBuilder,
+      $$SubjectiveFeedbackEntriesTableTableUpdateCompanionBuilder,
+      (
+        SubjectiveFeedbackEntriesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $SubjectiveFeedbackEntriesTableTable,
+          SubjectiveFeedbackEntriesTableData
+        >,
+      ),
+      SubjectiveFeedbackEntriesTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -22102,5 +23399,11 @@ class $SignalFlowDatabaseManager {
       $$ExperimentalInsightsTableTableTableManager(
         _db,
         _db.experimentalInsightsTable,
+      );
+  $$SubjectiveFeedbackEntriesTableTableTableManager
+  get subjectiveFeedbackEntriesTable =>
+      $$SubjectiveFeedbackEntriesTableTableTableManager(
+        _db,
+        _db.subjectiveFeedbackEntriesTable,
       );
 }
