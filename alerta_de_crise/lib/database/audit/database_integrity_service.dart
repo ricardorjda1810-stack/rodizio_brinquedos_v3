@@ -45,6 +45,8 @@ class DatabaseIntegrityService {
       'orchestrator_workflows_table',
       'experimental_protocols_table',
       'experimental_protocol_sessions_table',
+      'recorded_experimental_sessions_table',
+      'session_snapshots_table',
     ];
 
     final baselines = await _database
@@ -131,6 +133,12 @@ class DatabaseIntegrityService {
     final experimentalProtocolSessions = await _database
         .select(_database.experimentalProtocolSessionsTable)
         .get();
+    final recordedSessions = await _database
+        .select(_database.recordedExperimentalSessionsTable)
+        .get();
+    final sessionSnapshots = await _database
+        .select(_database.sessionSnapshotsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -168,6 +176,8 @@ class DatabaseIntegrityService {
       issues,
       warnings,
     );
+    _auditRecordedSessions(recordedSessions, issues, warnings);
+    _auditSessionSnapshots(sessionSnapshots, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -197,7 +207,9 @@ class DatabaseIntegrityService {
         pipelineRuns.length +
         orchestratorWorkflows.length +
         experimentalProtocols.length +
-        experimentalProtocolSessions.length;
+        experimentalProtocolSessions.length +
+        recordedSessions.length +
+        sessionSnapshots.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -441,6 +453,10 @@ class DatabaseIntegrityService {
       'protocolPhaseStarted',
       'protocolPhaseCompleted',
       'protocolCompleted',
+      'recordingStarted',
+      'recordingPaused',
+      'recordingResumed',
+      'recordingCompleted',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -1252,6 +1268,78 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('sessão controlada')) {
         warnings.add(
           'Experimental protocol session ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditRecordedSessions(
+    List<RecordedExperimentalSessionsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Recorded experimental session with empty id.');
+      }
+      if (row.completedAt != null && row.completedAt!.isBefore(row.startedAt)) {
+        issues.add(
+          'Recorded experimental session ${row.id} has completedAt before startedAt.',
+        );
+      }
+      if (row.totalSamples < 0 ||
+          row.totalMarkers < 0 ||
+          row.totalForecasts < 0 ||
+          row.totalInsights < 0 ||
+          row.totalContextEvents < 0 ||
+          row.totalSubjectiveEntries < 0 ||
+          row.escalationEvents < 0 ||
+          row.recoveryEvents < 0) {
+        issues.add(
+          'Recorded experimental session ${row.id} has negative counters.',
+        );
+      }
+      if (row.averageHeartRate < 0 ||
+          row.averageHrv < 0 ||
+          !_isPercent(row.averageConfidence)) {
+        issues.add(
+          'Recorded experimental session ${row.id} has invalid averages.',
+        );
+      }
+      if (!row.safetyCopy.contains('não representa monitoramento clínico')) {
+        warnings.add(
+          'Recorded experimental session ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditSessionSnapshots(
+    List<SessionSnapshotsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validEscalationLevels = {'low', 'moderate', 'elevated', 'high'};
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.sessionId.trim().isEmpty) {
+        issues.add('Session snapshot with empty id or sessionId.');
+      }
+      if (row.heartRate < 0 ||
+          row.hrv < 0 ||
+          !_isPercent(row.confidence) ||
+          !_isPercent(row.forecastProbability) ||
+          !_isPercent(row.resilience)) {
+        issues.add('Session snapshot ${row.id} has invalid metrics.');
+      }
+      if (!validEscalationLevels.contains(row.escalationLevel)) {
+        issues.add('Session snapshot ${row.id} has invalid escalation level.');
+      }
+      if (!_isValidJsonMap(row.rawJson)) {
+        issues.add('Session snapshot ${row.id} has invalid raw JSON.');
+      }
+      if (!row.safetyCopy.contains('dataset reproduzível')) {
+        warnings.add(
+          'Session snapshot ${row.id} is missing explicit safety copy.',
         );
       }
     }

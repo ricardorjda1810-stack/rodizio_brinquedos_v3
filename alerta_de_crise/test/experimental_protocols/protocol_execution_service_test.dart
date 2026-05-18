@@ -86,13 +86,13 @@ void main() {
     test('migration 16 to 17 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 17);
-      expect(migrationService.registeredMigrations.last.fromVersion, 16);
-      expect(migrationService.registeredMigrations.last.toVersion, 17);
-      expect(
-        migrationService.registeredMigrations.last.description,
-        contains('Experimental protocol'),
+      expect(migrationService.currentSchemaVersion, 18);
+      final migration = migrationService.registeredMigrations.firstWhere(
+        (migration) => migration.toVersion == 17,
       );
+      expect(migration.fromVersion, 16);
+      expect(migration.toVersion, 17);
+      expect(migration.description, contains('Experimental protocol'));
     });
   });
 }

@@ -43,6 +43,10 @@ enum EventType {
   protocolPhaseStarted,
   protocolPhaseCompleted,
   protocolCompleted,
+  recordingStarted,
+  recordingPaused,
+  recordingResumed,
+  recordingCompleted,
 }
 
 enum Severity { low, medium, high }

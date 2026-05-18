@@ -18796,6 +18796,1826 @@ class ExperimentalProtocolSessionsTableCompanion
   }
 }
 
+class $RecordedExperimentalSessionsTableTable
+    extends RecordedExperimentalSessionsTable
+    with
+        TableInfo<
+          $RecordedExperimentalSessionsTableTable,
+          RecordedExperimentalSessionsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecordedExperimentalSessionsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _protocolIdMeta = const VerificationMeta(
+    'protocolId',
+  );
+  @override
+  late final GeneratedColumn<String> protocolId = GeneratedColumn<String>(
+    'protocol_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _totalSamplesMeta = const VerificationMeta(
+    'totalSamples',
+  );
+  @override
+  late final GeneratedColumn<int> totalSamples = GeneratedColumn<int>(
+    'total_samples',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalMarkersMeta = const VerificationMeta(
+    'totalMarkers',
+  );
+  @override
+  late final GeneratedColumn<int> totalMarkers = GeneratedColumn<int>(
+    'total_markers',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalForecastsMeta = const VerificationMeta(
+    'totalForecasts',
+  );
+  @override
+  late final GeneratedColumn<int> totalForecasts = GeneratedColumn<int>(
+    'total_forecasts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalInsightsMeta = const VerificationMeta(
+    'totalInsights',
+  );
+  @override
+  late final GeneratedColumn<int> totalInsights = GeneratedColumn<int>(
+    'total_insights',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalContextEventsMeta =
+      const VerificationMeta('totalContextEvents');
+  @override
+  late final GeneratedColumn<int> totalContextEvents = GeneratedColumn<int>(
+    'total_context_events',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalSubjectiveEntriesMeta =
+      const VerificationMeta('totalSubjectiveEntries');
+  @override
+  late final GeneratedColumn<int> totalSubjectiveEntries = GeneratedColumn<int>(
+    'total_subjective_entries',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHeartRateMeta = const VerificationMeta(
+    'averageHeartRate',
+  );
+  @override
+  late final GeneratedColumn<double> averageHeartRate = GeneratedColumn<double>(
+    'average_heart_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageHrvMeta = const VerificationMeta(
+    'averageHrv',
+  );
+  @override
+  late final GeneratedColumn<double> averageHrv = GeneratedColumn<double>(
+    'average_hrv',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageConfidenceMeta = const VerificationMeta(
+    'averageConfidence',
+  );
+  @override
+  late final GeneratedColumn<double> averageConfidence =
+      GeneratedColumn<double>(
+        'average_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationEventsMeta = const VerificationMeta(
+    'escalationEvents',
+  );
+  @override
+  late final GeneratedColumn<int> escalationEvents = GeneratedColumn<int>(
+    'escalation_events',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recoveryEventsMeta = const VerificationMeta(
+    'recoveryEvents',
+  );
+  @override
+  late final GeneratedColumn<int> recoveryEvents = GeneratedColumn<int>(
+    'recovery_events',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    startedAt,
+    completedAt,
+    protocolId,
+    totalSamples,
+    totalMarkers,
+    totalForecasts,
+    totalInsights,
+    totalContextEvents,
+    totalSubjectiveEntries,
+    averageHeartRate,
+    averageHrv,
+    averageConfidence,
+    escalationEvents,
+    recoveryEvents,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recorded_experimental_sessions_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RecordedExperimentalSessionsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('protocol_id')) {
+      context.handle(
+        _protocolIdMeta,
+        protocolId.isAcceptableOrUnknown(data['protocol_id']!, _protocolIdMeta),
+      );
+    }
+    if (data.containsKey('total_samples')) {
+      context.handle(
+        _totalSamplesMeta,
+        totalSamples.isAcceptableOrUnknown(
+          data['total_samples']!,
+          _totalSamplesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSamplesMeta);
+    }
+    if (data.containsKey('total_markers')) {
+      context.handle(
+        _totalMarkersMeta,
+        totalMarkers.isAcceptableOrUnknown(
+          data['total_markers']!,
+          _totalMarkersMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalMarkersMeta);
+    }
+    if (data.containsKey('total_forecasts')) {
+      context.handle(
+        _totalForecastsMeta,
+        totalForecasts.isAcceptableOrUnknown(
+          data['total_forecasts']!,
+          _totalForecastsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalForecastsMeta);
+    }
+    if (data.containsKey('total_insights')) {
+      context.handle(
+        _totalInsightsMeta,
+        totalInsights.isAcceptableOrUnknown(
+          data['total_insights']!,
+          _totalInsightsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalInsightsMeta);
+    }
+    if (data.containsKey('total_context_events')) {
+      context.handle(
+        _totalContextEventsMeta,
+        totalContextEvents.isAcceptableOrUnknown(
+          data['total_context_events']!,
+          _totalContextEventsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalContextEventsMeta);
+    }
+    if (data.containsKey('total_subjective_entries')) {
+      context.handle(
+        _totalSubjectiveEntriesMeta,
+        totalSubjectiveEntries.isAcceptableOrUnknown(
+          data['total_subjective_entries']!,
+          _totalSubjectiveEntriesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSubjectiveEntriesMeta);
+    }
+    if (data.containsKey('average_heart_rate')) {
+      context.handle(
+        _averageHeartRateMeta,
+        averageHeartRate.isAcceptableOrUnknown(
+          data['average_heart_rate']!,
+          _averageHeartRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageHeartRateMeta);
+    }
+    if (data.containsKey('average_hrv')) {
+      context.handle(
+        _averageHrvMeta,
+        averageHrv.isAcceptableOrUnknown(data['average_hrv']!, _averageHrvMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_averageHrvMeta);
+    }
+    if (data.containsKey('average_confidence')) {
+      context.handle(
+        _averageConfidenceMeta,
+        averageConfidence.isAcceptableOrUnknown(
+          data['average_confidence']!,
+          _averageConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageConfidenceMeta);
+    }
+    if (data.containsKey('escalation_events')) {
+      context.handle(
+        _escalationEventsMeta,
+        escalationEvents.isAcceptableOrUnknown(
+          data['escalation_events']!,
+          _escalationEventsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationEventsMeta);
+    }
+    if (data.containsKey('recovery_events')) {
+      context.handle(
+        _recoveryEventsMeta,
+        recoveryEvents.isAcceptableOrUnknown(
+          data['recovery_events']!,
+          _recoveryEventsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryEventsMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RecordedExperimentalSessionsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecordedExperimentalSessionsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      ),
+      protocolId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}protocol_id'],
+      ),
+      totalSamples: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_samples'],
+      )!,
+      totalMarkers: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_markers'],
+      )!,
+      totalForecasts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_forecasts'],
+      )!,
+      totalInsights: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_insights'],
+      )!,
+      totalContextEvents: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_context_events'],
+      )!,
+      totalSubjectiveEntries: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_subjective_entries'],
+      )!,
+      averageHeartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_heart_rate'],
+      )!,
+      averageHrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_hrv'],
+      )!,
+      averageConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_confidence'],
+      )!,
+      escalationEvents: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}escalation_events'],
+      )!,
+      recoveryEvents: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}recovery_events'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $RecordedExperimentalSessionsTableTable createAlias(String alias) {
+    return $RecordedExperimentalSessionsTableTable(attachedDatabase, alias);
+  }
+}
+
+class RecordedExperimentalSessionsTableData extends DataClass
+    implements Insertable<RecordedExperimentalSessionsTableData> {
+  final String id;
+  final DateTime startedAt;
+  final DateTime? completedAt;
+  final String? protocolId;
+  final int totalSamples;
+  final int totalMarkers;
+  final int totalForecasts;
+  final int totalInsights;
+  final int totalContextEvents;
+  final int totalSubjectiveEntries;
+  final double averageHeartRate;
+  final double averageHrv;
+  final double averageConfidence;
+  final int escalationEvents;
+  final int recoveryEvents;
+  final String safetyCopy;
+  const RecordedExperimentalSessionsTableData({
+    required this.id,
+    required this.startedAt,
+    this.completedAt,
+    this.protocolId,
+    required this.totalSamples,
+    required this.totalMarkers,
+    required this.totalForecasts,
+    required this.totalInsights,
+    required this.totalContextEvents,
+    required this.totalSubjectiveEntries,
+    required this.averageHeartRate,
+    required this.averageHrv,
+    required this.averageConfidence,
+    required this.escalationEvents,
+    required this.recoveryEvents,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    if (!nullToAbsent || protocolId != null) {
+      map['protocol_id'] = Variable<String>(protocolId);
+    }
+    map['total_samples'] = Variable<int>(totalSamples);
+    map['total_markers'] = Variable<int>(totalMarkers);
+    map['total_forecasts'] = Variable<int>(totalForecasts);
+    map['total_insights'] = Variable<int>(totalInsights);
+    map['total_context_events'] = Variable<int>(totalContextEvents);
+    map['total_subjective_entries'] = Variable<int>(totalSubjectiveEntries);
+    map['average_heart_rate'] = Variable<double>(averageHeartRate);
+    map['average_hrv'] = Variable<double>(averageHrv);
+    map['average_confidence'] = Variable<double>(averageConfidence);
+    map['escalation_events'] = Variable<int>(escalationEvents);
+    map['recovery_events'] = Variable<int>(recoveryEvents);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  RecordedExperimentalSessionsTableCompanion toCompanion(bool nullToAbsent) {
+    return RecordedExperimentalSessionsTableCompanion(
+      id: Value(id),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      protocolId: protocolId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(protocolId),
+      totalSamples: Value(totalSamples),
+      totalMarkers: Value(totalMarkers),
+      totalForecasts: Value(totalForecasts),
+      totalInsights: Value(totalInsights),
+      totalContextEvents: Value(totalContextEvents),
+      totalSubjectiveEntries: Value(totalSubjectiveEntries),
+      averageHeartRate: Value(averageHeartRate),
+      averageHrv: Value(averageHrv),
+      averageConfidence: Value(averageConfidence),
+      escalationEvents: Value(escalationEvents),
+      recoveryEvents: Value(recoveryEvents),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory RecordedExperimentalSessionsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecordedExperimentalSessionsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      protocolId: serializer.fromJson<String?>(json['protocolId']),
+      totalSamples: serializer.fromJson<int>(json['totalSamples']),
+      totalMarkers: serializer.fromJson<int>(json['totalMarkers']),
+      totalForecasts: serializer.fromJson<int>(json['totalForecasts']),
+      totalInsights: serializer.fromJson<int>(json['totalInsights']),
+      totalContextEvents: serializer.fromJson<int>(json['totalContextEvents']),
+      totalSubjectiveEntries: serializer.fromJson<int>(
+        json['totalSubjectiveEntries'],
+      ),
+      averageHeartRate: serializer.fromJson<double>(json['averageHeartRate']),
+      averageHrv: serializer.fromJson<double>(json['averageHrv']),
+      averageConfidence: serializer.fromJson<double>(json['averageConfidence']),
+      escalationEvents: serializer.fromJson<int>(json['escalationEvents']),
+      recoveryEvents: serializer.fromJson<int>(json['recoveryEvents']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'protocolId': serializer.toJson<String?>(protocolId),
+      'totalSamples': serializer.toJson<int>(totalSamples),
+      'totalMarkers': serializer.toJson<int>(totalMarkers),
+      'totalForecasts': serializer.toJson<int>(totalForecasts),
+      'totalInsights': serializer.toJson<int>(totalInsights),
+      'totalContextEvents': serializer.toJson<int>(totalContextEvents),
+      'totalSubjectiveEntries': serializer.toJson<int>(totalSubjectiveEntries),
+      'averageHeartRate': serializer.toJson<double>(averageHeartRate),
+      'averageHrv': serializer.toJson<double>(averageHrv),
+      'averageConfidence': serializer.toJson<double>(averageConfidence),
+      'escalationEvents': serializer.toJson<int>(escalationEvents),
+      'recoveryEvents': serializer.toJson<int>(recoveryEvents),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  RecordedExperimentalSessionsTableData copyWith({
+    String? id,
+    DateTime? startedAt,
+    Value<DateTime?> completedAt = const Value.absent(),
+    Value<String?> protocolId = const Value.absent(),
+    int? totalSamples,
+    int? totalMarkers,
+    int? totalForecasts,
+    int? totalInsights,
+    int? totalContextEvents,
+    int? totalSubjectiveEntries,
+    double? averageHeartRate,
+    double? averageHrv,
+    double? averageConfidence,
+    int? escalationEvents,
+    int? recoveryEvents,
+    String? safetyCopy,
+  }) => RecordedExperimentalSessionsTableData(
+    id: id ?? this.id,
+    startedAt: startedAt ?? this.startedAt,
+    completedAt: completedAt.present ? completedAt.value : this.completedAt,
+    protocolId: protocolId.present ? protocolId.value : this.protocolId,
+    totalSamples: totalSamples ?? this.totalSamples,
+    totalMarkers: totalMarkers ?? this.totalMarkers,
+    totalForecasts: totalForecasts ?? this.totalForecasts,
+    totalInsights: totalInsights ?? this.totalInsights,
+    totalContextEvents: totalContextEvents ?? this.totalContextEvents,
+    totalSubjectiveEntries:
+        totalSubjectiveEntries ?? this.totalSubjectiveEntries,
+    averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+    averageHrv: averageHrv ?? this.averageHrv,
+    averageConfidence: averageConfidence ?? this.averageConfidence,
+    escalationEvents: escalationEvents ?? this.escalationEvents,
+    recoveryEvents: recoveryEvents ?? this.recoveryEvents,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  RecordedExperimentalSessionsTableData copyWithCompanion(
+    RecordedExperimentalSessionsTableCompanion data,
+  ) {
+    return RecordedExperimentalSessionsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+      protocolId: data.protocolId.present
+          ? data.protocolId.value
+          : this.protocolId,
+      totalSamples: data.totalSamples.present
+          ? data.totalSamples.value
+          : this.totalSamples,
+      totalMarkers: data.totalMarkers.present
+          ? data.totalMarkers.value
+          : this.totalMarkers,
+      totalForecasts: data.totalForecasts.present
+          ? data.totalForecasts.value
+          : this.totalForecasts,
+      totalInsights: data.totalInsights.present
+          ? data.totalInsights.value
+          : this.totalInsights,
+      totalContextEvents: data.totalContextEvents.present
+          ? data.totalContextEvents.value
+          : this.totalContextEvents,
+      totalSubjectiveEntries: data.totalSubjectiveEntries.present
+          ? data.totalSubjectiveEntries.value
+          : this.totalSubjectiveEntries,
+      averageHeartRate: data.averageHeartRate.present
+          ? data.averageHeartRate.value
+          : this.averageHeartRate,
+      averageHrv: data.averageHrv.present
+          ? data.averageHrv.value
+          : this.averageHrv,
+      averageConfidence: data.averageConfidence.present
+          ? data.averageConfidence.value
+          : this.averageConfidence,
+      escalationEvents: data.escalationEvents.present
+          ? data.escalationEvents.value
+          : this.escalationEvents,
+      recoveryEvents: data.recoveryEvents.present
+          ? data.recoveryEvents.value
+          : this.recoveryEvents,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecordedExperimentalSessionsTableData(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('totalMarkers: $totalMarkers, ')
+          ..write('totalForecasts: $totalForecasts, ')
+          ..write('totalInsights: $totalInsights, ')
+          ..write('totalContextEvents: $totalContextEvents, ')
+          ..write('totalSubjectiveEntries: $totalSubjectiveEntries, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('escalationEvents: $escalationEvents, ')
+          ..write('recoveryEvents: $recoveryEvents, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    startedAt,
+    completedAt,
+    protocolId,
+    totalSamples,
+    totalMarkers,
+    totalForecasts,
+    totalInsights,
+    totalContextEvents,
+    totalSubjectiveEntries,
+    averageHeartRate,
+    averageHrv,
+    averageConfidence,
+    escalationEvents,
+    recoveryEvents,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecordedExperimentalSessionsTableData &&
+          other.id == this.id &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.protocolId == this.protocolId &&
+          other.totalSamples == this.totalSamples &&
+          other.totalMarkers == this.totalMarkers &&
+          other.totalForecasts == this.totalForecasts &&
+          other.totalInsights == this.totalInsights &&
+          other.totalContextEvents == this.totalContextEvents &&
+          other.totalSubjectiveEntries == this.totalSubjectiveEntries &&
+          other.averageHeartRate == this.averageHeartRate &&
+          other.averageHrv == this.averageHrv &&
+          other.averageConfidence == this.averageConfidence &&
+          other.escalationEvents == this.escalationEvents &&
+          other.recoveryEvents == this.recoveryEvents &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class RecordedExperimentalSessionsTableCompanion
+    extends UpdateCompanion<RecordedExperimentalSessionsTableData> {
+  final Value<String> id;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> completedAt;
+  final Value<String?> protocolId;
+  final Value<int> totalSamples;
+  final Value<int> totalMarkers;
+  final Value<int> totalForecasts;
+  final Value<int> totalInsights;
+  final Value<int> totalContextEvents;
+  final Value<int> totalSubjectiveEntries;
+  final Value<double> averageHeartRate;
+  final Value<double> averageHrv;
+  final Value<double> averageConfidence;
+  final Value<int> escalationEvents;
+  final Value<int> recoveryEvents;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const RecordedExperimentalSessionsTableCompanion({
+    this.id = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.protocolId = const Value.absent(),
+    this.totalSamples = const Value.absent(),
+    this.totalMarkers = const Value.absent(),
+    this.totalForecasts = const Value.absent(),
+    this.totalInsights = const Value.absent(),
+    this.totalContextEvents = const Value.absent(),
+    this.totalSubjectiveEntries = const Value.absent(),
+    this.averageHeartRate = const Value.absent(),
+    this.averageHrv = const Value.absent(),
+    this.averageConfidence = const Value.absent(),
+    this.escalationEvents = const Value.absent(),
+    this.recoveryEvents = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecordedExperimentalSessionsTableCompanion.insert({
+    required String id,
+    required DateTime startedAt,
+    this.completedAt = const Value.absent(),
+    this.protocolId = const Value.absent(),
+    required int totalSamples,
+    required int totalMarkers,
+    required int totalForecasts,
+    required int totalInsights,
+    required int totalContextEvents,
+    required int totalSubjectiveEntries,
+    required double averageHeartRate,
+    required double averageHrv,
+    required double averageConfidence,
+    required int escalationEvents,
+    required int recoveryEvents,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       startedAt = Value(startedAt),
+       totalSamples = Value(totalSamples),
+       totalMarkers = Value(totalMarkers),
+       totalForecasts = Value(totalForecasts),
+       totalInsights = Value(totalInsights),
+       totalContextEvents = Value(totalContextEvents),
+       totalSubjectiveEntries = Value(totalSubjectiveEntries),
+       averageHeartRate = Value(averageHeartRate),
+       averageHrv = Value(averageHrv),
+       averageConfidence = Value(averageConfidence),
+       escalationEvents = Value(escalationEvents),
+       recoveryEvents = Value(recoveryEvents),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<RecordedExperimentalSessionsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? completedAt,
+    Expression<String>? protocolId,
+    Expression<int>? totalSamples,
+    Expression<int>? totalMarkers,
+    Expression<int>? totalForecasts,
+    Expression<int>? totalInsights,
+    Expression<int>? totalContextEvents,
+    Expression<int>? totalSubjectiveEntries,
+    Expression<double>? averageHeartRate,
+    Expression<double>? averageHrv,
+    Expression<double>? averageConfidence,
+    Expression<int>? escalationEvents,
+    Expression<int>? recoveryEvents,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (protocolId != null) 'protocol_id': protocolId,
+      if (totalSamples != null) 'total_samples': totalSamples,
+      if (totalMarkers != null) 'total_markers': totalMarkers,
+      if (totalForecasts != null) 'total_forecasts': totalForecasts,
+      if (totalInsights != null) 'total_insights': totalInsights,
+      if (totalContextEvents != null)
+        'total_context_events': totalContextEvents,
+      if (totalSubjectiveEntries != null)
+        'total_subjective_entries': totalSubjectiveEntries,
+      if (averageHeartRate != null) 'average_heart_rate': averageHeartRate,
+      if (averageHrv != null) 'average_hrv': averageHrv,
+      if (averageConfidence != null) 'average_confidence': averageConfidence,
+      if (escalationEvents != null) 'escalation_events': escalationEvents,
+      if (recoveryEvents != null) 'recovery_events': recoveryEvents,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecordedExperimentalSessionsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? startedAt,
+    Value<DateTime?>? completedAt,
+    Value<String?>? protocolId,
+    Value<int>? totalSamples,
+    Value<int>? totalMarkers,
+    Value<int>? totalForecasts,
+    Value<int>? totalInsights,
+    Value<int>? totalContextEvents,
+    Value<int>? totalSubjectiveEntries,
+    Value<double>? averageHeartRate,
+    Value<double>? averageHrv,
+    Value<double>? averageConfidence,
+    Value<int>? escalationEvents,
+    Value<int>? recoveryEvents,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return RecordedExperimentalSessionsTableCompanion(
+      id: id ?? this.id,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      protocolId: protocolId ?? this.protocolId,
+      totalSamples: totalSamples ?? this.totalSamples,
+      totalMarkers: totalMarkers ?? this.totalMarkers,
+      totalForecasts: totalForecasts ?? this.totalForecasts,
+      totalInsights: totalInsights ?? this.totalInsights,
+      totalContextEvents: totalContextEvents ?? this.totalContextEvents,
+      totalSubjectiveEntries:
+          totalSubjectiveEntries ?? this.totalSubjectiveEntries,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      averageHrv: averageHrv ?? this.averageHrv,
+      averageConfidence: averageConfidence ?? this.averageConfidence,
+      escalationEvents: escalationEvents ?? this.escalationEvents,
+      recoveryEvents: recoveryEvents ?? this.recoveryEvents,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (protocolId.present) {
+      map['protocol_id'] = Variable<String>(protocolId.value);
+    }
+    if (totalSamples.present) {
+      map['total_samples'] = Variable<int>(totalSamples.value);
+    }
+    if (totalMarkers.present) {
+      map['total_markers'] = Variable<int>(totalMarkers.value);
+    }
+    if (totalForecasts.present) {
+      map['total_forecasts'] = Variable<int>(totalForecasts.value);
+    }
+    if (totalInsights.present) {
+      map['total_insights'] = Variable<int>(totalInsights.value);
+    }
+    if (totalContextEvents.present) {
+      map['total_context_events'] = Variable<int>(totalContextEvents.value);
+    }
+    if (totalSubjectiveEntries.present) {
+      map['total_subjective_entries'] = Variable<int>(
+        totalSubjectiveEntries.value,
+      );
+    }
+    if (averageHeartRate.present) {
+      map['average_heart_rate'] = Variable<double>(averageHeartRate.value);
+    }
+    if (averageHrv.present) {
+      map['average_hrv'] = Variable<double>(averageHrv.value);
+    }
+    if (averageConfidence.present) {
+      map['average_confidence'] = Variable<double>(averageConfidence.value);
+    }
+    if (escalationEvents.present) {
+      map['escalation_events'] = Variable<int>(escalationEvents.value);
+    }
+    if (recoveryEvents.present) {
+      map['recovery_events'] = Variable<int>(recoveryEvents.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecordedExperimentalSessionsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('totalSamples: $totalSamples, ')
+          ..write('totalMarkers: $totalMarkers, ')
+          ..write('totalForecasts: $totalForecasts, ')
+          ..write('totalInsights: $totalInsights, ')
+          ..write('totalContextEvents: $totalContextEvents, ')
+          ..write('totalSubjectiveEntries: $totalSubjectiveEntries, ')
+          ..write('averageHeartRate: $averageHeartRate, ')
+          ..write('averageHrv: $averageHrv, ')
+          ..write('averageConfidence: $averageConfidence, ')
+          ..write('escalationEvents: $escalationEvents, ')
+          ..write('recoveryEvents: $recoveryEvents, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SessionSnapshotsTableTable extends SessionSnapshotsTable
+    with TableInfo<$SessionSnapshotsTableTable, SessionSnapshotsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SessionSnapshotsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _heartRateMeta = const VerificationMeta(
+    'heartRate',
+  );
+  @override
+  late final GeneratedColumn<double> heartRate = GeneratedColumn<double>(
+    'heart_rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hrvMeta = const VerificationMeta('hrv');
+  @override
+  late final GeneratedColumn<double> hrv = GeneratedColumn<double>(
+    'hrv',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _escalationLevelMeta = const VerificationMeta(
+    'escalationLevel',
+  );
+  @override
+  late final GeneratedColumn<String> escalationLevel = GeneratedColumn<String>(
+    'escalation_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastProbabilityMeta =
+      const VerificationMeta('forecastProbability');
+  @override
+  late final GeneratedColumn<double> forecastProbability =
+      GeneratedColumn<double>(
+        'forecast_probability',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryStateMeta = const VerificationMeta(
+    'recoveryState',
+  );
+  @override
+  late final GeneratedColumn<String> recoveryState = GeneratedColumn<String>(
+    'recovery_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resilienceMeta = const VerificationMeta(
+    'resilience',
+  );
+  @override
+  late final GeneratedColumn<double> resilience = GeneratedColumn<double>(
+    'resilience',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextualStateMeta = const VerificationMeta(
+    'contextualState',
+  );
+  @override
+  late final GeneratedColumn<String> contextualState = GeneratedColumn<String>(
+    'contextual_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _multimodalConsensusMeta =
+      const VerificationMeta('multimodalConsensus');
+  @override
+  late final GeneratedColumn<String> multimodalConsensus =
+      GeneratedColumn<String>(
+        'multimodal_consensus',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _rawJsonMeta = const VerificationMeta(
+    'rawJson',
+  );
+  @override
+  late final GeneratedColumn<String> rawJson = GeneratedColumn<String>(
+    'raw_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sessionId,
+    timestamp,
+    heartRate,
+    hrv,
+    confidence,
+    escalationLevel,
+    forecastProbability,
+    recoveryState,
+    resilience,
+    contextualState,
+    multimodalConsensus,
+    rawJson,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'session_snapshots_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SessionSnapshotsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('heart_rate')) {
+      context.handle(
+        _heartRateMeta,
+        heartRate.isAcceptableOrUnknown(data['heart_rate']!, _heartRateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_heartRateMeta);
+    }
+    if (data.containsKey('hrv')) {
+      context.handle(
+        _hrvMeta,
+        hrv.isAcceptableOrUnknown(data['hrv']!, _hrvMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hrvMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('escalation_level')) {
+      context.handle(
+        _escalationLevelMeta,
+        escalationLevel.isAcceptableOrUnknown(
+          data['escalation_level']!,
+          _escalationLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationLevelMeta);
+    }
+    if (data.containsKey('forecast_probability')) {
+      context.handle(
+        _forecastProbabilityMeta,
+        forecastProbability.isAcceptableOrUnknown(
+          data['forecast_probability']!,
+          _forecastProbabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastProbabilityMeta);
+    }
+    if (data.containsKey('recovery_state')) {
+      context.handle(
+        _recoveryStateMeta,
+        recoveryState.isAcceptableOrUnknown(
+          data['recovery_state']!,
+          _recoveryStateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryStateMeta);
+    }
+    if (data.containsKey('resilience')) {
+      context.handle(
+        _resilienceMeta,
+        resilience.isAcceptableOrUnknown(data['resilience']!, _resilienceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resilienceMeta);
+    }
+    if (data.containsKey('contextual_state')) {
+      context.handle(
+        _contextualStateMeta,
+        contextualState.isAcceptableOrUnknown(
+          data['contextual_state']!,
+          _contextualStateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualStateMeta);
+    }
+    if (data.containsKey('multimodal_consensus')) {
+      context.handle(
+        _multimodalConsensusMeta,
+        multimodalConsensus.isAcceptableOrUnknown(
+          data['multimodal_consensus']!,
+          _multimodalConsensusMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalConsensusMeta);
+    }
+    if (data.containsKey('raw_json')) {
+      context.handle(
+        _rawJsonMeta,
+        rawJson.isAcceptableOrUnknown(data['raw_json']!, _rawJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rawJsonMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SessionSnapshotsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SessionSnapshotsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      heartRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}heart_rate'],
+      )!,
+      hrv: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}hrv'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      escalationLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}escalation_level'],
+      )!,
+      forecastProbability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}forecast_probability'],
+      )!,
+      recoveryState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recovery_state'],
+      )!,
+      resilience: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}resilience'],
+      )!,
+      contextualState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contextual_state'],
+      )!,
+      multimodalConsensus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}multimodal_consensus'],
+      )!,
+      rawJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}raw_json'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $SessionSnapshotsTableTable createAlias(String alias) {
+    return $SessionSnapshotsTableTable(attachedDatabase, alias);
+  }
+}
+
+class SessionSnapshotsTableData extends DataClass
+    implements Insertable<SessionSnapshotsTableData> {
+  final String id;
+  final String sessionId;
+  final DateTime timestamp;
+  final double heartRate;
+  final double hrv;
+  final double confidence;
+  final String escalationLevel;
+  final double forecastProbability;
+  final String recoveryState;
+  final double resilience;
+  final String contextualState;
+  final String multimodalConsensus;
+  final String rawJson;
+  final String safetyCopy;
+  const SessionSnapshotsTableData({
+    required this.id,
+    required this.sessionId,
+    required this.timestamp,
+    required this.heartRate,
+    required this.hrv,
+    required this.confidence,
+    required this.escalationLevel,
+    required this.forecastProbability,
+    required this.recoveryState,
+    required this.resilience,
+    required this.contextualState,
+    required this.multimodalConsensus,
+    required this.rawJson,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['session_id'] = Variable<String>(sessionId);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['heart_rate'] = Variable<double>(heartRate);
+    map['hrv'] = Variable<double>(hrv);
+    map['confidence'] = Variable<double>(confidence);
+    map['escalation_level'] = Variable<String>(escalationLevel);
+    map['forecast_probability'] = Variable<double>(forecastProbability);
+    map['recovery_state'] = Variable<String>(recoveryState);
+    map['resilience'] = Variable<double>(resilience);
+    map['contextual_state'] = Variable<String>(contextualState);
+    map['multimodal_consensus'] = Variable<String>(multimodalConsensus);
+    map['raw_json'] = Variable<String>(rawJson);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  SessionSnapshotsTableCompanion toCompanion(bool nullToAbsent) {
+    return SessionSnapshotsTableCompanion(
+      id: Value(id),
+      sessionId: Value(sessionId),
+      timestamp: Value(timestamp),
+      heartRate: Value(heartRate),
+      hrv: Value(hrv),
+      confidence: Value(confidence),
+      escalationLevel: Value(escalationLevel),
+      forecastProbability: Value(forecastProbability),
+      recoveryState: Value(recoveryState),
+      resilience: Value(resilience),
+      contextualState: Value(contextualState),
+      multimodalConsensus: Value(multimodalConsensus),
+      rawJson: Value(rawJson),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory SessionSnapshotsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SessionSnapshotsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      heartRate: serializer.fromJson<double>(json['heartRate']),
+      hrv: serializer.fromJson<double>(json['hrv']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      escalationLevel: serializer.fromJson<String>(json['escalationLevel']),
+      forecastProbability: serializer.fromJson<double>(
+        json['forecastProbability'],
+      ),
+      recoveryState: serializer.fromJson<String>(json['recoveryState']),
+      resilience: serializer.fromJson<double>(json['resilience']),
+      contextualState: serializer.fromJson<String>(json['contextualState']),
+      multimodalConsensus: serializer.fromJson<String>(
+        json['multimodalConsensus'],
+      ),
+      rawJson: serializer.fromJson<String>(json['rawJson']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'heartRate': serializer.toJson<double>(heartRate),
+      'hrv': serializer.toJson<double>(hrv),
+      'confidence': serializer.toJson<double>(confidence),
+      'escalationLevel': serializer.toJson<String>(escalationLevel),
+      'forecastProbability': serializer.toJson<double>(forecastProbability),
+      'recoveryState': serializer.toJson<String>(recoveryState),
+      'resilience': serializer.toJson<double>(resilience),
+      'contextualState': serializer.toJson<String>(contextualState),
+      'multimodalConsensus': serializer.toJson<String>(multimodalConsensus),
+      'rawJson': serializer.toJson<String>(rawJson),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  SessionSnapshotsTableData copyWith({
+    String? id,
+    String? sessionId,
+    DateTime? timestamp,
+    double? heartRate,
+    double? hrv,
+    double? confidence,
+    String? escalationLevel,
+    double? forecastProbability,
+    String? recoveryState,
+    double? resilience,
+    String? contextualState,
+    String? multimodalConsensus,
+    String? rawJson,
+    String? safetyCopy,
+  }) => SessionSnapshotsTableData(
+    id: id ?? this.id,
+    sessionId: sessionId ?? this.sessionId,
+    timestamp: timestamp ?? this.timestamp,
+    heartRate: heartRate ?? this.heartRate,
+    hrv: hrv ?? this.hrv,
+    confidence: confidence ?? this.confidence,
+    escalationLevel: escalationLevel ?? this.escalationLevel,
+    forecastProbability: forecastProbability ?? this.forecastProbability,
+    recoveryState: recoveryState ?? this.recoveryState,
+    resilience: resilience ?? this.resilience,
+    contextualState: contextualState ?? this.contextualState,
+    multimodalConsensus: multimodalConsensus ?? this.multimodalConsensus,
+    rawJson: rawJson ?? this.rawJson,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  SessionSnapshotsTableData copyWithCompanion(
+    SessionSnapshotsTableCompanion data,
+  ) {
+    return SessionSnapshotsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      heartRate: data.heartRate.present ? data.heartRate.value : this.heartRate,
+      hrv: data.hrv.present ? data.hrv.value : this.hrv,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      escalationLevel: data.escalationLevel.present
+          ? data.escalationLevel.value
+          : this.escalationLevel,
+      forecastProbability: data.forecastProbability.present
+          ? data.forecastProbability.value
+          : this.forecastProbability,
+      recoveryState: data.recoveryState.present
+          ? data.recoveryState.value
+          : this.recoveryState,
+      resilience: data.resilience.present
+          ? data.resilience.value
+          : this.resilience,
+      contextualState: data.contextualState.present
+          ? data.contextualState.value
+          : this.contextualState,
+      multimodalConsensus: data.multimodalConsensus.present
+          ? data.multimodalConsensus.value
+          : this.multimodalConsensus,
+      rawJson: data.rawJson.present ? data.rawJson.value : this.rawJson,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionSnapshotsTableData(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('heartRate: $heartRate, ')
+          ..write('hrv: $hrv, ')
+          ..write('confidence: $confidence, ')
+          ..write('escalationLevel: $escalationLevel, ')
+          ..write('forecastProbability: $forecastProbability, ')
+          ..write('recoveryState: $recoveryState, ')
+          ..write('resilience: $resilience, ')
+          ..write('contextualState: $contextualState, ')
+          ..write('multimodalConsensus: $multimodalConsensus, ')
+          ..write('rawJson: $rawJson, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sessionId,
+    timestamp,
+    heartRate,
+    hrv,
+    confidence,
+    escalationLevel,
+    forecastProbability,
+    recoveryState,
+    resilience,
+    contextualState,
+    multimodalConsensus,
+    rawJson,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SessionSnapshotsTableData &&
+          other.id == this.id &&
+          other.sessionId == this.sessionId &&
+          other.timestamp == this.timestamp &&
+          other.heartRate == this.heartRate &&
+          other.hrv == this.hrv &&
+          other.confidence == this.confidence &&
+          other.escalationLevel == this.escalationLevel &&
+          other.forecastProbability == this.forecastProbability &&
+          other.recoveryState == this.recoveryState &&
+          other.resilience == this.resilience &&
+          other.contextualState == this.contextualState &&
+          other.multimodalConsensus == this.multimodalConsensus &&
+          other.rawJson == this.rawJson &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class SessionSnapshotsTableCompanion
+    extends UpdateCompanion<SessionSnapshotsTableData> {
+  final Value<String> id;
+  final Value<String> sessionId;
+  final Value<DateTime> timestamp;
+  final Value<double> heartRate;
+  final Value<double> hrv;
+  final Value<double> confidence;
+  final Value<String> escalationLevel;
+  final Value<double> forecastProbability;
+  final Value<String> recoveryState;
+  final Value<double> resilience;
+  final Value<String> contextualState;
+  final Value<String> multimodalConsensus;
+  final Value<String> rawJson;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const SessionSnapshotsTableCompanion({
+    this.id = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.heartRate = const Value.absent(),
+    this.hrv = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.escalationLevel = const Value.absent(),
+    this.forecastProbability = const Value.absent(),
+    this.recoveryState = const Value.absent(),
+    this.resilience = const Value.absent(),
+    this.contextualState = const Value.absent(),
+    this.multimodalConsensus = const Value.absent(),
+    this.rawJson = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SessionSnapshotsTableCompanion.insert({
+    required String id,
+    required String sessionId,
+    required DateTime timestamp,
+    required double heartRate,
+    required double hrv,
+    required double confidence,
+    required String escalationLevel,
+    required double forecastProbability,
+    required String recoveryState,
+    required double resilience,
+    required String contextualState,
+    required String multimodalConsensus,
+    required String rawJson,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sessionId = Value(sessionId),
+       timestamp = Value(timestamp),
+       heartRate = Value(heartRate),
+       hrv = Value(hrv),
+       confidence = Value(confidence),
+       escalationLevel = Value(escalationLevel),
+       forecastProbability = Value(forecastProbability),
+       recoveryState = Value(recoveryState),
+       resilience = Value(resilience),
+       contextualState = Value(contextualState),
+       multimodalConsensus = Value(multimodalConsensus),
+       rawJson = Value(rawJson),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<SessionSnapshotsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? sessionId,
+    Expression<DateTime>? timestamp,
+    Expression<double>? heartRate,
+    Expression<double>? hrv,
+    Expression<double>? confidence,
+    Expression<String>? escalationLevel,
+    Expression<double>? forecastProbability,
+    Expression<String>? recoveryState,
+    Expression<double>? resilience,
+    Expression<String>? contextualState,
+    Expression<String>? multimodalConsensus,
+    Expression<String>? rawJson,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sessionId != null) 'session_id': sessionId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (heartRate != null) 'heart_rate': heartRate,
+      if (hrv != null) 'hrv': hrv,
+      if (confidence != null) 'confidence': confidence,
+      if (escalationLevel != null) 'escalation_level': escalationLevel,
+      if (forecastProbability != null)
+        'forecast_probability': forecastProbability,
+      if (recoveryState != null) 'recovery_state': recoveryState,
+      if (resilience != null) 'resilience': resilience,
+      if (contextualState != null) 'contextual_state': contextualState,
+      if (multimodalConsensus != null)
+        'multimodal_consensus': multimodalConsensus,
+      if (rawJson != null) 'raw_json': rawJson,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SessionSnapshotsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sessionId,
+    Value<DateTime>? timestamp,
+    Value<double>? heartRate,
+    Value<double>? hrv,
+    Value<double>? confidence,
+    Value<String>? escalationLevel,
+    Value<double>? forecastProbability,
+    Value<String>? recoveryState,
+    Value<double>? resilience,
+    Value<String>? contextualState,
+    Value<String>? multimodalConsensus,
+    Value<String>? rawJson,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return SessionSnapshotsTableCompanion(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      timestamp: timestamp ?? this.timestamp,
+      heartRate: heartRate ?? this.heartRate,
+      hrv: hrv ?? this.hrv,
+      confidence: confidence ?? this.confidence,
+      escalationLevel: escalationLevel ?? this.escalationLevel,
+      forecastProbability: forecastProbability ?? this.forecastProbability,
+      recoveryState: recoveryState ?? this.recoveryState,
+      resilience: resilience ?? this.resilience,
+      contextualState: contextualState ?? this.contextualState,
+      multimodalConsensus: multimodalConsensus ?? this.multimodalConsensus,
+      rawJson: rawJson ?? this.rawJson,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (heartRate.present) {
+      map['heart_rate'] = Variable<double>(heartRate.value);
+    }
+    if (hrv.present) {
+      map['hrv'] = Variable<double>(hrv.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (escalationLevel.present) {
+      map['escalation_level'] = Variable<String>(escalationLevel.value);
+    }
+    if (forecastProbability.present) {
+      map['forecast_probability'] = Variable<double>(forecastProbability.value);
+    }
+    if (recoveryState.present) {
+      map['recovery_state'] = Variable<String>(recoveryState.value);
+    }
+    if (resilience.present) {
+      map['resilience'] = Variable<double>(resilience.value);
+    }
+    if (contextualState.present) {
+      map['contextual_state'] = Variable<String>(contextualState.value);
+    }
+    if (multimodalConsensus.present) {
+      map['multimodal_consensus'] = Variable<String>(multimodalConsensus.value);
+    }
+    if (rawJson.present) {
+      map['raw_json'] = Variable<String>(rawJson.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SessionSnapshotsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('heartRate: $heartRate, ')
+          ..write('hrv: $hrv, ')
+          ..write('confidence: $confidence, ')
+          ..write('escalationLevel: $escalationLevel, ')
+          ..write('forecastProbability: $forecastProbability, ')
+          ..write('recoveryState: $recoveryState, ')
+          ..write('resilience: $resilience, ')
+          ..write('contextualState: $contextualState, ')
+          ..write('multimodalConsensus: $multimodalConsensus, ')
+          ..write('rawJson: $rawJson, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -18865,6 +20685,12 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   experimentalProtocolSessionsTable = $ExperimentalProtocolSessionsTableTable(
     this,
   );
+  late final $RecordedExperimentalSessionsTableTable
+  recordedExperimentalSessionsTable = $RecordedExperimentalSessionsTableTable(
+    this,
+  );
+  late final $SessionSnapshotsTableTable sessionSnapshotsTable =
+      $SessionSnapshotsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -18898,6 +20724,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     orchestratorWorkflowsTable,
     experimentalProtocolsTable,
     experimentalProtocolSessionsTable,
+    recordedExperimentalSessionsTable,
+    sessionSnapshotsTable,
   ];
 }
 
@@ -28216,6 +30044,880 @@ typedef $$ExperimentalProtocolSessionsTableTableProcessedTableManager =
       ExperimentalProtocolSessionsTableData,
       PrefetchHooks Function()
     >;
+typedef $$RecordedExperimentalSessionsTableTableCreateCompanionBuilder =
+    RecordedExperimentalSessionsTableCompanion Function({
+      required String id,
+      required DateTime startedAt,
+      Value<DateTime?> completedAt,
+      Value<String?> protocolId,
+      required int totalSamples,
+      required int totalMarkers,
+      required int totalForecasts,
+      required int totalInsights,
+      required int totalContextEvents,
+      required int totalSubjectiveEntries,
+      required double averageHeartRate,
+      required double averageHrv,
+      required double averageConfidence,
+      required int escalationEvents,
+      required int recoveryEvents,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$RecordedExperimentalSessionsTableTableUpdateCompanionBuilder =
+    RecordedExperimentalSessionsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> startedAt,
+      Value<DateTime?> completedAt,
+      Value<String?> protocolId,
+      Value<int> totalSamples,
+      Value<int> totalMarkers,
+      Value<int> totalForecasts,
+      Value<int> totalInsights,
+      Value<int> totalContextEvents,
+      Value<int> totalSubjectiveEntries,
+      Value<double> averageHeartRate,
+      Value<double> averageHrv,
+      Value<double> averageConfidence,
+      Value<int> escalationEvents,
+      Value<int> recoveryEvents,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$RecordedExperimentalSessionsTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $RecordedExperimentalSessionsTableTable
+        > {
+  $$RecordedExperimentalSessionsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalMarkers => $composableBuilder(
+    column: $table.totalMarkers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalForecasts => $composableBuilder(
+    column: $table.totalForecasts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalInsights => $composableBuilder(
+    column: $table.totalInsights,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalContextEvents => $composableBuilder(
+    column: $table.totalContextEvents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalSubjectiveEntries => $composableBuilder(
+    column: $table.totalSubjectiveEntries,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get escalationEvents => $composableBuilder(
+    column: $table.escalationEvents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get recoveryEvents => $composableBuilder(
+    column: $table.recoveryEvents,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RecordedExperimentalSessionsTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $RecordedExperimentalSessionsTableTable
+        > {
+  $$RecordedExperimentalSessionsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalMarkers => $composableBuilder(
+    column: $table.totalMarkers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalForecasts => $composableBuilder(
+    column: $table.totalForecasts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalInsights => $composableBuilder(
+    column: $table.totalInsights,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalContextEvents => $composableBuilder(
+    column: $table.totalContextEvents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalSubjectiveEntries => $composableBuilder(
+    column: $table.totalSubjectiveEntries,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get escalationEvents => $composableBuilder(
+    column: $table.escalationEvents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get recoveryEvents => $composableBuilder(
+    column: $table.recoveryEvents,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RecordedExperimentalSessionsTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $RecordedExperimentalSessionsTableTable
+        > {
+  $$RecordedExperimentalSessionsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalSamples => $composableBuilder(
+    column: $table.totalSamples,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalMarkers => $composableBuilder(
+    column: $table.totalMarkers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalForecasts => $composableBuilder(
+    column: $table.totalForecasts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalInsights => $composableBuilder(
+    column: $table.totalInsights,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalContextEvents => $composableBuilder(
+    column: $table.totalContextEvents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalSubjectiveEntries => $composableBuilder(
+    column: $table.totalSubjectiveEntries,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHeartRate => $composableBuilder(
+    column: $table.averageHeartRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageHrv => $composableBuilder(
+    column: $table.averageHrv,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageConfidence => $composableBuilder(
+    column: $table.averageConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get escalationEvents => $composableBuilder(
+    column: $table.escalationEvents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get recoveryEvents => $composableBuilder(
+    column: $table.recoveryEvents,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$RecordedExperimentalSessionsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $RecordedExperimentalSessionsTableTable,
+          RecordedExperimentalSessionsTableData,
+          $$RecordedExperimentalSessionsTableTableFilterComposer,
+          $$RecordedExperimentalSessionsTableTableOrderingComposer,
+          $$RecordedExperimentalSessionsTableTableAnnotationComposer,
+          $$RecordedExperimentalSessionsTableTableCreateCompanionBuilder,
+          $$RecordedExperimentalSessionsTableTableUpdateCompanionBuilder,
+          (
+            RecordedExperimentalSessionsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $RecordedExperimentalSessionsTableTable,
+              RecordedExperimentalSessionsTableData
+            >,
+          ),
+          RecordedExperimentalSessionsTableData,
+          PrefetchHooks Function()
+        > {
+  $$RecordedExperimentalSessionsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $RecordedExperimentalSessionsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RecordedExperimentalSessionsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$RecordedExperimentalSessionsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$RecordedExperimentalSessionsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<String?> protocolId = const Value.absent(),
+                Value<int> totalSamples = const Value.absent(),
+                Value<int> totalMarkers = const Value.absent(),
+                Value<int> totalForecasts = const Value.absent(),
+                Value<int> totalInsights = const Value.absent(),
+                Value<int> totalContextEvents = const Value.absent(),
+                Value<int> totalSubjectiveEntries = const Value.absent(),
+                Value<double> averageHeartRate = const Value.absent(),
+                Value<double> averageHrv = const Value.absent(),
+                Value<double> averageConfidence = const Value.absent(),
+                Value<int> escalationEvents = const Value.absent(),
+                Value<int> recoveryEvents = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RecordedExperimentalSessionsTableCompanion(
+                id: id,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                protocolId: protocolId,
+                totalSamples: totalSamples,
+                totalMarkers: totalMarkers,
+                totalForecasts: totalForecasts,
+                totalInsights: totalInsights,
+                totalContextEvents: totalContextEvents,
+                totalSubjectiveEntries: totalSubjectiveEntries,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageConfidence: averageConfidence,
+                escalationEvents: escalationEvents,
+                recoveryEvents: recoveryEvents,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime startedAt,
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<String?> protocolId = const Value.absent(),
+                required int totalSamples,
+                required int totalMarkers,
+                required int totalForecasts,
+                required int totalInsights,
+                required int totalContextEvents,
+                required int totalSubjectiveEntries,
+                required double averageHeartRate,
+                required double averageHrv,
+                required double averageConfidence,
+                required int escalationEvents,
+                required int recoveryEvents,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => RecordedExperimentalSessionsTableCompanion.insert(
+                id: id,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                protocolId: protocolId,
+                totalSamples: totalSamples,
+                totalMarkers: totalMarkers,
+                totalForecasts: totalForecasts,
+                totalInsights: totalInsights,
+                totalContextEvents: totalContextEvents,
+                totalSubjectiveEntries: totalSubjectiveEntries,
+                averageHeartRate: averageHeartRate,
+                averageHrv: averageHrv,
+                averageConfidence: averageConfidence,
+                escalationEvents: escalationEvents,
+                recoveryEvents: recoveryEvents,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RecordedExperimentalSessionsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $RecordedExperimentalSessionsTableTable,
+      RecordedExperimentalSessionsTableData,
+      $$RecordedExperimentalSessionsTableTableFilterComposer,
+      $$RecordedExperimentalSessionsTableTableOrderingComposer,
+      $$RecordedExperimentalSessionsTableTableAnnotationComposer,
+      $$RecordedExperimentalSessionsTableTableCreateCompanionBuilder,
+      $$RecordedExperimentalSessionsTableTableUpdateCompanionBuilder,
+      (
+        RecordedExperimentalSessionsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $RecordedExperimentalSessionsTableTable,
+          RecordedExperimentalSessionsTableData
+        >,
+      ),
+      RecordedExperimentalSessionsTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$SessionSnapshotsTableTableCreateCompanionBuilder =
+    SessionSnapshotsTableCompanion Function({
+      required String id,
+      required String sessionId,
+      required DateTime timestamp,
+      required double heartRate,
+      required double hrv,
+      required double confidence,
+      required String escalationLevel,
+      required double forecastProbability,
+      required String recoveryState,
+      required double resilience,
+      required String contextualState,
+      required String multimodalConsensus,
+      required String rawJson,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$SessionSnapshotsTableTableUpdateCompanionBuilder =
+    SessionSnapshotsTableCompanion Function({
+      Value<String> id,
+      Value<String> sessionId,
+      Value<DateTime> timestamp,
+      Value<double> heartRate,
+      Value<double> hrv,
+      Value<double> confidence,
+      Value<String> escalationLevel,
+      Value<double> forecastProbability,
+      Value<String> recoveryState,
+      Value<double> resilience,
+      Value<String> contextualState,
+      Value<String> multimodalConsensus,
+      Value<String> rawJson,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$SessionSnapshotsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $SessionSnapshotsTableTable> {
+  $$SessionSnapshotsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heartRate => $composableBuilder(
+    column: $table.heartRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get hrv => $composableBuilder(
+    column: $table.hrv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get escalationLevel => $composableBuilder(
+    column: $table.escalationLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get forecastProbability => $composableBuilder(
+    column: $table.forecastProbability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recoveryState => $composableBuilder(
+    column: $table.recoveryState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get resilience => $composableBuilder(
+    column: $table.resilience,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contextualState => $composableBuilder(
+    column: $table.contextualState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get multimodalConsensus => $composableBuilder(
+    column: $table.multimodalConsensus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rawJson => $composableBuilder(
+    column: $table.rawJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SessionSnapshotsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $SessionSnapshotsTableTable> {
+  $$SessionSnapshotsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heartRate => $composableBuilder(
+    column: $table.heartRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get hrv => $composableBuilder(
+    column: $table.hrv,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get escalationLevel => $composableBuilder(
+    column: $table.escalationLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get forecastProbability => $composableBuilder(
+    column: $table.forecastProbability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recoveryState => $composableBuilder(
+    column: $table.recoveryState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get resilience => $composableBuilder(
+    column: $table.resilience,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contextualState => $composableBuilder(
+    column: $table.contextualState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get multimodalConsensus => $composableBuilder(
+    column: $table.multimodalConsensus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rawJson => $composableBuilder(
+    column: $table.rawJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SessionSnapshotsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $SessionSnapshotsTableTable> {
+  $$SessionSnapshotsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<double> get heartRate =>
+      $composableBuilder(column: $table.heartRate, builder: (column) => column);
+
+  GeneratedColumn<double> get hrv =>
+      $composableBuilder(column: $table.hrv, builder: (column) => column);
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get escalationLevel => $composableBuilder(
+    column: $table.escalationLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get forecastProbability => $composableBuilder(
+    column: $table.forecastProbability,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recoveryState => $composableBuilder(
+    column: $table.recoveryState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get resilience => $composableBuilder(
+    column: $table.resilience,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contextualState => $composableBuilder(
+    column: $table.contextualState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get multimodalConsensus => $composableBuilder(
+    column: $table.multimodalConsensus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get rawJson =>
+      $composableBuilder(column: $table.rawJson, builder: (column) => column);
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$SessionSnapshotsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $SessionSnapshotsTableTable,
+          SessionSnapshotsTableData,
+          $$SessionSnapshotsTableTableFilterComposer,
+          $$SessionSnapshotsTableTableOrderingComposer,
+          $$SessionSnapshotsTableTableAnnotationComposer,
+          $$SessionSnapshotsTableTableCreateCompanionBuilder,
+          $$SessionSnapshotsTableTableUpdateCompanionBuilder,
+          (
+            SessionSnapshotsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $SessionSnapshotsTableTable,
+              SessionSnapshotsTableData
+            >,
+          ),
+          SessionSnapshotsTableData,
+          PrefetchHooks Function()
+        > {
+  $$SessionSnapshotsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $SessionSnapshotsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SessionSnapshotsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$SessionSnapshotsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$SessionSnapshotsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<double> heartRate = const Value.absent(),
+                Value<double> hrv = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> escalationLevel = const Value.absent(),
+                Value<double> forecastProbability = const Value.absent(),
+                Value<String> recoveryState = const Value.absent(),
+                Value<double> resilience = const Value.absent(),
+                Value<String> contextualState = const Value.absent(),
+                Value<String> multimodalConsensus = const Value.absent(),
+                Value<String> rawJson = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SessionSnapshotsTableCompanion(
+                id: id,
+                sessionId: sessionId,
+                timestamp: timestamp,
+                heartRate: heartRate,
+                hrv: hrv,
+                confidence: confidence,
+                escalationLevel: escalationLevel,
+                forecastProbability: forecastProbability,
+                recoveryState: recoveryState,
+                resilience: resilience,
+                contextualState: contextualState,
+                multimodalConsensus: multimodalConsensus,
+                rawJson: rawJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sessionId,
+                required DateTime timestamp,
+                required double heartRate,
+                required double hrv,
+                required double confidence,
+                required String escalationLevel,
+                required double forecastProbability,
+                required String recoveryState,
+                required double resilience,
+                required String contextualState,
+                required String multimodalConsensus,
+                required String rawJson,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => SessionSnapshotsTableCompanion.insert(
+                id: id,
+                sessionId: sessionId,
+                timestamp: timestamp,
+                heartRate: heartRate,
+                hrv: hrv,
+                confidence: confidence,
+                escalationLevel: escalationLevel,
+                forecastProbability: forecastProbability,
+                recoveryState: recoveryState,
+                resilience: resilience,
+                contextualState: contextualState,
+                multimodalConsensus: multimodalConsensus,
+                rawJson: rawJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SessionSnapshotsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $SessionSnapshotsTableTable,
+      SessionSnapshotsTableData,
+      $$SessionSnapshotsTableTableFilterComposer,
+      $$SessionSnapshotsTableTableOrderingComposer,
+      $$SessionSnapshotsTableTableAnnotationComposer,
+      $$SessionSnapshotsTableTableCreateCompanionBuilder,
+      $$SessionSnapshotsTableTableUpdateCompanionBuilder,
+      (
+        SessionSnapshotsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $SessionSnapshotsTableTable,
+          SessionSnapshotsTableData
+        >,
+      ),
+      SessionSnapshotsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -28359,4 +31061,12 @@ class $SignalFlowDatabaseManager {
         _db,
         _db.experimentalProtocolSessionsTable,
       );
+  $$RecordedExperimentalSessionsTableTableTableManager
+  get recordedExperimentalSessionsTable =>
+      $$RecordedExperimentalSessionsTableTableTableManager(
+        _db,
+        _db.recordedExperimentalSessionsTable,
+      );
+  $$SessionSnapshotsTableTableTableManager get sessionSnapshotsTable =>
+      $$SessionSnapshotsTableTableTableManager(_db, _db.sessionSnapshotsTable);
 }

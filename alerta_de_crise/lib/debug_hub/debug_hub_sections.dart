@@ -24,6 +24,7 @@ import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_dashboard_debug_page.dart';
 import '../ui/crisis_detection/research_orchestrator_debug_page.dart';
 import '../ui/crisis_detection/research_export_debug_page.dart';
+import '../ui/crisis_detection/session_recorder_debug_page.dart';
 import '../ui/crisis_detection/sensor_provider_debug_page.dart';
 import '../ui/crisis_detection/sensor_quality_debug_page.dart';
 import '../ui/crisis_detection/session_timeline_debug_page.dart';
@@ -121,6 +122,11 @@ class SignalFlowDebugHubSections {
             label: 'Experimental Protocols',
             description: 'Protocolos experimentais para sessão controlada.',
             builder: (_) => const ExperimentalProtocolDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Session Recorder',
+            description: 'Registro experimental de dataset fisiológico.',
+            builder: (_) => const SessionRecorderDebugPage(),
           ),
         ],
       ),
