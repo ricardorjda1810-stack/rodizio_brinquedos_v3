@@ -7233,6 +7233,817 @@ class ResearchDashboardSnapshotsTableCompanion
   }
 }
 
+class $EscalationForecastsTableTable extends EscalationForecastsTable
+    with
+        TableInfo<
+          $EscalationForecastsTableTable,
+          EscalationForecastsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EscalationForecastsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastWindowSecondsMeta =
+      const VerificationMeta('forecastWindowSeconds');
+  @override
+  late final GeneratedColumn<int> forecastWindowSeconds = GeneratedColumn<int>(
+    'forecast_window_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastWindowLabelMeta =
+      const VerificationMeta('forecastWindowLabel');
+  @override
+  late final GeneratedColumn<String> forecastWindowLabel =
+      GeneratedColumn<String>(
+        'forecast_window_label',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationProbabilityMeta =
+      const VerificationMeta('escalationProbability');
+  @override
+  late final GeneratedColumn<double> escalationProbability =
+      GeneratedColumn<double>(
+        'escalation_probability',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _forecastConfidenceMeta =
+      const VerificationMeta('forecastConfidence');
+  @override
+  late final GeneratedColumn<int> forecastConfidence = GeneratedColumn<int>(
+    'forecast_confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastConfidenceLevelMeta =
+      const VerificationMeta('forecastConfidenceLevel');
+  @override
+  late final GeneratedColumn<String> forecastConfidenceLevel =
+      GeneratedColumn<String>(
+        'forecast_confidence_level',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationRiskLevelMeta =
+      const VerificationMeta('escalationRiskLevel');
+  @override
+  late final GeneratedColumn<String> escalationRiskLevel =
+      GeneratedColumn<String>(
+        'escalation_risk_level',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _contributingFactorsJsonMeta =
+      const VerificationMeta('contributingFactorsJson');
+  @override
+  late final GeneratedColumn<String> contributingFactorsJson =
+      GeneratedColumn<String>(
+        'contributing_factors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryProtectionMeta =
+      const VerificationMeta('recoveryProtection');
+  @override
+  late final GeneratedColumn<double> recoveryProtection =
+      GeneratedColumn<double>(
+        'recovery_protection',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _autonomicLoadMeta = const VerificationMeta(
+    'autonomicLoad',
+  );
+  @override
+  late final GeneratedColumn<double> autonomicLoad = GeneratedColumn<double>(
+    'autonomic_load',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    forecastWindowSeconds,
+    forecastWindowLabel,
+    escalationProbability,
+    forecastConfidence,
+    forecastConfidenceLevel,
+    escalationRiskLevel,
+    contributingFactorsJson,
+    recoveryProtection,
+    autonomicLoad,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'escalation_forecasts_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EscalationForecastsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('forecast_window_seconds')) {
+      context.handle(
+        _forecastWindowSecondsMeta,
+        forecastWindowSeconds.isAcceptableOrUnknown(
+          data['forecast_window_seconds']!,
+          _forecastWindowSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastWindowSecondsMeta);
+    }
+    if (data.containsKey('forecast_window_label')) {
+      context.handle(
+        _forecastWindowLabelMeta,
+        forecastWindowLabel.isAcceptableOrUnknown(
+          data['forecast_window_label']!,
+          _forecastWindowLabelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastWindowLabelMeta);
+    }
+    if (data.containsKey('escalation_probability')) {
+      context.handle(
+        _escalationProbabilityMeta,
+        escalationProbability.isAcceptableOrUnknown(
+          data['escalation_probability']!,
+          _escalationProbabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationProbabilityMeta);
+    }
+    if (data.containsKey('forecast_confidence')) {
+      context.handle(
+        _forecastConfidenceMeta,
+        forecastConfidence.isAcceptableOrUnknown(
+          data['forecast_confidence']!,
+          _forecastConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastConfidenceMeta);
+    }
+    if (data.containsKey('forecast_confidence_level')) {
+      context.handle(
+        _forecastConfidenceLevelMeta,
+        forecastConfidenceLevel.isAcceptableOrUnknown(
+          data['forecast_confidence_level']!,
+          _forecastConfidenceLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastConfidenceLevelMeta);
+    }
+    if (data.containsKey('escalation_risk_level')) {
+      context.handle(
+        _escalationRiskLevelMeta,
+        escalationRiskLevel.isAcceptableOrUnknown(
+          data['escalation_risk_level']!,
+          _escalationRiskLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationRiskLevelMeta);
+    }
+    if (data.containsKey('contributing_factors_json')) {
+      context.handle(
+        _contributingFactorsJsonMeta,
+        contributingFactorsJson.isAcceptableOrUnknown(
+          data['contributing_factors_json']!,
+          _contributingFactorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contributingFactorsJsonMeta);
+    }
+    if (data.containsKey('recovery_protection')) {
+      context.handle(
+        _recoveryProtectionMeta,
+        recoveryProtection.isAcceptableOrUnknown(
+          data['recovery_protection']!,
+          _recoveryProtectionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryProtectionMeta);
+    }
+    if (data.containsKey('autonomic_load')) {
+      context.handle(
+        _autonomicLoadMeta,
+        autonomicLoad.isAcceptableOrUnknown(
+          data['autonomic_load']!,
+          _autonomicLoadMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_autonomicLoadMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  EscalationForecastsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EscalationForecastsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      forecastWindowSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}forecast_window_seconds'],
+      )!,
+      forecastWindowLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}forecast_window_label'],
+      )!,
+      escalationProbability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}escalation_probability'],
+      )!,
+      forecastConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}forecast_confidence'],
+      )!,
+      forecastConfidenceLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}forecast_confidence_level'],
+      )!,
+      escalationRiskLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}escalation_risk_level'],
+      )!,
+      contributingFactorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contributing_factors_json'],
+      )!,
+      recoveryProtection: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_protection'],
+      )!,
+      autonomicLoad: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}autonomic_load'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $EscalationForecastsTableTable createAlias(String alias) {
+    return $EscalationForecastsTableTable(attachedDatabase, alias);
+  }
+}
+
+class EscalationForecastsTableData extends DataClass
+    implements Insertable<EscalationForecastsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final int forecastWindowSeconds;
+  final String forecastWindowLabel;
+  final double escalationProbability;
+  final int forecastConfidence;
+  final String forecastConfidenceLevel;
+  final String escalationRiskLevel;
+  final String contributingFactorsJson;
+  final double recoveryProtection;
+  final double autonomicLoad;
+  final String safetyCopy;
+  const EscalationForecastsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.forecastWindowSeconds,
+    required this.forecastWindowLabel,
+    required this.escalationProbability,
+    required this.forecastConfidence,
+    required this.forecastConfidenceLevel,
+    required this.escalationRiskLevel,
+    required this.contributingFactorsJson,
+    required this.recoveryProtection,
+    required this.autonomicLoad,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['forecast_window_seconds'] = Variable<int>(forecastWindowSeconds);
+    map['forecast_window_label'] = Variable<String>(forecastWindowLabel);
+    map['escalation_probability'] = Variable<double>(escalationProbability);
+    map['forecast_confidence'] = Variable<int>(forecastConfidence);
+    map['forecast_confidence_level'] = Variable<String>(
+      forecastConfidenceLevel,
+    );
+    map['escalation_risk_level'] = Variable<String>(escalationRiskLevel);
+    map['contributing_factors_json'] = Variable<String>(
+      contributingFactorsJson,
+    );
+    map['recovery_protection'] = Variable<double>(recoveryProtection);
+    map['autonomic_load'] = Variable<double>(autonomicLoad);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  EscalationForecastsTableCompanion toCompanion(bool nullToAbsent) {
+    return EscalationForecastsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      forecastWindowSeconds: Value(forecastWindowSeconds),
+      forecastWindowLabel: Value(forecastWindowLabel),
+      escalationProbability: Value(escalationProbability),
+      forecastConfidence: Value(forecastConfidence),
+      forecastConfidenceLevel: Value(forecastConfidenceLevel),
+      escalationRiskLevel: Value(escalationRiskLevel),
+      contributingFactorsJson: Value(contributingFactorsJson),
+      recoveryProtection: Value(recoveryProtection),
+      autonomicLoad: Value(autonomicLoad),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory EscalationForecastsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EscalationForecastsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      forecastWindowSeconds: serializer.fromJson<int>(
+        json['forecastWindowSeconds'],
+      ),
+      forecastWindowLabel: serializer.fromJson<String>(
+        json['forecastWindowLabel'],
+      ),
+      escalationProbability: serializer.fromJson<double>(
+        json['escalationProbability'],
+      ),
+      forecastConfidence: serializer.fromJson<int>(json['forecastConfidence']),
+      forecastConfidenceLevel: serializer.fromJson<String>(
+        json['forecastConfidenceLevel'],
+      ),
+      escalationRiskLevel: serializer.fromJson<String>(
+        json['escalationRiskLevel'],
+      ),
+      contributingFactorsJson: serializer.fromJson<String>(
+        json['contributingFactorsJson'],
+      ),
+      recoveryProtection: serializer.fromJson<double>(
+        json['recoveryProtection'],
+      ),
+      autonomicLoad: serializer.fromJson<double>(json['autonomicLoad']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'forecastWindowSeconds': serializer.toJson<int>(forecastWindowSeconds),
+      'forecastWindowLabel': serializer.toJson<String>(forecastWindowLabel),
+      'escalationProbability': serializer.toJson<double>(escalationProbability),
+      'forecastConfidence': serializer.toJson<int>(forecastConfidence),
+      'forecastConfidenceLevel': serializer.toJson<String>(
+        forecastConfidenceLevel,
+      ),
+      'escalationRiskLevel': serializer.toJson<String>(escalationRiskLevel),
+      'contributingFactorsJson': serializer.toJson<String>(
+        contributingFactorsJson,
+      ),
+      'recoveryProtection': serializer.toJson<double>(recoveryProtection),
+      'autonomicLoad': serializer.toJson<double>(autonomicLoad),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  EscalationForecastsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    int? forecastWindowSeconds,
+    String? forecastWindowLabel,
+    double? escalationProbability,
+    int? forecastConfidence,
+    String? forecastConfidenceLevel,
+    String? escalationRiskLevel,
+    String? contributingFactorsJson,
+    double? recoveryProtection,
+    double? autonomicLoad,
+    String? safetyCopy,
+  }) => EscalationForecastsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    forecastWindowSeconds: forecastWindowSeconds ?? this.forecastWindowSeconds,
+    forecastWindowLabel: forecastWindowLabel ?? this.forecastWindowLabel,
+    escalationProbability: escalationProbability ?? this.escalationProbability,
+    forecastConfidence: forecastConfidence ?? this.forecastConfidence,
+    forecastConfidenceLevel:
+        forecastConfidenceLevel ?? this.forecastConfidenceLevel,
+    escalationRiskLevel: escalationRiskLevel ?? this.escalationRiskLevel,
+    contributingFactorsJson:
+        contributingFactorsJson ?? this.contributingFactorsJson,
+    recoveryProtection: recoveryProtection ?? this.recoveryProtection,
+    autonomicLoad: autonomicLoad ?? this.autonomicLoad,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  EscalationForecastsTableData copyWithCompanion(
+    EscalationForecastsTableCompanion data,
+  ) {
+    return EscalationForecastsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      forecastWindowSeconds: data.forecastWindowSeconds.present
+          ? data.forecastWindowSeconds.value
+          : this.forecastWindowSeconds,
+      forecastWindowLabel: data.forecastWindowLabel.present
+          ? data.forecastWindowLabel.value
+          : this.forecastWindowLabel,
+      escalationProbability: data.escalationProbability.present
+          ? data.escalationProbability.value
+          : this.escalationProbability,
+      forecastConfidence: data.forecastConfidence.present
+          ? data.forecastConfidence.value
+          : this.forecastConfidence,
+      forecastConfidenceLevel: data.forecastConfidenceLevel.present
+          ? data.forecastConfidenceLevel.value
+          : this.forecastConfidenceLevel,
+      escalationRiskLevel: data.escalationRiskLevel.present
+          ? data.escalationRiskLevel.value
+          : this.escalationRiskLevel,
+      contributingFactorsJson: data.contributingFactorsJson.present
+          ? data.contributingFactorsJson.value
+          : this.contributingFactorsJson,
+      recoveryProtection: data.recoveryProtection.present
+          ? data.recoveryProtection.value
+          : this.recoveryProtection,
+      autonomicLoad: data.autonomicLoad.present
+          ? data.autonomicLoad.value
+          : this.autonomicLoad,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EscalationForecastsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('forecastWindowSeconds: $forecastWindowSeconds, ')
+          ..write('forecastWindowLabel: $forecastWindowLabel, ')
+          ..write('escalationProbability: $escalationProbability, ')
+          ..write('forecastConfidence: $forecastConfidence, ')
+          ..write('forecastConfidenceLevel: $forecastConfidenceLevel, ')
+          ..write('escalationRiskLevel: $escalationRiskLevel, ')
+          ..write('contributingFactorsJson: $contributingFactorsJson, ')
+          ..write('recoveryProtection: $recoveryProtection, ')
+          ..write('autonomicLoad: $autonomicLoad, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    forecastWindowSeconds,
+    forecastWindowLabel,
+    escalationProbability,
+    forecastConfidence,
+    forecastConfidenceLevel,
+    escalationRiskLevel,
+    contributingFactorsJson,
+    recoveryProtection,
+    autonomicLoad,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EscalationForecastsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.forecastWindowSeconds == this.forecastWindowSeconds &&
+          other.forecastWindowLabel == this.forecastWindowLabel &&
+          other.escalationProbability == this.escalationProbability &&
+          other.forecastConfidence == this.forecastConfidence &&
+          other.forecastConfidenceLevel == this.forecastConfidenceLevel &&
+          other.escalationRiskLevel == this.escalationRiskLevel &&
+          other.contributingFactorsJson == this.contributingFactorsJson &&
+          other.recoveryProtection == this.recoveryProtection &&
+          other.autonomicLoad == this.autonomicLoad &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class EscalationForecastsTableCompanion
+    extends UpdateCompanion<EscalationForecastsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<int> forecastWindowSeconds;
+  final Value<String> forecastWindowLabel;
+  final Value<double> escalationProbability;
+  final Value<int> forecastConfidence;
+  final Value<String> forecastConfidenceLevel;
+  final Value<String> escalationRiskLevel;
+  final Value<String> contributingFactorsJson;
+  final Value<double> recoveryProtection;
+  final Value<double> autonomicLoad;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const EscalationForecastsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.forecastWindowSeconds = const Value.absent(),
+    this.forecastWindowLabel = const Value.absent(),
+    this.escalationProbability = const Value.absent(),
+    this.forecastConfidence = const Value.absent(),
+    this.forecastConfidenceLevel = const Value.absent(),
+    this.escalationRiskLevel = const Value.absent(),
+    this.contributingFactorsJson = const Value.absent(),
+    this.recoveryProtection = const Value.absent(),
+    this.autonomicLoad = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EscalationForecastsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required int forecastWindowSeconds,
+    required String forecastWindowLabel,
+    required double escalationProbability,
+    required int forecastConfidence,
+    required String forecastConfidenceLevel,
+    required String escalationRiskLevel,
+    required String contributingFactorsJson,
+    required double recoveryProtection,
+    required double autonomicLoad,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       forecastWindowSeconds = Value(forecastWindowSeconds),
+       forecastWindowLabel = Value(forecastWindowLabel),
+       escalationProbability = Value(escalationProbability),
+       forecastConfidence = Value(forecastConfidence),
+       forecastConfidenceLevel = Value(forecastConfidenceLevel),
+       escalationRiskLevel = Value(escalationRiskLevel),
+       contributingFactorsJson = Value(contributingFactorsJson),
+       recoveryProtection = Value(recoveryProtection),
+       autonomicLoad = Value(autonomicLoad),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<EscalationForecastsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<int>? forecastWindowSeconds,
+    Expression<String>? forecastWindowLabel,
+    Expression<double>? escalationProbability,
+    Expression<int>? forecastConfidence,
+    Expression<String>? forecastConfidenceLevel,
+    Expression<String>? escalationRiskLevel,
+    Expression<String>? contributingFactorsJson,
+    Expression<double>? recoveryProtection,
+    Expression<double>? autonomicLoad,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (forecastWindowSeconds != null)
+        'forecast_window_seconds': forecastWindowSeconds,
+      if (forecastWindowLabel != null)
+        'forecast_window_label': forecastWindowLabel,
+      if (escalationProbability != null)
+        'escalation_probability': escalationProbability,
+      if (forecastConfidence != null) 'forecast_confidence': forecastConfidence,
+      if (forecastConfidenceLevel != null)
+        'forecast_confidence_level': forecastConfidenceLevel,
+      if (escalationRiskLevel != null)
+        'escalation_risk_level': escalationRiskLevel,
+      if (contributingFactorsJson != null)
+        'contributing_factors_json': contributingFactorsJson,
+      if (recoveryProtection != null) 'recovery_protection': recoveryProtection,
+      if (autonomicLoad != null) 'autonomic_load': autonomicLoad,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EscalationForecastsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<int>? forecastWindowSeconds,
+    Value<String>? forecastWindowLabel,
+    Value<double>? escalationProbability,
+    Value<int>? forecastConfidence,
+    Value<String>? forecastConfidenceLevel,
+    Value<String>? escalationRiskLevel,
+    Value<String>? contributingFactorsJson,
+    Value<double>? recoveryProtection,
+    Value<double>? autonomicLoad,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return EscalationForecastsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      forecastWindowSeconds:
+          forecastWindowSeconds ?? this.forecastWindowSeconds,
+      forecastWindowLabel: forecastWindowLabel ?? this.forecastWindowLabel,
+      escalationProbability:
+          escalationProbability ?? this.escalationProbability,
+      forecastConfidence: forecastConfidence ?? this.forecastConfidence,
+      forecastConfidenceLevel:
+          forecastConfidenceLevel ?? this.forecastConfidenceLevel,
+      escalationRiskLevel: escalationRiskLevel ?? this.escalationRiskLevel,
+      contributingFactorsJson:
+          contributingFactorsJson ?? this.contributingFactorsJson,
+      recoveryProtection: recoveryProtection ?? this.recoveryProtection,
+      autonomicLoad: autonomicLoad ?? this.autonomicLoad,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (forecastWindowSeconds.present) {
+      map['forecast_window_seconds'] = Variable<int>(
+        forecastWindowSeconds.value,
+      );
+    }
+    if (forecastWindowLabel.present) {
+      map['forecast_window_label'] = Variable<String>(
+        forecastWindowLabel.value,
+      );
+    }
+    if (escalationProbability.present) {
+      map['escalation_probability'] = Variable<double>(
+        escalationProbability.value,
+      );
+    }
+    if (forecastConfidence.present) {
+      map['forecast_confidence'] = Variable<int>(forecastConfidence.value);
+    }
+    if (forecastConfidenceLevel.present) {
+      map['forecast_confidence_level'] = Variable<String>(
+        forecastConfidenceLevel.value,
+      );
+    }
+    if (escalationRiskLevel.present) {
+      map['escalation_risk_level'] = Variable<String>(
+        escalationRiskLevel.value,
+      );
+    }
+    if (contributingFactorsJson.present) {
+      map['contributing_factors_json'] = Variable<String>(
+        contributingFactorsJson.value,
+      );
+    }
+    if (recoveryProtection.present) {
+      map['recovery_protection'] = Variable<double>(recoveryProtection.value);
+    }
+    if (autonomicLoad.present) {
+      map['autonomic_load'] = Variable<double>(autonomicLoad.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EscalationForecastsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('forecastWindowSeconds: $forecastWindowSeconds, ')
+          ..write('forecastWindowLabel: $forecastWindowLabel, ')
+          ..write('escalationProbability: $escalationProbability, ')
+          ..write('forecastConfidence: $forecastConfidence, ')
+          ..write('forecastConfidenceLevel: $forecastConfidenceLevel, ')
+          ..write('escalationRiskLevel: $escalationRiskLevel, ')
+          ..write('contributingFactorsJson: $contributingFactorsJson, ')
+          ..write('recoveryProtection: $recoveryProtection, ')
+          ..write('autonomicLoad: $autonomicLoad, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -7258,6 +8069,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   autonomicRecoveryProfilesTable = $AutonomicRecoveryProfilesTableTable(this);
   late final $ResearchDashboardSnapshotsTableTable
   researchDashboardSnapshotsTable = $ResearchDashboardSnapshotsTableTable(this);
+  late final $EscalationForecastsTableTable escalationForecastsTable =
+      $EscalationForecastsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7274,6 +8087,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     physiologicalTrendsTable,
     autonomicRecoveryProfilesTable,
     researchDashboardSnapshotsTable,
+    escalationForecastsTable,
   ];
 }
 
@@ -10879,6 +11693,380 @@ typedef $$ResearchDashboardSnapshotsTableTableProcessedTableManager =
       ResearchDashboardSnapshotsTableData,
       PrefetchHooks Function()
     >;
+typedef $$EscalationForecastsTableTableCreateCompanionBuilder =
+    EscalationForecastsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required int forecastWindowSeconds,
+      required String forecastWindowLabel,
+      required double escalationProbability,
+      required int forecastConfidence,
+      required String forecastConfidenceLevel,
+      required String escalationRiskLevel,
+      required String contributingFactorsJson,
+      required double recoveryProtection,
+      required double autonomicLoad,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$EscalationForecastsTableTableUpdateCompanionBuilder =
+    EscalationForecastsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<int> forecastWindowSeconds,
+      Value<String> forecastWindowLabel,
+      Value<double> escalationProbability,
+      Value<int> forecastConfidence,
+      Value<String> forecastConfidenceLevel,
+      Value<String> escalationRiskLevel,
+      Value<String> contributingFactorsJson,
+      Value<double> recoveryProtection,
+      Value<double> autonomicLoad,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$EscalationForecastsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $EscalationForecastsTableTable> {
+  $$EscalationForecastsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get forecastWindowSeconds => $composableBuilder(
+    column: $table.forecastWindowSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get forecastWindowLabel => $composableBuilder(
+    column: $table.forecastWindowLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get escalationProbability => $composableBuilder(
+    column: $table.escalationProbability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get forecastConfidence => $composableBuilder(
+    column: $table.forecastConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get forecastConfidenceLevel => $composableBuilder(
+    column: $table.forecastConfidenceLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get escalationRiskLevel => $composableBuilder(
+    column: $table.escalationRiskLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contributingFactorsJson => $composableBuilder(
+    column: $table.contributingFactorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryProtection => $composableBuilder(
+    column: $table.recoveryProtection,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$EscalationForecastsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $EscalationForecastsTableTable> {
+  $$EscalationForecastsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get forecastWindowSeconds => $composableBuilder(
+    column: $table.forecastWindowSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get forecastWindowLabel => $composableBuilder(
+    column: $table.forecastWindowLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get escalationProbability => $composableBuilder(
+    column: $table.escalationProbability,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get forecastConfidence => $composableBuilder(
+    column: $table.forecastConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get forecastConfidenceLevel => $composableBuilder(
+    column: $table.forecastConfidenceLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get escalationRiskLevel => $composableBuilder(
+    column: $table.escalationRiskLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contributingFactorsJson => $composableBuilder(
+    column: $table.contributingFactorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryProtection => $composableBuilder(
+    column: $table.recoveryProtection,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$EscalationForecastsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $EscalationForecastsTableTable> {
+  $$EscalationForecastsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get forecastWindowSeconds => $composableBuilder(
+    column: $table.forecastWindowSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get forecastWindowLabel => $composableBuilder(
+    column: $table.forecastWindowLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get escalationProbability => $composableBuilder(
+    column: $table.escalationProbability,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get forecastConfidence => $composableBuilder(
+    column: $table.forecastConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get forecastConfidenceLevel => $composableBuilder(
+    column: $table.forecastConfidenceLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get escalationRiskLevel => $composableBuilder(
+    column: $table.escalationRiskLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contributingFactorsJson => $composableBuilder(
+    column: $table.contributingFactorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryProtection => $composableBuilder(
+    column: $table.recoveryProtection,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get autonomicLoad => $composableBuilder(
+    column: $table.autonomicLoad,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$EscalationForecastsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $EscalationForecastsTableTable,
+          EscalationForecastsTableData,
+          $$EscalationForecastsTableTableFilterComposer,
+          $$EscalationForecastsTableTableOrderingComposer,
+          $$EscalationForecastsTableTableAnnotationComposer,
+          $$EscalationForecastsTableTableCreateCompanionBuilder,
+          $$EscalationForecastsTableTableUpdateCompanionBuilder,
+          (
+            EscalationForecastsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $EscalationForecastsTableTable,
+              EscalationForecastsTableData
+            >,
+          ),
+          EscalationForecastsTableData,
+          PrefetchHooks Function()
+        > {
+  $$EscalationForecastsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $EscalationForecastsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EscalationForecastsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$EscalationForecastsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$EscalationForecastsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<int> forecastWindowSeconds = const Value.absent(),
+                Value<String> forecastWindowLabel = const Value.absent(),
+                Value<double> escalationProbability = const Value.absent(),
+                Value<int> forecastConfidence = const Value.absent(),
+                Value<String> forecastConfidenceLevel = const Value.absent(),
+                Value<String> escalationRiskLevel = const Value.absent(),
+                Value<String> contributingFactorsJson = const Value.absent(),
+                Value<double> recoveryProtection = const Value.absent(),
+                Value<double> autonomicLoad = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => EscalationForecastsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                forecastWindowSeconds: forecastWindowSeconds,
+                forecastWindowLabel: forecastWindowLabel,
+                escalationProbability: escalationProbability,
+                forecastConfidence: forecastConfidence,
+                forecastConfidenceLevel: forecastConfidenceLevel,
+                escalationRiskLevel: escalationRiskLevel,
+                contributingFactorsJson: contributingFactorsJson,
+                recoveryProtection: recoveryProtection,
+                autonomicLoad: autonomicLoad,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required int forecastWindowSeconds,
+                required String forecastWindowLabel,
+                required double escalationProbability,
+                required int forecastConfidence,
+                required String forecastConfidenceLevel,
+                required String escalationRiskLevel,
+                required String contributingFactorsJson,
+                required double recoveryProtection,
+                required double autonomicLoad,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => EscalationForecastsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                forecastWindowSeconds: forecastWindowSeconds,
+                forecastWindowLabel: forecastWindowLabel,
+                escalationProbability: escalationProbability,
+                forecastConfidence: forecastConfidence,
+                forecastConfidenceLevel: forecastConfidenceLevel,
+                escalationRiskLevel: escalationRiskLevel,
+                contributingFactorsJson: contributingFactorsJson,
+                recoveryProtection: recoveryProtection,
+                autonomicLoad: autonomicLoad,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EscalationForecastsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $EscalationForecastsTableTable,
+      EscalationForecastsTableData,
+      $$EscalationForecastsTableTableFilterComposer,
+      $$EscalationForecastsTableTableOrderingComposer,
+      $$EscalationForecastsTableTableAnnotationComposer,
+      $$EscalationForecastsTableTableCreateCompanionBuilder,
+      $$EscalationForecastsTableTableUpdateCompanionBuilder,
+      (
+        EscalationForecastsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $EscalationForecastsTableTable,
+          EscalationForecastsTableData
+        >,
+      ),
+      EscalationForecastsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -10929,5 +12117,10 @@ class $SignalFlowDatabaseManager {
       $$ResearchDashboardSnapshotsTableTableTableManager(
         _db,
         _db.researchDashboardSnapshotsTable,
+      );
+  $$EscalationForecastsTableTableTableManager get escalationForecastsTable =>
+      $$EscalationForecastsTableTableTableManager(
+        _db,
+        _db.escalationForecastsTable,
       );
 }

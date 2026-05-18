@@ -9,6 +9,7 @@ import 'consent_tables.dart';
 import 'crisis_tables.dart';
 import 'intervention_tables.dart';
 import 'physiological_trend_tables.dart';
+import 'predictive_forecast_tables.dart';
 import 'research_dashboard_tables.dart';
 import 'session_timeline_tables.dart';
 
@@ -27,6 +28,7 @@ part 'signalflow_database.g.dart';
     PhysiologicalTrendsTable,
     AutonomicRecoveryProfilesTable,
     ResearchDashboardSnapshotsTable,
+    EscalationForecastsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -40,7 +42,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -64,6 +66,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 6) {
           await migrator.createTable(researchDashboardSnapshotsTable);
         }
+        if (from < 7) {
+          await migrator.createTable(escalationForecastsTable);
+        }
       },
     );
   }
@@ -81,6 +86,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(physiologicalTrendsTable);
       batch.deleteAll(autonomicRecoveryProfilesTable);
       batch.deleteAll(researchDashboardSnapshotsTable);
+      batch.deleteAll(escalationForecastsTable);
     });
   }
 }

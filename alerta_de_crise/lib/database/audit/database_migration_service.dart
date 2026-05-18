@@ -41,6 +41,11 @@ class DatabaseMigrationService {
         toVersion: 6,
         description: 'Research dashboard persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 6,
+        toVersion: 7,
+        description: 'Predictive forecasting persistence.',
+      ),
     ];
   }
 

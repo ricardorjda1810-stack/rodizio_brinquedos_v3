@@ -28,6 +28,7 @@ class DatabaseIntegrityService {
       'physiological_trends_table',
       'autonomic_recovery_profiles_table',
       'research_dashboard_snapshots_table',
+      'escalation_forecasts_table',
     ];
 
     final baselines = await _database
@@ -63,6 +64,9 @@ class DatabaseIntegrityService {
     final dashboardSnapshots = await _database
         .select(_database.researchDashboardSnapshotsTable)
         .get();
+    final forecasts = await _database
+        .select(_database.escalationForecastsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -75,6 +79,7 @@ class DatabaseIntegrityService {
     _auditTrends(trends, issues, warnings);
     _auditRecoveryProfiles(recoveryProfiles, issues, warnings);
     _auditDashboardSnapshots(dashboardSnapshots, issues, warnings);
+    _auditForecasts(forecasts, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -87,7 +92,8 @@ class DatabaseIntegrityService {
         markers.length +
         trends.length +
         recoveryProfiles.length +
-        dashboardSnapshots.length;
+        dashboardSnapshots.length +
+        forecasts.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -302,6 +308,9 @@ class DatabaseIntegrityService {
       'prolongedActivation',
       'autonomicFatigue',
       'resilienceDegradation',
+      'forecastElevatedRisk',
+      'prolongedAutonomicLoad',
+      'recoveryProtectiveEffect',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -463,6 +472,67 @@ class DatabaseIntegrityService {
       if (row.averageHrv != null && row.averageHrv! <= 0) {
         warnings.add(
           'Research dashboard snapshot ${row.id} has non-positive HRV.',
+        );
+      }
+    }
+  }
+
+  void _auditForecasts(
+    List<EscalationForecastsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validRiskLevels = {'low', 'moderate', 'elevated', 'high'};
+    const validConfidenceLevels = {
+      'lowConfidence',
+      'mediumConfidence',
+      'highConfidence',
+    };
+
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Escalation forecast with empty id.');
+      }
+      if (row.forecastWindowSeconds <= 0 ||
+          row.forecastWindowLabel.trim().isEmpty) {
+        issues.add('Escalation forecast ${row.id} has invalid window.');
+      }
+      if (row.escalationProbability < 0 || row.escalationProbability > 100) {
+        issues.add(
+          'Escalation forecast ${row.id} has probability outside 0..100.',
+        );
+      }
+      if (row.forecastConfidence < 0 || row.forecastConfidence > 100) {
+        issues.add(
+          'Escalation forecast ${row.id} has confidence outside 0..100.',
+        );
+      }
+      if (!validConfidenceLevels.contains(row.forecastConfidenceLevel)) {
+        issues.add(
+          'Escalation forecast ${row.id} has invalid confidence level.',
+        );
+      }
+      if (!validRiskLevels.contains(row.escalationRiskLevel)) {
+        issues.add('Escalation forecast ${row.id} has invalid risk level.');
+      }
+      if (!_isValidJsonList(row.contributingFactorsJson)) {
+        issues.add(
+          'Escalation forecast ${row.id} has invalid contributing factors.',
+        );
+      }
+      if (row.recoveryProtection < 0 || row.recoveryProtection > 100) {
+        issues.add(
+          'Escalation forecast ${row.id} has recoveryProtection outside 0..100.',
+        );
+      }
+      if (row.autonomicLoad < 0 || row.autonomicLoad > 100) {
+        issues.add(
+          'Escalation forecast ${row.id} has autonomicLoad outside 0..100.',
+        );
+      }
+      if (!row.safetyCopy.contains('não é diagnóstico')) {
+        warnings.add(
+          'Escalation forecast ${row.id} is missing explicit safety copy.',
         );
       }
     }

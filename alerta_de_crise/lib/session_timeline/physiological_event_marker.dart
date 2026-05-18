@@ -14,6 +14,9 @@ enum EventType {
   prolongedActivation,
   autonomicFatigue,
   resilienceDegradation,
+  forecastElevatedRisk,
+  prolongedAutonomicLoad,
+  recoveryProtectiveEffect,
 }
 
 enum Severity { low, medium, high }
