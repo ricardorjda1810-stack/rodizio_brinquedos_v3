@@ -23,6 +23,10 @@ enum EventType {
   interventionEffective,
   interventionLowEffect,
   contextualRecommendationGenerated,
+  persistentImprovement,
+  persistentDeterioration,
+  autonomicInstabilityPattern,
+  longitudinalRecoveryPattern,
 }
 
 enum Severity { low, medium, high }

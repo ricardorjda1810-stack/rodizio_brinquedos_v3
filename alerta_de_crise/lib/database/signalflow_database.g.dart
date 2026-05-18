@@ -10597,6 +10597,1389 @@ class ContextualInterventionRecommendationsTableCompanion
   }
 }
 
+class $CohortAnalysisResultsTableTable extends CohortAnalysisResultsTable
+    with
+        TableInfo<
+          $CohortAnalysisResultsTableTable,
+          CohortAnalysisResultsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CohortAnalysisResultsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _comparedSessionsMeta = const VerificationMeta(
+    'comparedSessions',
+  );
+  @override
+  late final GeneratedColumn<int> comparedSessions = GeneratedColumn<int>(
+    'compared_sessions',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _averageRecoveryEfficiencyMeta =
+      const VerificationMeta('averageRecoveryEfficiency');
+  @override
+  late final GeneratedColumn<double> averageRecoveryEfficiency =
+      GeneratedColumn<double>(
+        'average_recovery_efficiency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _averageEscalationProbabilityMeta =
+      const VerificationMeta('averageEscalationProbability');
+  @override
+  late final GeneratedColumn<double> averageEscalationProbability =
+      GeneratedColumn<double>(
+        'average_escalation_probability',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _averageResilienceMeta = const VerificationMeta(
+    'averageResilience',
+  );
+  @override
+  late final GeneratedColumn<double> averageResilience =
+      GeneratedColumn<double>(
+        'average_resilience',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _stabilityScoreMeta = const VerificationMeta(
+    'stabilityScore',
+  );
+  @override
+  late final GeneratedColumn<double> stabilityScore = GeneratedColumn<double>(
+    'stability_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _variabilityScoreMeta = const VerificationMeta(
+    'variabilityScore',
+  );
+  @override
+  late final GeneratedColumn<double> variabilityScore = GeneratedColumn<double>(
+    'variability_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contextualConsistencyMeta =
+      const VerificationMeta('contextualConsistency');
+  @override
+  late final GeneratedColumn<double> contextualConsistency =
+      GeneratedColumn<double>(
+        'contextual_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _longitudinalConfidenceMeta =
+      const VerificationMeta('longitudinalConfidence');
+  @override
+  late final GeneratedColumn<double> longitudinalConfidence =
+      GeneratedColumn<double>(
+        'longitudinal_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    comparedSessions,
+    averageRecoveryEfficiency,
+    averageEscalationProbability,
+    averageResilience,
+    stabilityScore,
+    variabilityScore,
+    contextualConsistency,
+    longitudinalConfidence,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cohort_analysis_results_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CohortAnalysisResultsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('compared_sessions')) {
+      context.handle(
+        _comparedSessionsMeta,
+        comparedSessions.isAcceptableOrUnknown(
+          data['compared_sessions']!,
+          _comparedSessionsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_comparedSessionsMeta);
+    }
+    if (data.containsKey('average_recovery_efficiency')) {
+      context.handle(
+        _averageRecoveryEfficiencyMeta,
+        averageRecoveryEfficiency.isAcceptableOrUnknown(
+          data['average_recovery_efficiency']!,
+          _averageRecoveryEfficiencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageRecoveryEfficiencyMeta);
+    }
+    if (data.containsKey('average_escalation_probability')) {
+      context.handle(
+        _averageEscalationProbabilityMeta,
+        averageEscalationProbability.isAcceptableOrUnknown(
+          data['average_escalation_probability']!,
+          _averageEscalationProbabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageEscalationProbabilityMeta);
+    }
+    if (data.containsKey('average_resilience')) {
+      context.handle(
+        _averageResilienceMeta,
+        averageResilience.isAcceptableOrUnknown(
+          data['average_resilience']!,
+          _averageResilienceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_averageResilienceMeta);
+    }
+    if (data.containsKey('stability_score')) {
+      context.handle(
+        _stabilityScoreMeta,
+        stabilityScore.isAcceptableOrUnknown(
+          data['stability_score']!,
+          _stabilityScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_stabilityScoreMeta);
+    }
+    if (data.containsKey('variability_score')) {
+      context.handle(
+        _variabilityScoreMeta,
+        variabilityScore.isAcceptableOrUnknown(
+          data['variability_score']!,
+          _variabilityScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_variabilityScoreMeta);
+    }
+    if (data.containsKey('contextual_consistency')) {
+      context.handle(
+        _contextualConsistencyMeta,
+        contextualConsistency.isAcceptableOrUnknown(
+          data['contextual_consistency']!,
+          _contextualConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contextualConsistencyMeta);
+    }
+    if (data.containsKey('longitudinal_confidence')) {
+      context.handle(
+        _longitudinalConfidenceMeta,
+        longitudinalConfidence.isAcceptableOrUnknown(
+          data['longitudinal_confidence']!,
+          _longitudinalConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_longitudinalConfidenceMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CohortAnalysisResultsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CohortAnalysisResultsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      comparedSessions: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}compared_sessions'],
+      )!,
+      averageRecoveryEfficiency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_recovery_efficiency'],
+      )!,
+      averageEscalationProbability: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_escalation_probability'],
+      )!,
+      averageResilience: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}average_resilience'],
+      )!,
+      stabilityScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}stability_score'],
+      )!,
+      variabilityScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}variability_score'],
+      )!,
+      contextualConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}contextual_consistency'],
+      )!,
+      longitudinalConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}longitudinal_confidence'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $CohortAnalysisResultsTableTable createAlias(String alias) {
+    return $CohortAnalysisResultsTableTable(attachedDatabase, alias);
+  }
+}
+
+class CohortAnalysisResultsTableData extends DataClass
+    implements Insertable<CohortAnalysisResultsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final int comparedSessions;
+  final double averageRecoveryEfficiency;
+  final double averageEscalationProbability;
+  final double averageResilience;
+  final double stabilityScore;
+  final double variabilityScore;
+  final double contextualConsistency;
+  final double longitudinalConfidence;
+  final String safetyCopy;
+  const CohortAnalysisResultsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.comparedSessions,
+    required this.averageRecoveryEfficiency,
+    required this.averageEscalationProbability,
+    required this.averageResilience,
+    required this.stabilityScore,
+    required this.variabilityScore,
+    required this.contextualConsistency,
+    required this.longitudinalConfidence,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['compared_sessions'] = Variable<int>(comparedSessions);
+    map['average_recovery_efficiency'] = Variable<double>(
+      averageRecoveryEfficiency,
+    );
+    map['average_escalation_probability'] = Variable<double>(
+      averageEscalationProbability,
+    );
+    map['average_resilience'] = Variable<double>(averageResilience);
+    map['stability_score'] = Variable<double>(stabilityScore);
+    map['variability_score'] = Variable<double>(variabilityScore);
+    map['contextual_consistency'] = Variable<double>(contextualConsistency);
+    map['longitudinal_confidence'] = Variable<double>(longitudinalConfidence);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  CohortAnalysisResultsTableCompanion toCompanion(bool nullToAbsent) {
+    return CohortAnalysisResultsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      comparedSessions: Value(comparedSessions),
+      averageRecoveryEfficiency: Value(averageRecoveryEfficiency),
+      averageEscalationProbability: Value(averageEscalationProbability),
+      averageResilience: Value(averageResilience),
+      stabilityScore: Value(stabilityScore),
+      variabilityScore: Value(variabilityScore),
+      contextualConsistency: Value(contextualConsistency),
+      longitudinalConfidence: Value(longitudinalConfidence),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory CohortAnalysisResultsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CohortAnalysisResultsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      comparedSessions: serializer.fromJson<int>(json['comparedSessions']),
+      averageRecoveryEfficiency: serializer.fromJson<double>(
+        json['averageRecoveryEfficiency'],
+      ),
+      averageEscalationProbability: serializer.fromJson<double>(
+        json['averageEscalationProbability'],
+      ),
+      averageResilience: serializer.fromJson<double>(json['averageResilience']),
+      stabilityScore: serializer.fromJson<double>(json['stabilityScore']),
+      variabilityScore: serializer.fromJson<double>(json['variabilityScore']),
+      contextualConsistency: serializer.fromJson<double>(
+        json['contextualConsistency'],
+      ),
+      longitudinalConfidence: serializer.fromJson<double>(
+        json['longitudinalConfidence'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'comparedSessions': serializer.toJson<int>(comparedSessions),
+      'averageRecoveryEfficiency': serializer.toJson<double>(
+        averageRecoveryEfficiency,
+      ),
+      'averageEscalationProbability': serializer.toJson<double>(
+        averageEscalationProbability,
+      ),
+      'averageResilience': serializer.toJson<double>(averageResilience),
+      'stabilityScore': serializer.toJson<double>(stabilityScore),
+      'variabilityScore': serializer.toJson<double>(variabilityScore),
+      'contextualConsistency': serializer.toJson<double>(contextualConsistency),
+      'longitudinalConfidence': serializer.toJson<double>(
+        longitudinalConfidence,
+      ),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  CohortAnalysisResultsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    int? comparedSessions,
+    double? averageRecoveryEfficiency,
+    double? averageEscalationProbability,
+    double? averageResilience,
+    double? stabilityScore,
+    double? variabilityScore,
+    double? contextualConsistency,
+    double? longitudinalConfidence,
+    String? safetyCopy,
+  }) => CohortAnalysisResultsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    comparedSessions: comparedSessions ?? this.comparedSessions,
+    averageRecoveryEfficiency:
+        averageRecoveryEfficiency ?? this.averageRecoveryEfficiency,
+    averageEscalationProbability:
+        averageEscalationProbability ?? this.averageEscalationProbability,
+    averageResilience: averageResilience ?? this.averageResilience,
+    stabilityScore: stabilityScore ?? this.stabilityScore,
+    variabilityScore: variabilityScore ?? this.variabilityScore,
+    contextualConsistency: contextualConsistency ?? this.contextualConsistency,
+    longitudinalConfidence:
+        longitudinalConfidence ?? this.longitudinalConfidence,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  CohortAnalysisResultsTableData copyWithCompanion(
+    CohortAnalysisResultsTableCompanion data,
+  ) {
+    return CohortAnalysisResultsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      comparedSessions: data.comparedSessions.present
+          ? data.comparedSessions.value
+          : this.comparedSessions,
+      averageRecoveryEfficiency: data.averageRecoveryEfficiency.present
+          ? data.averageRecoveryEfficiency.value
+          : this.averageRecoveryEfficiency,
+      averageEscalationProbability: data.averageEscalationProbability.present
+          ? data.averageEscalationProbability.value
+          : this.averageEscalationProbability,
+      averageResilience: data.averageResilience.present
+          ? data.averageResilience.value
+          : this.averageResilience,
+      stabilityScore: data.stabilityScore.present
+          ? data.stabilityScore.value
+          : this.stabilityScore,
+      variabilityScore: data.variabilityScore.present
+          ? data.variabilityScore.value
+          : this.variabilityScore,
+      contextualConsistency: data.contextualConsistency.present
+          ? data.contextualConsistency.value
+          : this.contextualConsistency,
+      longitudinalConfidence: data.longitudinalConfidence.present
+          ? data.longitudinalConfidence.value
+          : this.longitudinalConfidence,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CohortAnalysisResultsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('comparedSessions: $comparedSessions, ')
+          ..write('averageRecoveryEfficiency: $averageRecoveryEfficiency, ')
+          ..write(
+            'averageEscalationProbability: $averageEscalationProbability, ',
+          )
+          ..write('averageResilience: $averageResilience, ')
+          ..write('stabilityScore: $stabilityScore, ')
+          ..write('variabilityScore: $variabilityScore, ')
+          ..write('contextualConsistency: $contextualConsistency, ')
+          ..write('longitudinalConfidence: $longitudinalConfidence, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    comparedSessions,
+    averageRecoveryEfficiency,
+    averageEscalationProbability,
+    averageResilience,
+    stabilityScore,
+    variabilityScore,
+    contextualConsistency,
+    longitudinalConfidence,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CohortAnalysisResultsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.comparedSessions == this.comparedSessions &&
+          other.averageRecoveryEfficiency == this.averageRecoveryEfficiency &&
+          other.averageEscalationProbability ==
+              this.averageEscalationProbability &&
+          other.averageResilience == this.averageResilience &&
+          other.stabilityScore == this.stabilityScore &&
+          other.variabilityScore == this.variabilityScore &&
+          other.contextualConsistency == this.contextualConsistency &&
+          other.longitudinalConfidence == this.longitudinalConfidence &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class CohortAnalysisResultsTableCompanion
+    extends UpdateCompanion<CohortAnalysisResultsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<int> comparedSessions;
+  final Value<double> averageRecoveryEfficiency;
+  final Value<double> averageEscalationProbability;
+  final Value<double> averageResilience;
+  final Value<double> stabilityScore;
+  final Value<double> variabilityScore;
+  final Value<double> contextualConsistency;
+  final Value<double> longitudinalConfidence;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const CohortAnalysisResultsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.comparedSessions = const Value.absent(),
+    this.averageRecoveryEfficiency = const Value.absent(),
+    this.averageEscalationProbability = const Value.absent(),
+    this.averageResilience = const Value.absent(),
+    this.stabilityScore = const Value.absent(),
+    this.variabilityScore = const Value.absent(),
+    this.contextualConsistency = const Value.absent(),
+    this.longitudinalConfidence = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CohortAnalysisResultsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required int comparedSessions,
+    required double averageRecoveryEfficiency,
+    required double averageEscalationProbability,
+    required double averageResilience,
+    required double stabilityScore,
+    required double variabilityScore,
+    required double contextualConsistency,
+    required double longitudinalConfidence,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       comparedSessions = Value(comparedSessions),
+       averageRecoveryEfficiency = Value(averageRecoveryEfficiency),
+       averageEscalationProbability = Value(averageEscalationProbability),
+       averageResilience = Value(averageResilience),
+       stabilityScore = Value(stabilityScore),
+       variabilityScore = Value(variabilityScore),
+       contextualConsistency = Value(contextualConsistency),
+       longitudinalConfidence = Value(longitudinalConfidence),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<CohortAnalysisResultsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<int>? comparedSessions,
+    Expression<double>? averageRecoveryEfficiency,
+    Expression<double>? averageEscalationProbability,
+    Expression<double>? averageResilience,
+    Expression<double>? stabilityScore,
+    Expression<double>? variabilityScore,
+    Expression<double>? contextualConsistency,
+    Expression<double>? longitudinalConfidence,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (comparedSessions != null) 'compared_sessions': comparedSessions,
+      if (averageRecoveryEfficiency != null)
+        'average_recovery_efficiency': averageRecoveryEfficiency,
+      if (averageEscalationProbability != null)
+        'average_escalation_probability': averageEscalationProbability,
+      if (averageResilience != null) 'average_resilience': averageResilience,
+      if (stabilityScore != null) 'stability_score': stabilityScore,
+      if (variabilityScore != null) 'variability_score': variabilityScore,
+      if (contextualConsistency != null)
+        'contextual_consistency': contextualConsistency,
+      if (longitudinalConfidence != null)
+        'longitudinal_confidence': longitudinalConfidence,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CohortAnalysisResultsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<int>? comparedSessions,
+    Value<double>? averageRecoveryEfficiency,
+    Value<double>? averageEscalationProbability,
+    Value<double>? averageResilience,
+    Value<double>? stabilityScore,
+    Value<double>? variabilityScore,
+    Value<double>? contextualConsistency,
+    Value<double>? longitudinalConfidence,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return CohortAnalysisResultsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      comparedSessions: comparedSessions ?? this.comparedSessions,
+      averageRecoveryEfficiency:
+          averageRecoveryEfficiency ?? this.averageRecoveryEfficiency,
+      averageEscalationProbability:
+          averageEscalationProbability ?? this.averageEscalationProbability,
+      averageResilience: averageResilience ?? this.averageResilience,
+      stabilityScore: stabilityScore ?? this.stabilityScore,
+      variabilityScore: variabilityScore ?? this.variabilityScore,
+      contextualConsistency:
+          contextualConsistency ?? this.contextualConsistency,
+      longitudinalConfidence:
+          longitudinalConfidence ?? this.longitudinalConfidence,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (comparedSessions.present) {
+      map['compared_sessions'] = Variable<int>(comparedSessions.value);
+    }
+    if (averageRecoveryEfficiency.present) {
+      map['average_recovery_efficiency'] = Variable<double>(
+        averageRecoveryEfficiency.value,
+      );
+    }
+    if (averageEscalationProbability.present) {
+      map['average_escalation_probability'] = Variable<double>(
+        averageEscalationProbability.value,
+      );
+    }
+    if (averageResilience.present) {
+      map['average_resilience'] = Variable<double>(averageResilience.value);
+    }
+    if (stabilityScore.present) {
+      map['stability_score'] = Variable<double>(stabilityScore.value);
+    }
+    if (variabilityScore.present) {
+      map['variability_score'] = Variable<double>(variabilityScore.value);
+    }
+    if (contextualConsistency.present) {
+      map['contextual_consistency'] = Variable<double>(
+        contextualConsistency.value,
+      );
+    }
+    if (longitudinalConfidence.present) {
+      map['longitudinal_confidence'] = Variable<double>(
+        longitudinalConfidence.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CohortAnalysisResultsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('comparedSessions: $comparedSessions, ')
+          ..write('averageRecoveryEfficiency: $averageRecoveryEfficiency, ')
+          ..write(
+            'averageEscalationProbability: $averageEscalationProbability, ',
+          )
+          ..write('averageResilience: $averageResilience, ')
+          ..write('stabilityScore: $stabilityScore, ')
+          ..write('variabilityScore: $variabilityScore, ')
+          ..write('contextualConsistency: $contextualConsistency, ')
+          ..write('longitudinalConfidence: $longitudinalConfidence, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PhysiologicalEvolutionProfilesTableTable
+    extends PhysiologicalEvolutionProfilesTable
+    with
+        TableInfo<
+          $PhysiologicalEvolutionProfilesTableTable,
+          PhysiologicalEvolutionProfilesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PhysiologicalEvolutionProfilesTableTable(
+    this.attachedDatabase, [
+    this._alias,
+  ]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _baselineTrendMeta = const VerificationMeta(
+    'baselineTrend',
+  );
+  @override
+  late final GeneratedColumn<String> baselineTrend = GeneratedColumn<String>(
+    'baseline_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _recoveryTrendMeta = const VerificationMeta(
+    'recoveryTrend',
+  );
+  @override
+  late final GeneratedColumn<String> recoveryTrend = GeneratedColumn<String>(
+    'recovery_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resilienceTrendMeta = const VerificationMeta(
+    'resilienceTrend',
+  );
+  @override
+  late final GeneratedColumn<String> resilienceTrend = GeneratedColumn<String>(
+    'resilience_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _escalationTrendMeta = const VerificationMeta(
+    'escalationTrend',
+  );
+  @override
+  late final GeneratedColumn<String> escalationTrend = GeneratedColumn<String>(
+    'escalation_trend',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _autonomicLoadTrendMeta =
+      const VerificationMeta('autonomicLoadTrend');
+  @override
+  late final GeneratedColumn<String> autonomicLoadTrend =
+      GeneratedColumn<String>(
+        'autonomic_load_trend',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _circadianStabilityTrendMeta =
+      const VerificationMeta('circadianStabilityTrend');
+  @override
+  late final GeneratedColumn<String> circadianStabilityTrend =
+      GeneratedColumn<String>(
+        'circadian_stability_trend',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    baselineTrend,
+    recoveryTrend,
+    resilienceTrend,
+    escalationTrend,
+    autonomicLoadTrend,
+    circadianStabilityTrend,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'physiological_evolution_profiles_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PhysiologicalEvolutionProfilesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('baseline_trend')) {
+      context.handle(
+        _baselineTrendMeta,
+        baselineTrend.isAcceptableOrUnknown(
+          data['baseline_trend']!,
+          _baselineTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_baselineTrendMeta);
+    }
+    if (data.containsKey('recovery_trend')) {
+      context.handle(
+        _recoveryTrendMeta,
+        recoveryTrend.isAcceptableOrUnknown(
+          data['recovery_trend']!,
+          _recoveryTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryTrendMeta);
+    }
+    if (data.containsKey('resilience_trend')) {
+      context.handle(
+        _resilienceTrendMeta,
+        resilienceTrend.isAcceptableOrUnknown(
+          data['resilience_trend']!,
+          _resilienceTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_resilienceTrendMeta);
+    }
+    if (data.containsKey('escalation_trend')) {
+      context.handle(
+        _escalationTrendMeta,
+        escalationTrend.isAcceptableOrUnknown(
+          data['escalation_trend']!,
+          _escalationTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationTrendMeta);
+    }
+    if (data.containsKey('autonomic_load_trend')) {
+      context.handle(
+        _autonomicLoadTrendMeta,
+        autonomicLoadTrend.isAcceptableOrUnknown(
+          data['autonomic_load_trend']!,
+          _autonomicLoadTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_autonomicLoadTrendMeta);
+    }
+    if (data.containsKey('circadian_stability_trend')) {
+      context.handle(
+        _circadianStabilityTrendMeta,
+        circadianStabilityTrend.isAcceptableOrUnknown(
+          data['circadian_stability_trend']!,
+          _circadianStabilityTrendMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_circadianStabilityTrendMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PhysiologicalEvolutionProfilesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PhysiologicalEvolutionProfilesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      baselineTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}baseline_trend'],
+      )!,
+      recoveryTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recovery_trend'],
+      )!,
+      resilienceTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resilience_trend'],
+      )!,
+      escalationTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}escalation_trend'],
+      )!,
+      autonomicLoadTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}autonomic_load_trend'],
+      )!,
+      circadianStabilityTrend: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}circadian_stability_trend'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $PhysiologicalEvolutionProfilesTableTable createAlias(String alias) {
+    return $PhysiologicalEvolutionProfilesTableTable(attachedDatabase, alias);
+  }
+}
+
+class PhysiologicalEvolutionProfilesTableData extends DataClass
+    implements Insertable<PhysiologicalEvolutionProfilesTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final String baselineTrend;
+  final String recoveryTrend;
+  final String resilienceTrend;
+  final String escalationTrend;
+  final String autonomicLoadTrend;
+  final String circadianStabilityTrend;
+  final String safetyCopy;
+  const PhysiologicalEvolutionProfilesTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.baselineTrend,
+    required this.recoveryTrend,
+    required this.resilienceTrend,
+    required this.escalationTrend,
+    required this.autonomicLoadTrend,
+    required this.circadianStabilityTrend,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['baseline_trend'] = Variable<String>(baselineTrend);
+    map['recovery_trend'] = Variable<String>(recoveryTrend);
+    map['resilience_trend'] = Variable<String>(resilienceTrend);
+    map['escalation_trend'] = Variable<String>(escalationTrend);
+    map['autonomic_load_trend'] = Variable<String>(autonomicLoadTrend);
+    map['circadian_stability_trend'] = Variable<String>(
+      circadianStabilityTrend,
+    );
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  PhysiologicalEvolutionProfilesTableCompanion toCompanion(bool nullToAbsent) {
+    return PhysiologicalEvolutionProfilesTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      baselineTrend: Value(baselineTrend),
+      recoveryTrend: Value(recoveryTrend),
+      resilienceTrend: Value(resilienceTrend),
+      escalationTrend: Value(escalationTrend),
+      autonomicLoadTrend: Value(autonomicLoadTrend),
+      circadianStabilityTrend: Value(circadianStabilityTrend),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory PhysiologicalEvolutionProfilesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PhysiologicalEvolutionProfilesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      baselineTrend: serializer.fromJson<String>(json['baselineTrend']),
+      recoveryTrend: serializer.fromJson<String>(json['recoveryTrend']),
+      resilienceTrend: serializer.fromJson<String>(json['resilienceTrend']),
+      escalationTrend: serializer.fromJson<String>(json['escalationTrend']),
+      autonomicLoadTrend: serializer.fromJson<String>(
+        json['autonomicLoadTrend'],
+      ),
+      circadianStabilityTrend: serializer.fromJson<String>(
+        json['circadianStabilityTrend'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'baselineTrend': serializer.toJson<String>(baselineTrend),
+      'recoveryTrend': serializer.toJson<String>(recoveryTrend),
+      'resilienceTrend': serializer.toJson<String>(resilienceTrend),
+      'escalationTrend': serializer.toJson<String>(escalationTrend),
+      'autonomicLoadTrend': serializer.toJson<String>(autonomicLoadTrend),
+      'circadianStabilityTrend': serializer.toJson<String>(
+        circadianStabilityTrend,
+      ),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  PhysiologicalEvolutionProfilesTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    String? baselineTrend,
+    String? recoveryTrend,
+    String? resilienceTrend,
+    String? escalationTrend,
+    String? autonomicLoadTrend,
+    String? circadianStabilityTrend,
+    String? safetyCopy,
+  }) => PhysiologicalEvolutionProfilesTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    baselineTrend: baselineTrend ?? this.baselineTrend,
+    recoveryTrend: recoveryTrend ?? this.recoveryTrend,
+    resilienceTrend: resilienceTrend ?? this.resilienceTrend,
+    escalationTrend: escalationTrend ?? this.escalationTrend,
+    autonomicLoadTrend: autonomicLoadTrend ?? this.autonomicLoadTrend,
+    circadianStabilityTrend:
+        circadianStabilityTrend ?? this.circadianStabilityTrend,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  PhysiologicalEvolutionProfilesTableData copyWithCompanion(
+    PhysiologicalEvolutionProfilesTableCompanion data,
+  ) {
+    return PhysiologicalEvolutionProfilesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      baselineTrend: data.baselineTrend.present
+          ? data.baselineTrend.value
+          : this.baselineTrend,
+      recoveryTrend: data.recoveryTrend.present
+          ? data.recoveryTrend.value
+          : this.recoveryTrend,
+      resilienceTrend: data.resilienceTrend.present
+          ? data.resilienceTrend.value
+          : this.resilienceTrend,
+      escalationTrend: data.escalationTrend.present
+          ? data.escalationTrend.value
+          : this.escalationTrend,
+      autonomicLoadTrend: data.autonomicLoadTrend.present
+          ? data.autonomicLoadTrend.value
+          : this.autonomicLoadTrend,
+      circadianStabilityTrend: data.circadianStabilityTrend.present
+          ? data.circadianStabilityTrend.value
+          : this.circadianStabilityTrend,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalEvolutionProfilesTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('baselineTrend: $baselineTrend, ')
+          ..write('recoveryTrend: $recoveryTrend, ')
+          ..write('resilienceTrend: $resilienceTrend, ')
+          ..write('escalationTrend: $escalationTrend, ')
+          ..write('autonomicLoadTrend: $autonomicLoadTrend, ')
+          ..write('circadianStabilityTrend: $circadianStabilityTrend, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    baselineTrend,
+    recoveryTrend,
+    resilienceTrend,
+    escalationTrend,
+    autonomicLoadTrend,
+    circadianStabilityTrend,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PhysiologicalEvolutionProfilesTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.baselineTrend == this.baselineTrend &&
+          other.recoveryTrend == this.recoveryTrend &&
+          other.resilienceTrend == this.resilienceTrend &&
+          other.escalationTrend == this.escalationTrend &&
+          other.autonomicLoadTrend == this.autonomicLoadTrend &&
+          other.circadianStabilityTrend == this.circadianStabilityTrend &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class PhysiologicalEvolutionProfilesTableCompanion
+    extends UpdateCompanion<PhysiologicalEvolutionProfilesTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<String> baselineTrend;
+  final Value<String> recoveryTrend;
+  final Value<String> resilienceTrend;
+  final Value<String> escalationTrend;
+  final Value<String> autonomicLoadTrend;
+  final Value<String> circadianStabilityTrend;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const PhysiologicalEvolutionProfilesTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.baselineTrend = const Value.absent(),
+    this.recoveryTrend = const Value.absent(),
+    this.resilienceTrend = const Value.absent(),
+    this.escalationTrend = const Value.absent(),
+    this.autonomicLoadTrend = const Value.absent(),
+    this.circadianStabilityTrend = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PhysiologicalEvolutionProfilesTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required String baselineTrend,
+    required String recoveryTrend,
+    required String resilienceTrend,
+    required String escalationTrend,
+    required String autonomicLoadTrend,
+    required String circadianStabilityTrend,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       baselineTrend = Value(baselineTrend),
+       recoveryTrend = Value(recoveryTrend),
+       resilienceTrend = Value(resilienceTrend),
+       escalationTrend = Value(escalationTrend),
+       autonomicLoadTrend = Value(autonomicLoadTrend),
+       circadianStabilityTrend = Value(circadianStabilityTrend),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<PhysiologicalEvolutionProfilesTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<String>? baselineTrend,
+    Expression<String>? recoveryTrend,
+    Expression<String>? resilienceTrend,
+    Expression<String>? escalationTrend,
+    Expression<String>? autonomicLoadTrend,
+    Expression<String>? circadianStabilityTrend,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (baselineTrend != null) 'baseline_trend': baselineTrend,
+      if (recoveryTrend != null) 'recovery_trend': recoveryTrend,
+      if (resilienceTrend != null) 'resilience_trend': resilienceTrend,
+      if (escalationTrend != null) 'escalation_trend': escalationTrend,
+      if (autonomicLoadTrend != null)
+        'autonomic_load_trend': autonomicLoadTrend,
+      if (circadianStabilityTrend != null)
+        'circadian_stability_trend': circadianStabilityTrend,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PhysiologicalEvolutionProfilesTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<String>? baselineTrend,
+    Value<String>? recoveryTrend,
+    Value<String>? resilienceTrend,
+    Value<String>? escalationTrend,
+    Value<String>? autonomicLoadTrend,
+    Value<String>? circadianStabilityTrend,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return PhysiologicalEvolutionProfilesTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      baselineTrend: baselineTrend ?? this.baselineTrend,
+      recoveryTrend: recoveryTrend ?? this.recoveryTrend,
+      resilienceTrend: resilienceTrend ?? this.resilienceTrend,
+      escalationTrend: escalationTrend ?? this.escalationTrend,
+      autonomicLoadTrend: autonomicLoadTrend ?? this.autonomicLoadTrend,
+      circadianStabilityTrend:
+          circadianStabilityTrend ?? this.circadianStabilityTrend,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (baselineTrend.present) {
+      map['baseline_trend'] = Variable<String>(baselineTrend.value);
+    }
+    if (recoveryTrend.present) {
+      map['recovery_trend'] = Variable<String>(recoveryTrend.value);
+    }
+    if (resilienceTrend.present) {
+      map['resilience_trend'] = Variable<String>(resilienceTrend.value);
+    }
+    if (escalationTrend.present) {
+      map['escalation_trend'] = Variable<String>(escalationTrend.value);
+    }
+    if (autonomicLoadTrend.present) {
+      map['autonomic_load_trend'] = Variable<String>(autonomicLoadTrend.value);
+    }
+    if (circadianStabilityTrend.present) {
+      map['circadian_stability_trend'] = Variable<String>(
+        circadianStabilityTrend.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PhysiologicalEvolutionProfilesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('baselineTrend: $baselineTrend, ')
+          ..write('recoveryTrend: $recoveryTrend, ')
+          ..write('resilienceTrend: $resilienceTrend, ')
+          ..write('escalationTrend: $escalationTrend, ')
+          ..write('autonomicLoadTrend: $autonomicLoadTrend, ')
+          ..write('circadianStabilityTrend: $circadianStabilityTrend, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -10637,6 +12020,11 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   late final $ContextualInterventionRecommendationsTableTable
   contextualInterventionRecommendationsTable =
       $ContextualInterventionRecommendationsTableTable(this);
+  late final $CohortAnalysisResultsTableTable cohortAnalysisResultsTable =
+      $CohortAnalysisResultsTableTable(this);
+  late final $PhysiologicalEvolutionProfilesTableTable
+  physiologicalEvolutionProfilesTable =
+      $PhysiologicalEvolutionProfilesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10658,6 +12046,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     contextualTriggerCorrelationsTable,
     interventionLearningProfilesTable,
     contextualInterventionRecommendationsTable,
+    cohortAnalysisResultsTable,
+    physiologicalEvolutionProfilesTable,
   ];
 }
 
@@ -15926,6 +17316,685 @@ typedef $$ContextualInterventionRecommendationsTableTableProcessedTableManager =
       ContextualInterventionRecommendationsTableData,
       PrefetchHooks Function()
     >;
+typedef $$CohortAnalysisResultsTableTableCreateCompanionBuilder =
+    CohortAnalysisResultsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required int comparedSessions,
+      required double averageRecoveryEfficiency,
+      required double averageEscalationProbability,
+      required double averageResilience,
+      required double stabilityScore,
+      required double variabilityScore,
+      required double contextualConsistency,
+      required double longitudinalConfidence,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$CohortAnalysisResultsTableTableUpdateCompanionBuilder =
+    CohortAnalysisResultsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<int> comparedSessions,
+      Value<double> averageRecoveryEfficiency,
+      Value<double> averageEscalationProbability,
+      Value<double> averageResilience,
+      Value<double> stabilityScore,
+      Value<double> variabilityScore,
+      Value<double> contextualConsistency,
+      Value<double> longitudinalConfidence,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$CohortAnalysisResultsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $CohortAnalysisResultsTableTable> {
+  $$CohortAnalysisResultsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get comparedSessions => $composableBuilder(
+    column: $table.comparedSessions,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageRecoveryEfficiency => $composableBuilder(
+    column: $table.averageRecoveryEfficiency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageEscalationProbability => $composableBuilder(
+    column: $table.averageEscalationProbability,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get averageResilience => $composableBuilder(
+    column: $table.averageResilience,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get stabilityScore => $composableBuilder(
+    column: $table.stabilityScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get variabilityScore => $composableBuilder(
+    column: $table.variabilityScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get contextualConsistency => $composableBuilder(
+    column: $table.contextualConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get longitudinalConfidence => $composableBuilder(
+    column: $table.longitudinalConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CohortAnalysisResultsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $CohortAnalysisResultsTableTable> {
+  $$CohortAnalysisResultsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get comparedSessions => $composableBuilder(
+    column: $table.comparedSessions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageRecoveryEfficiency => $composableBuilder(
+    column: $table.averageRecoveryEfficiency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get averageEscalationProbability =>
+      $composableBuilder(
+        column: $table.averageEscalationProbability,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<double> get averageResilience => $composableBuilder(
+    column: $table.averageResilience,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get stabilityScore => $composableBuilder(
+    column: $table.stabilityScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get variabilityScore => $composableBuilder(
+    column: $table.variabilityScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get contextualConsistency => $composableBuilder(
+    column: $table.contextualConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get longitudinalConfidence => $composableBuilder(
+    column: $table.longitudinalConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CohortAnalysisResultsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $CohortAnalysisResultsTableTable> {
+  $$CohortAnalysisResultsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get comparedSessions => $composableBuilder(
+    column: $table.comparedSessions,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageRecoveryEfficiency => $composableBuilder(
+    column: $table.averageRecoveryEfficiency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get averageEscalationProbability =>
+      $composableBuilder(
+        column: $table.averageEscalationProbability,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<double> get averageResilience => $composableBuilder(
+    column: $table.averageResilience,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get stabilityScore => $composableBuilder(
+    column: $table.stabilityScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get variabilityScore => $composableBuilder(
+    column: $table.variabilityScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get contextualConsistency => $composableBuilder(
+    column: $table.contextualConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get longitudinalConfidence => $composableBuilder(
+    column: $table.longitudinalConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$CohortAnalysisResultsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $CohortAnalysisResultsTableTable,
+          CohortAnalysisResultsTableData,
+          $$CohortAnalysisResultsTableTableFilterComposer,
+          $$CohortAnalysisResultsTableTableOrderingComposer,
+          $$CohortAnalysisResultsTableTableAnnotationComposer,
+          $$CohortAnalysisResultsTableTableCreateCompanionBuilder,
+          $$CohortAnalysisResultsTableTableUpdateCompanionBuilder,
+          (
+            CohortAnalysisResultsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $CohortAnalysisResultsTableTable,
+              CohortAnalysisResultsTableData
+            >,
+          ),
+          CohortAnalysisResultsTableData,
+          PrefetchHooks Function()
+        > {
+  $$CohortAnalysisResultsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $CohortAnalysisResultsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CohortAnalysisResultsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CohortAnalysisResultsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CohortAnalysisResultsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<int> comparedSessions = const Value.absent(),
+                Value<double> averageRecoveryEfficiency = const Value.absent(),
+                Value<double> averageEscalationProbability =
+                    const Value.absent(),
+                Value<double> averageResilience = const Value.absent(),
+                Value<double> stabilityScore = const Value.absent(),
+                Value<double> variabilityScore = const Value.absent(),
+                Value<double> contextualConsistency = const Value.absent(),
+                Value<double> longitudinalConfidence = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CohortAnalysisResultsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                comparedSessions: comparedSessions,
+                averageRecoveryEfficiency: averageRecoveryEfficiency,
+                averageEscalationProbability: averageEscalationProbability,
+                averageResilience: averageResilience,
+                stabilityScore: stabilityScore,
+                variabilityScore: variabilityScore,
+                contextualConsistency: contextualConsistency,
+                longitudinalConfidence: longitudinalConfidence,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required int comparedSessions,
+                required double averageRecoveryEfficiency,
+                required double averageEscalationProbability,
+                required double averageResilience,
+                required double stabilityScore,
+                required double variabilityScore,
+                required double contextualConsistency,
+                required double longitudinalConfidence,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => CohortAnalysisResultsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                comparedSessions: comparedSessions,
+                averageRecoveryEfficiency: averageRecoveryEfficiency,
+                averageEscalationProbability: averageEscalationProbability,
+                averageResilience: averageResilience,
+                stabilityScore: stabilityScore,
+                variabilityScore: variabilityScore,
+                contextualConsistency: contextualConsistency,
+                longitudinalConfidence: longitudinalConfidence,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CohortAnalysisResultsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $CohortAnalysisResultsTableTable,
+      CohortAnalysisResultsTableData,
+      $$CohortAnalysisResultsTableTableFilterComposer,
+      $$CohortAnalysisResultsTableTableOrderingComposer,
+      $$CohortAnalysisResultsTableTableAnnotationComposer,
+      $$CohortAnalysisResultsTableTableCreateCompanionBuilder,
+      $$CohortAnalysisResultsTableTableUpdateCompanionBuilder,
+      (
+        CohortAnalysisResultsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $CohortAnalysisResultsTableTable,
+          CohortAnalysisResultsTableData
+        >,
+      ),
+      CohortAnalysisResultsTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$PhysiologicalEvolutionProfilesTableTableCreateCompanionBuilder =
+    PhysiologicalEvolutionProfilesTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required String baselineTrend,
+      required String recoveryTrend,
+      required String resilienceTrend,
+      required String escalationTrend,
+      required String autonomicLoadTrend,
+      required String circadianStabilityTrend,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$PhysiologicalEvolutionProfilesTableTableUpdateCompanionBuilder =
+    PhysiologicalEvolutionProfilesTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<String> baselineTrend,
+      Value<String> recoveryTrend,
+      Value<String> resilienceTrend,
+      Value<String> escalationTrend,
+      Value<String> autonomicLoadTrend,
+      Value<String> circadianStabilityTrend,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$PhysiologicalEvolutionProfilesTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $PhysiologicalEvolutionProfilesTableTable
+        > {
+  $$PhysiologicalEvolutionProfilesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get baselineTrend => $composableBuilder(
+    column: $table.baselineTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resilienceTrend => $composableBuilder(
+    column: $table.resilienceTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get escalationTrend => $composableBuilder(
+    column: $table.escalationTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get autonomicLoadTrend => $composableBuilder(
+    column: $table.autonomicLoadTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get circadianStabilityTrend => $composableBuilder(
+    column: $table.circadianStabilityTrend,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PhysiologicalEvolutionProfilesTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $PhysiologicalEvolutionProfilesTableTable
+        > {
+  $$PhysiologicalEvolutionProfilesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get baselineTrend => $composableBuilder(
+    column: $table.baselineTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resilienceTrend => $composableBuilder(
+    column: $table.resilienceTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get escalationTrend => $composableBuilder(
+    column: $table.escalationTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get autonomicLoadTrend => $composableBuilder(
+    column: $table.autonomicLoadTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get circadianStabilityTrend => $composableBuilder(
+    column: $table.circadianStabilityTrend,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PhysiologicalEvolutionProfilesTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $PhysiologicalEvolutionProfilesTableTable
+        > {
+  $$PhysiologicalEvolutionProfilesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get baselineTrend => $composableBuilder(
+    column: $table.baselineTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get recoveryTrend => $composableBuilder(
+    column: $table.recoveryTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get resilienceTrend => $composableBuilder(
+    column: $table.resilienceTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get escalationTrend => $composableBuilder(
+    column: $table.escalationTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get autonomicLoadTrend => $composableBuilder(
+    column: $table.autonomicLoadTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get circadianStabilityTrend => $composableBuilder(
+    column: $table.circadianStabilityTrend,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$PhysiologicalEvolutionProfilesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $PhysiologicalEvolutionProfilesTableTable,
+          PhysiologicalEvolutionProfilesTableData,
+          $$PhysiologicalEvolutionProfilesTableTableFilterComposer,
+          $$PhysiologicalEvolutionProfilesTableTableOrderingComposer,
+          $$PhysiologicalEvolutionProfilesTableTableAnnotationComposer,
+          $$PhysiologicalEvolutionProfilesTableTableCreateCompanionBuilder,
+          $$PhysiologicalEvolutionProfilesTableTableUpdateCompanionBuilder,
+          (
+            PhysiologicalEvolutionProfilesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $PhysiologicalEvolutionProfilesTableTable,
+              PhysiologicalEvolutionProfilesTableData
+            >,
+          ),
+          PhysiologicalEvolutionProfilesTableData,
+          PrefetchHooks Function()
+        > {
+  $$PhysiologicalEvolutionProfilesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $PhysiologicalEvolutionProfilesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PhysiologicalEvolutionProfilesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$PhysiologicalEvolutionProfilesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$PhysiologicalEvolutionProfilesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<String> baselineTrend = const Value.absent(),
+                Value<String> recoveryTrend = const Value.absent(),
+                Value<String> resilienceTrend = const Value.absent(),
+                Value<String> escalationTrend = const Value.absent(),
+                Value<String> autonomicLoadTrend = const Value.absent(),
+                Value<String> circadianStabilityTrend = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalEvolutionProfilesTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                baselineTrend: baselineTrend,
+                recoveryTrend: recoveryTrend,
+                resilienceTrend: resilienceTrend,
+                escalationTrend: escalationTrend,
+                autonomicLoadTrend: autonomicLoadTrend,
+                circadianStabilityTrend: circadianStabilityTrend,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required String baselineTrend,
+                required String recoveryTrend,
+                required String resilienceTrend,
+                required String escalationTrend,
+                required String autonomicLoadTrend,
+                required String circadianStabilityTrend,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => PhysiologicalEvolutionProfilesTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                baselineTrend: baselineTrend,
+                recoveryTrend: recoveryTrend,
+                resilienceTrend: resilienceTrend,
+                escalationTrend: escalationTrend,
+                autonomicLoadTrend: autonomicLoadTrend,
+                circadianStabilityTrend: circadianStabilityTrend,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PhysiologicalEvolutionProfilesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $PhysiologicalEvolutionProfilesTableTable,
+      PhysiologicalEvolutionProfilesTableData,
+      $$PhysiologicalEvolutionProfilesTableTableFilterComposer,
+      $$PhysiologicalEvolutionProfilesTableTableOrderingComposer,
+      $$PhysiologicalEvolutionProfilesTableTableAnnotationComposer,
+      $$PhysiologicalEvolutionProfilesTableTableCreateCompanionBuilder,
+      $$PhysiologicalEvolutionProfilesTableTableUpdateCompanionBuilder,
+      (
+        PhysiologicalEvolutionProfilesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $PhysiologicalEvolutionProfilesTableTable,
+          PhysiologicalEvolutionProfilesTableData
+        >,
+      ),
+      PhysiologicalEvolutionProfilesTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -16001,5 +18070,17 @@ class $SignalFlowDatabaseManager {
       $$ContextualInterventionRecommendationsTableTableTableManager(
         _db,
         _db.contextualInterventionRecommendationsTable,
+      );
+  $$CohortAnalysisResultsTableTableTableManager
+  get cohortAnalysisResultsTable =>
+      $$CohortAnalysisResultsTableTableTableManager(
+        _db,
+        _db.cohortAnalysisResultsTable,
+      );
+  $$PhysiologicalEvolutionProfilesTableTableTableManager
+  get physiologicalEvolutionProfilesTable =>
+      $$PhysiologicalEvolutionProfilesTableTableTableManager(
+        _db,
+        _db.physiologicalEvolutionProfilesTable,
       );
 }

@@ -33,6 +33,8 @@ class DatabaseIntegrityService {
       'contextual_trigger_correlations_table',
       'intervention_learning_profiles_table',
       'contextual_intervention_recommendations_table',
+      'cohort_analysis_results_table',
+      'physiological_evolution_profiles_table',
     ];
 
     final baselines = await _database
@@ -83,6 +85,12 @@ class DatabaseIntegrityService {
     final interventionRecommendations = await _database
         .select(_database.contextualInterventionRecommendationsTable)
         .get();
+    final cohortAnalyses = await _database
+        .select(_database.cohortAnalysisResultsTable)
+        .get();
+    final evolutionProfiles = await _database
+        .select(_database.physiologicalEvolutionProfilesTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -104,6 +112,8 @@ class DatabaseIntegrityService {
       issues,
       warnings,
     );
+    _auditCohortAnalyses(cohortAnalyses, issues, warnings);
+    _auditEvolutionProfiles(evolutionProfiles, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -121,7 +131,9 @@ class DatabaseIntegrityService {
         contextualEvents.length +
         contextualCorrelations.length +
         learningProfiles.length +
-        interventionRecommendations.length;
+        interventionRecommendations.length +
+        cohortAnalyses.length +
+        evolutionProfiles.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -345,6 +357,10 @@ class DatabaseIntegrityService {
       'interventionEffective',
       'interventionLowEffect',
       'contextualRecommendationGenerated',
+      'persistentImprovement',
+      'persistentDeterioration',
+      'autonomicInstabilityPattern',
+      'longitudinalRecoveryPattern',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -769,6 +785,64 @@ class DatabaseIntegrityService {
     }
   }
 
+  void _auditCohortAnalyses(
+    List<CohortAnalysisResultsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Cohort analysis with empty id.');
+      }
+      if (row.comparedSessions < 0) {
+        issues.add('Cohort analysis ${row.id} has negative sessions.');
+      }
+      if (!_isPercent(row.averageRecoveryEfficiency) ||
+          !_isPercent(row.averageEscalationProbability) ||
+          !_isPercent(row.averageResilience) ||
+          !_isPercent(row.stabilityScore) ||
+          !_isPercent(row.variabilityScore) ||
+          !_isPercent(row.contextualConsistency) ||
+          !_isPercent(row.longitudinalConfidence)) {
+        issues.add('Cohort analysis ${row.id} has metric outside 0..100.');
+      }
+      if (!row.safetyCopy.contains('não representam diagnóstico')) {
+        warnings.add(
+          'Cohort analysis ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditEvolutionProfiles(
+    List<PhysiologicalEvolutionProfilesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validTrends = {'improving', 'worsening', 'stable', 'mixed'};
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Evolution profile with empty id.');
+      }
+      final trends = [
+        row.baselineTrend,
+        row.recoveryTrend,
+        row.resilienceTrend,
+        row.escalationTrend,
+        row.autonomicLoadTrend,
+        row.circadianStabilityTrend,
+      ];
+      if (trends.any((trend) => !validTrends.contains(trend))) {
+        issues.add('Evolution profile ${row.id} has invalid trend value.');
+      }
+      if (!row.safetyCopy.contains('não representa diagnóstico')) {
+        warnings.add(
+          'Evolution profile ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
   bool _isValidJsonList(String value) {
     try {
       return jsonDecode(value) is List;
@@ -787,6 +861,10 @@ class DatabaseIntegrityService {
 
   bool _isScoreOrNull(int? value) {
     return value == null || (value >= 0 && value <= 100);
+  }
+
+  bool _isPercent(double value) {
+    return value >= 0 && value <= 100;
   }
 
   int _healthScore({

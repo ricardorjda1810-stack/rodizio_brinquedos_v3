@@ -9,6 +9,7 @@ import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
+import '../ui/crisis_detection/longitudinal_analysis_debug_page.dart';
 import '../ui/crisis_detection/personalized_intervention_debug_page.dart';
 import '../ui/crisis_detection/polar_h10_debug_page.dart';
 import '../ui/crisis_detection/physiological_trend_debug_page.dart';
@@ -78,6 +79,11 @@ class SignalFlowDebugHubSections {
             description:
                 'Adaptação experimental baseada em intervenções observadas.',
             builder: (_) => const PersonalizedInterventionDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Longitudinal Analysis',
+            description: 'Tendência longitudinal e padrões ao longo do tempo.',
+            builder: (_) => const LongitudinalAnalysisDebugPage(),
           ),
         ],
       ),
