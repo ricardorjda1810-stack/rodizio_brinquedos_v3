@@ -15525,6 +15525,780 @@ class SubjectiveFeedbackEntriesTableCompanion
   }
 }
 
+class $IntegratedConsensusSnapshotsTableTable
+    extends IntegratedConsensusSnapshotsTable
+    with
+        TableInfo<
+          $IntegratedConsensusSnapshotsTableTable,
+          IntegratedConsensusSnapshotsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $IntegratedConsensusSnapshotsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _generatedAtMeta = const VerificationMeta(
+    'generatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> generatedAt = GeneratedColumn<DateTime>(
+    'generated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _integratedStressLoadMeta =
+      const VerificationMeta('integratedStressLoad');
+  @override
+  late final GeneratedColumn<double> integratedStressLoad =
+      GeneratedColumn<double>(
+        'integrated_stress_load',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _integratedRecoveryStateMeta =
+      const VerificationMeta('integratedRecoveryState');
+  @override
+  late final GeneratedColumn<double> integratedRecoveryState =
+      GeneratedColumn<double>(
+        'integrated_recovery_state',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _integratedResilienceMeta =
+      const VerificationMeta('integratedResilience');
+  @override
+  late final GeneratedColumn<double> integratedResilience =
+      GeneratedColumn<double>(
+        'integrated_resilience',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _multimodalConfidenceMeta =
+      const VerificationMeta('multimodalConfidence');
+  @override
+  late final GeneratedColumn<double> multimodalConfidence =
+      GeneratedColumn<double>(
+        'multimodal_confidence',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _multimodalConfidenceLevelMeta =
+      const VerificationMeta('multimodalConfidenceLevel');
+  @override
+  late final GeneratedColumn<String> multimodalConfidenceLevel =
+      GeneratedColumn<String>(
+        'multimodal_confidence_level',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _signalAgreementMeta = const VerificationMeta(
+    'signalAgreement',
+  );
+  @override
+  late final GeneratedColumn<double> signalAgreement = GeneratedColumn<double>(
+    'signal_agreement',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contributingSignalsJsonMeta =
+      const VerificationMeta('contributingSignalsJson');
+  @override
+  late final GeneratedColumn<String> contributingSignalsJson =
+      GeneratedColumn<String>(
+        'contributing_signals_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _disagreementFactorsJsonMeta =
+      const VerificationMeta('disagreementFactorsJson');
+  @override
+  late final GeneratedColumn<String> disagreementFactorsJson =
+      GeneratedColumn<String>(
+        'disagreement_factors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    generatedAt,
+    integratedStressLoad,
+    integratedRecoveryState,
+    integratedResilience,
+    multimodalConfidence,
+    multimodalConfidenceLevel,
+    signalAgreement,
+    contributingSignalsJson,
+    disagreementFactorsJson,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'integrated_consensus_snapshots_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<IntegratedConsensusSnapshotsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('generated_at')) {
+      context.handle(
+        _generatedAtMeta,
+        generatedAt.isAcceptableOrUnknown(
+          data['generated_at']!,
+          _generatedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_generatedAtMeta);
+    }
+    if (data.containsKey('integrated_stress_load')) {
+      context.handle(
+        _integratedStressLoadMeta,
+        integratedStressLoad.isAcceptableOrUnknown(
+          data['integrated_stress_load']!,
+          _integratedStressLoadMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_integratedStressLoadMeta);
+    }
+    if (data.containsKey('integrated_recovery_state')) {
+      context.handle(
+        _integratedRecoveryStateMeta,
+        integratedRecoveryState.isAcceptableOrUnknown(
+          data['integrated_recovery_state']!,
+          _integratedRecoveryStateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_integratedRecoveryStateMeta);
+    }
+    if (data.containsKey('integrated_resilience')) {
+      context.handle(
+        _integratedResilienceMeta,
+        integratedResilience.isAcceptableOrUnknown(
+          data['integrated_resilience']!,
+          _integratedResilienceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_integratedResilienceMeta);
+    }
+    if (data.containsKey('multimodal_confidence')) {
+      context.handle(
+        _multimodalConfidenceMeta,
+        multimodalConfidence.isAcceptableOrUnknown(
+          data['multimodal_confidence']!,
+          _multimodalConfidenceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalConfidenceMeta);
+    }
+    if (data.containsKey('multimodal_confidence_level')) {
+      context.handle(
+        _multimodalConfidenceLevelMeta,
+        multimodalConfidenceLevel.isAcceptableOrUnknown(
+          data['multimodal_confidence_level']!,
+          _multimodalConfidenceLevelMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalConfidenceLevelMeta);
+    }
+    if (data.containsKey('signal_agreement')) {
+      context.handle(
+        _signalAgreementMeta,
+        signalAgreement.isAcceptableOrUnknown(
+          data['signal_agreement']!,
+          _signalAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_signalAgreementMeta);
+    }
+    if (data.containsKey('contributing_signals_json')) {
+      context.handle(
+        _contributingSignalsJsonMeta,
+        contributingSignalsJson.isAcceptableOrUnknown(
+          data['contributing_signals_json']!,
+          _contributingSignalsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contributingSignalsJsonMeta);
+    }
+    if (data.containsKey('disagreement_factors_json')) {
+      context.handle(
+        _disagreementFactorsJsonMeta,
+        disagreementFactorsJson.isAcceptableOrUnknown(
+          data['disagreement_factors_json']!,
+          _disagreementFactorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_disagreementFactorsJsonMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  IntegratedConsensusSnapshotsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return IntegratedConsensusSnapshotsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      generatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}generated_at'],
+      )!,
+      integratedStressLoad: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}integrated_stress_load'],
+      )!,
+      integratedRecoveryState: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}integrated_recovery_state'],
+      )!,
+      integratedResilience: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}integrated_resilience'],
+      )!,
+      multimodalConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}multimodal_confidence'],
+      )!,
+      multimodalConfidenceLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}multimodal_confidence_level'],
+      )!,
+      signalAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}signal_agreement'],
+      )!,
+      contributingSignalsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}contributing_signals_json'],
+      )!,
+      disagreementFactorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}disagreement_factors_json'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $IntegratedConsensusSnapshotsTableTable createAlias(String alias) {
+    return $IntegratedConsensusSnapshotsTableTable(attachedDatabase, alias);
+  }
+}
+
+class IntegratedConsensusSnapshotsTableData extends DataClass
+    implements Insertable<IntegratedConsensusSnapshotsTableData> {
+  final String id;
+  final DateTime generatedAt;
+  final double integratedStressLoad;
+  final double integratedRecoveryState;
+  final double integratedResilience;
+  final double multimodalConfidence;
+  final String multimodalConfidenceLevel;
+  final double signalAgreement;
+  final String contributingSignalsJson;
+  final String disagreementFactorsJson;
+  final String safetyCopy;
+  const IntegratedConsensusSnapshotsTableData({
+    required this.id,
+    required this.generatedAt,
+    required this.integratedStressLoad,
+    required this.integratedRecoveryState,
+    required this.integratedResilience,
+    required this.multimodalConfidence,
+    required this.multimodalConfidenceLevel,
+    required this.signalAgreement,
+    required this.contributingSignalsJson,
+    required this.disagreementFactorsJson,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['generated_at'] = Variable<DateTime>(generatedAt);
+    map['integrated_stress_load'] = Variable<double>(integratedStressLoad);
+    map['integrated_recovery_state'] = Variable<double>(
+      integratedRecoveryState,
+    );
+    map['integrated_resilience'] = Variable<double>(integratedResilience);
+    map['multimodal_confidence'] = Variable<double>(multimodalConfidence);
+    map['multimodal_confidence_level'] = Variable<String>(
+      multimodalConfidenceLevel,
+    );
+    map['signal_agreement'] = Variable<double>(signalAgreement);
+    map['contributing_signals_json'] = Variable<String>(
+      contributingSignalsJson,
+    );
+    map['disagreement_factors_json'] = Variable<String>(
+      disagreementFactorsJson,
+    );
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  IntegratedConsensusSnapshotsTableCompanion toCompanion(bool nullToAbsent) {
+    return IntegratedConsensusSnapshotsTableCompanion(
+      id: Value(id),
+      generatedAt: Value(generatedAt),
+      integratedStressLoad: Value(integratedStressLoad),
+      integratedRecoveryState: Value(integratedRecoveryState),
+      integratedResilience: Value(integratedResilience),
+      multimodalConfidence: Value(multimodalConfidence),
+      multimodalConfidenceLevel: Value(multimodalConfidenceLevel),
+      signalAgreement: Value(signalAgreement),
+      contributingSignalsJson: Value(contributingSignalsJson),
+      disagreementFactorsJson: Value(disagreementFactorsJson),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory IntegratedConsensusSnapshotsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return IntegratedConsensusSnapshotsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      generatedAt: serializer.fromJson<DateTime>(json['generatedAt']),
+      integratedStressLoad: serializer.fromJson<double>(
+        json['integratedStressLoad'],
+      ),
+      integratedRecoveryState: serializer.fromJson<double>(
+        json['integratedRecoveryState'],
+      ),
+      integratedResilience: serializer.fromJson<double>(
+        json['integratedResilience'],
+      ),
+      multimodalConfidence: serializer.fromJson<double>(
+        json['multimodalConfidence'],
+      ),
+      multimodalConfidenceLevel: serializer.fromJson<String>(
+        json['multimodalConfidenceLevel'],
+      ),
+      signalAgreement: serializer.fromJson<double>(json['signalAgreement']),
+      contributingSignalsJson: serializer.fromJson<String>(
+        json['contributingSignalsJson'],
+      ),
+      disagreementFactorsJson: serializer.fromJson<String>(
+        json['disagreementFactorsJson'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'generatedAt': serializer.toJson<DateTime>(generatedAt),
+      'integratedStressLoad': serializer.toJson<double>(integratedStressLoad),
+      'integratedRecoveryState': serializer.toJson<double>(
+        integratedRecoveryState,
+      ),
+      'integratedResilience': serializer.toJson<double>(integratedResilience),
+      'multimodalConfidence': serializer.toJson<double>(multimodalConfidence),
+      'multimodalConfidenceLevel': serializer.toJson<String>(
+        multimodalConfidenceLevel,
+      ),
+      'signalAgreement': serializer.toJson<double>(signalAgreement),
+      'contributingSignalsJson': serializer.toJson<String>(
+        contributingSignalsJson,
+      ),
+      'disagreementFactorsJson': serializer.toJson<String>(
+        disagreementFactorsJson,
+      ),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  IntegratedConsensusSnapshotsTableData copyWith({
+    String? id,
+    DateTime? generatedAt,
+    double? integratedStressLoad,
+    double? integratedRecoveryState,
+    double? integratedResilience,
+    double? multimodalConfidence,
+    String? multimodalConfidenceLevel,
+    double? signalAgreement,
+    String? contributingSignalsJson,
+    String? disagreementFactorsJson,
+    String? safetyCopy,
+  }) => IntegratedConsensusSnapshotsTableData(
+    id: id ?? this.id,
+    generatedAt: generatedAt ?? this.generatedAt,
+    integratedStressLoad: integratedStressLoad ?? this.integratedStressLoad,
+    integratedRecoveryState:
+        integratedRecoveryState ?? this.integratedRecoveryState,
+    integratedResilience: integratedResilience ?? this.integratedResilience,
+    multimodalConfidence: multimodalConfidence ?? this.multimodalConfidence,
+    multimodalConfidenceLevel:
+        multimodalConfidenceLevel ?? this.multimodalConfidenceLevel,
+    signalAgreement: signalAgreement ?? this.signalAgreement,
+    contributingSignalsJson:
+        contributingSignalsJson ?? this.contributingSignalsJson,
+    disagreementFactorsJson:
+        disagreementFactorsJson ?? this.disagreementFactorsJson,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  IntegratedConsensusSnapshotsTableData copyWithCompanion(
+    IntegratedConsensusSnapshotsTableCompanion data,
+  ) {
+    return IntegratedConsensusSnapshotsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      generatedAt: data.generatedAt.present
+          ? data.generatedAt.value
+          : this.generatedAt,
+      integratedStressLoad: data.integratedStressLoad.present
+          ? data.integratedStressLoad.value
+          : this.integratedStressLoad,
+      integratedRecoveryState: data.integratedRecoveryState.present
+          ? data.integratedRecoveryState.value
+          : this.integratedRecoveryState,
+      integratedResilience: data.integratedResilience.present
+          ? data.integratedResilience.value
+          : this.integratedResilience,
+      multimodalConfidence: data.multimodalConfidence.present
+          ? data.multimodalConfidence.value
+          : this.multimodalConfidence,
+      multimodalConfidenceLevel: data.multimodalConfidenceLevel.present
+          ? data.multimodalConfidenceLevel.value
+          : this.multimodalConfidenceLevel,
+      signalAgreement: data.signalAgreement.present
+          ? data.signalAgreement.value
+          : this.signalAgreement,
+      contributingSignalsJson: data.contributingSignalsJson.present
+          ? data.contributingSignalsJson.value
+          : this.contributingSignalsJson,
+      disagreementFactorsJson: data.disagreementFactorsJson.present
+          ? data.disagreementFactorsJson.value
+          : this.disagreementFactorsJson,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IntegratedConsensusSnapshotsTableData(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('integratedStressLoad: $integratedStressLoad, ')
+          ..write('integratedRecoveryState: $integratedRecoveryState, ')
+          ..write('integratedResilience: $integratedResilience, ')
+          ..write('multimodalConfidence: $multimodalConfidence, ')
+          ..write('multimodalConfidenceLevel: $multimodalConfidenceLevel, ')
+          ..write('signalAgreement: $signalAgreement, ')
+          ..write('contributingSignalsJson: $contributingSignalsJson, ')
+          ..write('disagreementFactorsJson: $disagreementFactorsJson, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    generatedAt,
+    integratedStressLoad,
+    integratedRecoveryState,
+    integratedResilience,
+    multimodalConfidence,
+    multimodalConfidenceLevel,
+    signalAgreement,
+    contributingSignalsJson,
+    disagreementFactorsJson,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IntegratedConsensusSnapshotsTableData &&
+          other.id == this.id &&
+          other.generatedAt == this.generatedAt &&
+          other.integratedStressLoad == this.integratedStressLoad &&
+          other.integratedRecoveryState == this.integratedRecoveryState &&
+          other.integratedResilience == this.integratedResilience &&
+          other.multimodalConfidence == this.multimodalConfidence &&
+          other.multimodalConfidenceLevel == this.multimodalConfidenceLevel &&
+          other.signalAgreement == this.signalAgreement &&
+          other.contributingSignalsJson == this.contributingSignalsJson &&
+          other.disagreementFactorsJson == this.disagreementFactorsJson &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class IntegratedConsensusSnapshotsTableCompanion
+    extends UpdateCompanion<IntegratedConsensusSnapshotsTableData> {
+  final Value<String> id;
+  final Value<DateTime> generatedAt;
+  final Value<double> integratedStressLoad;
+  final Value<double> integratedRecoveryState;
+  final Value<double> integratedResilience;
+  final Value<double> multimodalConfidence;
+  final Value<String> multimodalConfidenceLevel;
+  final Value<double> signalAgreement;
+  final Value<String> contributingSignalsJson;
+  final Value<String> disagreementFactorsJson;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const IntegratedConsensusSnapshotsTableCompanion({
+    this.id = const Value.absent(),
+    this.generatedAt = const Value.absent(),
+    this.integratedStressLoad = const Value.absent(),
+    this.integratedRecoveryState = const Value.absent(),
+    this.integratedResilience = const Value.absent(),
+    this.multimodalConfidence = const Value.absent(),
+    this.multimodalConfidenceLevel = const Value.absent(),
+    this.signalAgreement = const Value.absent(),
+    this.contributingSignalsJson = const Value.absent(),
+    this.disagreementFactorsJson = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  IntegratedConsensusSnapshotsTableCompanion.insert({
+    required String id,
+    required DateTime generatedAt,
+    required double integratedStressLoad,
+    required double integratedRecoveryState,
+    required double integratedResilience,
+    required double multimodalConfidence,
+    required String multimodalConfidenceLevel,
+    required double signalAgreement,
+    required String contributingSignalsJson,
+    required String disagreementFactorsJson,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       generatedAt = Value(generatedAt),
+       integratedStressLoad = Value(integratedStressLoad),
+       integratedRecoveryState = Value(integratedRecoveryState),
+       integratedResilience = Value(integratedResilience),
+       multimodalConfidence = Value(multimodalConfidence),
+       multimodalConfidenceLevel = Value(multimodalConfidenceLevel),
+       signalAgreement = Value(signalAgreement),
+       contributingSignalsJson = Value(contributingSignalsJson),
+       disagreementFactorsJson = Value(disagreementFactorsJson),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<IntegratedConsensusSnapshotsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? generatedAt,
+    Expression<double>? integratedStressLoad,
+    Expression<double>? integratedRecoveryState,
+    Expression<double>? integratedResilience,
+    Expression<double>? multimodalConfidence,
+    Expression<String>? multimodalConfidenceLevel,
+    Expression<double>? signalAgreement,
+    Expression<String>? contributingSignalsJson,
+    Expression<String>? disagreementFactorsJson,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (generatedAt != null) 'generated_at': generatedAt,
+      if (integratedStressLoad != null)
+        'integrated_stress_load': integratedStressLoad,
+      if (integratedRecoveryState != null)
+        'integrated_recovery_state': integratedRecoveryState,
+      if (integratedResilience != null)
+        'integrated_resilience': integratedResilience,
+      if (multimodalConfidence != null)
+        'multimodal_confidence': multimodalConfidence,
+      if (multimodalConfidenceLevel != null)
+        'multimodal_confidence_level': multimodalConfidenceLevel,
+      if (signalAgreement != null) 'signal_agreement': signalAgreement,
+      if (contributingSignalsJson != null)
+        'contributing_signals_json': contributingSignalsJson,
+      if (disagreementFactorsJson != null)
+        'disagreement_factors_json': disagreementFactorsJson,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  IntegratedConsensusSnapshotsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? generatedAt,
+    Value<double>? integratedStressLoad,
+    Value<double>? integratedRecoveryState,
+    Value<double>? integratedResilience,
+    Value<double>? multimodalConfidence,
+    Value<String>? multimodalConfidenceLevel,
+    Value<double>? signalAgreement,
+    Value<String>? contributingSignalsJson,
+    Value<String>? disagreementFactorsJson,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return IntegratedConsensusSnapshotsTableCompanion(
+      id: id ?? this.id,
+      generatedAt: generatedAt ?? this.generatedAt,
+      integratedStressLoad: integratedStressLoad ?? this.integratedStressLoad,
+      integratedRecoveryState:
+          integratedRecoveryState ?? this.integratedRecoveryState,
+      integratedResilience: integratedResilience ?? this.integratedResilience,
+      multimodalConfidence: multimodalConfidence ?? this.multimodalConfidence,
+      multimodalConfidenceLevel:
+          multimodalConfidenceLevel ?? this.multimodalConfidenceLevel,
+      signalAgreement: signalAgreement ?? this.signalAgreement,
+      contributingSignalsJson:
+          contributingSignalsJson ?? this.contributingSignalsJson,
+      disagreementFactorsJson:
+          disagreementFactorsJson ?? this.disagreementFactorsJson,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (generatedAt.present) {
+      map['generated_at'] = Variable<DateTime>(generatedAt.value);
+    }
+    if (integratedStressLoad.present) {
+      map['integrated_stress_load'] = Variable<double>(
+        integratedStressLoad.value,
+      );
+    }
+    if (integratedRecoveryState.present) {
+      map['integrated_recovery_state'] = Variable<double>(
+        integratedRecoveryState.value,
+      );
+    }
+    if (integratedResilience.present) {
+      map['integrated_resilience'] = Variable<double>(
+        integratedResilience.value,
+      );
+    }
+    if (multimodalConfidence.present) {
+      map['multimodal_confidence'] = Variable<double>(
+        multimodalConfidence.value,
+      );
+    }
+    if (multimodalConfidenceLevel.present) {
+      map['multimodal_confidence_level'] = Variable<String>(
+        multimodalConfidenceLevel.value,
+      );
+    }
+    if (signalAgreement.present) {
+      map['signal_agreement'] = Variable<double>(signalAgreement.value);
+    }
+    if (contributingSignalsJson.present) {
+      map['contributing_signals_json'] = Variable<String>(
+        contributingSignalsJson.value,
+      );
+    }
+    if (disagreementFactorsJson.present) {
+      map['disagreement_factors_json'] = Variable<String>(
+        disagreementFactorsJson.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('IntegratedConsensusSnapshotsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('generatedAt: $generatedAt, ')
+          ..write('integratedStressLoad: $integratedStressLoad, ')
+          ..write('integratedRecoveryState: $integratedRecoveryState, ')
+          ..write('integratedResilience: $integratedResilience, ')
+          ..write('multimodalConfidence: $multimodalConfidence, ')
+          ..write('multimodalConfidenceLevel: $multimodalConfidenceLevel, ')
+          ..write('signalAgreement: $signalAgreement, ')
+          ..write('contributingSignalsJson: $contributingSignalsJson, ')
+          ..write('disagreementFactorsJson: $disagreementFactorsJson, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -15580,6 +16354,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
       $ExperimentalInsightsTableTable(this);
   late final $SubjectiveFeedbackEntriesTableTable
   subjectiveFeedbackEntriesTable = $SubjectiveFeedbackEntriesTableTable(this);
+  late final $IntegratedConsensusSnapshotsTableTable
+  integratedConsensusSnapshotsTable = $IntegratedConsensusSnapshotsTableTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -15608,6 +16386,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     replayValidationResultsTable,
     experimentalInsightsTable,
     subjectiveFeedbackEntriesTable,
+    integratedConsensusSnapshotsTable,
   ];
 }
 
@@ -23293,6 +24072,371 @@ typedef $$SubjectiveFeedbackEntriesTableTableProcessedTableManager =
       SubjectiveFeedbackEntriesTableData,
       PrefetchHooks Function()
     >;
+typedef $$IntegratedConsensusSnapshotsTableTableCreateCompanionBuilder =
+    IntegratedConsensusSnapshotsTableCompanion Function({
+      required String id,
+      required DateTime generatedAt,
+      required double integratedStressLoad,
+      required double integratedRecoveryState,
+      required double integratedResilience,
+      required double multimodalConfidence,
+      required String multimodalConfidenceLevel,
+      required double signalAgreement,
+      required String contributingSignalsJson,
+      required String disagreementFactorsJson,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$IntegratedConsensusSnapshotsTableTableUpdateCompanionBuilder =
+    IntegratedConsensusSnapshotsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> generatedAt,
+      Value<double> integratedStressLoad,
+      Value<double> integratedRecoveryState,
+      Value<double> integratedResilience,
+      Value<double> multimodalConfidence,
+      Value<String> multimodalConfidenceLevel,
+      Value<double> signalAgreement,
+      Value<String> contributingSignalsJson,
+      Value<String> disagreementFactorsJson,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$IntegratedConsensusSnapshotsTableTableFilterComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $IntegratedConsensusSnapshotsTableTable
+        > {
+  $$IntegratedConsensusSnapshotsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get integratedStressLoad => $composableBuilder(
+    column: $table.integratedStressLoad,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get integratedRecoveryState => $composableBuilder(
+    column: $table.integratedRecoveryState,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get integratedResilience => $composableBuilder(
+    column: $table.integratedResilience,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get multimodalConfidence => $composableBuilder(
+    column: $table.multimodalConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get multimodalConfidenceLevel => $composableBuilder(
+    column: $table.multimodalConfidenceLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get signalAgreement => $composableBuilder(
+    column: $table.signalAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contributingSignalsJson => $composableBuilder(
+    column: $table.contributingSignalsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get disagreementFactorsJson => $composableBuilder(
+    column: $table.disagreementFactorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$IntegratedConsensusSnapshotsTableTableOrderingComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $IntegratedConsensusSnapshotsTableTable
+        > {
+  $$IntegratedConsensusSnapshotsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get integratedStressLoad => $composableBuilder(
+    column: $table.integratedStressLoad,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get integratedRecoveryState => $composableBuilder(
+    column: $table.integratedRecoveryState,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get integratedResilience => $composableBuilder(
+    column: $table.integratedResilience,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get multimodalConfidence => $composableBuilder(
+    column: $table.multimodalConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get multimodalConfidenceLevel => $composableBuilder(
+    column: $table.multimodalConfidenceLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get signalAgreement => $composableBuilder(
+    column: $table.signalAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contributingSignalsJson => $composableBuilder(
+    column: $table.contributingSignalsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get disagreementFactorsJson => $composableBuilder(
+    column: $table.disagreementFactorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$IntegratedConsensusSnapshotsTableTableAnnotationComposer
+    extends
+        Composer<
+          _$SignalFlowDatabase,
+          $IntegratedConsensusSnapshotsTableTable
+        > {
+  $$IntegratedConsensusSnapshotsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get generatedAt => $composableBuilder(
+    column: $table.generatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get integratedStressLoad => $composableBuilder(
+    column: $table.integratedStressLoad,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get integratedRecoveryState => $composableBuilder(
+    column: $table.integratedRecoveryState,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get integratedResilience => $composableBuilder(
+    column: $table.integratedResilience,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get multimodalConfidence => $composableBuilder(
+    column: $table.multimodalConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get multimodalConfidenceLevel => $composableBuilder(
+    column: $table.multimodalConfidenceLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get signalAgreement => $composableBuilder(
+    column: $table.signalAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contributingSignalsJson => $composableBuilder(
+    column: $table.contributingSignalsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get disagreementFactorsJson => $composableBuilder(
+    column: $table.disagreementFactorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$IntegratedConsensusSnapshotsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $IntegratedConsensusSnapshotsTableTable,
+          IntegratedConsensusSnapshotsTableData,
+          $$IntegratedConsensusSnapshotsTableTableFilterComposer,
+          $$IntegratedConsensusSnapshotsTableTableOrderingComposer,
+          $$IntegratedConsensusSnapshotsTableTableAnnotationComposer,
+          $$IntegratedConsensusSnapshotsTableTableCreateCompanionBuilder,
+          $$IntegratedConsensusSnapshotsTableTableUpdateCompanionBuilder,
+          (
+            IntegratedConsensusSnapshotsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $IntegratedConsensusSnapshotsTableTable,
+              IntegratedConsensusSnapshotsTableData
+            >,
+          ),
+          IntegratedConsensusSnapshotsTableData,
+          PrefetchHooks Function()
+        > {
+  $$IntegratedConsensusSnapshotsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $IntegratedConsensusSnapshotsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$IntegratedConsensusSnapshotsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$IntegratedConsensusSnapshotsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$IntegratedConsensusSnapshotsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> generatedAt = const Value.absent(),
+                Value<double> integratedStressLoad = const Value.absent(),
+                Value<double> integratedRecoveryState = const Value.absent(),
+                Value<double> integratedResilience = const Value.absent(),
+                Value<double> multimodalConfidence = const Value.absent(),
+                Value<String> multimodalConfidenceLevel = const Value.absent(),
+                Value<double> signalAgreement = const Value.absent(),
+                Value<String> contributingSignalsJson = const Value.absent(),
+                Value<String> disagreementFactorsJson = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => IntegratedConsensusSnapshotsTableCompanion(
+                id: id,
+                generatedAt: generatedAt,
+                integratedStressLoad: integratedStressLoad,
+                integratedRecoveryState: integratedRecoveryState,
+                integratedResilience: integratedResilience,
+                multimodalConfidence: multimodalConfidence,
+                multimodalConfidenceLevel: multimodalConfidenceLevel,
+                signalAgreement: signalAgreement,
+                contributingSignalsJson: contributingSignalsJson,
+                disagreementFactorsJson: disagreementFactorsJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime generatedAt,
+                required double integratedStressLoad,
+                required double integratedRecoveryState,
+                required double integratedResilience,
+                required double multimodalConfidence,
+                required String multimodalConfidenceLevel,
+                required double signalAgreement,
+                required String contributingSignalsJson,
+                required String disagreementFactorsJson,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => IntegratedConsensusSnapshotsTableCompanion.insert(
+                id: id,
+                generatedAt: generatedAt,
+                integratedStressLoad: integratedStressLoad,
+                integratedRecoveryState: integratedRecoveryState,
+                integratedResilience: integratedResilience,
+                multimodalConfidence: multimodalConfidence,
+                multimodalConfidenceLevel: multimodalConfidenceLevel,
+                signalAgreement: signalAgreement,
+                contributingSignalsJson: contributingSignalsJson,
+                disagreementFactorsJson: disagreementFactorsJson,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$IntegratedConsensusSnapshotsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $IntegratedConsensusSnapshotsTableTable,
+      IntegratedConsensusSnapshotsTableData,
+      $$IntegratedConsensusSnapshotsTableTableFilterComposer,
+      $$IntegratedConsensusSnapshotsTableTableOrderingComposer,
+      $$IntegratedConsensusSnapshotsTableTableAnnotationComposer,
+      $$IntegratedConsensusSnapshotsTableTableCreateCompanionBuilder,
+      $$IntegratedConsensusSnapshotsTableTableUpdateCompanionBuilder,
+      (
+        IntegratedConsensusSnapshotsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $IntegratedConsensusSnapshotsTableTable,
+          IntegratedConsensusSnapshotsTableData
+        >,
+      ),
+      IntegratedConsensusSnapshotsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -23405,5 +24549,11 @@ class $SignalFlowDatabaseManager {
       $$SubjectiveFeedbackEntriesTableTableTableManager(
         _db,
         _db.subjectiveFeedbackEntriesTable,
+      );
+  $$IntegratedConsensusSnapshotsTableTableTableManager
+  get integratedConsensusSnapshotsTable =>
+      $$IntegratedConsensusSnapshotsTableTableTableManager(
+        _db,
+        _db.integratedConsensusSnapshotsTable,
       );
 }

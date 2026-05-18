@@ -81,6 +81,11 @@ class DatabaseMigrationService {
         toVersion: 14,
         description: 'Subjective feedback persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 14,
+        toVersion: 15,
+        description: 'Cross-modal fusion persistence.',
+      ),
     ];
   }
 

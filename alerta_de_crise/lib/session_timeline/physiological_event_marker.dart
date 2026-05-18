@@ -35,6 +35,10 @@ enum EventType {
   perceivedRecovery,
   subjectivePhysiologyMismatch,
   sustainedSubjectiveFatigue,
+  multimodalConsensusHigh,
+  signalConflictDetected,
+  subjectivePhysiologyDivergence,
+  highIntegratedStress,
 }
 
 enum Severity { low, medium, high }

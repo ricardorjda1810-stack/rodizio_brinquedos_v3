@@ -7,6 +7,7 @@ import '../ui/crisis_detection/crisis_risk_debug_page.dart';
 import '../ui/crisis_detection/csv_replay_debug_page.dart';
 import '../ui/crisis_detection/cognitive_feedback_debug_page.dart';
 import '../ui/crisis_detection/contextual_triggers_debug_page.dart';
+import '../ui/crisis_detection/cross_modal_fusion_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/experimental_insights_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
@@ -103,6 +104,11 @@ class SignalFlowDebugHubSections {
             label: 'Cognitive Feedback',
             description: 'Feedback subjetivo experimental e autoavaliação.',
             builder: (_) => const CognitiveFeedbackDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Cross-Modal Fusion',
+            description: 'Fusão experimental e consenso fisiológico integrado.',
+            builder: (_) => const CrossModalFusionDebugPage(),
           ),
         ],
       ),

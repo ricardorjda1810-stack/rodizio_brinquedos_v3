@@ -8,6 +8,7 @@ import 'baseline_tables.dart';
 import 'cognitive_feedback_tables.dart';
 import 'consent_tables.dart';
 import 'contextual_trigger_tables.dart';
+import 'cross_modal_fusion_tables.dart';
 import 'crisis_tables.dart';
 import 'experimental_insight_tables.dart';
 import 'intervention_tables.dart';
@@ -47,6 +48,7 @@ part 'signalflow_database.g.dart';
     ReplayValidationResultsTable,
     ExperimentalInsightsTable,
     SubjectiveFeedbackEntriesTable,
+    IntegratedConsensusSnapshotsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -60,7 +62,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -114,6 +116,9 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
         if (from < 14) {
           await migrator.createTable(subjectiveFeedbackEntriesTable);
         }
+        if (from < 15) {
+          await migrator.createTable(integratedConsensusSnapshotsTable);
+        }
       },
     );
   }
@@ -143,6 +148,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(replayValidationResultsTable);
       batch.deleteAll(experimentalInsightsTable);
       batch.deleteAll(subjectiveFeedbackEntriesTable);
+      batch.deleteAll(integratedConsensusSnapshotsTable);
     });
   }
 }

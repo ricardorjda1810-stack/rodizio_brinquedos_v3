@@ -40,6 +40,7 @@ class DatabaseIntegrityService {
       'replay_validation_results_table',
       'experimental_insights_table',
       'subjective_feedback_entries_table',
+      'integrated_consensus_snapshots_table',
     ];
 
     final baselines = await _database
@@ -111,6 +112,9 @@ class DatabaseIntegrityService {
     final subjectiveFeedback = await _database
         .select(_database.subjectiveFeedbackEntriesTable)
         .get();
+    final consensusSnapshots = await _database
+        .select(_database.integratedConsensusSnapshotsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -139,6 +143,7 @@ class DatabaseIntegrityService {
     _auditReplayValidationResults(replayValidationResults, issues, warnings);
     _auditExperimentalInsights(experimentalInsights, issues, warnings);
     _auditSubjectiveFeedback(subjectiveFeedback, issues, warnings);
+    _auditIntegratedConsensus(consensusSnapshots, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -163,7 +168,8 @@ class DatabaseIntegrityService {
         replayScenarios.length +
         replayValidationResults.length +
         experimentalInsights.length +
-        subjectiveFeedback.length;
+        subjectiveFeedback.length +
+        consensusSnapshots.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -399,6 +405,10 @@ class DatabaseIntegrityService {
       'perceivedRecovery',
       'subjectivePhysiologyMismatch',
       'sustainedSubjectiveFatigue',
+      'multimodalConsensusHigh',
+      'signalConflictDetected',
+      'subjectivePhysiologyDivergence',
+      'highIntegratedStress',
     };
     const validSeverities = {'low', 'medium', 'high'};
 
@@ -1037,6 +1047,38 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('não representa avaliação clínica')) {
         warnings.add(
           'Subjective feedback ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditIntegratedConsensus(
+    List<IntegratedConsensusSnapshotsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    const validConfidenceLevels = {'low', 'medium', 'high'};
+    for (final row in rows) {
+      if (row.id.trim().isEmpty) {
+        issues.add('Integrated consensus with empty id.');
+      }
+      if (!_isPercent(row.integratedStressLoad) ||
+          !_isPercent(row.integratedRecoveryState) ||
+          !_isPercent(row.integratedResilience) ||
+          !_isPercent(row.multimodalConfidence) ||
+          !_isPercent(row.signalAgreement)) {
+        issues.add('Integrated consensus ${row.id} has metric outside 0..100.');
+      }
+      if (!validConfidenceLevels.contains(row.multimodalConfidenceLevel)) {
+        issues.add('Integrated consensus ${row.id} has invalid confidence.');
+      }
+      if (!_isValidJsonList(row.contributingSignalsJson) ||
+          !_isValidJsonList(row.disagreementFactorsJson)) {
+        issues.add('Integrated consensus ${row.id} has invalid JSON lists.');
+      }
+      if (!row.safetyCopy.contains('não representa avaliação clínica')) {
+        warnings.add(
+          'Integrated consensus ${row.id} is missing explicit safety copy.',
         );
       }
     }
