@@ -72,13 +72,13 @@ void main() {
     test('migration 17 to 18 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 18);
-      expect(migrationService.registeredMigrations.last.fromVersion, 17);
-      expect(migrationService.registeredMigrations.last.toVersion, 18);
-      expect(
-        migrationService.registeredMigrations.last.description,
-        contains('Experimental session recording'),
+      expect(migrationService.currentSchemaVersion, 19);
+      final migration = migrationService.registeredMigrations.firstWhere(
+        (migration) => migration.toVersion == 18,
       );
+      expect(migration.fromVersion, 17);
+      expect(migration.toVersion, 18);
+      expect(migration.description, contains('Experimental session recording'));
     });
 
     test('session summary is consistent', () async {

@@ -101,6 +101,11 @@ class DatabaseMigrationService {
         toVersion: 18,
         description: 'Experimental session recording persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 18,
+        toVersion: 19,
+        description: 'Replay benchmark persistence.',
+      ),
     ];
   }
 

@@ -20,6 +20,7 @@ import '../ui/crisis_detection/physiological_trend_debug_page.dart';
 import '../ui/crisis_detection/predictive_forecast_debug_page.dart';
 import '../ui/crisis_detection/realtime_streaming_debug_page.dart';
 import '../ui/crisis_detection/replay_engine_debug_page.dart';
+import '../ui/crisis_detection/replay_benchmark_debug_page.dart';
 import '../ui/crisis_detection/research_consent_debug_page.dart';
 import '../ui/crisis_detection/research_dashboard_debug_page.dart';
 import '../ui/crisis_detection/research_orchestrator_debug_page.dart';
@@ -177,6 +178,11 @@ class SignalFlowDebugHubSections {
             label: 'Replay Engine',
             description: 'Replay fisiológico e cenários sintéticos offline.',
             builder: (_) => const ReplayEngineDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Replay Benchmark',
+            description: 'Benchmark experimental e comparação de replay.',
+            builder: (_) => const ReplayBenchmarkDebugPage(),
           ),
         ],
       ),

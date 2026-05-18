@@ -47,6 +47,7 @@ class DatabaseIntegrityService {
       'experimental_protocol_sessions_table',
       'recorded_experimental_sessions_table',
       'session_snapshots_table',
+      'replay_benchmark_results_table',
     ];
 
     final baselines = await _database
@@ -139,6 +140,9 @@ class DatabaseIntegrityService {
     final sessionSnapshots = await _database
         .select(_database.sessionSnapshotsTable)
         .get();
+    final replayBenchmarkResults = await _database
+        .select(_database.replayBenchmarkResultsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -178,6 +182,7 @@ class DatabaseIntegrityService {
     );
     _auditRecordedSessions(recordedSessions, issues, warnings);
     _auditSessionSnapshots(sessionSnapshots, issues, warnings);
+    _auditReplayBenchmarkResults(replayBenchmarkResults, issues, warnings);
 
     final totalRecords =
         baselines.length +
@@ -209,7 +214,8 @@ class DatabaseIntegrityService {
         experimentalProtocols.length +
         experimentalProtocolSessions.length +
         recordedSessions.length +
-        sessionSnapshots.length;
+        sessionSnapshots.length +
+        replayBenchmarkResults.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -1340,6 +1346,37 @@ class DatabaseIntegrityService {
       if (!row.safetyCopy.contains('dataset reproduzível')) {
         warnings.add(
           'Session snapshot ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditReplayBenchmarkResults(
+    List<ReplayBenchmarkResultsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty || row.sessionId.trim().isEmpty) {
+        issues.add('Replay benchmark result with empty id or sessionId.');
+      }
+      if (row.replayScenario.trim().isEmpty) {
+        issues.add('Replay benchmark result ${row.id} has empty scenario.');
+      }
+      if (!_isPercent(row.forecastConsistency) ||
+          !_isPercent(row.recoveryConsistency) ||
+          !_isPercent(row.escalationDetectionRate) ||
+          !_isPercent(row.falseEscalationRate) ||
+          !_isPercent(row.multimodalAgreement) ||
+          !_isPercent(row.confidenceConsistency) ||
+          !_isPercent(row.benchmarkScore)) {
+        issues.add(
+          'Replay benchmark result ${row.id} has metric outside 0..100.',
+        );
+      }
+      if (!row.safetyCopy.contains('não representa validação clínica')) {
+        warnings.add(
+          'Replay benchmark result ${row.id} is missing explicit safety copy.',
         );
       }
     }

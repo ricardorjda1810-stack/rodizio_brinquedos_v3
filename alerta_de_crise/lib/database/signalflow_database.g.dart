@@ -20616,6 +20616,794 @@ class SessionSnapshotsTableCompanion
   }
 }
 
+class $ReplayBenchmarkResultsTableTable extends ReplayBenchmarkResultsTable
+    with
+        TableInfo<
+          $ReplayBenchmarkResultsTableTable,
+          ReplayBenchmarkResultsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReplayBenchmarkResultsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _replayScenarioMeta = const VerificationMeta(
+    'replayScenario',
+  );
+  @override
+  late final GeneratedColumn<String> replayScenario = GeneratedColumn<String>(
+    'replay_scenario',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _forecastConsistencyMeta =
+      const VerificationMeta('forecastConsistency');
+  @override
+  late final GeneratedColumn<double> forecastConsistency =
+      GeneratedColumn<double>(
+        'forecast_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _recoveryConsistencyMeta =
+      const VerificationMeta('recoveryConsistency');
+  @override
+  late final GeneratedColumn<double> recoveryConsistency =
+      GeneratedColumn<double>(
+        'recovery_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _escalationDetectionRateMeta =
+      const VerificationMeta('escalationDetectionRate');
+  @override
+  late final GeneratedColumn<double> escalationDetectionRate =
+      GeneratedColumn<double>(
+        'escalation_detection_rate',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _falseEscalationRateMeta =
+      const VerificationMeta('falseEscalationRate');
+  @override
+  late final GeneratedColumn<double> falseEscalationRate =
+      GeneratedColumn<double>(
+        'false_escalation_rate',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _multimodalAgreementMeta =
+      const VerificationMeta('multimodalAgreement');
+  @override
+  late final GeneratedColumn<double> multimodalAgreement =
+      GeneratedColumn<double>(
+        'multimodal_agreement',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _confidenceConsistencyMeta =
+      const VerificationMeta('confidenceConsistency');
+  @override
+  late final GeneratedColumn<double> confidenceConsistency =
+      GeneratedColumn<double>(
+        'confidence_consistency',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _benchmarkScoreMeta = const VerificationMeta(
+    'benchmarkScore',
+  );
+  @override
+  late final GeneratedColumn<double> benchmarkScore = GeneratedColumn<double>(
+    'benchmark_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    sessionId,
+    replayScenario,
+    forecastConsistency,
+    recoveryConsistency,
+    escalationDetectionRate,
+    falseEscalationRate,
+    multimodalAgreement,
+    confidenceConsistency,
+    benchmarkScore,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'replay_benchmark_results_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReplayBenchmarkResultsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('replay_scenario')) {
+      context.handle(
+        _replayScenarioMeta,
+        replayScenario.isAcceptableOrUnknown(
+          data['replay_scenario']!,
+          _replayScenarioMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_replayScenarioMeta);
+    }
+    if (data.containsKey('forecast_consistency')) {
+      context.handle(
+        _forecastConsistencyMeta,
+        forecastConsistency.isAcceptableOrUnknown(
+          data['forecast_consistency']!,
+          _forecastConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_forecastConsistencyMeta);
+    }
+    if (data.containsKey('recovery_consistency')) {
+      context.handle(
+        _recoveryConsistencyMeta,
+        recoveryConsistency.isAcceptableOrUnknown(
+          data['recovery_consistency']!,
+          _recoveryConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_recoveryConsistencyMeta);
+    }
+    if (data.containsKey('escalation_detection_rate')) {
+      context.handle(
+        _escalationDetectionRateMeta,
+        escalationDetectionRate.isAcceptableOrUnknown(
+          data['escalation_detection_rate']!,
+          _escalationDetectionRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_escalationDetectionRateMeta);
+    }
+    if (data.containsKey('false_escalation_rate')) {
+      context.handle(
+        _falseEscalationRateMeta,
+        falseEscalationRate.isAcceptableOrUnknown(
+          data['false_escalation_rate']!,
+          _falseEscalationRateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_falseEscalationRateMeta);
+    }
+    if (data.containsKey('multimodal_agreement')) {
+      context.handle(
+        _multimodalAgreementMeta,
+        multimodalAgreement.isAcceptableOrUnknown(
+          data['multimodal_agreement']!,
+          _multimodalAgreementMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalAgreementMeta);
+    }
+    if (data.containsKey('confidence_consistency')) {
+      context.handle(
+        _confidenceConsistencyMeta,
+        confidenceConsistency.isAcceptableOrUnknown(
+          data['confidence_consistency']!,
+          _confidenceConsistencyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceConsistencyMeta);
+    }
+    if (data.containsKey('benchmark_score')) {
+      context.handle(
+        _benchmarkScoreMeta,
+        benchmarkScore.isAcceptableOrUnknown(
+          data['benchmark_score']!,
+          _benchmarkScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_benchmarkScoreMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReplayBenchmarkResultsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReplayBenchmarkResultsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      replayScenario: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}replay_scenario'],
+      )!,
+      forecastConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}forecast_consistency'],
+      )!,
+      recoveryConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}recovery_consistency'],
+      )!,
+      escalationDetectionRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}escalation_detection_rate'],
+      )!,
+      falseEscalationRate: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}false_escalation_rate'],
+      )!,
+      multimodalAgreement: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}multimodal_agreement'],
+      )!,
+      confidenceConsistency: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence_consistency'],
+      )!,
+      benchmarkScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}benchmark_score'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ReplayBenchmarkResultsTableTable createAlias(String alias) {
+    return $ReplayBenchmarkResultsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ReplayBenchmarkResultsTableData extends DataClass
+    implements Insertable<ReplayBenchmarkResultsTableData> {
+  final String id;
+  final DateTime createdAt;
+  final String sessionId;
+  final String replayScenario;
+  final double forecastConsistency;
+  final double recoveryConsistency;
+  final double escalationDetectionRate;
+  final double falseEscalationRate;
+  final double multimodalAgreement;
+  final double confidenceConsistency;
+  final double benchmarkScore;
+  final String safetyCopy;
+  const ReplayBenchmarkResultsTableData({
+    required this.id,
+    required this.createdAt,
+    required this.sessionId,
+    required this.replayScenario,
+    required this.forecastConsistency,
+    required this.recoveryConsistency,
+    required this.escalationDetectionRate,
+    required this.falseEscalationRate,
+    required this.multimodalAgreement,
+    required this.confidenceConsistency,
+    required this.benchmarkScore,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['session_id'] = Variable<String>(sessionId);
+    map['replay_scenario'] = Variable<String>(replayScenario);
+    map['forecast_consistency'] = Variable<double>(forecastConsistency);
+    map['recovery_consistency'] = Variable<double>(recoveryConsistency);
+    map['escalation_detection_rate'] = Variable<double>(
+      escalationDetectionRate,
+    );
+    map['false_escalation_rate'] = Variable<double>(falseEscalationRate);
+    map['multimodal_agreement'] = Variable<double>(multimodalAgreement);
+    map['confidence_consistency'] = Variable<double>(confidenceConsistency);
+    map['benchmark_score'] = Variable<double>(benchmarkScore);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ReplayBenchmarkResultsTableCompanion toCompanion(bool nullToAbsent) {
+    return ReplayBenchmarkResultsTableCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      sessionId: Value(sessionId),
+      replayScenario: Value(replayScenario),
+      forecastConsistency: Value(forecastConsistency),
+      recoveryConsistency: Value(recoveryConsistency),
+      escalationDetectionRate: Value(escalationDetectionRate),
+      falseEscalationRate: Value(falseEscalationRate),
+      multimodalAgreement: Value(multimodalAgreement),
+      confidenceConsistency: Value(confidenceConsistency),
+      benchmarkScore: Value(benchmarkScore),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ReplayBenchmarkResultsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReplayBenchmarkResultsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      replayScenario: serializer.fromJson<String>(json['replayScenario']),
+      forecastConsistency: serializer.fromJson<double>(
+        json['forecastConsistency'],
+      ),
+      recoveryConsistency: serializer.fromJson<double>(
+        json['recoveryConsistency'],
+      ),
+      escalationDetectionRate: serializer.fromJson<double>(
+        json['escalationDetectionRate'],
+      ),
+      falseEscalationRate: serializer.fromJson<double>(
+        json['falseEscalationRate'],
+      ),
+      multimodalAgreement: serializer.fromJson<double>(
+        json['multimodalAgreement'],
+      ),
+      confidenceConsistency: serializer.fromJson<double>(
+        json['confidenceConsistency'],
+      ),
+      benchmarkScore: serializer.fromJson<double>(json['benchmarkScore']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'replayScenario': serializer.toJson<String>(replayScenario),
+      'forecastConsistency': serializer.toJson<double>(forecastConsistency),
+      'recoveryConsistency': serializer.toJson<double>(recoveryConsistency),
+      'escalationDetectionRate': serializer.toJson<double>(
+        escalationDetectionRate,
+      ),
+      'falseEscalationRate': serializer.toJson<double>(falseEscalationRate),
+      'multimodalAgreement': serializer.toJson<double>(multimodalAgreement),
+      'confidenceConsistency': serializer.toJson<double>(confidenceConsistency),
+      'benchmarkScore': serializer.toJson<double>(benchmarkScore),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ReplayBenchmarkResultsTableData copyWith({
+    String? id,
+    DateTime? createdAt,
+    String? sessionId,
+    String? replayScenario,
+    double? forecastConsistency,
+    double? recoveryConsistency,
+    double? escalationDetectionRate,
+    double? falseEscalationRate,
+    double? multimodalAgreement,
+    double? confidenceConsistency,
+    double? benchmarkScore,
+    String? safetyCopy,
+  }) => ReplayBenchmarkResultsTableData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    sessionId: sessionId ?? this.sessionId,
+    replayScenario: replayScenario ?? this.replayScenario,
+    forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+    recoveryConsistency: recoveryConsistency ?? this.recoveryConsistency,
+    escalationDetectionRate:
+        escalationDetectionRate ?? this.escalationDetectionRate,
+    falseEscalationRate: falseEscalationRate ?? this.falseEscalationRate,
+    multimodalAgreement: multimodalAgreement ?? this.multimodalAgreement,
+    confidenceConsistency: confidenceConsistency ?? this.confidenceConsistency,
+    benchmarkScore: benchmarkScore ?? this.benchmarkScore,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ReplayBenchmarkResultsTableData copyWithCompanion(
+    ReplayBenchmarkResultsTableCompanion data,
+  ) {
+    return ReplayBenchmarkResultsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      replayScenario: data.replayScenario.present
+          ? data.replayScenario.value
+          : this.replayScenario,
+      forecastConsistency: data.forecastConsistency.present
+          ? data.forecastConsistency.value
+          : this.forecastConsistency,
+      recoveryConsistency: data.recoveryConsistency.present
+          ? data.recoveryConsistency.value
+          : this.recoveryConsistency,
+      escalationDetectionRate: data.escalationDetectionRate.present
+          ? data.escalationDetectionRate.value
+          : this.escalationDetectionRate,
+      falseEscalationRate: data.falseEscalationRate.present
+          ? data.falseEscalationRate.value
+          : this.falseEscalationRate,
+      multimodalAgreement: data.multimodalAgreement.present
+          ? data.multimodalAgreement.value
+          : this.multimodalAgreement,
+      confidenceConsistency: data.confidenceConsistency.present
+          ? data.confidenceConsistency.value
+          : this.confidenceConsistency,
+      benchmarkScore: data.benchmarkScore.present
+          ? data.benchmarkScore.value
+          : this.benchmarkScore,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayBenchmarkResultsTableData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('replayScenario: $replayScenario, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('recoveryConsistency: $recoveryConsistency, ')
+          ..write('escalationDetectionRate: $escalationDetectionRate, ')
+          ..write('falseEscalationRate: $falseEscalationRate, ')
+          ..write('multimodalAgreement: $multimodalAgreement, ')
+          ..write('confidenceConsistency: $confidenceConsistency, ')
+          ..write('benchmarkScore: $benchmarkScore, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    sessionId,
+    replayScenario,
+    forecastConsistency,
+    recoveryConsistency,
+    escalationDetectionRate,
+    falseEscalationRate,
+    multimodalAgreement,
+    confidenceConsistency,
+    benchmarkScore,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReplayBenchmarkResultsTableData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.sessionId == this.sessionId &&
+          other.replayScenario == this.replayScenario &&
+          other.forecastConsistency == this.forecastConsistency &&
+          other.recoveryConsistency == this.recoveryConsistency &&
+          other.escalationDetectionRate == this.escalationDetectionRate &&
+          other.falseEscalationRate == this.falseEscalationRate &&
+          other.multimodalAgreement == this.multimodalAgreement &&
+          other.confidenceConsistency == this.confidenceConsistency &&
+          other.benchmarkScore == this.benchmarkScore &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ReplayBenchmarkResultsTableCompanion
+    extends UpdateCompanion<ReplayBenchmarkResultsTableData> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<String> sessionId;
+  final Value<String> replayScenario;
+  final Value<double> forecastConsistency;
+  final Value<double> recoveryConsistency;
+  final Value<double> escalationDetectionRate;
+  final Value<double> falseEscalationRate;
+  final Value<double> multimodalAgreement;
+  final Value<double> confidenceConsistency;
+  final Value<double> benchmarkScore;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ReplayBenchmarkResultsTableCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.replayScenario = const Value.absent(),
+    this.forecastConsistency = const Value.absent(),
+    this.recoveryConsistency = const Value.absent(),
+    this.escalationDetectionRate = const Value.absent(),
+    this.falseEscalationRate = const Value.absent(),
+    this.multimodalAgreement = const Value.absent(),
+    this.confidenceConsistency = const Value.absent(),
+    this.benchmarkScore = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReplayBenchmarkResultsTableCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required String sessionId,
+    required String replayScenario,
+    required double forecastConsistency,
+    required double recoveryConsistency,
+    required double escalationDetectionRate,
+    required double falseEscalationRate,
+    required double multimodalAgreement,
+    required double confidenceConsistency,
+    required double benchmarkScore,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       sessionId = Value(sessionId),
+       replayScenario = Value(replayScenario),
+       forecastConsistency = Value(forecastConsistency),
+       recoveryConsistency = Value(recoveryConsistency),
+       escalationDetectionRate = Value(escalationDetectionRate),
+       falseEscalationRate = Value(falseEscalationRate),
+       multimodalAgreement = Value(multimodalAgreement),
+       confidenceConsistency = Value(confidenceConsistency),
+       benchmarkScore = Value(benchmarkScore),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ReplayBenchmarkResultsTableData> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<String>? sessionId,
+    Expression<String>? replayScenario,
+    Expression<double>? forecastConsistency,
+    Expression<double>? recoveryConsistency,
+    Expression<double>? escalationDetectionRate,
+    Expression<double>? falseEscalationRate,
+    Expression<double>? multimodalAgreement,
+    Expression<double>? confidenceConsistency,
+    Expression<double>? benchmarkScore,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (sessionId != null) 'session_id': sessionId,
+      if (replayScenario != null) 'replay_scenario': replayScenario,
+      if (forecastConsistency != null)
+        'forecast_consistency': forecastConsistency,
+      if (recoveryConsistency != null)
+        'recovery_consistency': recoveryConsistency,
+      if (escalationDetectionRate != null)
+        'escalation_detection_rate': escalationDetectionRate,
+      if (falseEscalationRate != null)
+        'false_escalation_rate': falseEscalationRate,
+      if (multimodalAgreement != null)
+        'multimodal_agreement': multimodalAgreement,
+      if (confidenceConsistency != null)
+        'confidence_consistency': confidenceConsistency,
+      if (benchmarkScore != null) 'benchmark_score': benchmarkScore,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReplayBenchmarkResultsTableCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<String>? sessionId,
+    Value<String>? replayScenario,
+    Value<double>? forecastConsistency,
+    Value<double>? recoveryConsistency,
+    Value<double>? escalationDetectionRate,
+    Value<double>? falseEscalationRate,
+    Value<double>? multimodalAgreement,
+    Value<double>? confidenceConsistency,
+    Value<double>? benchmarkScore,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ReplayBenchmarkResultsTableCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      sessionId: sessionId ?? this.sessionId,
+      replayScenario: replayScenario ?? this.replayScenario,
+      forecastConsistency: forecastConsistency ?? this.forecastConsistency,
+      recoveryConsistency: recoveryConsistency ?? this.recoveryConsistency,
+      escalationDetectionRate:
+          escalationDetectionRate ?? this.escalationDetectionRate,
+      falseEscalationRate: falseEscalationRate ?? this.falseEscalationRate,
+      multimodalAgreement: multimodalAgreement ?? this.multimodalAgreement,
+      confidenceConsistency:
+          confidenceConsistency ?? this.confidenceConsistency,
+      benchmarkScore: benchmarkScore ?? this.benchmarkScore,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (replayScenario.present) {
+      map['replay_scenario'] = Variable<String>(replayScenario.value);
+    }
+    if (forecastConsistency.present) {
+      map['forecast_consistency'] = Variable<double>(forecastConsistency.value);
+    }
+    if (recoveryConsistency.present) {
+      map['recovery_consistency'] = Variable<double>(recoveryConsistency.value);
+    }
+    if (escalationDetectionRate.present) {
+      map['escalation_detection_rate'] = Variable<double>(
+        escalationDetectionRate.value,
+      );
+    }
+    if (falseEscalationRate.present) {
+      map['false_escalation_rate'] = Variable<double>(
+        falseEscalationRate.value,
+      );
+    }
+    if (multimodalAgreement.present) {
+      map['multimodal_agreement'] = Variable<double>(multimodalAgreement.value);
+    }
+    if (confidenceConsistency.present) {
+      map['confidence_consistency'] = Variable<double>(
+        confidenceConsistency.value,
+      );
+    }
+    if (benchmarkScore.present) {
+      map['benchmark_score'] = Variable<double>(benchmarkScore.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReplayBenchmarkResultsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('replayScenario: $replayScenario, ')
+          ..write('forecastConsistency: $forecastConsistency, ')
+          ..write('recoveryConsistency: $recoveryConsistency, ')
+          ..write('escalationDetectionRate: $escalationDetectionRate, ')
+          ..write('falseEscalationRate: $falseEscalationRate, ')
+          ..write('multimodalAgreement: $multimodalAgreement, ')
+          ..write('confidenceConsistency: $confidenceConsistency, ')
+          ..write('benchmarkScore: $benchmarkScore, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -20691,6 +21479,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   );
   late final $SessionSnapshotsTableTable sessionSnapshotsTable =
       $SessionSnapshotsTableTable(this);
+  late final $ReplayBenchmarkResultsTableTable replayBenchmarkResultsTable =
+      $ReplayBenchmarkResultsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -20726,6 +21516,7 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     experimentalProtocolSessionsTable,
     recordedExperimentalSessionsTable,
     sessionSnapshotsTable,
+    replayBenchmarkResultsTable,
   ];
 }
 
@@ -30918,6 +31709,376 @@ typedef $$SessionSnapshotsTableTableProcessedTableManager =
       SessionSnapshotsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ReplayBenchmarkResultsTableTableCreateCompanionBuilder =
+    ReplayBenchmarkResultsTableCompanion Function({
+      required String id,
+      required DateTime createdAt,
+      required String sessionId,
+      required String replayScenario,
+      required double forecastConsistency,
+      required double recoveryConsistency,
+      required double escalationDetectionRate,
+      required double falseEscalationRate,
+      required double multimodalAgreement,
+      required double confidenceConsistency,
+      required double benchmarkScore,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ReplayBenchmarkResultsTableTableUpdateCompanionBuilder =
+    ReplayBenchmarkResultsTableCompanion Function({
+      Value<String> id,
+      Value<DateTime> createdAt,
+      Value<String> sessionId,
+      Value<String> replayScenario,
+      Value<double> forecastConsistency,
+      Value<double> recoveryConsistency,
+      Value<double> escalationDetectionRate,
+      Value<double> falseEscalationRate,
+      Value<double> multimodalAgreement,
+      Value<double> confidenceConsistency,
+      Value<double> benchmarkScore,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ReplayBenchmarkResultsTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayBenchmarkResultsTableTable> {
+  $$ReplayBenchmarkResultsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get replayScenario => $composableBuilder(
+    column: $table.replayScenario,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get escalationDetectionRate => $composableBuilder(
+    column: $table.escalationDetectionRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReplayBenchmarkResultsTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayBenchmarkResultsTableTable> {
+  $$ReplayBenchmarkResultsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get replayScenario => $composableBuilder(
+    column: $table.replayScenario,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get escalationDetectionRate => $composableBuilder(
+    column: $table.escalationDetectionRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReplayBenchmarkResultsTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ReplayBenchmarkResultsTableTable> {
+  $$ReplayBenchmarkResultsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<String> get replayScenario => $composableBuilder(
+    column: $table.replayScenario,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get forecastConsistency => $composableBuilder(
+    column: $table.forecastConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get recoveryConsistency => $composableBuilder(
+    column: $table.recoveryConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get escalationDetectionRate => $composableBuilder(
+    column: $table.escalationDetectionRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get falseEscalationRate => $composableBuilder(
+    column: $table.falseEscalationRate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get multimodalAgreement => $composableBuilder(
+    column: $table.multimodalAgreement,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidenceConsistency => $composableBuilder(
+    column: $table.confidenceConsistency,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get benchmarkScore => $composableBuilder(
+    column: $table.benchmarkScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ReplayBenchmarkResultsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ReplayBenchmarkResultsTableTable,
+          ReplayBenchmarkResultsTableData,
+          $$ReplayBenchmarkResultsTableTableFilterComposer,
+          $$ReplayBenchmarkResultsTableTableOrderingComposer,
+          $$ReplayBenchmarkResultsTableTableAnnotationComposer,
+          $$ReplayBenchmarkResultsTableTableCreateCompanionBuilder,
+          $$ReplayBenchmarkResultsTableTableUpdateCompanionBuilder,
+          (
+            ReplayBenchmarkResultsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ReplayBenchmarkResultsTableTable,
+              ReplayBenchmarkResultsTableData
+            >,
+          ),
+          ReplayBenchmarkResultsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ReplayBenchmarkResultsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ReplayBenchmarkResultsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReplayBenchmarkResultsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ReplayBenchmarkResultsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ReplayBenchmarkResultsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<String> replayScenario = const Value.absent(),
+                Value<double> forecastConsistency = const Value.absent(),
+                Value<double> recoveryConsistency = const Value.absent(),
+                Value<double> escalationDetectionRate = const Value.absent(),
+                Value<double> falseEscalationRate = const Value.absent(),
+                Value<double> multimodalAgreement = const Value.absent(),
+                Value<double> confidenceConsistency = const Value.absent(),
+                Value<double> benchmarkScore = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayBenchmarkResultsTableCompanion(
+                id: id,
+                createdAt: createdAt,
+                sessionId: sessionId,
+                replayScenario: replayScenario,
+                forecastConsistency: forecastConsistency,
+                recoveryConsistency: recoveryConsistency,
+                escalationDetectionRate: escalationDetectionRate,
+                falseEscalationRate: falseEscalationRate,
+                multimodalAgreement: multimodalAgreement,
+                confidenceConsistency: confidenceConsistency,
+                benchmarkScore: benchmarkScore,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required String sessionId,
+                required String replayScenario,
+                required double forecastConsistency,
+                required double recoveryConsistency,
+                required double escalationDetectionRate,
+                required double falseEscalationRate,
+                required double multimodalAgreement,
+                required double confidenceConsistency,
+                required double benchmarkScore,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ReplayBenchmarkResultsTableCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                sessionId: sessionId,
+                replayScenario: replayScenario,
+                forecastConsistency: forecastConsistency,
+                recoveryConsistency: recoveryConsistency,
+                escalationDetectionRate: escalationDetectionRate,
+                falseEscalationRate: falseEscalationRate,
+                multimodalAgreement: multimodalAgreement,
+                confidenceConsistency: confidenceConsistency,
+                benchmarkScore: benchmarkScore,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReplayBenchmarkResultsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ReplayBenchmarkResultsTableTable,
+      ReplayBenchmarkResultsTableData,
+      $$ReplayBenchmarkResultsTableTableFilterComposer,
+      $$ReplayBenchmarkResultsTableTableOrderingComposer,
+      $$ReplayBenchmarkResultsTableTableAnnotationComposer,
+      $$ReplayBenchmarkResultsTableTableCreateCompanionBuilder,
+      $$ReplayBenchmarkResultsTableTableUpdateCompanionBuilder,
+      (
+        ReplayBenchmarkResultsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ReplayBenchmarkResultsTableTable,
+          ReplayBenchmarkResultsTableData
+        >,
+      ),
+      ReplayBenchmarkResultsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -31069,4 +32230,10 @@ class $SignalFlowDatabaseManager {
       );
   $$SessionSnapshotsTableTableTableManager get sessionSnapshotsTable =>
       $$SessionSnapshotsTableTableTableManager(_db, _db.sessionSnapshotsTable);
+  $$ReplayBenchmarkResultsTableTableTableManager
+  get replayBenchmarkResultsTable =>
+      $$ReplayBenchmarkResultsTableTableTableManager(
+        _db,
+        _db.replayBenchmarkResultsTable,
+      );
 }
