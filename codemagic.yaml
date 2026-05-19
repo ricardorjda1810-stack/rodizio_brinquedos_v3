@@ -81,9 +81,13 @@ workflows:
           cd alerta_de_crise
           flutter build ipa --release
 
+      - name: Locate IPA
+        script: |
+          find "$CM_BUILD_DIR/alerta_de_crise/build/ios" -name "*.ipa" -print
+
     artifacts:
-      - alerta_de_crise/build/ios/ipa/*.ipa
-      - alerta_de_crise/build/ios/archive/*.xcarchive
+      - $CM_BUILD_DIR/alerta_de_crise/build/ios/ipa/*.ipa
+      - $CM_BUILD_DIR/alerta_de_crise/build/ios/archive/*.xcarchive
 
     publishing:
       app_store_connect:
