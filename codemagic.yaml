@@ -79,7 +79,7 @@ workflows:
       - name: Build IPA
         script: |
           cd alerta_de_crise
-          flutter build ipa --release
+          flutter build ipa --release --export-method app-store
 
       - name: Locate IPA
         script: |
