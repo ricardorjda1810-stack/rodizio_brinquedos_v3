@@ -81,9 +81,11 @@ workflows:
         script: |
           cd alerta_de_crise
           flutter build ios --release
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+          cd ios
+          xcodebuild -exportArchive \
+            -archivePath ../build/ios/archive/Runner.xcarchive \
+            -exportPath ../build/ios/ipa \
+            -exportOptionsPlist ExportOptions.appstore.plist
 
       - name: Locate IPA
         script: |
