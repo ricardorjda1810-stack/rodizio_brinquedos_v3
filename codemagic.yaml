@@ -28,6 +28,68 @@ workflows:
           cd alerta_de_crise
           flutter build ios --release --no-codesign
 
+  signalflow-testflight:
+    name: SignalFlow TestFlight
+    instance_type: mac_mini_m2
+
+    integrations:
+      app_store_connect: asc_rodizio_v3
+
+    environment:
+      flutter: stable
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.signalflow.app
+
+    scripts:
+      - name: Clean Flutter and iOS cache
+        script: |
+          cd alerta_de_crise
+          flutter clean
+          rm -rf ios/Pods
+          rm -f ios/Podfile.lock
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+      - name: Get packages
+        script: |
+          cd alerta_de_crise
+          flutter pub get
+
+      - name: Install pods
+        script: |
+          cd alerta_de_crise/ios
+          pod install --repo-update
+
+      - name: Use provisioning profiles
+        script: |
+          cd alerta_de_crise
+          xcode-project use-profiles
+
+      - name: Analyze
+        script: |
+          cd alerta_de_crise
+          flutter analyze
+
+      - name: Test
+        script: |
+          cd alerta_de_crise
+          flutter test
+
+      - name: Build IPA
+        script: |
+          cd alerta_de_crise
+          flutter build ipa --release
+
+    artifacts:
+      - alerta_de_crise/build/ios/ipa/*.ipa
+      - alerta_de_crise/build/ios/archive/*.xcarchive
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
   production:
     name: Production
     instance_type: mac_mini_m2
