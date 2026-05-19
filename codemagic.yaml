@@ -64,7 +64,8 @@ workflows:
       - name: Use provisioning profiles
         script: |
           cd alerta_de_crise
-          xcode-project use-profiles
+          xcode-project use-profiles \
+            --custom-export-options='{"method":"app-store-connect"}'
 
       - name: Analyze
         script: |
