@@ -12,6 +12,7 @@ import '../ui/crisis_detection/cross_modal_fusion_debug_page.dart';
 import '../ui/crisis_detection/database_audit_debug_page.dart';
 import '../ui/crisis_detection/experimental_insights_debug_page.dart';
 import '../ui/crisis_detection/experimental_protocol_debug_page.dart';
+import '../ui/crisis_detection/experimental_study_debug_page.dart';
 import '../ui/crisis_detection/intervention_history_debug_page.dart';
 import '../ui/crisis_detection/intervention_protocol_debug_page.dart';
 import '../ui/crisis_detection/longitudinal_analysis_debug_page.dart';
@@ -130,6 +131,12 @@ class SignalFlowDebugHubSections {
             label: 'Session Recorder',
             description: 'Registro experimental de dataset fisiológico.',
             builder: (_) => const SessionRecorderDebugPage(),
+          ),
+          DebugHubItem(
+            label: 'Experimental Studies',
+            description:
+                'Estudo experimental e benchmark longitudinal estruturado.',
+            builder: (_) => const ExperimentalStudyDebugPage(),
           ),
         ],
       ),

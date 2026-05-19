@@ -52,6 +52,8 @@ class DatabaseIntegrityService {
       'calibration_benchmark_results_table',
       'sensor_reliability_profiles_table',
       'sensor_comparison_results_table',
+      'experimental_studies_table',
+      'experimental_study_sessions_table',
     ];
 
     final baselines = await _database
@@ -159,6 +161,12 @@ class DatabaseIntegrityService {
     final sensorComparisonResults = await _database
         .select(_database.sensorComparisonResultsTable)
         .get();
+    final experimentalStudies = await _database
+        .select(_database.experimentalStudiesTable)
+        .get();
+    final experimentalStudySessions = await _database
+        .select(_database.experimentalStudySessionsTable)
+        .get();
 
     _auditBaselines(baselines, issues, warnings);
     _auditCrisisEvents(crisisEvents, issues, warnings);
@@ -211,6 +219,12 @@ class DatabaseIntegrityService {
       warnings,
     );
     _auditSensorComparisonResults(sensorComparisonResults, issues, warnings);
+    _auditExperimentalStudies(experimentalStudies, issues, warnings);
+    _auditExperimentalStudySessions(
+      experimentalStudySessions,
+      issues,
+      warnings,
+    );
 
     final totalRecords =
         baselines.length +
@@ -247,7 +261,9 @@ class DatabaseIntegrityService {
         calibrationProfiles.length +
         calibrationBenchmarkResults.length +
         sensorReliabilityProfiles.length +
-        sensorComparisonResults.length;
+        sensorComparisonResults.length +
+        experimentalStudies.length +
+        experimentalStudySessions.length;
     final healthScore = _healthScore(issues: issues, warnings: warnings);
 
     return DatabaseHealthReport(
@@ -1536,6 +1552,67 @@ class DatabaseIntegrityService {
           !row.safetyCopy.contains('não representa validação clínica')) {
         warnings.add(
           'Sensor comparison result ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditExperimentalStudies(
+    List<ExperimentalStudiesTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty ||
+          row.title.trim().isEmpty ||
+          row.protocolId.trim().isEmpty) {
+        issues.add('Experimental study with empty id, title, or protocolId.');
+      }
+      if (row.totalSessions < 0 ||
+          row.totalParticipants < 0 ||
+          row.targetDurationSeconds < 0) {
+        issues.add('Experimental study ${row.id} has invalid counters.');
+      }
+      if (!_isValidJsonList(row.studyTagsJson) ||
+          !_isValidJsonList(row.enabledSensorsJson)) {
+        issues.add('Experimental study ${row.id} has invalid JSON metadata.');
+      }
+      if (!row.safetyCopy.contains('estudo experimental') ||
+          !row.safetyCopy.contains('não representa estudo clínico')) {
+        warnings.add(
+          'Experimental study ${row.id} is missing explicit safety copy.',
+        );
+      }
+    }
+  }
+
+  void _auditExperimentalStudySessions(
+    List<ExperimentalStudySessionsTableData> rows,
+    List<String> issues,
+    List<String> warnings,
+  ) {
+    for (final row in rows) {
+      if (row.id.trim().isEmpty ||
+          row.studyId.trim().isEmpty ||
+          row.sessionId.trim().isEmpty) {
+        issues.add(
+          'Experimental study session with empty id, studyId, or sessionId.',
+        );
+      }
+      if (row.completedAt != null && row.completedAt!.isBefore(row.startedAt)) {
+        issues.add(
+          'Experimental study session ${row.id} completed before start.',
+        );
+      }
+      if (!_isPercent(row.multimodalConsensusScore)) {
+        issues.add(
+          'Experimental study session ${row.id} has invalid consensus score.',
+        );
+      }
+      if (!row.safetyCopy.contains('sessão experimental') ||
+          !row.safetyCopy.contains('não representa estudo clínico')) {
+        warnings.add(
+          'Experimental study session ${row.id} is missing explicit safety copy.',
         );
       }
     }

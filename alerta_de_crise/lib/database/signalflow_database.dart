@@ -13,6 +13,7 @@ import 'cross_modal_fusion_tables.dart';
 import 'crisis_tables.dart';
 import 'experimental_insight_tables.dart';
 import 'experimental_protocol_tables.dart';
+import 'experimental_study_tables.dart';
 import 'intervention_tables.dart';
 import 'longitudinal_analysis_tables.dart';
 import 'personalized_intervention_tables.dart';
@@ -66,6 +67,8 @@ part 'signalflow_database.g.dart';
     CalibrationBenchmarkResultsTable,
     SensorReliabilityProfilesTable,
     SensorComparisonResultsTable,
+    ExperimentalStudiesTable,
+    ExperimentalStudySessionsTable,
   ],
 )
 final class SignalFlowDatabase extends _$SignalFlowDatabase {
@@ -79,7 +82,7 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
   static final SignalFlowDatabase instance = SignalFlowDatabase();
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration {
@@ -159,6 +162,10 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
           await migrator.createTable(sensorReliabilityProfilesTable);
           await migrator.createTable(sensorComparisonResultsTable);
         }
+        if (from < 22) {
+          await migrator.createTable(experimentalStudiesTable);
+          await migrator.createTable(experimentalStudySessionsTable);
+        }
       },
     );
   }
@@ -200,6 +207,8 @@ final class SignalFlowDatabase extends _$SignalFlowDatabase {
       batch.deleteAll(calibrationBenchmarkResultsTable);
       batch.deleteAll(sensorReliabilityProfilesTable);
       batch.deleteAll(sensorComparisonResultsTable);
+      batch.deleteAll(experimentalStudiesTable);
+      batch.deleteAll(experimentalStudySessionsTable);
     });
   }
 }

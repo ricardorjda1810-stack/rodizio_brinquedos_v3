@@ -116,6 +116,11 @@ class DatabaseMigrationService {
         toVersion: 21,
         description: 'Sensor reliability validation persistence.',
       ),
+      SignalFlowMigrationInfo(
+        fromVersion: 21,
+        toVersion: 22,
+        description: 'Experimental study persistence.',
+      ),
     ];
   }
 

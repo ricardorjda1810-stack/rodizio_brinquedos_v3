@@ -81,7 +81,7 @@ void main() {
     test('migration 19 to 20 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 21);
+      expect(migrationService.currentSchemaVersion, 22);
       final calibrationMigration = migrationService.registeredMigrations
           .firstWhere((migration) => migration.toVersion == 20);
 

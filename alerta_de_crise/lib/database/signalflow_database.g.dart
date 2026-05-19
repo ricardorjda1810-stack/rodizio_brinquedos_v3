@@ -24460,6 +24460,1491 @@ class SensorComparisonResultsTableCompanion
   }
 }
 
+class $ExperimentalStudiesTableTable extends ExperimentalStudiesTable
+    with
+        TableInfo<
+          $ExperimentalStudiesTableTable,
+          ExperimentalStudiesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExperimentalStudiesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _protocolIdMeta = const VerificationMeta(
+    'protocolId',
+  );
+  @override
+  late final GeneratedColumn<String> protocolId = GeneratedColumn<String>(
+    'protocol_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalSessionsMeta = const VerificationMeta(
+    'totalSessions',
+  );
+  @override
+  late final GeneratedColumn<int> totalSessions = GeneratedColumn<int>(
+    'total_sessions',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalParticipantsMeta = const VerificationMeta(
+    'totalParticipants',
+  );
+  @override
+  late final GeneratedColumn<int> totalParticipants = GeneratedColumn<int>(
+    'total_participants',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetDurationSecondsMeta =
+      const VerificationMeta('targetDurationSeconds');
+  @override
+  late final GeneratedColumn<int> targetDurationSeconds = GeneratedColumn<int>(
+    'target_duration_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _studyTagsJsonMeta = const VerificationMeta(
+    'studyTagsJson',
+  );
+  @override
+  late final GeneratedColumn<String> studyTagsJson = GeneratedColumn<String>(
+    'study_tags_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enabledSensorsJsonMeta =
+      const VerificationMeta('enabledSensorsJson');
+  @override
+  late final GeneratedColumn<String> enabledSensorsJson =
+      GeneratedColumn<String>(
+        'enabled_sensors_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    description,
+    createdAt,
+    protocolId,
+    totalSessions,
+    totalParticipants,
+    targetDurationSeconds,
+    studyTagsJson,
+    enabledSensorsJson,
+    active,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'experimental_studies_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExperimentalStudiesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('protocol_id')) {
+      context.handle(
+        _protocolIdMeta,
+        protocolId.isAcceptableOrUnknown(data['protocol_id']!, _protocolIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_protocolIdMeta);
+    }
+    if (data.containsKey('total_sessions')) {
+      context.handle(
+        _totalSessionsMeta,
+        totalSessions.isAcceptableOrUnknown(
+          data['total_sessions']!,
+          _totalSessionsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalSessionsMeta);
+    }
+    if (data.containsKey('total_participants')) {
+      context.handle(
+        _totalParticipantsMeta,
+        totalParticipants.isAcceptableOrUnknown(
+          data['total_participants']!,
+          _totalParticipantsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_totalParticipantsMeta);
+    }
+    if (data.containsKey('target_duration_seconds')) {
+      context.handle(
+        _targetDurationSecondsMeta,
+        targetDurationSeconds.isAcceptableOrUnknown(
+          data['target_duration_seconds']!,
+          _targetDurationSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetDurationSecondsMeta);
+    }
+    if (data.containsKey('study_tags_json')) {
+      context.handle(
+        _studyTagsJsonMeta,
+        studyTagsJson.isAcceptableOrUnknown(
+          data['study_tags_json']!,
+          _studyTagsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_studyTagsJsonMeta);
+    }
+    if (data.containsKey('enabled_sensors_json')) {
+      context.handle(
+        _enabledSensorsJsonMeta,
+        enabledSensorsJson.isAcceptableOrUnknown(
+          data['enabled_sensors_json']!,
+          _enabledSensorsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_enabledSensorsJsonMeta);
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_activeMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExperimentalStudiesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExperimentalStudiesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      protocolId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}protocol_id'],
+      )!,
+      totalSessions: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_sessions'],
+      )!,
+      totalParticipants: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_participants'],
+      )!,
+      targetDurationSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_duration_seconds'],
+      )!,
+      studyTagsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}study_tags_json'],
+      )!,
+      enabledSensorsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}enabled_sensors_json'],
+      )!,
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ExperimentalStudiesTableTable createAlias(String alias) {
+    return $ExperimentalStudiesTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExperimentalStudiesTableData extends DataClass
+    implements Insertable<ExperimentalStudiesTableData> {
+  final String id;
+  final String title;
+  final String description;
+  final DateTime createdAt;
+  final String protocolId;
+  final int totalSessions;
+  final int totalParticipants;
+  final int targetDurationSeconds;
+  final String studyTagsJson;
+  final String enabledSensorsJson;
+  final bool active;
+  final String safetyCopy;
+  const ExperimentalStudiesTableData({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.createdAt,
+    required this.protocolId,
+    required this.totalSessions,
+    required this.totalParticipants,
+    required this.targetDurationSeconds,
+    required this.studyTagsJson,
+    required this.enabledSensorsJson,
+    required this.active,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['description'] = Variable<String>(description);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['protocol_id'] = Variable<String>(protocolId);
+    map['total_sessions'] = Variable<int>(totalSessions);
+    map['total_participants'] = Variable<int>(totalParticipants);
+    map['target_duration_seconds'] = Variable<int>(targetDurationSeconds);
+    map['study_tags_json'] = Variable<String>(studyTagsJson);
+    map['enabled_sensors_json'] = Variable<String>(enabledSensorsJson);
+    map['active'] = Variable<bool>(active);
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ExperimentalStudiesTableCompanion toCompanion(bool nullToAbsent) {
+    return ExperimentalStudiesTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      description: Value(description),
+      createdAt: Value(createdAt),
+      protocolId: Value(protocolId),
+      totalSessions: Value(totalSessions),
+      totalParticipants: Value(totalParticipants),
+      targetDurationSeconds: Value(targetDurationSeconds),
+      studyTagsJson: Value(studyTagsJson),
+      enabledSensorsJson: Value(enabledSensorsJson),
+      active: Value(active),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ExperimentalStudiesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExperimentalStudiesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      protocolId: serializer.fromJson<String>(json['protocolId']),
+      totalSessions: serializer.fromJson<int>(json['totalSessions']),
+      totalParticipants: serializer.fromJson<int>(json['totalParticipants']),
+      targetDurationSeconds: serializer.fromJson<int>(
+        json['targetDurationSeconds'],
+      ),
+      studyTagsJson: serializer.fromJson<String>(json['studyTagsJson']),
+      enabledSensorsJson: serializer.fromJson<String>(
+        json['enabledSensorsJson'],
+      ),
+      active: serializer.fromJson<bool>(json['active']),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'protocolId': serializer.toJson<String>(protocolId),
+      'totalSessions': serializer.toJson<int>(totalSessions),
+      'totalParticipants': serializer.toJson<int>(totalParticipants),
+      'targetDurationSeconds': serializer.toJson<int>(targetDurationSeconds),
+      'studyTagsJson': serializer.toJson<String>(studyTagsJson),
+      'enabledSensorsJson': serializer.toJson<String>(enabledSensorsJson),
+      'active': serializer.toJson<bool>(active),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ExperimentalStudiesTableData copyWith({
+    String? id,
+    String? title,
+    String? description,
+    DateTime? createdAt,
+    String? protocolId,
+    int? totalSessions,
+    int? totalParticipants,
+    int? targetDurationSeconds,
+    String? studyTagsJson,
+    String? enabledSensorsJson,
+    bool? active,
+    String? safetyCopy,
+  }) => ExperimentalStudiesTableData(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    description: description ?? this.description,
+    createdAt: createdAt ?? this.createdAt,
+    protocolId: protocolId ?? this.protocolId,
+    totalSessions: totalSessions ?? this.totalSessions,
+    totalParticipants: totalParticipants ?? this.totalParticipants,
+    targetDurationSeconds: targetDurationSeconds ?? this.targetDurationSeconds,
+    studyTagsJson: studyTagsJson ?? this.studyTagsJson,
+    enabledSensorsJson: enabledSensorsJson ?? this.enabledSensorsJson,
+    active: active ?? this.active,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ExperimentalStudiesTableData copyWithCompanion(
+    ExperimentalStudiesTableCompanion data,
+  ) {
+    return ExperimentalStudiesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      protocolId: data.protocolId.present
+          ? data.protocolId.value
+          : this.protocolId,
+      totalSessions: data.totalSessions.present
+          ? data.totalSessions.value
+          : this.totalSessions,
+      totalParticipants: data.totalParticipants.present
+          ? data.totalParticipants.value
+          : this.totalParticipants,
+      targetDurationSeconds: data.targetDurationSeconds.present
+          ? data.targetDurationSeconds.value
+          : this.targetDurationSeconds,
+      studyTagsJson: data.studyTagsJson.present
+          ? data.studyTagsJson.value
+          : this.studyTagsJson,
+      enabledSensorsJson: data.enabledSensorsJson.present
+          ? data.enabledSensorsJson.value
+          : this.enabledSensorsJson,
+      active: data.active.present ? data.active.value : this.active,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalStudiesTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('totalSessions: $totalSessions, ')
+          ..write('totalParticipants: $totalParticipants, ')
+          ..write('targetDurationSeconds: $targetDurationSeconds, ')
+          ..write('studyTagsJson: $studyTagsJson, ')
+          ..write('enabledSensorsJson: $enabledSensorsJson, ')
+          ..write('active: $active, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    description,
+    createdAt,
+    protocolId,
+    totalSessions,
+    totalParticipants,
+    targetDurationSeconds,
+    studyTagsJson,
+    enabledSensorsJson,
+    active,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExperimentalStudiesTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.protocolId == this.protocolId &&
+          other.totalSessions == this.totalSessions &&
+          other.totalParticipants == this.totalParticipants &&
+          other.targetDurationSeconds == this.targetDurationSeconds &&
+          other.studyTagsJson == this.studyTagsJson &&
+          other.enabledSensorsJson == this.enabledSensorsJson &&
+          other.active == this.active &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ExperimentalStudiesTableCompanion
+    extends UpdateCompanion<ExperimentalStudiesTableData> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String> description;
+  final Value<DateTime> createdAt;
+  final Value<String> protocolId;
+  final Value<int> totalSessions;
+  final Value<int> totalParticipants;
+  final Value<int> targetDurationSeconds;
+  final Value<String> studyTagsJson;
+  final Value<String> enabledSensorsJson;
+  final Value<bool> active;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ExperimentalStudiesTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.protocolId = const Value.absent(),
+    this.totalSessions = const Value.absent(),
+    this.totalParticipants = const Value.absent(),
+    this.targetDurationSeconds = const Value.absent(),
+    this.studyTagsJson = const Value.absent(),
+    this.enabledSensorsJson = const Value.absent(),
+    this.active = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExperimentalStudiesTableCompanion.insert({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime createdAt,
+    required String protocolId,
+    required int totalSessions,
+    required int totalParticipants,
+    required int targetDurationSeconds,
+    required String studyTagsJson,
+    required String enabledSensorsJson,
+    required bool active,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       description = Value(description),
+       createdAt = Value(createdAt),
+       protocolId = Value(protocolId),
+       totalSessions = Value(totalSessions),
+       totalParticipants = Value(totalParticipants),
+       targetDurationSeconds = Value(targetDurationSeconds),
+       studyTagsJson = Value(studyTagsJson),
+       enabledSensorsJson = Value(enabledSensorsJson),
+       active = Value(active),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ExperimentalStudiesTableData> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<String>? protocolId,
+    Expression<int>? totalSessions,
+    Expression<int>? totalParticipants,
+    Expression<int>? targetDurationSeconds,
+    Expression<String>? studyTagsJson,
+    Expression<String>? enabledSensorsJson,
+    Expression<bool>? active,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (protocolId != null) 'protocol_id': protocolId,
+      if (totalSessions != null) 'total_sessions': totalSessions,
+      if (totalParticipants != null) 'total_participants': totalParticipants,
+      if (targetDurationSeconds != null)
+        'target_duration_seconds': targetDurationSeconds,
+      if (studyTagsJson != null) 'study_tags_json': studyTagsJson,
+      if (enabledSensorsJson != null)
+        'enabled_sensors_json': enabledSensorsJson,
+      if (active != null) 'active': active,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExperimentalStudiesTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String>? description,
+    Value<DateTime>? createdAt,
+    Value<String>? protocolId,
+    Value<int>? totalSessions,
+    Value<int>? totalParticipants,
+    Value<int>? targetDurationSeconds,
+    Value<String>? studyTagsJson,
+    Value<String>? enabledSensorsJson,
+    Value<bool>? active,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ExperimentalStudiesTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      protocolId: protocolId ?? this.protocolId,
+      totalSessions: totalSessions ?? this.totalSessions,
+      totalParticipants: totalParticipants ?? this.totalParticipants,
+      targetDurationSeconds:
+          targetDurationSeconds ?? this.targetDurationSeconds,
+      studyTagsJson: studyTagsJson ?? this.studyTagsJson,
+      enabledSensorsJson: enabledSensorsJson ?? this.enabledSensorsJson,
+      active: active ?? this.active,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (protocolId.present) {
+      map['protocol_id'] = Variable<String>(protocolId.value);
+    }
+    if (totalSessions.present) {
+      map['total_sessions'] = Variable<int>(totalSessions.value);
+    }
+    if (totalParticipants.present) {
+      map['total_participants'] = Variable<int>(totalParticipants.value);
+    }
+    if (targetDurationSeconds.present) {
+      map['target_duration_seconds'] = Variable<int>(
+        targetDurationSeconds.value,
+      );
+    }
+    if (studyTagsJson.present) {
+      map['study_tags_json'] = Variable<String>(studyTagsJson.value);
+    }
+    if (enabledSensorsJson.present) {
+      map['enabled_sensors_json'] = Variable<String>(enabledSensorsJson.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalStudiesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('protocolId: $protocolId, ')
+          ..write('totalSessions: $totalSessions, ')
+          ..write('totalParticipants: $totalParticipants, ')
+          ..write('targetDurationSeconds: $targetDurationSeconds, ')
+          ..write('studyTagsJson: $studyTagsJson, ')
+          ..write('enabledSensorsJson: $enabledSensorsJson, ')
+          ..write('active: $active, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ExperimentalStudySessionsTableTable
+    extends ExperimentalStudySessionsTable
+    with
+        TableInfo<
+          $ExperimentalStudySessionsTableTable,
+          ExperimentalStudySessionsTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ExperimentalStudySessionsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _studyIdMeta = const VerificationMeta(
+    'studyId',
+  );
+  @override
+  late final GeneratedColumn<String> studyId = GeneratedColumn<String>(
+    'study_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sessionIdMeta = const VerificationMeta(
+    'sessionId',
+  );
+  @override
+  late final GeneratedColumn<String> sessionId = GeneratedColumn<String>(
+    'session_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _successMeta = const VerificationMeta(
+    'success',
+  );
+  @override
+  late final GeneratedColumn<bool> success = GeneratedColumn<bool>(
+    'success',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("success" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _replayGeneratedMeta = const VerificationMeta(
+    'replayGenerated',
+  );
+  @override
+  late final GeneratedColumn<bool> replayGenerated = GeneratedColumn<bool>(
+    'replay_generated',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("replay_generated" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _benchmarkGeneratedMeta =
+      const VerificationMeta('benchmarkGenerated');
+  @override
+  late final GeneratedColumn<bool> benchmarkGenerated = GeneratedColumn<bool>(
+    'benchmark_generated',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("benchmark_generated" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _subjectiveFeedbackIncludedMeta =
+      const VerificationMeta('subjectiveFeedbackIncluded');
+  @override
+  late final GeneratedColumn<bool> subjectiveFeedbackIncluded =
+      GeneratedColumn<bool>(
+        'subjective_feedback_included',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: true,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("subjective_feedback_included" IN (0, 1))',
+        ),
+      );
+  static const VerificationMeta _multimodalConsensusScoreMeta =
+      const VerificationMeta('multimodalConsensusScore');
+  @override
+  late final GeneratedColumn<double> multimodalConsensusScore =
+      GeneratedColumn<double>(
+        'multimodal_consensus_score',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _safetyCopyMeta = const VerificationMeta(
+    'safetyCopy',
+  );
+  @override
+  late final GeneratedColumn<String> safetyCopy = GeneratedColumn<String>(
+    'safety_copy',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    studyId,
+    sessionId,
+    startedAt,
+    completedAt,
+    success,
+    replayGenerated,
+    benchmarkGenerated,
+    subjectiveFeedbackIncluded,
+    multimodalConsensusScore,
+    safetyCopy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'experimental_study_sessions_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ExperimentalStudySessionsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('study_id')) {
+      context.handle(
+        _studyIdMeta,
+        studyId.isAcceptableOrUnknown(data['study_id']!, _studyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studyIdMeta);
+    }
+    if (data.containsKey('session_id')) {
+      context.handle(
+        _sessionIdMeta,
+        sessionId.isAcceptableOrUnknown(data['session_id']!, _sessionIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sessionIdMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('success')) {
+      context.handle(
+        _successMeta,
+        success.isAcceptableOrUnknown(data['success']!, _successMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_successMeta);
+    }
+    if (data.containsKey('replay_generated')) {
+      context.handle(
+        _replayGeneratedMeta,
+        replayGenerated.isAcceptableOrUnknown(
+          data['replay_generated']!,
+          _replayGeneratedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_replayGeneratedMeta);
+    }
+    if (data.containsKey('benchmark_generated')) {
+      context.handle(
+        _benchmarkGeneratedMeta,
+        benchmarkGenerated.isAcceptableOrUnknown(
+          data['benchmark_generated']!,
+          _benchmarkGeneratedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_benchmarkGeneratedMeta);
+    }
+    if (data.containsKey('subjective_feedback_included')) {
+      context.handle(
+        _subjectiveFeedbackIncludedMeta,
+        subjectiveFeedbackIncluded.isAcceptableOrUnknown(
+          data['subjective_feedback_included']!,
+          _subjectiveFeedbackIncludedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subjectiveFeedbackIncludedMeta);
+    }
+    if (data.containsKey('multimodal_consensus_score')) {
+      context.handle(
+        _multimodalConsensusScoreMeta,
+        multimodalConsensusScore.isAcceptableOrUnknown(
+          data['multimodal_consensus_score']!,
+          _multimodalConsensusScoreMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_multimodalConsensusScoreMeta);
+    }
+    if (data.containsKey('safety_copy')) {
+      context.handle(
+        _safetyCopyMeta,
+        safetyCopy.isAcceptableOrUnknown(data['safety_copy']!, _safetyCopyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_safetyCopyMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ExperimentalStudySessionsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ExperimentalStudySessionsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      studyId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}study_id'],
+      )!,
+      sessionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}session_id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      ),
+      success: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}success'],
+      )!,
+      replayGenerated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}replay_generated'],
+      )!,
+      benchmarkGenerated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}benchmark_generated'],
+      )!,
+      subjectiveFeedbackIncluded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}subjective_feedback_included'],
+      )!,
+      multimodalConsensusScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}multimodal_consensus_score'],
+      )!,
+      safetyCopy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}safety_copy'],
+      )!,
+    );
+  }
+
+  @override
+  $ExperimentalStudySessionsTableTable createAlias(String alias) {
+    return $ExperimentalStudySessionsTableTable(attachedDatabase, alias);
+  }
+}
+
+class ExperimentalStudySessionsTableData extends DataClass
+    implements Insertable<ExperimentalStudySessionsTableData> {
+  final String id;
+  final String studyId;
+  final String sessionId;
+  final DateTime startedAt;
+  final DateTime? completedAt;
+  final bool success;
+  final bool replayGenerated;
+  final bool benchmarkGenerated;
+  final bool subjectiveFeedbackIncluded;
+  final double multimodalConsensusScore;
+  final String safetyCopy;
+  const ExperimentalStudySessionsTableData({
+    required this.id,
+    required this.studyId,
+    required this.sessionId,
+    required this.startedAt,
+    this.completedAt,
+    required this.success,
+    required this.replayGenerated,
+    required this.benchmarkGenerated,
+    required this.subjectiveFeedbackIncluded,
+    required this.multimodalConsensusScore,
+    required this.safetyCopy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['study_id'] = Variable<String>(studyId);
+    map['session_id'] = Variable<String>(sessionId);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    map['success'] = Variable<bool>(success);
+    map['replay_generated'] = Variable<bool>(replayGenerated);
+    map['benchmark_generated'] = Variable<bool>(benchmarkGenerated);
+    map['subjective_feedback_included'] = Variable<bool>(
+      subjectiveFeedbackIncluded,
+    );
+    map['multimodal_consensus_score'] = Variable<double>(
+      multimodalConsensusScore,
+    );
+    map['safety_copy'] = Variable<String>(safetyCopy);
+    return map;
+  }
+
+  ExperimentalStudySessionsTableCompanion toCompanion(bool nullToAbsent) {
+    return ExperimentalStudySessionsTableCompanion(
+      id: Value(id),
+      studyId: Value(studyId),
+      sessionId: Value(sessionId),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      success: Value(success),
+      replayGenerated: Value(replayGenerated),
+      benchmarkGenerated: Value(benchmarkGenerated),
+      subjectiveFeedbackIncluded: Value(subjectiveFeedbackIncluded),
+      multimodalConsensusScore: Value(multimodalConsensusScore),
+      safetyCopy: Value(safetyCopy),
+    );
+  }
+
+  factory ExperimentalStudySessionsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ExperimentalStudySessionsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      studyId: serializer.fromJson<String>(json['studyId']),
+      sessionId: serializer.fromJson<String>(json['sessionId']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      success: serializer.fromJson<bool>(json['success']),
+      replayGenerated: serializer.fromJson<bool>(json['replayGenerated']),
+      benchmarkGenerated: serializer.fromJson<bool>(json['benchmarkGenerated']),
+      subjectiveFeedbackIncluded: serializer.fromJson<bool>(
+        json['subjectiveFeedbackIncluded'],
+      ),
+      multimodalConsensusScore: serializer.fromJson<double>(
+        json['multimodalConsensusScore'],
+      ),
+      safetyCopy: serializer.fromJson<String>(json['safetyCopy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'studyId': serializer.toJson<String>(studyId),
+      'sessionId': serializer.toJson<String>(sessionId),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'success': serializer.toJson<bool>(success),
+      'replayGenerated': serializer.toJson<bool>(replayGenerated),
+      'benchmarkGenerated': serializer.toJson<bool>(benchmarkGenerated),
+      'subjectiveFeedbackIncluded': serializer.toJson<bool>(
+        subjectiveFeedbackIncluded,
+      ),
+      'multimodalConsensusScore': serializer.toJson<double>(
+        multimodalConsensusScore,
+      ),
+      'safetyCopy': serializer.toJson<String>(safetyCopy),
+    };
+  }
+
+  ExperimentalStudySessionsTableData copyWith({
+    String? id,
+    String? studyId,
+    String? sessionId,
+    DateTime? startedAt,
+    Value<DateTime?> completedAt = const Value.absent(),
+    bool? success,
+    bool? replayGenerated,
+    bool? benchmarkGenerated,
+    bool? subjectiveFeedbackIncluded,
+    double? multimodalConsensusScore,
+    String? safetyCopy,
+  }) => ExperimentalStudySessionsTableData(
+    id: id ?? this.id,
+    studyId: studyId ?? this.studyId,
+    sessionId: sessionId ?? this.sessionId,
+    startedAt: startedAt ?? this.startedAt,
+    completedAt: completedAt.present ? completedAt.value : this.completedAt,
+    success: success ?? this.success,
+    replayGenerated: replayGenerated ?? this.replayGenerated,
+    benchmarkGenerated: benchmarkGenerated ?? this.benchmarkGenerated,
+    subjectiveFeedbackIncluded:
+        subjectiveFeedbackIncluded ?? this.subjectiveFeedbackIncluded,
+    multimodalConsensusScore:
+        multimodalConsensusScore ?? this.multimodalConsensusScore,
+    safetyCopy: safetyCopy ?? this.safetyCopy,
+  );
+  ExperimentalStudySessionsTableData copyWithCompanion(
+    ExperimentalStudySessionsTableCompanion data,
+  ) {
+    return ExperimentalStudySessionsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      studyId: data.studyId.present ? data.studyId.value : this.studyId,
+      sessionId: data.sessionId.present ? data.sessionId.value : this.sessionId,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+      success: data.success.present ? data.success.value : this.success,
+      replayGenerated: data.replayGenerated.present
+          ? data.replayGenerated.value
+          : this.replayGenerated,
+      benchmarkGenerated: data.benchmarkGenerated.present
+          ? data.benchmarkGenerated.value
+          : this.benchmarkGenerated,
+      subjectiveFeedbackIncluded: data.subjectiveFeedbackIncluded.present
+          ? data.subjectiveFeedbackIncluded.value
+          : this.subjectiveFeedbackIncluded,
+      multimodalConsensusScore: data.multimodalConsensusScore.present
+          ? data.multimodalConsensusScore.value
+          : this.multimodalConsensusScore,
+      safetyCopy: data.safetyCopy.present
+          ? data.safetyCopy.value
+          : this.safetyCopy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalStudySessionsTableData(')
+          ..write('id: $id, ')
+          ..write('studyId: $studyId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('success: $success, ')
+          ..write('replayGenerated: $replayGenerated, ')
+          ..write('benchmarkGenerated: $benchmarkGenerated, ')
+          ..write('subjectiveFeedbackIncluded: $subjectiveFeedbackIncluded, ')
+          ..write('multimodalConsensusScore: $multimodalConsensusScore, ')
+          ..write('safetyCopy: $safetyCopy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    studyId,
+    sessionId,
+    startedAt,
+    completedAt,
+    success,
+    replayGenerated,
+    benchmarkGenerated,
+    subjectiveFeedbackIncluded,
+    multimodalConsensusScore,
+    safetyCopy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ExperimentalStudySessionsTableData &&
+          other.id == this.id &&
+          other.studyId == this.studyId &&
+          other.sessionId == this.sessionId &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.success == this.success &&
+          other.replayGenerated == this.replayGenerated &&
+          other.benchmarkGenerated == this.benchmarkGenerated &&
+          other.subjectiveFeedbackIncluded == this.subjectiveFeedbackIncluded &&
+          other.multimodalConsensusScore == this.multimodalConsensusScore &&
+          other.safetyCopy == this.safetyCopy);
+}
+
+class ExperimentalStudySessionsTableCompanion
+    extends UpdateCompanion<ExperimentalStudySessionsTableData> {
+  final Value<String> id;
+  final Value<String> studyId;
+  final Value<String> sessionId;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> completedAt;
+  final Value<bool> success;
+  final Value<bool> replayGenerated;
+  final Value<bool> benchmarkGenerated;
+  final Value<bool> subjectiveFeedbackIncluded;
+  final Value<double> multimodalConsensusScore;
+  final Value<String> safetyCopy;
+  final Value<int> rowid;
+  const ExperimentalStudySessionsTableCompanion({
+    this.id = const Value.absent(),
+    this.studyId = const Value.absent(),
+    this.sessionId = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.success = const Value.absent(),
+    this.replayGenerated = const Value.absent(),
+    this.benchmarkGenerated = const Value.absent(),
+    this.subjectiveFeedbackIncluded = const Value.absent(),
+    this.multimodalConsensusScore = const Value.absent(),
+    this.safetyCopy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExperimentalStudySessionsTableCompanion.insert({
+    required String id,
+    required String studyId,
+    required String sessionId,
+    required DateTime startedAt,
+    this.completedAt = const Value.absent(),
+    required bool success,
+    required bool replayGenerated,
+    required bool benchmarkGenerated,
+    required bool subjectiveFeedbackIncluded,
+    required double multimodalConsensusScore,
+    required String safetyCopy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       studyId = Value(studyId),
+       sessionId = Value(sessionId),
+       startedAt = Value(startedAt),
+       success = Value(success),
+       replayGenerated = Value(replayGenerated),
+       benchmarkGenerated = Value(benchmarkGenerated),
+       subjectiveFeedbackIncluded = Value(subjectiveFeedbackIncluded),
+       multimodalConsensusScore = Value(multimodalConsensusScore),
+       safetyCopy = Value(safetyCopy);
+  static Insertable<ExperimentalStudySessionsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? studyId,
+    Expression<String>? sessionId,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? completedAt,
+    Expression<bool>? success,
+    Expression<bool>? replayGenerated,
+    Expression<bool>? benchmarkGenerated,
+    Expression<bool>? subjectiveFeedbackIncluded,
+    Expression<double>? multimodalConsensusScore,
+    Expression<String>? safetyCopy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (studyId != null) 'study_id': studyId,
+      if (sessionId != null) 'session_id': sessionId,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (success != null) 'success': success,
+      if (replayGenerated != null) 'replay_generated': replayGenerated,
+      if (benchmarkGenerated != null) 'benchmark_generated': benchmarkGenerated,
+      if (subjectiveFeedbackIncluded != null)
+        'subjective_feedback_included': subjectiveFeedbackIncluded,
+      if (multimodalConsensusScore != null)
+        'multimodal_consensus_score': multimodalConsensusScore,
+      if (safetyCopy != null) 'safety_copy': safetyCopy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExperimentalStudySessionsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? studyId,
+    Value<String>? sessionId,
+    Value<DateTime>? startedAt,
+    Value<DateTime?>? completedAt,
+    Value<bool>? success,
+    Value<bool>? replayGenerated,
+    Value<bool>? benchmarkGenerated,
+    Value<bool>? subjectiveFeedbackIncluded,
+    Value<double>? multimodalConsensusScore,
+    Value<String>? safetyCopy,
+    Value<int>? rowid,
+  }) {
+    return ExperimentalStudySessionsTableCompanion(
+      id: id ?? this.id,
+      studyId: studyId ?? this.studyId,
+      sessionId: sessionId ?? this.sessionId,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      success: success ?? this.success,
+      replayGenerated: replayGenerated ?? this.replayGenerated,
+      benchmarkGenerated: benchmarkGenerated ?? this.benchmarkGenerated,
+      subjectiveFeedbackIncluded:
+          subjectiveFeedbackIncluded ?? this.subjectiveFeedbackIncluded,
+      multimodalConsensusScore:
+          multimodalConsensusScore ?? this.multimodalConsensusScore,
+      safetyCopy: safetyCopy ?? this.safetyCopy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (studyId.present) {
+      map['study_id'] = Variable<String>(studyId.value);
+    }
+    if (sessionId.present) {
+      map['session_id'] = Variable<String>(sessionId.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (success.present) {
+      map['success'] = Variable<bool>(success.value);
+    }
+    if (replayGenerated.present) {
+      map['replay_generated'] = Variable<bool>(replayGenerated.value);
+    }
+    if (benchmarkGenerated.present) {
+      map['benchmark_generated'] = Variable<bool>(benchmarkGenerated.value);
+    }
+    if (subjectiveFeedbackIncluded.present) {
+      map['subjective_feedback_included'] = Variable<bool>(
+        subjectiveFeedbackIncluded.value,
+      );
+    }
+    if (multimodalConsensusScore.present) {
+      map['multimodal_consensus_score'] = Variable<double>(
+        multimodalConsensusScore.value,
+      );
+    }
+    if (safetyCopy.present) {
+      map['safety_copy'] = Variable<String>(safetyCopy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExperimentalStudySessionsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('studyId: $studyId, ')
+          ..write('sessionId: $sessionId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('success: $success, ')
+          ..write('replayGenerated: $replayGenerated, ')
+          ..write('benchmarkGenerated: $benchmarkGenerated, ')
+          ..write('subjectiveFeedbackIncluded: $subjectiveFeedbackIncluded, ')
+          ..write('multimodalConsensusScore: $multimodalConsensusScore, ')
+          ..write('safetyCopy: $safetyCopy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   _$SignalFlowDatabase(QueryExecutor e) : super(e);
   $SignalFlowDatabaseManager get managers => $SignalFlowDatabaseManager(this);
@@ -24547,6 +26032,10 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
   sensorReliabilityProfilesTable = $SensorReliabilityProfilesTableTable(this);
   late final $SensorComparisonResultsTableTable sensorComparisonResultsTable =
       $SensorComparisonResultsTableTable(this);
+  late final $ExperimentalStudiesTableTable experimentalStudiesTable =
+      $ExperimentalStudiesTableTable(this);
+  late final $ExperimentalStudySessionsTableTable
+  experimentalStudySessionsTable = $ExperimentalStudySessionsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -24587,6 +26076,8 @@ abstract class _$SignalFlowDatabase extends GeneratedDatabase {
     calibrationBenchmarkResultsTable,
     sensorReliabilityProfilesTable,
     sensorComparisonResultsTable,
+    experimentalStudiesTable,
+    experimentalStudySessionsTable,
   ];
 }
 
@@ -36622,6 +38113,722 @@ typedef $$SensorComparisonResultsTableTableProcessedTableManager =
       SensorComparisonResultsTableData,
       PrefetchHooks Function()
     >;
+typedef $$ExperimentalStudiesTableTableCreateCompanionBuilder =
+    ExperimentalStudiesTableCompanion Function({
+      required String id,
+      required String title,
+      required String description,
+      required DateTime createdAt,
+      required String protocolId,
+      required int totalSessions,
+      required int totalParticipants,
+      required int targetDurationSeconds,
+      required String studyTagsJson,
+      required String enabledSensorsJson,
+      required bool active,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ExperimentalStudiesTableTableUpdateCompanionBuilder =
+    ExperimentalStudiesTableCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String> description,
+      Value<DateTime> createdAt,
+      Value<String> protocolId,
+      Value<int> totalSessions,
+      Value<int> totalParticipants,
+      Value<int> targetDurationSeconds,
+      Value<String> studyTagsJson,
+      Value<String> enabledSensorsJson,
+      Value<bool> active,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ExperimentalStudiesTableTableFilterComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalStudiesTableTable> {
+  $$ExperimentalStudiesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalSessions => $composableBuilder(
+    column: $table.totalSessions,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalParticipants => $composableBuilder(
+    column: $table.totalParticipants,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetDurationSeconds => $composableBuilder(
+    column: $table.targetDurationSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studyTagsJson => $composableBuilder(
+    column: $table.studyTagsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get enabledSensorsJson => $composableBuilder(
+    column: $table.enabledSensorsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExperimentalStudiesTableTableOrderingComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalStudiesTableTable> {
+  $$ExperimentalStudiesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalSessions => $composableBuilder(
+    column: $table.totalSessions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalParticipants => $composableBuilder(
+    column: $table.totalParticipants,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetDurationSeconds => $composableBuilder(
+    column: $table.targetDurationSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studyTagsJson => $composableBuilder(
+    column: $table.studyTagsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get enabledSensorsJson => $composableBuilder(
+    column: $table.enabledSensorsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExperimentalStudiesTableTableAnnotationComposer
+    extends Composer<_$SignalFlowDatabase, $ExperimentalStudiesTableTable> {
+  $$ExperimentalStudiesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get protocolId => $composableBuilder(
+    column: $table.protocolId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalSessions => $composableBuilder(
+    column: $table.totalSessions,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get totalParticipants => $composableBuilder(
+    column: $table.totalParticipants,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get targetDurationSeconds => $composableBuilder(
+    column: $table.targetDurationSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get studyTagsJson => $composableBuilder(
+    column: $table.studyTagsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get enabledSensorsJson => $composableBuilder(
+    column: $table.enabledSensorsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ExperimentalStudiesTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ExperimentalStudiesTableTable,
+          ExperimentalStudiesTableData,
+          $$ExperimentalStudiesTableTableFilterComposer,
+          $$ExperimentalStudiesTableTableOrderingComposer,
+          $$ExperimentalStudiesTableTableAnnotationComposer,
+          $$ExperimentalStudiesTableTableCreateCompanionBuilder,
+          $$ExperimentalStudiesTableTableUpdateCompanionBuilder,
+          (
+            ExperimentalStudiesTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ExperimentalStudiesTableTable,
+              ExperimentalStudiesTableData
+            >,
+          ),
+          ExperimentalStudiesTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExperimentalStudiesTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ExperimentalStudiesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExperimentalStudiesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExperimentalStudiesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExperimentalStudiesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<String> protocolId = const Value.absent(),
+                Value<int> totalSessions = const Value.absent(),
+                Value<int> totalParticipants = const Value.absent(),
+                Value<int> targetDurationSeconds = const Value.absent(),
+                Value<String> studyTagsJson = const Value.absent(),
+                Value<String> enabledSensorsJson = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalStudiesTableCompanion(
+                id: id,
+                title: title,
+                description: description,
+                createdAt: createdAt,
+                protocolId: protocolId,
+                totalSessions: totalSessions,
+                totalParticipants: totalParticipants,
+                targetDurationSeconds: targetDurationSeconds,
+                studyTagsJson: studyTagsJson,
+                enabledSensorsJson: enabledSensorsJson,
+                active: active,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required String description,
+                required DateTime createdAt,
+                required String protocolId,
+                required int totalSessions,
+                required int totalParticipants,
+                required int targetDurationSeconds,
+                required String studyTagsJson,
+                required String enabledSensorsJson,
+                required bool active,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalStudiesTableCompanion.insert(
+                id: id,
+                title: title,
+                description: description,
+                createdAt: createdAt,
+                protocolId: protocolId,
+                totalSessions: totalSessions,
+                totalParticipants: totalParticipants,
+                targetDurationSeconds: targetDurationSeconds,
+                studyTagsJson: studyTagsJson,
+                enabledSensorsJson: enabledSensorsJson,
+                active: active,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExperimentalStudiesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ExperimentalStudiesTableTable,
+      ExperimentalStudiesTableData,
+      $$ExperimentalStudiesTableTableFilterComposer,
+      $$ExperimentalStudiesTableTableOrderingComposer,
+      $$ExperimentalStudiesTableTableAnnotationComposer,
+      $$ExperimentalStudiesTableTableCreateCompanionBuilder,
+      $$ExperimentalStudiesTableTableUpdateCompanionBuilder,
+      (
+        ExperimentalStudiesTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ExperimentalStudiesTableTable,
+          ExperimentalStudiesTableData
+        >,
+      ),
+      ExperimentalStudiesTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$ExperimentalStudySessionsTableTableCreateCompanionBuilder =
+    ExperimentalStudySessionsTableCompanion Function({
+      required String id,
+      required String studyId,
+      required String sessionId,
+      required DateTime startedAt,
+      Value<DateTime?> completedAt,
+      required bool success,
+      required bool replayGenerated,
+      required bool benchmarkGenerated,
+      required bool subjectiveFeedbackIncluded,
+      required double multimodalConsensusScore,
+      required String safetyCopy,
+      Value<int> rowid,
+    });
+typedef $$ExperimentalStudySessionsTableTableUpdateCompanionBuilder =
+    ExperimentalStudySessionsTableCompanion Function({
+      Value<String> id,
+      Value<String> studyId,
+      Value<String> sessionId,
+      Value<DateTime> startedAt,
+      Value<DateTime?> completedAt,
+      Value<bool> success,
+      Value<bool> replayGenerated,
+      Value<bool> benchmarkGenerated,
+      Value<bool> subjectiveFeedbackIncluded,
+      Value<double> multimodalConsensusScore,
+      Value<String> safetyCopy,
+      Value<int> rowid,
+    });
+
+class $$ExperimentalStudySessionsTableTableFilterComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalStudySessionsTableTable> {
+  $$ExperimentalStudySessionsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studyId => $composableBuilder(
+    column: $table.studyId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get success => $composableBuilder(
+    column: $table.success,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get replayGenerated => $composableBuilder(
+    column: $table.replayGenerated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get benchmarkGenerated => $composableBuilder(
+    column: $table.benchmarkGenerated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get subjectiveFeedbackIncluded => $composableBuilder(
+    column: $table.subjectiveFeedbackIncluded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get multimodalConsensusScore => $composableBuilder(
+    column: $table.multimodalConsensusScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ExperimentalStudySessionsTableTableOrderingComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalStudySessionsTableTable> {
+  $$ExperimentalStudySessionsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studyId => $composableBuilder(
+    column: $table.studyId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sessionId => $composableBuilder(
+    column: $table.sessionId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get success => $composableBuilder(
+    column: $table.success,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get replayGenerated => $composableBuilder(
+    column: $table.replayGenerated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get benchmarkGenerated => $composableBuilder(
+    column: $table.benchmarkGenerated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get subjectiveFeedbackIncluded => $composableBuilder(
+    column: $table.subjectiveFeedbackIncluded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get multimodalConsensusScore => $composableBuilder(
+    column: $table.multimodalConsensusScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ExperimentalStudySessionsTableTableAnnotationComposer
+    extends
+        Composer<_$SignalFlowDatabase, $ExperimentalStudySessionsTableTable> {
+  $$ExperimentalStudySessionsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get studyId =>
+      $composableBuilder(column: $table.studyId, builder: (column) => column);
+
+  GeneratedColumn<String> get sessionId =>
+      $composableBuilder(column: $table.sessionId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get success =>
+      $composableBuilder(column: $table.success, builder: (column) => column);
+
+  GeneratedColumn<bool> get replayGenerated => $composableBuilder(
+    column: $table.replayGenerated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get benchmarkGenerated => $composableBuilder(
+    column: $table.benchmarkGenerated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get subjectiveFeedbackIncluded => $composableBuilder(
+    column: $table.subjectiveFeedbackIncluded,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get multimodalConsensusScore => $composableBuilder(
+    column: $table.multimodalConsensusScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get safetyCopy => $composableBuilder(
+    column: $table.safetyCopy,
+    builder: (column) => column,
+  );
+}
+
+class $$ExperimentalStudySessionsTableTableTableManager
+    extends
+        RootTableManager<
+          _$SignalFlowDatabase,
+          $ExperimentalStudySessionsTableTable,
+          ExperimentalStudySessionsTableData,
+          $$ExperimentalStudySessionsTableTableFilterComposer,
+          $$ExperimentalStudySessionsTableTableOrderingComposer,
+          $$ExperimentalStudySessionsTableTableAnnotationComposer,
+          $$ExperimentalStudySessionsTableTableCreateCompanionBuilder,
+          $$ExperimentalStudySessionsTableTableUpdateCompanionBuilder,
+          (
+            ExperimentalStudySessionsTableData,
+            BaseReferences<
+              _$SignalFlowDatabase,
+              $ExperimentalStudySessionsTableTable,
+              ExperimentalStudySessionsTableData
+            >,
+          ),
+          ExperimentalStudySessionsTableData,
+          PrefetchHooks Function()
+        > {
+  $$ExperimentalStudySessionsTableTableTableManager(
+    _$SignalFlowDatabase db,
+    $ExperimentalStudySessionsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ExperimentalStudySessionsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$ExperimentalStudySessionsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ExperimentalStudySessionsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> studyId = const Value.absent(),
+                Value<String> sessionId = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<bool> success = const Value.absent(),
+                Value<bool> replayGenerated = const Value.absent(),
+                Value<bool> benchmarkGenerated = const Value.absent(),
+                Value<bool> subjectiveFeedbackIncluded = const Value.absent(),
+                Value<double> multimodalConsensusScore = const Value.absent(),
+                Value<String> safetyCopy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalStudySessionsTableCompanion(
+                id: id,
+                studyId: studyId,
+                sessionId: sessionId,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                success: success,
+                replayGenerated: replayGenerated,
+                benchmarkGenerated: benchmarkGenerated,
+                subjectiveFeedbackIncluded: subjectiveFeedbackIncluded,
+                multimodalConsensusScore: multimodalConsensusScore,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String studyId,
+                required String sessionId,
+                required DateTime startedAt,
+                Value<DateTime?> completedAt = const Value.absent(),
+                required bool success,
+                required bool replayGenerated,
+                required bool benchmarkGenerated,
+                required bool subjectiveFeedbackIncluded,
+                required double multimodalConsensusScore,
+                required String safetyCopy,
+                Value<int> rowid = const Value.absent(),
+              }) => ExperimentalStudySessionsTableCompanion.insert(
+                id: id,
+                studyId: studyId,
+                sessionId: sessionId,
+                startedAt: startedAt,
+                completedAt: completedAt,
+                success: success,
+                replayGenerated: replayGenerated,
+                benchmarkGenerated: benchmarkGenerated,
+                subjectiveFeedbackIncluded: subjectiveFeedbackIncluded,
+                multimodalConsensusScore: multimodalConsensusScore,
+                safetyCopy: safetyCopy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ExperimentalStudySessionsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SignalFlowDatabase,
+      $ExperimentalStudySessionsTableTable,
+      ExperimentalStudySessionsTableData,
+      $$ExperimentalStudySessionsTableTableFilterComposer,
+      $$ExperimentalStudySessionsTableTableOrderingComposer,
+      $$ExperimentalStudySessionsTableTableAnnotationComposer,
+      $$ExperimentalStudySessionsTableTableCreateCompanionBuilder,
+      $$ExperimentalStudySessionsTableTableUpdateCompanionBuilder,
+      (
+        ExperimentalStudySessionsTableData,
+        BaseReferences<
+          _$SignalFlowDatabase,
+          $ExperimentalStudySessionsTableTable,
+          ExperimentalStudySessionsTableData
+        >,
+      ),
+      ExperimentalStudySessionsTableData,
+      PrefetchHooks Function()
+    >;
 
 class $SignalFlowDatabaseManager {
   final _$SignalFlowDatabase _db;
@@ -36801,5 +39008,16 @@ class $SignalFlowDatabaseManager {
       $$SensorComparisonResultsTableTableTableManager(
         _db,
         _db.sensorComparisonResultsTable,
+      );
+  $$ExperimentalStudiesTableTableTableManager get experimentalStudiesTable =>
+      $$ExperimentalStudiesTableTableTableManager(
+        _db,
+        _db.experimentalStudiesTable,
+      );
+  $$ExperimentalStudySessionsTableTableTableManager
+  get experimentalStudySessionsTable =>
+      $$ExperimentalStudySessionsTableTableTableManager(
+        _db,
+        _db.experimentalStudySessionsTable,
       );
 }

@@ -101,13 +101,14 @@ void main() {
     test('migration 20 to 21 is registered', () {
       final migrationService = DatabaseMigrationService(database: database);
 
-      expect(migrationService.currentSchemaVersion, 21);
-      expect(migrationService.registeredMigrations.last.fromVersion, 20);
-      expect(migrationService.registeredMigrations.last.toVersion, 21);
-      expect(
-        migrationService.registeredMigrations.last.description,
-        contains('Sensor reliability validation'),
+      expect(migrationService.currentSchemaVersion, 22);
+      final migration = migrationService.registeredMigrations.firstWhere(
+        (entry) => entry.toVersion == 21,
       );
+
+      expect(migration.fromVersion, 20);
+      expect(migration.toVersion, 21);
+      expect(migration.description, contains('Sensor reliability validation'));
     });
   });
 }

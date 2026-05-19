@@ -17,14 +17,14 @@ void main() {
     test('exposes current schema version', () {
       final service = DatabaseMigrationService(database: database);
 
-      expect(service.currentSchemaVersion, 21);
+      expect(service.currentSchemaVersion, 22);
     });
 
     test('registers initial Drift persistence migration', () {
       final service = DatabaseMigrationService(database: database);
       final migrations = service.registeredMigrations;
 
-      expect(migrations, hasLength(21));
+      expect(migrations, hasLength(22));
       expect(migrations.first.fromVersion, 0);
       expect(migrations.first.toVersion, 1);
       expect(migrations.first.description, contains('Drift persistence'));
@@ -91,11 +91,17 @@ void main() {
       expect(migrations[19].fromVersion, 19);
       expect(migrations[19].toVersion, 20);
       expect(migrations[19].description, contains('Calibration lab'));
-      expect(migrations.last.fromVersion, 20);
-      expect(migrations.last.toVersion, 21);
+      expect(migrations[20].fromVersion, 20);
+      expect(migrations[20].toVersion, 21);
+      expect(
+        migrations[20].description,
+        contains('Sensor reliability validation'),
+      );
+      expect(migrations.last.fromVersion, 21);
+      expect(migrations.last.toVersion, 22);
       expect(
         migrations.last.description,
-        contains('Sensor reliability validation'),
+        contains('Experimental study persistence'),
       );
     });
 
