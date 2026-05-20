@@ -1,5 +1,5 @@
-name: alerta_de_crise
-description: "A new Flutter project."
+name: signalflow
+description: "SignalFlow acompanha sinais fisiológicos com HealthKit, simulação e protocolos guiados de pesquisa pessoal."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -28,14 +28,19 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  drift: ^2.33.0
+  drift_flutter: ^0.3.0
   flutter:
     sdk: flutter
+  flutter_reactive_ble: ^5.4.2
   health: ^13.3.1
   shared_preferences: ^2.5.5
+  sqlite3_flutter_libs: ^0.6.0+eol
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -43,6 +48,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  build_runner: ^2.15.0
+  drift_dev: ^2.33.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -85,3 +92,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon/app_icon.png"
+  remove_alpha_ios: true

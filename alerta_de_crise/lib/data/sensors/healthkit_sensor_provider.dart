@@ -6,7 +6,8 @@ import 'package:health/health.dart';
 import '../../domain/models/sensor_sample.dart';
 import 'sensor_provider.dart';
 
-final class HealthKitSensorProvider implements SensorProvider {
+final class HealthKitSensorProvider
+    implements SensorProvider, ResettableSensorDeduplication {
   HealthKitSensorProvider({Health? health}) : _health = health ?? Health();
 
   static const List<HealthDataType> plannedTypes = [
@@ -21,6 +22,7 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   final Health _health;
   String _permissionStatusMessage = 'Permissão HealthKit ainda não solicitada.';
+  String? _lastEmittedSampleId;
   static const int _fallbackHrv = 40;
   static const Duration _diagnosticWindow = Duration(minutes: 30);
 
@@ -223,31 +225,55 @@ final class HealthKitSensorProvider implements SensorProvider {
   @override
   Stream<SensorSample> watchSamples() {
     Timer? timer;
-    String? lastSampleId;
     final controller = StreamController<SensorSample>();
 
     Future<void> poll() async {
+      _debugLog('watchSamples polling executado.');
       final sample = await getLatestSample();
-      if (sample == null || sample.id == lastSampleId || controller.isClosed) {
+      if (controller.isClosed) {
+        _debugLog('watchSamples sample descartado: controller fechado.');
+        return;
+      }
+      if (sample == null) {
+        _debugLog(
+          'watchSamples sample descartado: getLatestSample retornou null.',
+        );
+        return;
+      }
+      _debugLog('watchSamples sample encontrado: ${_describeSample(sample)}.');
+      if (sample.id == _lastEmittedSampleId) {
+        _debugLog(
+          'watchSamples sample descartado: duplicado id=${sample.id} '
+          'lastSampleId=$_lastEmittedSampleId.',
+        );
         return;
       }
 
-      lastSampleId = sample.id;
+      _lastEmittedSampleId = sample.id;
+      _debugLog('watchSamples sample emitido: ${_describeSample(sample)}.');
       controller.add(sample);
     }
 
     controller.onListen = () {
+      _debugLog('watchSamples polling iniciado: intervalo=15s.');
       unawaited(poll());
       timer = Timer.periodic(const Duration(seconds: 15), (_) {
         unawaited(poll());
       });
     };
     controller.onCancel = () {
+      _debugLog('watchSamples polling cancelado.');
       timer?.cancel();
       timer = null;
     };
 
     return controller.stream;
+  }
+
+  @override
+  void resetDeduplication() {
+    _debugLog('watchSamples deduplicação resetada.');
+    _lastEmittedSampleId = null;
   }
 
   Future<bool> _ensurePermissionsForRead() async {
@@ -325,5 +351,11 @@ final class HealthKitSensorProvider implements SensorProvider {
 
   void _debugLog(String message) {
     developer.log(message, name: 'HealthKitSensorProvider');
+  }
+
+  String _describeSample(SensorSample sample) {
+    return 'id=${sample.id} ts=${sample.timestamp.toIso8601String()} '
+        'FC=${sample.heartRate} HRV=${sample.hrv} '
+        'motion=${sample.motionState}';
   }
 }

@@ -40,3 +40,7 @@ abstract interface class SensorProvider {
     return const Stream<SensorSample>.empty();
   }
 }
+
+abstract interface class ResettableSensorDeduplication {
+  void resetDeduplication();
+}

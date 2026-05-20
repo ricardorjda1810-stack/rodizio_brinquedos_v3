@@ -4,29 +4,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:alerta_de_crise/app_state.dart';
-import 'package:alerta_de_crise/data/export/csv_exporter.dart';
-import 'package:alerta_de_crise/data/repositories/local_calibration_repository.dart';
-import 'package:alerta_de_crise/data/repositories/local_event_repository.dart';
-import 'package:alerta_de_crise/data/repositories/local_research_session_repository.dart';
-import 'package:alerta_de_crise/data/repositories/mock_risk_repository.dart';
-import 'package:alerta_de_crise/data/repositories/onboarding_repository.dart';
-import 'package:alerta_de_crise/data/sensors/healthkit_sensor_provider.dart';
-import 'package:alerta_de_crise/data/sensors/mock_sensor_provider.dart';
-import 'package:alerta_de_crise/data/sensors/sensor_provider.dart';
-import 'package:alerta_de_crise/domain/models/calibration_feedback.dart';
-import 'package:alerta_de_crise/domain/models/collection_diagnostics.dart';
-import 'package:alerta_de_crise/domain/models/feeling_level.dart';
-import 'package:alerta_de_crise/domain/models/research_session.dart';
-import 'package:alerta_de_crise/domain/models/risk_event.dart';
-import 'package:alerta_de_crise/domain/models/risk_state.dart';
-import 'package:alerta_de_crise/domain/models/session_sample.dart';
-import 'package:alerta_de_crise/domain/models/sensor_sample.dart';
-import 'package:alerta_de_crise/domain/models/sensitivity_level.dart';
-import 'package:alerta_de_crise/domain/models/temporal_sample_analysis.dart';
-import 'package:alerta_de_crise/domain/risk_engine.dart';
-import 'package:alerta_de_crise/main.dart';
-import 'package:alerta_de_crise/ui/widgets/simple_timeline_chart.dart';
+import 'package:signalflow/app_state.dart';
+import 'package:signalflow/data/export/csv_exporter.dart';
+import 'package:signalflow/data/repositories/local_calibration_repository.dart';
+import 'package:signalflow/data/repositories/local_event_repository.dart';
+import 'package:signalflow/data/repositories/local_research_session_repository.dart';
+import 'package:signalflow/data/repositories/mock_risk_repository.dart';
+import 'package:signalflow/data/repositories/onboarding_repository.dart';
+import 'package:signalflow/data/sensors/healthkit_sensor_provider.dart';
+import 'package:signalflow/data/sensors/mock_sensor_provider.dart';
+import 'package:signalflow/data/sensors/sensor_provider.dart';
+import 'package:signalflow/domain/models/calibration_feedback.dart';
+import 'package:signalflow/domain/models/collection_diagnostics.dart';
+import 'package:signalflow/domain/models/experimental_insight.dart';
+import 'package:signalflow/domain/models/feeling_level.dart';
+import 'package:signalflow/domain/models/guided_protocol_analysis.dart';
+import 'package:signalflow/domain/models/research_session.dart';
+import 'package:signalflow/domain/models/risk_event.dart';
+import 'package:signalflow/domain/models/risk_state.dart';
+import 'package:signalflow/domain/models/session_sample.dart';
+import 'package:signalflow/domain/models/sensor_sample.dart';
+import 'package:signalflow/domain/models/sensitivity_level.dart';
+import 'package:signalflow/domain/models/temporal_sample_analysis.dart';
+import 'package:signalflow/domain/risk_engine.dart';
+import 'package:signalflow/main.dart';
+import 'package:signalflow/ui/widgets/simple_timeline_chart.dart';
 
 void main() {
   setUp(() {
@@ -368,12 +370,22 @@ void main() {
     expect(appState.currentSample.id, 'healthkit-1');
     expect(appState.currentResearchSession?.samples, hasLength(1));
     expect(appState.currentResearchSession?.samples.first.heartRate, 88);
+    expect(appState.emittedSamples, 1);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 0);
+    expect(appState.lastPipelineEmittedSample?.id, 'healthkit-1');
+    expect(appState.lastPipelineSavedSample?.heartRate, 88);
 
     provider.add(_sample('healthkit-1-copy', 88, 35, motionState: 'healthkit'));
     await Future<void>.delayed(Duration.zero);
 
     expect(appState.currentResearchSession?.samples, hasLength(1));
     expect(appState.collectionDiagnostics.duplicateSamplesSkipped, 1);
+    expect(appState.emittedSamples, 2);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 1);
+    expect(appState.lastPipelineIgnoredSample?.id, 'healthkit-1-copy');
+    expect(appState.lastPipelineIgnoreReason, contains('duplicado'));
 
     appState.endResearchSession();
     await Future<void>.delayed(Duration.zero);
@@ -387,6 +399,70 @@ void main() {
     await provider.close();
     appState.dispose();
   });
+
+  test('healthkit session saves immediate latest sample on start', () async {
+    final provider = _StreamHealthKitSensorProvider(
+      latestSample: _sample(
+        'healthkit-immediate',
+        86,
+        36,
+        motionState: 'healthkit',
+      ),
+    );
+    final appState = AppState(
+      currentSample: _sample('current', 92, 28),
+      currentRiskState: RiskState.atencao,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: provider,
+      loadPersistedEvents: false,
+      loadPersistedSettings: false,
+    );
+
+    appState.startResearchSession();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(provider.resetDeduplicationCount, 1);
+    expect(provider.watchListenCount, 1);
+    expect(provider.getLatestSampleCount, 1);
+    expect(appState.currentResearchSession?.samples, hasLength(1));
+    expect(appState.currentResearchSession?.samples.first.heartRate, 86);
+    expect(appState.savedSamples, 1);
+
+    await provider.close();
+    appState.dispose();
+  });
+
+  test(
+    'starting a new healthkit session restarts stream and resets dedupe',
+    () async {
+      final provider = _StreamHealthKitSensorProvider();
+      final appState = AppState(
+        currentSample: _sample('current', 92, 28),
+        currentRiskState: RiskState.atencao,
+        currentStatusMessage: '',
+        events: const [],
+        sensorProvider: provider,
+        loadPersistedEvents: false,
+        loadPersistedSettings: false,
+      );
+
+      appState.startResearchSession();
+      await Future<void>.delayed(Duration.zero);
+      appState.endResearchSession();
+      await Future<void>.delayed(Duration.zero);
+      appState.startResearchSession();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(provider.watchListenCount, 2);
+      expect(provider.cancelCount, 1);
+      expect(provider.resetDeduplicationCount, 2);
+      expect(appState.isHealthKitSessionCollectionActive, isTrue);
+
+      await provider.close();
+      appState.dispose();
+    },
+  );
 
   test(
     'healthkit session accepts heart rate sample without real hrv',
@@ -553,6 +629,208 @@ void main() {
     expect(verySparse.qualityLabel, 'Muito esparso');
   });
 
+  test('guided protocol analysis groups samples by phase', () {
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        60,
+        42,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 0, 30),
+        64,
+        40,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        94,
+        32,
+        protocolStepLabel: 'Ativação leve',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 2),
+        72,
+        38,
+        protocolStepLabel: 'Recuperação',
+      ),
+    ]);
+
+    expect(analysis.totalSamples, 4);
+    expect(analysis.overallAverageHeartRate, 72.5);
+    expect(analysis.phases.map((phase) => phase.stepLabel), [
+      'Repouso',
+      'Ativação leve',
+      'Recuperação',
+    ]);
+
+    final rest = analysis.phases.first;
+    expect(rest.sampleCount, 2);
+    expect(rest.averageHeartRate, 62);
+    expect(rest.minHeartRate, 60);
+    expect(rest.maxHeartRate, 64);
+    expect(rest.averageHrv, 41);
+    expect(rest.durationSeconds, 30);
+    expect(analysis.hasEnoughDataForCompleteAnalysis, isTrue);
+  });
+
+  test('guided protocol analysis ignores missing hrv values', () {
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        92,
+        40,
+        motionState: 'healthkit-hrv-indisponivel',
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        96,
+        0,
+        protocolStepLabel: 'Repouso',
+      ),
+    ]);
+
+    expect(analysis.phases.single.averageHrv, isNull);
+    expect(analysis.phases.single.minHrv, isNull);
+    expect(analysis.phases.single.maxHrv, isNull);
+    expect(analysis.overallAverageHrv, isNull);
+  });
+
+  test('app state generates activation and recovery insights', () async {
+    final provider = _StreamHealthKitSensorProvider();
+    final appState = AppState(
+      currentSample: _sample('current', 72, 42),
+      currentRiskState: RiskState.normal,
+      currentStatusMessage: '',
+      events: const [],
+      sensorProvider: provider,
+    );
+
+    appState.startGuidedProtocol();
+    provider.add(
+      _sample('rest-1', 62, 40, timestamp: DateTime(2026, 5, 13, 12)),
+    );
+    provider.add(
+      _sample('rest-2', 64, 41, timestamp: DateTime(2026, 5, 13, 12, 0, 15)),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    appState.advanceGuidedProtocolStep();
+    provider.add(
+      _sample('activation-1', 88, 35, timestamp: DateTime(2026, 5, 13, 12, 1)),
+    );
+    provider.add(
+      _sample(
+        'activation-2',
+        92,
+        34,
+        timestamp: DateTime(2026, 5, 13, 12, 1, 15),
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    appState.advanceGuidedProtocolStep();
+    provider.add(
+      _sample('recovery-1', 74, 38, timestamp: DateTime(2026, 5, 13, 12, 2)),
+    );
+    provider.add(
+      _sample(
+        'recovery-2',
+        72,
+        39,
+        timestamp: DateTime(2026, 5, 13, 12, 2, 15),
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    final insights = appState.currentExperimentalInsights;
+
+    expect(
+      insights.map((insight) => insight.category),
+      containsAll([InsightCategory.activation, InsightCategory.recovery]),
+    );
+    expect(
+      insights.map((insight) => insight.title),
+      containsAll([
+        'Sinais aumentaram na ativação',
+        'Sinais reduziram na recuperação',
+      ]),
+    );
+    expect(
+      insights
+          .firstWhere(
+            (insight) => insight.category == InsightCategory.activation,
+          )
+          .valueSummary,
+      contains('+27 bpm'),
+    );
+
+    await provider.close();
+    appState.dispose();
+  });
+
+  test(
+    'app state generates sparse collection and missing hrv insights',
+    () async {
+      final provider = _StreamHealthKitSensorProvider();
+      final appState = AppState(
+        currentSample: _sample('current', 72, 42),
+        currentRiskState: RiskState.normal,
+        currentStatusMessage: '',
+        events: const [],
+        sensorProvider: provider,
+      );
+
+      appState.startGuidedProtocol();
+      provider.add(
+        _sample(
+          'rest-1',
+          70,
+          40,
+          motionState: 'healthkit-hrv-indisponivel',
+          timestamp: DateTime(2026, 5, 13, 12),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      appState.advanceGuidedProtocolStep();
+      provider.add(
+        _sample(
+          'activation-1',
+          82,
+          40,
+          motionState: 'healthkit-hrv-indisponivel',
+          timestamp: DateTime(2026, 5, 13, 12, 10),
+        ),
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      final insights = appState.currentExperimentalInsights;
+
+      expect(
+        insights.map((insight) => insight.title),
+        containsAll(['Coleta muito esparsa', 'HRV indisponível']),
+      );
+      expect(
+        insights
+            .firstWhere((insight) => insight.title == 'Coleta muito esparsa')
+            .valueSummary,
+        '0.20 samples/min',
+      );
+      expect(
+        insights
+            .firstWhere((insight) => insight.title == 'HRV indisponível')
+            .valueSummary,
+        '0 samples HRV',
+      );
+
+      await provider.close();
+      appState.dispose();
+    },
+  );
+
   test('app state requests mock provider permissions safely', () async {
     final appState = AppState.fromRepository(const MockRiskRepository());
 
@@ -607,8 +885,29 @@ void main() {
     expect(find.text('Pesquisa'), findsOneWidget);
     expect(find.text('Sem sessão ativa'), findsOneWidget);
     expect(find.text('Protocolo guiado'), findsOneWidget);
-    expect(find.text('Diagnóstico da coleta'), findsOneWidget);
-    expect(find.text('Total de samples: 0'), findsOneWidget);
+    expect(find.text('Debug da sessão', skipOffstage: false), findsOneWidget);
+    expect(find.text('Stream ativa: não', skipOffstage: false), findsOneWidget);
+    expect(find.text('Total emitido: 0', skipOffstage: false), findsOneWidget);
+    expect(
+      find.text('Diagnóstico da coleta', skipOffstage: false),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Total de samples: 0', skipOffstage: false),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Iniciar sessão'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sessão ativa'), findsOneWidget);
+    expect(find.text('Amostras coletadas: 0'), findsOneWidget);
+
+    await tester.tap(find.text('Iniciar simulação'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Amostras coletadas: 1'), findsOneWidget);
+    expect(find.text('Última amostra'), findsOneWidget);
+
     await tester.scrollUntilVisible(find.text('Análise temporal'), 120);
     expect(find.text('Análise temporal'), findsOneWidget);
     expect(
@@ -624,21 +923,6 @@ void main() {
       find.text('Executar diagnóstico', skipOffstage: false),
       findsOneWidget,
     );
-
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, 1000));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Iniciar sessão'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Sessão ativa'), findsOneWidget);
-    expect(find.text('Amostras coletadas: 0'), findsOneWidget);
-
-    await tester.tap(find.text('Iniciar simulação'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Amostras coletadas: 1'), findsOneWidget);
-    expect(find.text('Total de samples: 1'), findsOneWidget);
-    expect(find.text('Última amostra'), findsOneWidget);
   });
 
   testWidgets('guided protocol route starts and advances steps', (
@@ -655,6 +939,12 @@ void main() {
 
     expect(find.text('Protocolo guiado'), findsOneWidget);
     expect(find.text('Iniciar protocolo'), findsOneWidget);
+    expect(find.text('Análise por fase'), findsOneWidget);
+    expect(find.text('Insights experimentais'), findsOneWidget);
+    expect(
+      find.text('Nenhum insight experimental disponível ainda.'),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Iniciar protocolo'));
     await tester.pump();
@@ -662,6 +952,10 @@ void main() {
     expect(find.text('Fase atual: Repouso'), findsOneWidget);
     expect(find.textContaining('Timer:'), findsOneWidget);
     expect(find.text('Samples nesta sessão: 1'), findsOneWidget);
+    expect(find.textContaining('Repouso -> FC média'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Insights experimentais'), 120);
+    expect(find.text('Protocolo com dados parciais'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Avançar etapa'), -120);
 
     await tester.tap(find.text('Avançar etapa'));
     await tester.pump(const Duration(seconds: 1));
@@ -701,6 +995,9 @@ void main() {
     expect(session!.samples, hasLength(1));
     expect(session.samples.first.heartRate, appState.currentSample.heartRate);
     expect(session.samples.first.riskScore, appState.currentScore);
+    expect(appState.emittedSamples, 1);
+    expect(appState.savedSamples, 1);
+    expect(appState.ignoredSamples, 0);
 
     appState.endResearchSession();
 
@@ -1158,6 +1455,55 @@ void main() {
     );
   });
 
+  test('csv exporter writes guided protocol analysis', () {
+    const exporter = CsvExporter();
+    final analysis = GuidedProtocolAnalysis.fromSamples([
+      _sessionSample(
+        DateTime(2026, 5, 13, 12),
+        60,
+        42,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 0, 30),
+        64,
+        40,
+        protocolStepLabel: 'Repouso',
+      ),
+      _sessionSample(
+        DateTime(2026, 5, 13, 12, 1),
+        94,
+        32,
+        protocolStepLabel: 'Ativação leve',
+      ),
+    ]);
+
+    final csv = exporter.exportGuidedProtocolAnalysis(analysis);
+
+    expect(
+      csv,
+      'phase,sampleCount,averageHeartRate,minHeartRate,maxHeartRate,averageHrv,durationSeconds\nRepouso,2,62.0,60,64,41.0,30.0\nAtivação leve,1,94.0,94,94,32.0,0.0',
+    );
+  });
+
+  test('csv exporter writes experimental insights', () {
+    const exporter = CsvExporter();
+    final csv = exporter.exportExperimentalInsights(const [
+      ExperimentalInsight(
+        title: 'Sinais aumentaram na ativação',
+        description: 'Os sinais fisiológicos aumentaram durante a fase.',
+        category: InsightCategory.activation,
+        confidenceLabel: 'moderada',
+        valueSummary: 'Repouso 62 bpm -> ativação 90 bpm (+28 bpm)',
+      ),
+    ]);
+
+    expect(
+      csv,
+      'category,title,description,confidence,valueSummary\nactivation,Sinais aumentaram na ativação,Os sinais fisiológicos aumentaram durante a fase.,moderada,Repouso 62 bpm -> ativação 90 bpm (+28 bpm)',
+    );
+  });
+
   test('csv exporter writes calibration feedbacks', () {
     const exporter = CsvExporter();
     final csv = exporter.exportCalibrationFeedbacks([
@@ -1217,11 +1563,17 @@ final class _NullHealthKitSensorProvider implements SensorProvider {
   }
 }
 
-final class _StreamHealthKitSensorProvider implements SensorProvider {
-  final StreamController<SensorSample> _controller =
-      StreamController<SensorSample>();
+final class _StreamHealthKitSensorProvider
+    implements SensorProvider, ResettableSensorDeduplication {
+  _StreamHealthKitSensorProvider({this.latestSample});
 
+  StreamController<SensorSample>? _controller;
+  SensorSample? latestSample;
   bool isCanceled = false;
+  int cancelCount = 0;
+  int watchListenCount = 0;
+  int resetDeduplicationCount = 0;
+  int getLatestSampleCount = 0;
 
   @override
   SensorProviderType get type => SensorProviderType.healthkit;
@@ -1231,7 +1583,8 @@ final class _StreamHealthKitSensorProvider implements SensorProvider {
 
   @override
   Future<SensorSample?> getLatestSample() async {
-    return null;
+    getLatestSampleCount += 1;
+    return latestSample;
   }
 
   @override
@@ -1246,20 +1599,30 @@ final class _StreamHealthKitSensorProvider implements SensorProvider {
 
   @override
   Stream<SensorSample> watchSamples() {
-    _controller.onCancel = () {
+    watchListenCount += 1;
+    final controller = StreamController<SensorSample>();
+    _controller = controller;
+    controller.onCancel = () {
       isCanceled = true;
+      cancelCount += 1;
     };
-    return _controller.stream;
+    return controller.stream;
   }
 
   void add(SensorSample sample) {
-    if (!_controller.isClosed) {
-      _controller.add(sample);
+    final controller = _controller;
+    if (controller != null && !controller.isClosed) {
+      controller.add(sample);
     }
   }
 
-  Future<void> close() {
-    return _controller.close();
+  @override
+  void resetDeduplication() {
+    resetDeduplicationCount += 1;
+  }
+
+  Future<void> close() async {
+    await _controller?.close();
   }
 }
 
@@ -1268,10 +1631,11 @@ SensorSample _sample(
   int heartRate,
   int hrv, {
   String motionState = 'parado',
+  DateTime? timestamp,
 }) {
   return SensorSample(
     id: id,
-    timestamp: DateTime(2026),
+    timestamp: timestamp ?? DateTime(2026),
     heartRate: heartRate,
     hrv: hrv,
     motionState: motionState,
@@ -1283,6 +1647,7 @@ SessionSample _sessionSample(
   int heartRate,
   int hrv, {
   String motionState = 'healthkit',
+  String? protocolStepLabel,
 }) {
   return SessionSample(
     timestamp: timestamp,
@@ -1291,6 +1656,7 @@ SessionSample _sessionSample(
     riskScore: 42,
     riskState: RiskState.normal,
     motionState: motionState,
+    protocolStepLabel: protocolStepLabel,
   );
 }
 
