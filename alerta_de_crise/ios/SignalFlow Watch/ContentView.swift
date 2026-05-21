@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var healthKitManager = HealthKitManager()
+    @StateObject private var workoutSessionManager = WorkoutSessionManager()
 
     var body: some View {
         VStack(spacing: 10) {
@@ -38,8 +39,67 @@ struct ContentView: View {
                 healthKitManager.prepareSession()
             }
             .buttonStyle(.borderedProminent)
+
+            Divider()
+
+            VStack(spacing: 4) {
+                Text("FC atual")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                Text(heartRateText)
+                    .font(.title3.monospacedDigit())
+                    .multilineTextAlignment(.center)
+            }
+
+            VStack(spacing: 4) {
+                Text("Sessao live")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                Text(workoutSessionManager.state.label)
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+            }
+
+            Text("Updates: \(workoutSessionManager.updateCount)")
+                .font(.caption.monospacedDigit())
+
+            Text(timestampText)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            HStack {
+                Button("Iniciar sessão") {
+                    workoutSessionManager.startSession()
+                }
+                .disabled(workoutSessionManager.state == .running || workoutSessionManager.state == .preparing)
+
+                Button("Encerrar sessão") {
+                    workoutSessionManager.stopSession()
+                }
+                .disabled(workoutSessionManager.state != .running)
+            }
+            .buttonStyle(.bordered)
         }
         .padding()
+    }
+
+    private var heartRateText: String {
+        guard let currentHeartRate = workoutSessionManager.currentHeartRate else {
+            return "-- bpm"
+        }
+
+        return "\(Int(currentHeartRate.rounded())) bpm"
+    }
+
+    private var timestampText: String {
+        guard let lastUpdateTimestamp = workoutSessionManager.lastUpdateTimestamp else {
+            return "Sem updates"
+        }
+
+        return lastUpdateTimestamp.formatted(date: .omitted, time: .standard)
     }
 }
 
