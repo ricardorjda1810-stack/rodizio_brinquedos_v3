@@ -20,6 +20,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>O SignalFlow Watch prepara acesso a frequencia cardiaca e HRV para futuras sessoes ao vivo.</string>
 	<key>WKApplication</key>
 	<true/>
 </dict>
