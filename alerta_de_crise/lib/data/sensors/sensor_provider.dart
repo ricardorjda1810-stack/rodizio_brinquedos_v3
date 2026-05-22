@@ -2,12 +2,14 @@ import '../../domain/models/sensor_sample.dart';
 
 enum SensorProviderType {
   mock,
-  healthkit;
+  healthkit,
+  polarH10;
 
   String get label {
     return switch (this) {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit (experimental)',
+      SensorProviderType.polarH10 => 'Polar H10',
     };
   }
 
@@ -15,6 +17,7 @@ enum SensorProviderType {
     return switch (this) {
       SensorProviderType.mock => 'mock',
       SensorProviderType.healthkit => 'healthkit',
+      SensorProviderType.polarH10 => 'polar_h10',
     };
   }
 }

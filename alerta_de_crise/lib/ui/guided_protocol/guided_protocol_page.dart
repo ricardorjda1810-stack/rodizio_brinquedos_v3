@@ -229,6 +229,7 @@ final class _GuidedProtocolPageState extends State<GuidedProtocolPage> {
     return switch (type) {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
+      SensorProviderType.polarH10 => 'Polar H10',
     };
   }
 }

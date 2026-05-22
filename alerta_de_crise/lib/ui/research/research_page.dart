@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app_state.dart';
 import '../../data/export/csv_exporter.dart';
+import '../../data/sensors/polar_h10_session_sensor_provider.dart';
 import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/feeling_level.dart';
 import '../../domain/models/research_session.dart';
@@ -50,8 +51,8 @@ final class ResearchPage extends StatelessWidget {
                     'Fonte atual: ${_sourceLabel(appState.sensorProviderType)}',
                     style: const TextStyle(color: UiTokens.textSoft),
                   ),
-                  if (appState.sensorProviderType ==
-                      SensorProviderType.healthkit) ...[
+                  if (appState.sensorProviderType !=
+                      SensorProviderType.mock) ...[
                     const SizedBox(height: UiTokens.s),
                     Text(
                       'Samples reais coletados: ${appState.activeResearchSessionSampleCount}',
@@ -129,6 +130,8 @@ final class ResearchPage extends StatelessWidget {
           _SessionDebugCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           _TemporalAnalysisCard(analysis: appState.currentTemporalAnalysis),
+          const SizedBox(height: UiTokens.m),
+          _PolarH10DiagnosticsCard(appState: appState),
           const SizedBox(height: UiTokens.m),
           _HealthKitDebugCard(appState: appState),
           const SizedBox(height: UiTokens.m),
@@ -289,6 +292,7 @@ final class ResearchPage extends StatelessWidget {
     return switch (type) {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
+      SensorProviderType.polarH10 => 'Polar H10',
     };
   }
 }
@@ -314,7 +318,7 @@ final class _SessionDebugCard extends StatelessWidget {
             ),
             const SizedBox(height: UiTokens.s),
             Text(
-              'Stream ativa: ${appState.isHealthKitSessionCollectionActive ? 'sim' : 'não'}',
+              'Stream ativa: ${appState.isCurrentProviderSessionCollectionActive ? 'sim' : 'não'}',
               style: const TextStyle(color: UiTokens.textSoft),
             ),
             Text(
@@ -361,7 +365,7 @@ final class _SessionDebugCard extends StatelessWidget {
       return 'nenhum';
     }
 
-    return '${sample.heartRate} bpm, HRV ${sample.hrv} ms, '
+    return '${sample.heartRate} bpm, ${_formatSensorHrv(sample)} '
         '${_formatTime(sample.timestamp)}';
   }
 
@@ -370,8 +374,24 @@ final class _SessionDebugCard extends StatelessWidget {
       return 'nenhum';
     }
 
-    return '${sample.heartRate} bpm, HRV ${sample.hrv} ms, '
+    return '${sample.heartRate} bpm, ${_formatHrv(sample)} '
         '${_formatTime(sample.timestamp)}';
+  }
+
+  String _formatHrv(SessionSample sample) {
+    if (sample.motionState == 'healthkit-hrv-indisponivel') {
+      return 'HRV indisponível';
+    }
+
+    return 'HRV ${sample.hrv} ms';
+  }
+
+  String _formatSensorHrv(SensorSample sample) {
+    if (sample.motionState == 'healthkit-hrv-indisponivel') {
+      return 'HRV indisponível';
+    }
+
+    return 'HRV ${sample.hrv} ms';
   }
 
   String _formatTime(DateTime dateTime) {
@@ -556,6 +576,194 @@ final class _HealthKitDebugCard extends StatelessWidget {
   }
 }
 
+final class _PolarH10DiagnosticsCard extends StatelessWidget {
+  const _PolarH10DiagnosticsCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final diagnostics = appState.polarH10Diagnostics;
+    final isPolarH10 =
+        appState.sensorProviderType == SensorProviderType.polarH10;
+    final device =
+        diagnostics.selectedDevice ?? diagnostics.devices.firstOrNull;
+    final latestRr = diagnostics.latestRr;
+    final statistics = diagnostics.statistics;
+    final signalStatus = _signalStatus(diagnostics);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Diagnóstico Polar H10',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            const Text(
+              'Fonte: Polar H10. Estes dados não vêm do HealthKit.',
+              style: TextStyle(color: UiTokens.textSoft, height: 1.35),
+            ),
+            const SizedBox(height: UiTokens.s),
+            Wrap(
+              spacing: UiTokens.s,
+              runSpacing: UiTokens.s,
+              children: [
+                OutlinedButton(
+                  onPressed: appState.scanPolarH10,
+                  child: const Text('Procurar Polar H10'),
+                ),
+                FilledButton.tonal(
+                  onPressed: diagnostics.h10Found
+                      ? appState.connectPolarH10
+                      : null,
+                  child: const Text('Conectar Polar H10'),
+                ),
+              ],
+            ),
+            const SizedBox(height: UiTokens.s),
+            _DebugLine(
+              'Provider selecionado',
+              ResearchPage._sourceLabel(appState.sensorProviderType),
+            ),
+            _DebugLine(
+              'Status',
+              diagnostics.h10Connected
+                  ? 'Polar H10 conectado'
+                  : 'Polar H10 não conectado',
+            ),
+            _DebugLine(
+              'Bluetooth autorizado/disponível',
+              diagnostics.bluetoothStatus,
+            ),
+            _DebugLine('Scan BLE iniciado', _yesNo(diagnostics.scanStarted)),
+            _DebugLine(
+              'Dispositivos encontrados',
+              '${diagnostics.devices.length}',
+            ),
+            _DebugLine('H10 encontrado', _yesNo(diagnostics.h10Found)),
+            _DebugLine('H10 conectado', _yesNo(diagnostics.h10Connected)),
+            _DebugLine('Nome do dispositivo', device?.name),
+            _DebugLine('Device ID', device?.id),
+            _DebugLine('RSSI', device?.rssi.toString()),
+            _DebugLine('Último erro BLE', diagnostics.lastError?.toString()),
+            _DebugLine(
+              'Última conexão/tentativa',
+              _formatOptionalDateTime(
+                diagnostics.connectedAt ?? diagnostics.lastConnectionAttemptAt,
+              ),
+            ),
+            const SizedBox(height: UiTokens.s),
+            _DebugLine('Última FC/BPM H10', _number(latestRr?.heartRate)),
+            _DebugLine(
+              'Timestamp da última FC',
+              _formatOptionalDateTime(diagnostics.lastHeartRateAt),
+            ),
+            _DebugLine(
+              'Amostras de FC H10',
+              '${diagnostics.heartRateSampleCount}',
+            ),
+            _DebugLine(
+              'RR intervals recebidos',
+              '${diagnostics.rrIntervalCount}',
+            ),
+            _DebugLine(
+              'Último RR interval em ms',
+              _number(latestRr?.rrIntervalMs),
+            ),
+            _DebugLine(
+              'RR intervals válidos',
+              '${diagnostics.validRrIntervalCount}',
+            ),
+            _DebugLine(
+              'RR intervals descartados',
+              '${diagnostics.discardedRrIntervalCount}',
+            ),
+            _DebugLine('RMSSD calculado', _number(statistics.rmssdMs)),
+            _DebugLine('SDNN calculado', _number(statistics.sdnnMs)),
+            const _DebugLine('Janela HRV', 'até 30 RR intervals recentes'),
+            _DebugLine('Qualidade da janela', signalStatus),
+            const _DebugLine('Acelerômetro H10 ativo', 'não'),
+            const _DebugLine('Últimos valores X/Y/Z', 'n/a'),
+            const _DebugLine('motionRmsMg', 'n/a'),
+            const _DebugLine('Classificação de movimento', 'indisponível'),
+            if (!isPolarH10) ...[
+              const SizedBox(height: UiTokens.s),
+              const Text(
+                'A sessão atual não está usando o Polar H10. Use Procurar/Conectar para trocar o provider.',
+                style: TextStyle(color: UiTokens.textFaint, height: 1.35),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  static String _yesNo(bool value) => value ? 'sim' : 'não';
+
+  static String? _number(num? value) => value?.toStringAsFixed(1);
+
+  static String _formatOptionalDateTime(DateTime? value) {
+    return value == null ? 'n/a' : value.toIso8601String();
+  }
+
+  static String _signalStatus(PolarH10Diagnostics diagnostics) {
+    if (!diagnostics.h10Connected) {
+      return 'disconnected';
+    }
+    if (diagnostics.statistics.sampleCount < 3) {
+      return 'sparse';
+    }
+    if (diagnostics.qualityEvaluation?.artifactReport.hasArtifacts ?? false) {
+      return 'noisy';
+    }
+    return diagnostics.qualityEvaluation?.signalQuality.name ?? 'good';
+  }
+}
+
+final class _DebugLine extends StatelessWidget {
+  const _DebugLine(this.label, this.value);
+
+  final String label;
+  final String? value;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = value == null || value!.trim().isEmpty ? 'n/a' : value!;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: UiTokens.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+          ),
+          const SizedBox(width: UiTokens.s),
+          Expanded(
+            flex: 3,
+            child: Text(
+              text,
+              textAlign: TextAlign.end,
+              style: const TextStyle(color: UiTokens.textSoft),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 final class _DiagnosticsCard extends StatelessWidget {
   const _DiagnosticsCard({required this.appState});
 
@@ -709,7 +917,7 @@ final class _LastSampleCard extends StatelessWidget {
                   ),
                   const SizedBox(height: UiTokens.s),
                   Text(
-                    'FC ${sample.heartRate} bpm • HRV ${sample.hrv} ms',
+                    'FC ${sample.heartRate} bpm • ${_formatHrv(sample)}',
                     style: const TextStyle(color: UiTokens.textSoft),
                   ),
                   const SizedBox(height: UiTokens.xs),
@@ -726,5 +934,13 @@ final class _LastSampleCard extends StatelessWidget {
               ),
       ),
     );
+  }
+
+  String _formatHrv(SessionSample sample) {
+    if (sample.motionState == 'healthkit-hrv-indisponivel') {
+      return 'HRV indisponível';
+    }
+
+    return 'HRV ${sample.hrv} ms';
   }
 }

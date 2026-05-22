@@ -146,15 +146,14 @@ final class HomePage extends StatelessWidget {
   }
 
   static String _sourceMessage(AppState appState) {
-    if (appState.sensorProviderType != SensorProviderType.healthkit) {
-      return 'Fonte atual: Simulação';
-    }
-
-    if (appState.hasLoadedHealthKitSample) {
-      return 'Fonte atual: HealthKit';
-    }
-
-    return 'Fonte atual: HealthKit - nenhum dado real carregado.';
+    return switch (appState.sensorProviderType) {
+      SensorProviderType.mock => 'Fonte atual: Simulação',
+      SensorProviderType.healthkit =>
+        appState.hasLoadedHealthKitSample
+            ? 'Fonte atual: HealthKit'
+            : 'Fonte atual: HealthKit - nenhum dado real carregado.',
+      SensorProviderType.polarH10 => 'Fonte atual: Polar H10',
+    };
   }
 }
 

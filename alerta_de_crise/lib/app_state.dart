@@ -10,6 +10,7 @@ import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/settings_repository.dart';
 import 'data/sensors/healthkit_sensor_provider.dart';
 import 'data/sensors/mock_sensor_provider.dart';
+import 'data/sensors/polar_h10_session_sensor_provider.dart';
 import 'data/sensors/sensor_provider.dart';
 import 'domain/risk_engine.dart';
 import 'domain/models/calibration_feedback.dart';
@@ -121,6 +122,7 @@ final class AppState extends ChangeNotifier {
   Timer? _simulationTimer;
   Timer? _healthKitSessionFallbackTimer;
   StreamSubscription<SensorSample>? _healthKitSampleSubscription;
+  StreamSubscription<SensorSample>? _polarH10SampleSubscription;
   bool _hasPendingAlert = false;
   bool _isDisposed = false;
   SensitivityLevel _sensitivity = SensitivityLevel.media;
@@ -154,6 +156,8 @@ final class AppState extends ChangeNotifier {
   SensorProviderType get sensorProviderType => _sensorProvider.type;
   bool get isHealthKitInPreparation =>
       _sensorProvider.type == SensorProviderType.healthkit;
+  bool get isPolarH10Selected =>
+      _sensorProvider.type == SensorProviderType.polarH10;
   bool get dataSourcePermissionGranted => _dataSourcePermissionGranted;
   String get dataSourcePermissionMessage => _dataSourcePermissionMessage;
   String get healthKitDebugStatus => _healthKitDebugStatus;
@@ -189,11 +193,23 @@ final class AppState extends ChangeNotifier {
 
   bool get isHealthKitSessionCollectionActive =>
       _healthKitSampleSubscription != null;
+  bool get isCurrentProviderSessionCollectionActive =>
+      _healthKitSampleSubscription != null ||
+      _polarH10SampleSubscription != null;
   int get activeResearchSessionSampleCount =>
       _currentResearchSession?.samples.length ?? 0;
   DateTime? get lastResearchSessionSampleTimestamp =>
       _currentResearchSession?.samples.lastOrNull?.timestamp;
   CollectionDiagnostics get collectionDiagnostics => _collectionDiagnostics;
+  PolarH10Diagnostics get polarH10Diagnostics {
+    final provider = _sensorProvider;
+    if (provider is PolarH10SessionSensorProvider) {
+      return provider.diagnostics;
+    }
+
+    return PolarH10Diagnostics.empty();
+  }
+
   TemporalSampleAnalysis get currentTemporalAnalysis =>
       TemporalSampleAnalysis.fromSamples(
         _currentResearchSession?.samples ?? const [],
@@ -295,18 +311,102 @@ final class AppState extends ChangeNotifier {
 
     stopSimulation();
     _stopHealthKitSessionCollection();
+    _stopPolarH10SessionCollection();
     _sensorProvider = switch (type) {
       SensorProviderType.mock => MockSensorProvider(),
       SensorProviderType.healthkit => HealthKitSensorProvider(),
+      SensorProviderType.polarH10 => PolarH10SessionSensorProvider.shared(),
     };
     _dataSourcePermissionGranted = type == SensorProviderType.mock;
     _dataSourcePermissionMessage = _sensorProvider.permissionStatusMessage;
     if (type == SensorProviderType.healthkit) {
       _currentStatusMessage =
           'HealthKit selecionado. Carregue o último dado disponível ou use a simulação quando preferir.';
+    } else if (type == SensorProviderType.polarH10) {
+      _currentStatusMessage =
+          'Polar H10 selecionado. Procure e conecte o sensor para iniciar dados reais.';
     } else {
       _lastHealthKitSample = null;
       _applyRiskEvaluation(_currentSample);
+    }
+    notifyListeners();
+  }
+
+  Future<void> scanPolarH10() async {
+    if (_sensorProvider.type != SensorProviderType.polarH10) {
+      updateSensorProvider(SensorProviderType.polarH10);
+    }
+
+    final provider = _sensorProvider;
+    if (provider is! PolarH10SessionSensorProvider) {
+      return;
+    }
+
+    _dataSourcePermissionMessage = 'Procurando Polar H10...';
+    _currentStatusMessage = 'Scan BLE Polar H10 iniciado.';
+    notifyListeners();
+
+    try {
+      await provider.scanDevices();
+      if (_isDisposed) {
+        return;
+      }
+      _dataSourcePermissionMessage = provider.permissionStatusMessage;
+      _currentStatusMessage = provider.diagnostics.h10Found
+          ? 'Polar H10 encontrado. Toque em Conectar Polar H10.'
+          : 'Polar H10 não encontrado.';
+    } catch (error) {
+      if (_isDisposed) {
+        return;
+      }
+      _dataSourcePermissionMessage = 'Erro no scan Polar H10: $error';
+      _currentStatusMessage = 'Erro ao procurar Polar H10.';
+    }
+    notifyListeners();
+  }
+
+  Future<void> connectPolarH10() async {
+    if (_sensorProvider.type != SensorProviderType.polarH10) {
+      updateSensorProvider(SensorProviderType.polarH10);
+    }
+
+    final provider = _sensorProvider;
+    if (provider is! PolarH10SessionSensorProvider) {
+      return;
+    }
+
+    final device = provider.diagnostics.devices.firstOrNull;
+    if (device == null) {
+      _dataSourcePermissionMessage =
+          'Nenhum Polar H10 encontrado. Procure o sensor antes de conectar.';
+      _currentStatusMessage = 'Polar H10 não conectado.';
+      notifyListeners();
+      return;
+    }
+
+    _dataSourcePermissionMessage = 'Conectando ao Polar H10...';
+    _currentStatusMessage = 'Conectando Polar H10.';
+    notifyListeners();
+
+    try {
+      await provider.connect(device);
+      if (_isDisposed) {
+        return;
+      }
+      _dataSourcePermissionGranted = true;
+      _dataSourcePermissionMessage = provider.permissionStatusMessage;
+      _currentStatusMessage =
+          'Polar H10 conectado. Aguardando FC/RR/HRV do sensor.';
+      if (hasActiveResearchSession) {
+        _startPolarH10SessionCollectionForActiveSession();
+      }
+    } catch (error) {
+      if (_isDisposed) {
+        return;
+      }
+      _dataSourcePermissionGranted = false;
+      _dataSourcePermissionMessage = 'Erro ao conectar Polar H10: $error';
+      _currentStatusMessage = 'Polar H10 não conectado.';
     }
     notifyListeners();
   }
@@ -421,7 +521,7 @@ final class AppState extends ChangeNotifier {
       'Sessão iniciada id=${_currentResearchSession!.id} '
       'provider=$_diagnosticsSourceLabel.',
     );
-    _startHealthKitSessionCollectionForActiveSession();
+    _startCurrentProviderSessionCollectionForActiveSession();
     notifyListeners();
   }
 
@@ -440,6 +540,7 @@ final class AppState extends ChangeNotifier {
       'emitted=$_emittedSamples saved=$_savedSamples ignored=$_ignoredSamples.',
     );
     _stopHealthKitSessionCollection();
+    _stopPolarH10SessionCollection();
     _currentResearchSession = endedSession;
     _researchSessions.insert(0, endedSession);
     _completeGuidedProtocolFromResearchSession(endedSession);
@@ -469,7 +570,7 @@ final class AppState extends ChangeNotifier {
         !isSimulationRunning) {
       startSimulation();
     } else {
-      _startHealthKitSessionCollectionIfNeeded();
+      _startCurrentProviderSessionCollectionForActiveSession();
       notifyListeners();
     }
   }
@@ -645,6 +746,7 @@ final class AppState extends ChangeNotifier {
     _isDisposed = true;
     _simulationTimer?.cancel();
     _stopHealthKitSessionCollection();
+    _stopPolarH10SessionCollection();
     _cancelHealthKitSessionFallback();
     super.dispose();
   }
@@ -776,6 +878,22 @@ final class AppState extends ChangeNotifier {
     _scheduleHealthKitSessionFallback();
   }
 
+  void _startCurrentProviderSessionCollectionForActiveSession() {
+    if (_sensorProvider.type == SensorProviderType.healthkit) {
+      _startHealthKitSessionCollectionForActiveSession();
+      return;
+    }
+
+    if (_sensorProvider.type == SensorProviderType.polarH10) {
+      _startPolarH10SessionCollectionForActiveSession();
+      return;
+    }
+
+    _pipelineLog(
+      'Stream de provider real não iniciada: provider atual=$_diagnosticsSourceLabel.',
+    );
+  }
+
   void _stopHealthKitSessionCollection() {
     if (_healthKitSampleSubscription == null) {
       _pipelineLog('Stream HealthKit cancelada: não havia stream ativa.');
@@ -786,6 +904,81 @@ final class AppState extends ChangeNotifier {
     unawaited(_healthKitSampleSubscription?.cancel());
     _healthKitSampleSubscription = null;
     _cancelHealthKitSessionFallback();
+  }
+
+  void _startPolarH10SessionCollectionForActiveSession() {
+    if (_sensorProvider.type != SensorProviderType.polarH10) {
+      _pipelineLog(
+        'Stream Polar H10 não iniciada: provider atual=$_diagnosticsSourceLabel.',
+      );
+      return;
+    }
+
+    if (!hasActiveResearchSession) {
+      _pipelineLog('Stream Polar H10 não iniciada: sem sessão ativa.');
+      return;
+    }
+
+    final provider = _sensorProvider;
+    if (provider is! PolarH10SessionSensorProvider ||
+        !provider.diagnostics.h10Connected) {
+      _pipelineLog('Stream Polar H10 não iniciada: sensor não conectado.');
+      _recordPipelineMiss('Polar H10 não conectado');
+      return;
+    }
+
+    if (_polarH10SampleSubscription != null) {
+      _pipelineLog('Stream Polar H10 não iniciada: stream já ativa.');
+      return;
+    }
+
+    _pipelineLog(
+      'Stream Polar H10 iniciada. sessãoAtiva=$hasActiveResearchSession.',
+    );
+    _resetProviderDeduplication();
+    _polarH10SampleSubscription = provider.watchSamples().listen(
+      (sample) {
+        _recordPipelineEmission(sample, source: 'polarH10.watchSamples');
+        _pipelineLog(
+          'Sample recebido do provider: ${_describeSensorSample(sample)} '
+          'sessãoAtiva=$hasActiveResearchSession.',
+        );
+        if (_isDisposed) {
+          _recordPipelineIgnore(sample, 'AppState descartado');
+          return;
+        }
+        if (!hasActiveResearchSession) {
+          _recordPipelineIgnore(sample, 'sem sessão ativa');
+          notifyListeners();
+          return;
+        }
+
+        _dataSourcePermissionMessage = provider.permissionStatusMessage;
+        _applySensorSample(sample);
+        _currentStatusMessage = 'Último dado do Polar H10 carregado.';
+        notifyListeners();
+      },
+      onError: (error) {
+        if (_isDisposed) {
+          return;
+        }
+
+        _recordPipelineIgnore(null, 'erro no stream Polar H10: $error');
+        _currentStatusMessage = 'Erro ao ler dados do Polar H10.';
+        notifyListeners();
+      },
+    );
+  }
+
+  void _stopPolarH10SessionCollection() {
+    if (_polarH10SampleSubscription == null) {
+      _pipelineLog('Stream Polar H10 cancelada: não havia stream ativa.');
+      return;
+    }
+
+    _pipelineLog('Stream Polar H10 cancelada.');
+    unawaited(_polarH10SampleSubscription?.cancel());
+    _polarH10SampleSubscription = null;
   }
 
   Future<void> _loadImmediateHealthKitSessionSample() async {
@@ -1192,6 +1385,7 @@ final class AppState extends ChangeNotifier {
     return switch (_sensorProvider.type) {
       SensorProviderType.mock => 'Simulação',
       SensorProviderType.healthkit => 'HealthKit',
+      SensorProviderType.polarH10 => 'Polar H10',
     };
   }
 
