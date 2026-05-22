@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import 'polar_h10_device.dart';
+import 'polar_h10_models.dart';
 import 'polar_h10_parser.dart';
 import 'polar_h10_rr_sample.dart';
 
@@ -19,6 +20,17 @@ class PolarH10Service {
   StreamSubscription<List<int>>? _measurementSubscription;
   String? _connectedDeviceId;
   PolarH10RrSample? _latestSample;
+  PolarH10ConnectionStatus _connectionStatus =
+      PolarH10ConnectionStatus.disconnected;
+  List<PolarH10Device> _lastScanDevices = const [];
+  DateTime? _lastScanStartedAt;
+  DateTime? _lastScanCompletedAt;
+  DateTime? _connectedAt;
+  DateTime? _lastHeartRateAt;
+  Object? _lastError;
+  int _heartRateSampleCount = 0;
+  int _rrIntervalCount = 0;
+  int _discardedRrIntervalCount = 0;
 
   PolarH10Service({
     FlutterReactiveBle? ble,
@@ -33,12 +45,37 @@ class PolarH10Service {
 
   bool get isConnected => _connectedDeviceId != null;
 
+  PolarH10ConnectionStatus get connectionStatus => _connectionStatus;
+
+  List<PolarH10Device> get lastScanDevices => _lastScanDevices;
+
+  DateTime? get lastScanStartedAt => _lastScanStartedAt;
+
+  DateTime? get lastScanCompletedAt => _lastScanCompletedAt;
+
+  DateTime? get connectedAt => _connectedAt;
+
+  DateTime? get lastHeartRateAt => _lastHeartRateAt;
+
+  Object? get lastError => _lastError;
+
+  int get heartRateSampleCount => _heartRateSampleCount;
+
+  int get rrIntervalCount => _rrIntervalCount;
+
+  int get discardedRrIntervalCount => _discardedRrIntervalCount;
+
   Future<List<PolarH10Device>> scanDevices({
     Duration duration = const Duration(seconds: 5),
   }) async {
     final devices = <String, PolarH10Device>{};
     final completer = Completer<List<PolarH10Device>>();
     late final StreamSubscription<DiscoveredDevice> subscription;
+    _connectionStatus = PolarH10ConnectionStatus.scanning;
+    _lastError = null;
+    _lastScanStartedAt = DateTime.now();
+    _lastScanCompletedAt = null;
+    _lastScanDevices = const [];
 
     subscription = _ble
         .scanForDevices(
@@ -46,23 +83,39 @@ class PolarH10Service {
           scanMode: ScanMode.balanced,
           requireLocationServicesEnabled: false,
         )
-        .listen((device) {
-          if (!_looksLikePolar(device)) {
-            return;
-          }
+        .listen(
+          (device) {
+            if (!_looksLikePolar(device)) {
+              return;
+            }
 
-          devices[device.id] = PolarH10Device(
-            id: device.id,
-            name: device.name,
-            rssi: device.rssi,
-            connectable: device.connectable != Connectable.unavailable,
-          );
-        }, onError: completer.completeError);
+            devices[device.id] = PolarH10Device(
+              id: device.id,
+              name: device.name,
+              rssi: device.rssi,
+              connectable: device.connectable != Connectable.unavailable,
+            );
+          },
+          onError: (Object error, StackTrace stackTrace) {
+            _lastError = error;
+            _connectionStatus = _connectedDeviceId == null
+                ? PolarH10ConnectionStatus.disconnected
+                : PolarH10ConnectionStatus.connected;
+            if (!completer.isCompleted) {
+              completer.completeError(error, stackTrace);
+            }
+          },
+        );
 
     Timer(duration, () async {
       await subscription.cancel();
       if (!completer.isCompleted) {
-        completer.complete(List.unmodifiable(devices.values));
+        _lastScanDevices = List.unmodifiable(devices.values);
+        _lastScanCompletedAt = DateTime.now();
+        _connectionStatus = _connectedDeviceId == null
+            ? PolarH10ConnectionStatus.disconnected
+            : PolarH10ConnectionStatus.connected;
+        completer.complete(_lastScanDevices);
       }
     });
 
@@ -73,6 +126,8 @@ class PolarH10Service {
     await disconnect();
 
     final completer = Completer<void>();
+    _connectionStatus = PolarH10ConnectionStatus.connecting;
+    _lastError = null;
     _connectionSubscription = _ble
         .connectToDevice(
           id: device.id,
@@ -85,6 +140,8 @@ class PolarH10Service {
           (update) {
             if (update.connectionState == DeviceConnectionState.connected) {
               _connectedDeviceId = update.deviceId;
+              _connectionStatus = PolarH10ConnectionStatus.connected;
+              _connectedAt = DateTime.now();
               _subscribeToHeartRate(update.deviceId);
               if (!completer.isCompleted) {
                 completer.complete();
@@ -92,10 +149,13 @@ class PolarH10Service {
             } else if (update.connectionState ==
                 DeviceConnectionState.disconnected) {
               _connectedDeviceId = null;
+              _connectionStatus = PolarH10ConnectionStatus.disconnected;
             }
           },
           onError: (Object error, StackTrace stackTrace) {
             _connectedDeviceId = null;
+            _connectionStatus = PolarH10ConnectionStatus.disconnected;
+            _lastError = error;
             if (!completer.isCompleted) {
               completer.completeError(error, stackTrace);
             }
@@ -111,6 +171,7 @@ class PolarH10Service {
     _measurementSubscription = null;
     _connectionSubscription = null;
     _connectedDeviceId = null;
+    _connectionStatus = PolarH10ConnectionStatus.disconnected;
   }
 
   Future<PolarH10RrSample?> getLatestRrSample() async {
@@ -143,11 +204,17 @@ class PolarH10Service {
       return;
     }
 
+    _heartRateSampleCount += 1;
+    _rrIntervalCount += measurement.rrSamples.length;
+    _discardedRrIntervalCount += measurement.rrSamples
+        .where((sample) => !sample.isValid)
+        .length;
     _recentSamples.addAll(measurement.rrSamples);
     if (_recentSamples.length > 300) {
       _recentSamples.removeRange(0, _recentSamples.length - 300);
     }
     _latestSample = measurement.latestRrSample;
+    _lastHeartRateAt = _latestSample?.timestamp ?? DateTime.now();
   }
 
   bool _looksLikePolar(DiscoveredDevice device) {
