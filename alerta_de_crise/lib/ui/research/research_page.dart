@@ -589,6 +589,7 @@ final class _PolarH10DiagnosticsCard extends StatelessWidget {
     final device =
         diagnostics.selectedDevice ?? diagnostics.devices.firstOrNull;
     final latestRr = diagnostics.latestRr;
+    final latestAccelerometer = diagnostics.latestAccelerometerSample;
     final statistics = diagnostics.statistics;
     final signalStatus = _signalStatus(diagnostics);
 
@@ -669,7 +670,7 @@ final class _PolarH10DiagnosticsCard extends StatelessWidget {
               '${diagnostics.heartRateSampleCount}',
             ),
             _DebugLine(
-              'RR intervals recebidos',
+              'RR intervals recebidos na sessão',
               '${diagnostics.rrIntervalCount}',
             ),
             _DebugLine(
@@ -677,21 +678,48 @@ final class _PolarH10DiagnosticsCard extends StatelessWidget {
               _number(latestRr?.rrIntervalMs),
             ),
             _DebugLine(
-              'RR intervals válidos',
+              'RR intervals válidos na sessão',
               '${diagnostics.validRrIntervalCount}',
             ),
             _DebugLine(
-              'RR intervals descartados',
+              'RR intervals descartados na sessão',
               '${diagnostics.discardedRrIntervalCount}',
             ),
             _DebugLine('RMSSD calculado', _number(statistics.rmssdMs)),
             _DebugLine('SDNN calculado', _number(statistics.sdnnMs)),
             const _DebugLine('Janela HRV', 'até 30 RR intervals recentes'),
             _DebugLine('Qualidade da janela', signalStatus),
-            const _DebugLine('Acelerômetro H10 ativo', 'não'),
-            const _DebugLine('Últimos valores X/Y/Z', 'n/a'),
-            const _DebugLine('motionRmsMg', 'n/a'),
-            const _DebugLine('Classificação de movimento', 'indisponível'),
+            _DebugLine(
+              'Acelerômetro H10 ativo',
+              _yesNo(diagnostics.accelerometerActive),
+            ),
+            _DebugLine(
+              'Recebido pelo app em',
+              _formatOptionalDateTime(latestAccelerometer?.receivedAt),
+            ),
+            _DebugLine(
+              'Timestamp bruto do sensor',
+              _formatOptionalDateTime(latestAccelerometer?.timestamp),
+            ),
+            _DebugLine(
+              'Últimos valores X/Y/Z',
+              latestAccelerometer == null
+                  ? null
+                  : '${latestAccelerometer.xMg} / ${latestAccelerometer.yMg} / ${latestAccelerometer.zMg} mg',
+            ),
+            _DebugLine(
+              'Amostras de acelerômetro',
+              '${diagnostics.accelerometerSampleCount}',
+            ),
+            _DebugLine('motionRmsMg', _number(diagnostics.motionRmsMg)),
+            _DebugLine(
+              'Classificação de movimento',
+              diagnostics.motionClass.label,
+            ),
+            _DebugLine(
+              'Último erro acelerômetro',
+              diagnostics.lastAccelerometerError?.toString(),
+            ),
             if (!isPolarH10) ...[
               const SizedBox(height: UiTokens.s),
               const Text(

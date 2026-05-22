@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../../core/crisis_detection/polar_h10_sensor_provider.dart';
 import '../../domain/models/sensor_sample.dart';
+import '../../polar_h10/polar_h10_accelerometer_sample.dart';
 import '../../polar_h10/polar_h10_device.dart';
 import '../../polar_h10/polar_h10_models.dart';
 import '../../polar_h10/polar_h10_rr_sample.dart';
@@ -62,7 +63,12 @@ final class PolarH10SessionSensorProvider
       heartRateSampleCount: _service.heartRateSampleCount,
       rrIntervalCount: _service.rrIntervalCount,
       discardedRrIntervalCount: _service.discardedRrIntervalCount,
-      accelerometerActive: false,
+      accelerometerActive: _service.isAccelerometerActive,
+      latestAccelerometerSample: _service.latestAccelerometerSample,
+      accelerometerSampleCount: _service.accelerometerSampleCount,
+      motionRmsMg: _service.motionRmsMg,
+      motionClass: _service.motionClass,
+      lastAccelerometerError: _service.lastAccelerometerError,
     );
   }
 
@@ -122,7 +128,7 @@ final class PolarH10SessionSensorProvider
       timestamp: physiologicalSample.timestamp,
       heartRate: physiologicalSample.heartRateBpm.round(),
       hrv: rmssd.round(),
-      motionState: 'polar-h10-acelerometro-inativo',
+      motionState: _service.motionClass.label,
     );
   }
 
@@ -208,6 +214,11 @@ final class PolarH10Diagnostics {
     required this.rrIntervalCount,
     required this.discardedRrIntervalCount,
     required this.accelerometerActive,
+    required this.latestAccelerometerSample,
+    required this.accelerometerSampleCount,
+    required this.motionRmsMg,
+    required this.motionClass,
+    required this.lastAccelerometerError,
   });
 
   factory PolarH10Diagnostics.empty() {
@@ -237,6 +248,11 @@ final class PolarH10Diagnostics {
       rrIntervalCount: 0,
       discardedRrIntervalCount: 0,
       accelerometerActive: false,
+      latestAccelerometerSample: null,
+      accelerometerSampleCount: 0,
+      motionRmsMg: null,
+      motionClass: PolarH10MotionClass.unavailable,
+      lastAccelerometerError: null,
     );
   }
 
@@ -258,6 +274,11 @@ final class PolarH10Diagnostics {
   final int rrIntervalCount;
   final int discardedRrIntervalCount;
   final bool accelerometerActive;
+  final PolarH10AccelerometerSample? latestAccelerometerSample;
+  final int accelerometerSampleCount;
+  final double? motionRmsMg;
+  final PolarH10MotionClass motionClass;
+  final Object? lastAccelerometerError;
 
   bool get h10Found => devices.isNotEmpty;
 

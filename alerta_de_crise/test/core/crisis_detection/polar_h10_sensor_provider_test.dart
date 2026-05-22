@@ -19,7 +19,7 @@ void main() {
       expect(sample, isNotNull);
       expect(sample?.heartRateBpm, 76);
       expect(sample?.hrvRmssdMs, closeTo(20, 0.01));
-      expect(sample?.movementIntensity, 0);
+      expect(sample?.movementIntensity, 0.5);
     });
 
     test('recent samples respect limit', () async {

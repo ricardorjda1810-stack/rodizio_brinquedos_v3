@@ -74,7 +74,7 @@ class _PolarH10DebugPageState extends State<PolarH10DebugPage> {
     final scanStarted = _service.lastScanStartedAt != null;
     final h10Found = _devices.isNotEmpty || _service.lastScanDevices.isNotEmpty;
     final signalStatus = _signalStatus(quality);
-    final motionClass = _motionClass(latestSample?.movementIntensity);
+    final latestAccelerometer = _service.latestAccelerometerSample;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Diagnóstico Polar H10')),
@@ -216,14 +216,34 @@ class _PolarH10DebugPageState extends State<PolarH10DebugPage> {
           _DiagnosticCard(
             title: 'Acelerômetro H10',
             rows: [
-              const _DiagnosticRow(
+              _DiagnosticRow(
                 'Stream de acelerômetro',
-                'inativo neste build',
+                _yesNo(_service.isAccelerometerActive),
               ),
-              const _DiagnosticRow('Último X/Y/Z', 'n/a'),
-              const _DiagnosticRow('motionRmsMg', 'n/a'),
-              _DiagnosticRow('Classificação', motionClass),
-              const _DiagnosticRow('Timestamp da última amostra', 'n/a'),
+              _DiagnosticRow(
+                'Último X/Y/Z',
+                latestAccelerometer == null
+                    ? null
+                    : '${latestAccelerometer.xMg} / ${latestAccelerometer.yMg} / ${latestAccelerometer.zMg} mg',
+              ),
+              _DiagnosticRow(
+                'Amostras de acelerômetro',
+                '${_service.accelerometerSampleCount}',
+              ),
+              _DiagnosticRow('motionRmsMg', _number(_service.motionRmsMg)),
+              _DiagnosticRow('Classificação', _service.motionClass.label),
+              _DiagnosticRow(
+                'Recebido pelo app em',
+                _time(latestAccelerometer?.receivedAt),
+              ),
+              _DiagnosticRow(
+                'Timestamp bruto do sensor',
+                _time(latestAccelerometer?.timestamp),
+              ),
+              _DiagnosticRow(
+                'Último erro acelerômetro',
+                _service.lastAccelerometerError?.toString(),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -430,22 +450,6 @@ class _PolarH10DebugPageState extends State<PolarH10DebugPage> {
       return 'noisy';
     }
     return quality?.signalQuality.name ?? 'good';
-  }
-
-  String _motionClass(double? movementIntensity) {
-    if (movementIntensity == null) {
-      return 'indisponível';
-    }
-    if (movementIntensity >= 0.75) {
-      return 'movimento alto';
-    }
-    if (movementIntensity >= 0.45) {
-      return 'movimento moderado';
-    }
-    if (movementIntensity > 0.1) {
-      return 'movimento leve';
-    }
-    return 'parado';
   }
 
   String _yesNo(bool value) => value ? 'sim' : 'não';
