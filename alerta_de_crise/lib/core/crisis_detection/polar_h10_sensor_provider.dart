@@ -86,6 +86,7 @@ class PolarH10SensorProvider implements PhysiologicalSensorProvider {
       timestamp: sample.timestamp,
       heartRateBpm: sample.heartRate,
       hrvRmssdMs: statistics.rmssdMs,
+      hrvSdnnMs: statistics.sdnnMs,
       movementIntensity: 0,
     );
   }

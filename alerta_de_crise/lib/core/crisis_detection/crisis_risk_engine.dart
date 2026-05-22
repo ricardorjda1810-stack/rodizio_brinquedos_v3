@@ -1,15 +1,21 @@
 import 'baseline_profile.dart';
 import 'cognitive_check_response.dart';
 import 'crisis_risk_result.dart';
+import 'environmental_audio_context.dart';
 import 'physiological_sample.dart';
 
 class CrisisRiskEngine {
   const CrisisRiskEngine();
 
+  static const int _maxConfidence = 5;
+  static const int _moderateRiskScore = 50;
+
   CrisisRiskResult evaluate({
     required PhysiologicalSample sample,
     required BaselineProfile baseline,
     CognitiveCheckResponse cognitiveResponse = CognitiveCheckResponse.notAsked,
+    EnvironmentalAudioContext environmentalAudioContext =
+        const EnvironmentalAudioContext.none(),
   }) {
     var score = 0;
     final reasons = <String>[];
@@ -35,6 +41,12 @@ class CrisisRiskEngine {
     if (hrv != null && hrv < baseline.hrvRmssdMs * 0.55) {
       score += 15;
       reasons.add('marked_hrv_drop');
+    }
+
+    final sdnn = sample.hrvSdnnMs;
+    if (sdnn != null && sdnn < baseline.hrvRmssdMs * 0.70) {
+      score += 10;
+      reasons.add('sdnn_drop');
     }
 
     final spo2 = sample.spo2Percent;
@@ -72,16 +84,150 @@ class CrisisRiskEngine {
         break;
     }
 
-    final normalizedScore = score.clamp(0, 100).toInt();
-    final level = _levelFromScore(normalizedScore);
-    final action = _recommendedAction(level, reasons);
+    final rawPhysiologicalScore = score.clamp(0, 100).toInt();
+    final blockedResult = _blockedResult(
+      sample: sample,
+      rawPhysiologicalScore: rawPhysiologicalScore,
+      reasons: reasons,
+    );
+    if (blockedResult != null) {
+      return blockedResult;
+    }
+
+    final adjustedRiskScore = _adjustedScoreForNoise(
+      rawPhysiologicalScore,
+      environmentalAudioContext,
+    );
+    final state = _stateFromScoreAndNoise(
+      rawPhysiologicalScore: rawPhysiologicalScore,
+      adjustedRiskScore: adjustedRiskScore,
+      environmentalAudioContext: environmentalAudioContext,
+    );
+    final hasContextualStress =
+        environmentalAudioContext.hasNoise &&
+        rawPhysiologicalScore >= _moderateRiskScore;
+    if (hasContextualStress) {
+      reasons.add('environmental_noise_contextual_stress');
+    }
+
+    final level = _levelFromScore(adjustedRiskScore);
+    final action = _recommendedAction(level, reasons, state);
 
     return CrisisRiskResult(
-      score: normalizedScore,
+      score: adjustedRiskScore,
+      rawPhysiologicalScore: rawPhysiologicalScore,
+      adjustedRiskScore: adjustedRiskScore,
+      confidence: _maxConfidence,
       level: level,
+      state: state,
+      noiseContext: environmentalAudioContext.context,
       reasonCodes: reasons,
       recommendedAction: action,
+      reason: action,
     );
+  }
+
+  CrisisRiskResult? _blockedResult({
+    required PhysiologicalSample sample,
+    required int rawPhysiologicalScore,
+    required List<String> reasons,
+  }) {
+    if (sample.signalQuality < 0.40) {
+      reasons.add('bad_signal_blocks_activation');
+      return _resultForBlockedState(
+        rawPhysiologicalScore: rawPhysiologicalScore,
+        state: PhysiologicalRiskState.badSignal,
+        reasons: reasons,
+        action:
+            'Sinal fisiológico com baixa qualidade. Recoletar antes de interpretar risco.',
+      );
+    }
+
+    if (sample.movementIntensity >= 0.85) {
+      if (!reasons.contains('movement_may_explain_activation')) {
+        reasons.add('movement_may_explain_activation');
+      }
+      reasons.add('blocked_by_h10_motion');
+      return _resultForBlockedState(
+        rawPhysiologicalScore: rawPhysiologicalScore,
+        state: PhysiologicalRiskState.blockedByMotion,
+        reasons: reasons,
+        action:
+            'Movimento corporal elevado no H10 pode explicar a ativação. Evitar falso positivo.',
+      );
+    }
+
+    if (sample.probableSleep) {
+      reasons.add('blocked_by_probable_sleep');
+      return _resultForBlockedState(
+        rawPhysiologicalScore: rawPhysiologicalScore,
+        state: PhysiologicalRiskState.blockedBySleep,
+        reasons: reasons,
+        action:
+            'Padrão compatível com sono provável. Evitar interpretar como crise.',
+      );
+    }
+
+    return null;
+  }
+
+  CrisisRiskResult _resultForBlockedState({
+    required int rawPhysiologicalScore,
+    required PhysiologicalRiskState state,
+    required List<String> reasons,
+    required String action,
+  }) {
+    return CrisisRiskResult(
+      score: 0,
+      rawPhysiologicalScore: rawPhysiologicalScore,
+      adjustedRiskScore: 0,
+      confidence: 0,
+      level: CrisisRiskLevel.normal,
+      state: state,
+      noiseContext: EnvironmentalContext.none,
+      reasonCodes: reasons,
+      recommendedAction: action,
+      reason: action,
+    );
+  }
+
+  int _adjustedScoreForNoise(
+    int rawPhysiologicalScore,
+    EnvironmentalAudioContext environmentalAudioContext,
+  ) {
+    if (rawPhysiologicalScore < _moderateRiskScore) {
+      return rawPhysiologicalScore;
+    }
+
+    return (rawPhysiologicalScore + environmentalAudioContext.stressWeight)
+        .clamp(0, 100)
+        .toInt();
+  }
+
+  PhysiologicalRiskState _stateFromScoreAndNoise({
+    required int rawPhysiologicalScore,
+    required int adjustedRiskScore,
+    required EnvironmentalAudioContext environmentalAudioContext,
+  }) {
+    if (rawPhysiologicalScore <= 0) {
+      return PhysiologicalRiskState.normal;
+    }
+
+    if (environmentalAudioContext.hasNoise &&
+        rawPhysiologicalScore >= _moderateRiskScore) {
+      return PhysiologicalRiskState.possibleEnvironmentalStress;
+    }
+
+    if (adjustedRiskScore >= 70) {
+      return PhysiologicalRiskState.likelyActivation;
+    }
+    if (adjustedRiskScore >= 50) {
+      return PhysiologicalRiskState.cognitiveCheckNeeded;
+    }
+    if (adjustedRiskScore >= 30) {
+      return PhysiologicalRiskState.possibleActivation;
+    }
+    return PhysiologicalRiskState.normal;
   }
 
   CrisisRiskLevel _levelFromScore(int score) {
@@ -91,9 +237,18 @@ class CrisisRiskEngine {
     return CrisisRiskLevel.normal;
   }
 
-  String _recommendedAction(CrisisRiskLevel level, List<String> reasons) {
+  String _recommendedAction(
+    CrisisRiskLevel level,
+    List<String> reasons,
+    PhysiologicalRiskState state,
+  ) {
     if (reasons.contains('low_spo2_requires_caution')) {
       return 'Sinais fisiológicos exigem cautela. Não tratar automaticamente como crise emocional.';
+    }
+
+    if (state == PhysiologicalRiskState.possibleEnvironmentalStress ||
+        reasons.contains('environmental_noise_contextual_stress')) {
+      return 'Ativação fisiológica detectada pelo H10, com ruído ambiental elevado como possível fator contextual de estresse.';
     }
 
     switch (level) {
