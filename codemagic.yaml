@@ -65,7 +65,10 @@ workflows:
         script: |
           cd alerta_de_crise
           xcode-project use-profiles \
-            --custom-export-options='{"method":"app-store-connect"}'
+            --project ios/Runner.xcodeproj \
+            --archive-method app-store \
+            --export-options-plist=/Users/builder/export_options.plist \
+            --code-signing-setup-verbose-logging
 
       - name: Analyze
         script: |
@@ -80,12 +83,7 @@ workflows:
       - name: Build IPA
         script: |
           cd alerta_de_crise
-          flutter build ios --release
-          cd ios
-          xcodebuild -exportArchive \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            -exportPath ../build/ios/ipa \
-            -exportOptionsPlist ExportOptions.appstore.plist
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
 
       - name: Locate IPA
         script: |
