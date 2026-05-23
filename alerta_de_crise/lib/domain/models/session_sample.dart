@@ -9,6 +9,8 @@ final class SessionSample {
     required this.riskState,
     required this.motionState,
     this.protocolStepLabel,
+    this.sourceLabel,
+    this.motionRmsMg,
   });
 
   final DateTime timestamp;
@@ -18,6 +20,8 @@ final class SessionSample {
   final RiskState riskState;
   final String motionState;
   final String? protocolStepLabel;
+  final String? sourceLabel;
+  final double? motionRmsMg;
 
   factory SessionSample.fromJson(Map<String, Object?> json) {
     return SessionSample(
@@ -28,6 +32,8 @@ final class SessionSample {
       riskState: RiskStateText.fromKey(json['riskState'] as String),
       motionState: json['motionState'] as String,
       protocolStepLabel: json['protocolStepLabel'] as String?,
+      sourceLabel: json['sourceLabel'] as String?,
+      motionRmsMg: _doubleOrNull(json['motionRmsMg']),
     );
   }
 
@@ -40,6 +46,16 @@ final class SessionSample {
       'riskState': riskState.key,
       'motionState': motionState,
       'protocolStepLabel': protocolStepLabel,
+      'sourceLabel': sourceLabel,
+      'motionRmsMg': motionRmsMg,
     };
+  }
+
+  static double? _doubleOrNull(Object? value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return null;
   }
 }

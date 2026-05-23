@@ -1121,6 +1121,8 @@ final class AppState extends ChangeNotifier {
       riskState: _currentRiskState,
       motionState: sample.motionState,
       protocolStepLabel: currentGuidedProtocolStep?.label,
+      sourceLabel: _diagnosticsSourceLabel,
+      motionRmsMg: _currentMotionRmsMg,
     );
 
     final lastSample = session.samples.lastOrNull;
@@ -1263,7 +1265,8 @@ final class AppState extends ChangeNotifier {
     final activation = _phaseByLabel(protocolAnalysis, 'Ativação leve');
     final recovery = _phaseByLabel(protocolAnalysis, 'Recuperação');
 
-    if (rest != null &&
+    if (protocolAnalysis.hasEnoughDataForCompleteAnalysis &&
+        rest != null &&
         activation != null &&
         activation.averageHeartRate > rest.averageHeartRate + 10) {
       final increase = activation.averageHeartRate - rest.averageHeartRate;
@@ -1282,7 +1285,8 @@ final class AppState extends ChangeNotifier {
       );
     }
 
-    if (activation != null &&
+    if (protocolAnalysis.hasEnoughDataForCompleteAnalysis &&
+        activation != null &&
         recovery != null &&
         recovery.averageHeartRate < activation.averageHeartRate) {
       final reduction = activation.averageHeartRate - recovery.averageHeartRate;
@@ -1331,17 +1335,63 @@ final class AppState extends ChangeNotifier {
 
     if (protocolAnalysis.phases.isNotEmpty &&
         !protocolAnalysis.hasEnoughDataForCompleteAnalysis) {
+      final missingPhases = protocolAnalysis.missingRequiredPhaseLabels;
       insights.add(
         ExperimentalInsight(
           title: 'Protocolo com dados parciais',
-          description:
-              'A sessão ainda não tem amostras suficientes em todas as fases para uma comparação completa.',
+          description: missingPhases.isEmpty
+              ? 'A sessão ainda não tem amostras suficientes em todas as fases para uma comparação completa.'
+              : 'A sessão ainda não tem amostras suficientes em todas as fases para uma comparação completa. Faltando: ${missingPhases.join(', ')}.',
           category: InsightCategory.protocol,
           confidenceLabel: 'baixa',
           valueSummary:
               '${protocolAnalysis.totalSamples} samples com fase registrada',
         ),
       );
+    }
+
+    if (rest != null && rest.isContaminatedByMovement) {
+      insights.add(
+        ExperimentalInsight(
+          title: 'Repouso contaminado por movimento',
+          description:
+              'A fase de repouso teve movimento moderado ou alto, então a confiança do protocolo fica reduzida.',
+          category: InsightCategory.protocol,
+          confidenceLabel: 'baixa',
+          valueSummary: rest.predominantMotionState,
+        ),
+      );
+    }
+
+    if (rest != null && rest.averageHeartRate > baselineHeartRate + 15) {
+      insights.add(
+        ExperimentalInsight(
+          title: 'Repouso com FC elevada',
+          description:
+              'Repouso com FC elevada em relação ao esperado ou ao baseline disponível.',
+          category: InsightCategory.collection,
+          confidenceLabel: _confidenceForPhaseSamples(rest.sampleCount),
+          valueSummary:
+              '${_formatInsightNumber(rest.averageHeartRate)} bpm no repouso',
+        ),
+      );
+    }
+
+    for (final phase in protocolAnalysis.phases) {
+      final averageHrv = phase.averageHrv;
+      if (averageHrv != null && averageHrv > 0 && averageHrv < 15) {
+        insights.add(
+          ExperimentalInsight(
+            title: 'HRV baixa na janela analisada',
+            description: 'HRV baixa na janela analisada.',
+            category: InsightCategory.collection,
+            confidenceLabel: _confidenceForPhaseSamples(phase.sampleCount),
+            valueSummary:
+                '${phase.stepLabel}: ${_formatInsightNumber(averageHrv)} ms',
+          ),
+        );
+        break;
+      }
     }
 
     return List.unmodifiable(insights);
@@ -1387,6 +1437,15 @@ final class AppState extends ChangeNotifier {
       SensorProviderType.healthkit => 'HealthKit',
       SensorProviderType.polarH10 => 'Polar H10',
     };
+  }
+
+  double? get _currentMotionRmsMg {
+    final provider = _sensorProvider;
+    if (provider is PolarH10SessionSensorProvider) {
+      return provider.diagnostics.motionRmsMg;
+    }
+
+    return null;
   }
 
   Future<void> _persistEvents() {

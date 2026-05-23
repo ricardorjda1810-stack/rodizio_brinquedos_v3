@@ -7,9 +7,20 @@ import '../../data/export/csv_exporter.dart';
 import '../../data/sensors/sensor_provider.dart';
 import '../../domain/models/experimental_insight.dart';
 import '../../domain/models/feeling_level.dart';
+import '../../domain/models/guided_protocol.dart';
 import '../../domain/models/guided_protocol_analysis.dart';
 import '../../domain/models/phase_analysis.dart';
 import '../theme/ui_tokens.dart';
+
+String _sourceLabel(SensorProviderType type) {
+  return switch (type) {
+    SensorProviderType.mock => 'Simulação',
+    SensorProviderType.healthkit => 'HealthKit',
+    SensorProviderType.polarH10 => 'Polar H10',
+  };
+}
+
+String _yesNo(bool value) => value ? 'sim' : 'não';
 
 final class GuidedProtocolPage extends StatefulWidget {
   const GuidedProtocolPage({super.key});
@@ -171,6 +182,14 @@ final class _GuidedProtocolPageState extends State<GuidedProtocolPage> {
           _PhaseAnalysisCard(analysis: analysis),
           const SizedBox(height: UiTokens.m),
           _ExperimentalInsightsCard(insights: insights),
+          const SizedBox(height: UiTokens.m),
+          _ProtocolQualitySummaryCard(appState: appState),
+          const SizedBox(height: UiTokens.m),
+          _PhaseChecklistCard(
+            analysis: analysis,
+            session: session ?? lastSession,
+            currentSourceLabel: _sourceLabel(appState.sensorProviderType),
+          ),
           const SizedBox(height: UiTokens.m),
           Card(
             child: Padding(
@@ -337,6 +356,316 @@ final class _PhaseAnalysisCard extends StatelessWidget {
 
   String _formatNumber(double value) {
     return value.toStringAsFixed(0);
+  }
+}
+
+final class _ProtocolQualitySummaryCard extends StatelessWidget {
+  const _ProtocolQualitySummaryCard({required this.appState});
+
+  final AppState appState;
+
+  @override
+  Widget build(BuildContext context) {
+    final polarDiagnostics = appState.polarH10Diagnostics;
+    final isPolarH10 =
+        appState.sensorProviderType == SensorProviderType.polarH10;
+    final quality = polarDiagnostics.qualityEvaluation;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Qualidade fisiológica da coleta',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            _InfoLine(
+              label: 'Fonte principal da sessão',
+              value: _sourceLabel(appState.sensorProviderType),
+            ),
+            _InfoLine(
+              label: 'RR válidos',
+              value: isPolarH10
+                  ? '${polarDiagnostics.validRrIntervalCount}'
+                  : 'n/a',
+            ),
+            _InfoLine(
+              label: 'RR descartados',
+              value: isPolarH10
+                  ? '${polarDiagnostics.discardedRrIntervalCount}'
+                  : 'n/a',
+            ),
+            _InfoLine(
+              label: 'Qualidade média da janela',
+              value: isPolarH10 && quality != null
+                  ? '${quality.signalQuality.name} (${quality.confidenceScore.overallScore}/100)'
+                  : 'n/a',
+            ),
+            _InfoLine(
+              label: 'Acelerômetro H10 ativo',
+              value: isPolarH10
+                  ? _yesNo(polarDiagnostics.accelerometerActive)
+                  : 'n/a',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+final class _PhaseChecklistCard extends StatelessWidget {
+  const _PhaseChecklistCard({
+    required this.analysis,
+    required this.session,
+    required this.currentSourceLabel,
+  });
+
+  final GuidedProtocolAnalysis analysis;
+  final GuidedProtocolSession? session;
+  final String currentSourceLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final specs = _ProtocolPhaseSpec.minimumPhases;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Checklist de fases mínimas',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: UiTokens.s),
+            const Text(
+              'A comparação fisiológica completa só é exibida quando há dados em repouso, movimento leve/controlado e recuperação.',
+              style: TextStyle(color: UiTokens.textFaint, height: 1.35),
+            ),
+            const SizedBox(height: UiTokens.m),
+            ...specs.map((spec) {
+              return _PhaseChecklistRow(
+                spec: spec,
+                phase: _phaseByLabel(spec.analysisLabel),
+                status: _statusFor(spec),
+                fallbackSourceLabel: currentSourceLabel,
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  PhaseAnalysis? _phaseByLabel(String? label) {
+    if (label == null) {
+      return null;
+    }
+
+    for (final phase in analysis.phases) {
+      if (phase.stepLabel == label) {
+        return phase;
+      }
+    }
+
+    return null;
+  }
+
+  String _statusFor(_ProtocolPhaseSpec spec) {
+    final activeSession = session?.isActive ?? false;
+    final index = session?.currentStepIndex;
+    final phase = _phaseByLabel(spec.analysisLabel);
+    final stepIndex = spec.stepIndex;
+
+    if (phase != null &&
+        (!activeSession || (index ?? -1) > (stepIndex ?? 999))) {
+      return 'concluída';
+    }
+    if (activeSession && stepIndex != null && index == stepIndex) {
+      return 'em andamento';
+    }
+    if (phase != null) {
+      return 'concluída';
+    }
+
+    return 'pendente';
+  }
+}
+
+final class _ProtocolPhaseSpec {
+  const _ProtocolPhaseSpec({
+    required this.label,
+    required this.analysisLabel,
+    required this.stepIndex,
+    required this.plannedDuration,
+  });
+
+  final String label;
+  final String? analysisLabel;
+  final int? stepIndex;
+  final Duration? plannedDuration;
+
+  static const minimumPhases = [
+    _ProtocolPhaseSpec(
+      label: 'Repouso inicial',
+      analysisLabel: 'Repouso',
+      stepIndex: 0,
+      plannedDuration: Duration(minutes: 2),
+    ),
+    _ProtocolPhaseSpec(
+      label: 'Movimento leve/controlado',
+      analysisLabel: 'Ativação leve',
+      stepIndex: 1,
+      plannedDuration: Duration(minutes: 2),
+    ),
+    _ProtocolPhaseSpec(
+      label: 'Recuperação',
+      analysisLabel: 'Recuperação',
+      stepIndex: 2,
+      plannedDuration: Duration(minutes: 2),
+    ),
+    _ProtocolPhaseSpec(
+      label: 'Repouso final (opcional)',
+      analysisLabel: null,
+      stepIndex: null,
+      plannedDuration: null,
+    ),
+  ];
+}
+
+final class _PhaseChecklistRow extends StatelessWidget {
+  const _PhaseChecklistRow({
+    required this.spec,
+    required this.phase,
+    required this.status,
+    required this.fallbackSourceLabel,
+  });
+
+  final _ProtocolPhaseSpec spec;
+  final PhaseAnalysis? phase;
+  final String status;
+  final String fallbackSourceLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final phase = this.phase;
+    final sourceLabel = phase?.sourceLabel == 'fonte não registrada'
+        ? fallbackSourceLabel
+        : phase?.sourceLabel ?? fallbackSourceLabel;
+    final contamination = phase?.isContaminatedByMovement ?? false;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: UiTokens.s),
+      padding: const EdgeInsets.all(UiTokens.s),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: contamination ? UiTokens.warning : UiTokens.border,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${spec.label} • $status',
+            style: const TextStyle(
+              color: UiTokens.text,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          _InfoLine(
+            label: 'Duração',
+            value: phase == null
+                ? _plannedDuration(spec.plannedDuration)
+                : '${_formatNumber(phase.durationSeconds)}s',
+          ),
+          _InfoLine(label: 'Samples', value: '${phase?.sampleCount ?? 0}'),
+          _InfoLine(
+            label: 'FC média',
+            value: phase == null
+                ? 'sem dados'
+                : _formatNumber(phase.averageHeartRate),
+          ),
+          _InfoLine(
+            label: 'FC min',
+            value: phase == null ? 'sem dados' : '${phase.minHeartRate}',
+          ),
+          _InfoLine(
+            label: 'FC max',
+            value: phase == null ? 'sem dados' : '${phase.maxHeartRate}',
+          ),
+          _InfoLine(
+            label: 'HRV média',
+            value: phase?.averageHrv == null
+                ? 'sem dados'
+                : _formatNumber(phase!.averageHrv!),
+          ),
+          _InfoLine(
+            label: 'motionRmsMg médio',
+            value: phase?.averageMotionRmsMg == null
+                ? 'sem dados'
+                : _formatNumber(phase!.averageMotionRmsMg!),
+          ),
+          _InfoLine(
+            label: 'Movimento predominante',
+            value: phase?.predominantMotionState ?? 'sem dados',
+          ),
+          _InfoLine(label: 'Fonte dos dados', value: sourceLabel),
+          if (contamination)
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text(
+                'Repouso contaminado por movimento moderado/alto.',
+                style: TextStyle(
+                  color: UiTokens.warning,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static String _plannedDuration(Duration? duration) {
+    if (duration == null) {
+      return 'opcional';
+    }
+
+    return '${duration.inSeconds}s planejados';
+  }
+
+  static String _formatNumber(double value) {
+    return value.toStringAsFixed(0);
+  }
+}
+
+final class _InfoLine extends StatelessWidget {
+  const _InfoLine({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Text(
+        '$label: $value',
+        style: const TextStyle(color: UiTokens.textSoft, height: 1.25),
+      ),
+    );
   }
 }
 

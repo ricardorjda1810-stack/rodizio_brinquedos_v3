@@ -13,6 +13,9 @@ final class PhaseAnalysis {
     required this.firstTimestamp,
     required this.lastTimestamp,
     required this.durationSeconds,
+    required this.averageMotionRmsMg,
+    required this.predominantMotionState,
+    required this.sourceLabel,
   });
 
   final String stepLabel;
@@ -26,6 +29,20 @@ final class PhaseAnalysis {
   final DateTime firstTimestamp;
   final DateTime lastTimestamp;
   final double durationSeconds;
+  final double? averageMotionRmsMg;
+  final String predominantMotionState;
+  final String sourceLabel;
+
+  bool get isContaminatedByMovement {
+    if (stepLabel != 'Repouso') {
+      return false;
+    }
+
+    final motion = predominantMotionState.toLowerCase();
+    return motion.contains('moderado') ||
+        motion.contains('alto') ||
+        (averageMotionRmsMg ?? 0) >= 180;
+  }
 
   factory PhaseAnalysis.fromSamples({
     required String stepLabel,
@@ -39,6 +56,10 @@ final class PhaseAnalysis {
     final hrvValues = sortedSamples
         .where(_hasAvailableHrv)
         .map((sample) => sample.hrv)
+        .toList();
+    final motionValues = sortedSamples
+        .map((sample) => sample.motionRmsMg)
+        .whereType<double>()
         .toList();
     final firstTimestamp = sortedSamples.first.timestamp;
     final lastTimestamp = sortedSamples.last.timestamp;
@@ -58,6 +79,11 @@ final class PhaseAnalysis {
           .difference(firstTimestamp)
           .inSeconds
           .toDouble(),
+      averageMotionRmsMg: motionValues.isEmpty
+          ? null
+          : _averageDouble(motionValues),
+      predominantMotionState: _predominantMotionState(sortedSamples),
+      sourceLabel: _predominantSourceLabel(sortedSamples),
     );
   }
 
@@ -67,6 +93,45 @@ final class PhaseAnalysis {
 
   static double _average(List<int> values) {
     return values.fold<int>(0, (sum, value) => sum + value) / values.length;
+  }
+
+  static double _averageDouble(List<double> values) {
+    return values.fold<double>(0, (sum, value) => sum + value) / values.length;
+  }
+
+  static String _predominantMotionState(List<SessionSample> samples) {
+    return _mostCommon(
+      samples
+          .map((sample) => sample.motionState)
+          .where((value) => value.trim().isNotEmpty),
+      fallback: 'indisponível',
+    );
+  }
+
+  static String _predominantSourceLabel(List<SessionSample> samples) {
+    return _mostCommon(
+      samples
+          .map((sample) => sample.sourceLabel)
+          .whereType<String>()
+          .where((value) => value.trim().isNotEmpty),
+      fallback: 'fonte não registrada',
+    );
+  }
+
+  static String _mostCommon(
+    Iterable<String> values, {
+    required String fallback,
+  }) {
+    final counts = <String, int>{};
+    for (final value in values) {
+      counts[value] = (counts[value] ?? 0) + 1;
+    }
+
+    if (counts.isEmpty) {
+      return fallback;
+    }
+
+    return counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
   }
 
   static int _min(int a, int b) => a < b ? a : b;

@@ -61,6 +61,15 @@ final class GuidedProtocolAnalysis {
         phaseLabels.contains('Recuperação');
   }
 
+  List<String> get missingRequiredPhaseLabels {
+    final phaseLabels = phases.map((phase) => phase.stepLabel).toSet();
+    return [
+      if (!phaseLabels.contains('Repouso')) 'Repouso inicial',
+      if (!phaseLabels.contains('Ativação leve')) 'Movimento leve/controlado',
+      if (!phaseLabels.contains('Recuperação')) 'Recuperação',
+    ];
+  }
+
   static int _comparePhases(PhaseAnalysis a, PhaseAnalysis b) {
     return _phaseOrder(a.stepLabel).compareTo(_phaseOrder(b.stepLabel));
   }
