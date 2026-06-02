@@ -4,6 +4,7 @@
 *.csr
 *.cer
 *.pem
+android/key.properties
 *.jks
 *.keystore
 .dart_tool/
