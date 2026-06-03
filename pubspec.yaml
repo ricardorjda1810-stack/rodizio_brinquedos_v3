@@ -1,8 +1,8 @@
-﻿name: rodizio_brinquedos_v3
+name: rodizio_brinquedos_v3
 description: Rodízio de Brinquedos 2.1 (rebuild v3)
 publish_to: 'none'
 
-version: 1.0.4+78
+version: 1.0.4+79
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
