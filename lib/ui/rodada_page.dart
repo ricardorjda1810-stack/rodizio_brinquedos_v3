@@ -8,8 +8,6 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
-import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
@@ -40,14 +38,10 @@ class RodadaPage extends StatefulWidget {
 }
 
 class _RodadaPageState extends State<RodadaPage> {
-  static const String _paywallSeenAfterFirstRoundKey =
-      'paywall_seen_after_first_round';
   static const String _firstRoundCreatedLoggedKey =
       'analytics_first_round_created_logged';
 
   bool _startingRound = false;
-  bool _checkingAutoPaywall = false;
-  bool _autoPaywallQueued = false;
   bool _loadingSuggestion = false;
   Future<List<RoundToyWithBox>>? _homeSuggestionFuture;
 
@@ -81,12 +75,6 @@ class _RodadaPageState extends State<RodadaPage> {
 
   Future<void> _useHomeSuggestion(List<RoundToyWithBox> suggestion) async {
     if (_startingRound) return;
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!mounted) return;
 
     setState(() => _startingRound = true);
     try {
@@ -181,16 +169,6 @@ class _RodadaPageState extends State<RodadaPage> {
     }
   }
 
-  void _schedulePaywallAfterFirstRound() {
-    if (_autoPaywallQueued || _checkingAutoPaywall) return;
-    if (widget.purchaseService.isPremium) return;
-
-    _autoPaywallQueued = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showPaywallAfterFirstRoundIfNeeded();
-    });
-  }
-
   Future<void> _logFirstRoundCreatedOnce() async {
     final preferences = await SharedPreferences.getInstance();
     final alreadyLogged =
@@ -200,33 +178,6 @@ class _RodadaPageState extends State<RodadaPage> {
 
     await preferences.setBool(_firstRoundCreatedLoggedKey, true);
     await AppAnalytics.logFirstRoundCreated();
-  }
-
-  Future<void> _showPaywallAfterFirstRoundIfNeeded() async {
-    if (!mounted || _checkingAutoPaywall) return;
-    if (widget.purchaseService.isPremium) return;
-
-    _checkingAutoPaywall = true;
-    try {
-      final preferences = await SharedPreferences.getInstance();
-      final hasSeen =
-          preferences.getBool(_paywallSeenAfterFirstRoundKey) ?? false;
-
-      if (hasSeen || widget.purchaseService.isPremium) return;
-
-      await preferences.setBool(_paywallSeenAfterFirstRoundKey, true);
-
-      if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => PaywallPage(
-            purchaseService: widget.purchaseService,
-          ),
-        ),
-      );
-    } finally {
-      _checkingAutoPaywall = false;
-    }
   }
 
   @override
@@ -243,9 +194,6 @@ class _RodadaPageState extends State<RodadaPage> {
         }
 
         final items = snapshot.data ?? const <RoundToyWithBox>[];
-        if (items.isNotEmpty) {
-          _schedulePaywallAfterFirstRound();
-        }
 
         return StreamBuilder<List<CategoryDefinition>>(
           stream: widget.toyRepository.watchCategories(),

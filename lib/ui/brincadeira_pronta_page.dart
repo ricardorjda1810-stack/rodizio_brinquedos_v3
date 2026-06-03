@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
@@ -67,13 +66,6 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
   }
 
   Future<void> _addToy() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!mounted) return;
-
     if (_selected.length >= _maxSelected) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Limite de 12 brinquedos no conjunto.')),
@@ -139,26 +131,12 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
   }
 
   Future<void> _removeToy(String toyId) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!mounted) return;
-
     setState(
       () => _selected = _selected.where((it) => it.toy.id != toyId).toList(),
     );
   }
 
   Future<void> _save() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!mounted) return;
-
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

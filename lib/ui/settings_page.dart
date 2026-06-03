@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
+import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
@@ -107,8 +107,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _persistAutoClamp(Map<String, int> values) async {
-    if (!widget.purchaseService.isPremium) return;
-
     for (final entry in values.entries) {
       if (_autoClampPending.contains(entry.key)) continue;
       _autoClampPending.add(entry.key);
@@ -125,12 +123,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _save() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     for (final row in _latestRows) {
       final id = row.category.id;
       final included = _includedDraft[id] ?? row.isIncluded;
@@ -187,12 +179,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _restoreRoundDefaults() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     await widget.toyRepository.restoreRoundCategoryDefaults();
 
     if (!mounted) return;
@@ -493,10 +479,14 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: UiTokens.spacingSm),
           _SettingsTile(
             icon: Icons.workspace_premium_outlined,
-            title: 'Teste o Premium',
+            title: isPaywallEnabledForCurrentPlatform
+                ? 'Teste o Premium'
+                : 'Premium no Android',
             subtitle: widget.purchaseService.isPremium
                 ? 'Assinatura ativa neste aparelho'
-                : 'Abrir tela de assinatura para testes',
+                : isPaywallEnabledForCurrentPlatform
+                    ? 'Abrir tela de assinatura para testes'
+                    : 'Assinatura em breve. Recursos liberados por enquanto.',
             onTap: _openPaywall,
           ),
         ],

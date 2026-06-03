@@ -5,7 +5,6 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_controller.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_state.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -125,12 +124,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
   }
 
   Future<void> _openToyCreate(BuildContext context) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed || !context.mounted) return;
-
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ToyCreatePage(
@@ -144,11 +137,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
 
   Future<void> _startRound() async {
     if (_startingRound) return;
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
 
     setState(() => _startingRound = true);
     try {
@@ -249,13 +237,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     final selectedCategoryId = await showDialog<String>(
       context: context,
@@ -343,13 +324,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     if (item.box != null) {
       messenger.showSnackBar(
@@ -446,13 +420,6 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     final boxes = await widget.toyRepository.watchBoxes().first;
     if (!context.mounted) return;

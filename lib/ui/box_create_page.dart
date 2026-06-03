@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
@@ -54,12 +53,6 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
   }
 
   Future<void> _save(List<LocationDefinition> locations) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     final localToSave = _resolveLocalToSave(locations);
 
     setState(() => _saving = true);

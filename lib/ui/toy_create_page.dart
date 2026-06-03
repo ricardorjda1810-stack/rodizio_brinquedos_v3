@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
@@ -102,12 +101,6 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _createBox() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     await HapticFeedback.selectionClick();
     if (!mounted) return;
     final navigator = Navigator.of(context);
@@ -127,12 +120,6 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _save() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();
@@ -157,12 +144,6 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Future<void> _saveAndAddAnother() async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-
     if (!_validateBeforeSave()) return;
 
     await HapticFeedback.lightImpact();

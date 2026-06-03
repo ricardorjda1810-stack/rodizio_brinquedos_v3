@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
@@ -47,13 +46,6 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _pick(BuildContext context, ImageSource source) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     try {
       final picker = ImagePicker();
@@ -79,13 +71,6 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _remove(BuildContext context) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     try {
       await toyRepository.removeToyPhoto(toyId: toyId);
@@ -98,13 +83,6 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _renameToy(BuildContext context, String currentName) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final controller = TextEditingController(text: currentName.trim());
     final messenger = ScaffoldMessenger.of(context);
 
@@ -157,13 +135,6 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String currentCategoryId,
   }) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     final selectedCategoryId = await showDialog<String>(
       context: context,
@@ -249,13 +220,6 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String? currentBoxId,
   }) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final messenger = ScaffoldMessenger.of(context);
     final boxes = await toyRepository.watchBoxes().first;
     if (!context.mounted) return;
@@ -349,13 +313,6 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _deleteToy(BuildContext context) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(

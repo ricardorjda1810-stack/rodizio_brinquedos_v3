@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
@@ -53,12 +52,6 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _openAddBoxPage(BuildContext context) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed || !context.mounted) return;
-
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BoxCreatePage(
@@ -75,13 +68,6 @@ class _CaixasPageState extends State<CaixasPage> {
     String boxId,
     String label,
   ) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -117,13 +103,6 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _pickBoxPhoto(BuildContext context, Boxe box) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
@@ -174,13 +153,6 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _editBoxLocal(BuildContext context, Boxe box) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final locations = await widget.toyRepository.watchLocations().first;
     if (!context.mounted) return;
     if (locations.isEmpty) {
@@ -248,13 +220,6 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _editBoxNotes(BuildContext context, Boxe box) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: widget.purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final controller = TextEditingController(text: box.notes ?? '');
     final result = await showDialog<String>(
       context: context,

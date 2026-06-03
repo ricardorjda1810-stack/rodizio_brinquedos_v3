@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -22,13 +21,6 @@ class LocationsManagePage extends StatelessWidget {
   });
 
   Future<void> _showAddDialog(BuildContext context) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final controller = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
@@ -60,13 +52,6 @@ class LocationsManagePage extends StatelessWidget {
     BuildContext context,
     LocationDefinition location,
   ) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final controller = TextEditingController(text: location.name);
     final ok = await showDialog<bool>(
       context: context,
@@ -99,13 +84,6 @@ class LocationsManagePage extends StatelessWidget {
 
   Future<void> _remove(
       BuildContext context, LocationDefinition location) async {
-    final allowed = await PremiumGate.ensurePremium(
-      context: context,
-      purchaseService: purchaseService,
-    );
-    if (!allowed) return;
-    if (!context.mounted) return;
-
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
