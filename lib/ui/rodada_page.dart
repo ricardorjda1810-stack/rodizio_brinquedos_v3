@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -41,6 +42,8 @@ class RodadaPage extends StatefulWidget {
 class _RodadaPageState extends State<RodadaPage> {
   static const String _paywallSeenAfterFirstRoundKey =
       'paywall_seen_after_first_round';
+  static const String _firstRoundCreatedLoggedKey =
+      'analytics_first_round_created_logged';
 
   bool _startingRound = false;
   bool _checkingAutoPaywall = false;
@@ -103,6 +106,7 @@ class _RodadaPageState extends State<RodadaPage> {
       }
 
       await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
+      await _logFirstRoundCreatedOnce();
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,6 +157,7 @@ class _RodadaPageState extends State<RodadaPage> {
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
       );
+      await _logFirstRoundCreatedOnce();
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -184,6 +189,17 @@ class _RodadaPageState extends State<RodadaPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showPaywallAfterFirstRoundIfNeeded();
     });
+  }
+
+  Future<void> _logFirstRoundCreatedOnce() async {
+    final preferences = await SharedPreferences.getInstance();
+    final alreadyLogged =
+        preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
+
+    if (alreadyLogged) return;
+
+    await preferences.setBool(_firstRoundCreatedLoggedKey, true);
+    await AppAnalytics.logFirstRoundCreated();
   }
 
   Future<void> _showPaywallAfterFirstRoundIfNeeded() async {

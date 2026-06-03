@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"ios":{"targets":{"Runner":{"projectId":"rodizio-de-brinquedos","appId":"1:713670498412:ios:a73ec27898054ea1f2e049","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}}},"dart":{"lib/firebase_options.dart":{"projectId":"rodizio-de-brinquedos","configurations":{"ios":"1:713670498412:ios:a73ec27898054ea1f2e049"}}}}}}

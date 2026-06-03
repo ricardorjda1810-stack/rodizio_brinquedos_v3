@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
@@ -31,6 +34,7 @@ class _PaywallPageState extends State<PaywallPage> {
   @override
   void initState() {
     super.initState();
+    unawaited(AppAnalytics.logPaywallViewed());
     _lastPremiumState = _purchaseService.isPremium;
     _lastErrorMessage = _purchaseService.errorMessage;
     _purchaseService.addListener(_handlePurchaseStateChanged);

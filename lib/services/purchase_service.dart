@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PurchaseService extends ChangeNotifier {
@@ -128,6 +129,7 @@ class PurchaseService extends ChangeNotifier {
 
     try {
       final param = PurchaseParam(productDetails: details);
+      await AppAnalytics.logPurchaseStarted();
       final started = await _inAppPurchase.buyNonConsumable(
         purchaseParam: param,
       );
@@ -193,6 +195,12 @@ class PurchaseService extends ChangeNotifier {
           shouldNotify = true;
           break;
         case PurchaseStatus.purchased:
+          await _setPremiumActive(true, notify: false);
+          await AppAnalytics.logPurchaseCompleted();
+          nextLoading = false;
+          nextError = null;
+          shouldNotify = true;
+          break;
         case PurchaseStatus.restored:
           await _setPremiumActive(true, notify: false);
           nextLoading = false;
