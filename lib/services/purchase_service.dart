@@ -3,10 +3,18 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PurchaseService extends ChangeNotifier {
-  static const String productId = 'com.rodiziobrinquedos.premium.monthly';
+  static const String monthlyProductId =
+      'com.rodiziobrinquedos.premium.monthly';
+  static const String yearlyProductId = 'com.rodiziobrinquedos.premium.yearly';
+  static const String productId = monthlyProductId;
+  static const Set<String> productIds = <String>{
+    monthlyProductId,
+    yearlyProductId,
+  };
   static const String _premiumStorageKey = 'premium_active';
   static const Object _noValue = Object();
 
@@ -18,6 +26,8 @@ class PurchaseService extends ChangeNotifier {
   bool _isPremium = false;
   bool _isLoading = false;
   ProductDetails? _productDetails;
+  Map<String, ProductDetails> _productDetailsById =
+      const <String, ProductDetails>{};
   String? _errorMessage;
   bool _storeAvailable = false;
   bool _initialized = false;
@@ -39,14 +49,28 @@ class PurchaseService extends ChangeNotifier {
   }
 
   bool get isPremium => _isPremium;
+  bool get hasPremiumAccess =>
+      _isPremium || !isPaywallEnabledForCurrentPlatform;
   bool get isLoading => _isLoading;
   ProductDetails? get productDetails => _productDetails;
+  ProductDetails? productDetailsFor(String productId) =>
+      _productDetailsById[productId];
   String? get errorMessage => _errorMessage;
 
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
     _isPremium = _preferences.getBool(_premiumStorageKey) ?? false;
+
+    if (!isPaywallEnabledForCurrentPlatform) {
+      _isLoading = false;
+      _storeAvailable = false;
+      _productDetails = null;
+      _productDetailsById = const <String, ProductDetails>{};
+      _errorMessage = null;
+      notifyListeners();
+      return;
+    }
 
     _purchaseSubscription = _inAppPurchase.purchaseStream.listen(
       _handlePurchaseUpdates,
@@ -63,6 +87,17 @@ class PurchaseService extends ChangeNotifier {
   }
 
   Future<void> refreshProductDetails() async {
+    if (!isPaywallEnabledForCurrentPlatform) {
+      _setState(
+        isLoading: false,
+        errorMessage: null,
+        productDetails: null,
+        productDetailsById: <String, ProductDetails>{},
+        storeAvailable: false,
+      );
+      return;
+    }
+
     _setState(isLoading: true, errorMessage: null);
 
     try {
@@ -72,32 +107,40 @@ class PurchaseService extends ChangeNotifier {
           isLoading: false,
           errorMessage: 'Compras no app indisponíveis neste dispositivo.',
           productDetails: null,
+          productDetailsById: <String, ProductDetails>{},
           storeAvailable: false,
         );
         return;
       }
 
-      final response = await _inAppPurchase.queryProductDetails({productId});
+      final response = await _inAppPurchase.queryProductDetails(productIds);
       if (response.error != null) {
         _setState(
           isLoading: false,
           errorMessage: response.error!.message,
           productDetails: null,
+          productDetailsById: <String, ProductDetails>{},
           storeAvailable: true,
         );
         return;
       }
 
-      final details = response.productDetails.isEmpty
-          ? null
-          : response.productDetails.first;
+      final detailsById = <String, ProductDetails>{
+        for (final details in response.productDetails) details.id: details,
+      };
+      final details = detailsById[monthlyProductId] ??
+          detailsById[yearlyProductId] ??
+          (response.productDetails.isEmpty
+              ? null
+              : response.productDetails.first);
 
       _setState(
         isLoading: false,
         errorMessage: details == null
-            ? 'Assinatura premium não encontrada na App Store.'
+            ? 'Assinaturas premium não encontradas na loja.'
             : null,
         productDetails: details,
+        productDetailsById: detailsById,
         storeAvailable: true,
       );
     } catch (error) {
@@ -105,24 +148,33 @@ class PurchaseService extends ChangeNotifier {
         isLoading: false,
         errorMessage: 'Falha ao carregar assinatura: $error',
         productDetails: null,
+        productDetailsById: <String, ProductDetails>{},
         storeAvailable: false,
       );
     }
   }
 
-  Future<void> startPurchase() async {
+  Future<void> startPurchase({
+    String productId = PurchaseService.productId,
+  }) async {
+    if (!isPaywallEnabledForCurrentPlatform) {
+      _setState(isLoading: false, errorMessage: null, storeAvailable: false);
+      return;
+    }
+
     _setState(isLoading: true, errorMessage: null);
 
-    if (!_storeAvailable || _productDetails == null) {
+    if (!_storeAvailable || !_productDetailsById.containsKey(productId)) {
       await refreshProductDetails();
     }
 
-    final details = _productDetails;
+    final details = _productDetailsById[productId] ??
+        (productId == PurchaseService.productId ? _productDetails : null);
     if (!_storeAvailable || details == null) {
       _setState(
         isLoading: false,
-        errorMessage: _errorMessage ??
-            'Não foi possível carregar a assinatura premium.',
+        errorMessage:
+            _errorMessage ?? 'Não foi possível carregar a assinatura premium.',
       );
       return;
     }
@@ -152,6 +204,11 @@ class PurchaseService extends ChangeNotifier {
   }
 
   Future<void> restorePurchases() async {
+    if (!isPaywallEnabledForCurrentPlatform) {
+      _setState(isLoading: false, errorMessage: null, storeAvailable: false);
+      return;
+    }
+
     _setState(isLoading: true, errorMessage: null);
 
     final available = _storeAvailable || await _inAppPurchase.isAvailable();
@@ -186,7 +243,7 @@ class PurchaseService extends ChangeNotifier {
     String? nextError = _errorMessage;
 
     for (final purchaseDetails in purchaseDetailsList) {
-      if (purchaseDetails.productID != productId) continue;
+      if (!productIds.contains(purchaseDetails.productID)) continue;
 
       switch (purchaseDetails.status) {
         case PurchaseStatus.pending:
@@ -244,6 +301,7 @@ class PurchaseService extends ChangeNotifier {
     bool? isLoading,
     String? errorMessage,
     Object? productDetails = _noValue,
+    Object? productDetailsById = _noValue,
     bool? storeAvailable,
   }) {
     if (isLoading != null) {
@@ -252,6 +310,11 @@ class PurchaseService extends ChangeNotifier {
     _errorMessage = errorMessage;
     if (!identical(productDetails, _noValue)) {
       _productDetails = productDetails as ProductDetails?;
+    }
+    if (!identical(productDetailsById, _noValue)) {
+      _productDetailsById = Map<String, ProductDetails>.unmodifiable(
+        productDetailsById as Map<String, ProductDetails>,
+      );
     }
     if (storeAvailable != null) {
       _storeAvailable = storeAvailable;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
@@ -28,6 +29,7 @@ class PaywallPage extends StatefulWidget {
 class _PaywallPageState extends State<PaywallPage> {
   String? _lastErrorMessage;
   bool _lastPremiumState = false;
+  String _selectedProductId = PurchaseService.yearlyProductId;
 
   PurchaseService get _purchaseService => widget.purchaseService;
 
@@ -59,7 +61,7 @@ class _PaywallPageState extends State<PaywallPage> {
     if (_purchaseService.isPremium && !_lastPremiumState) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Premium ativado neste aparelho.'),
+          content: Text('Premium ativado com sucesso.'),
         ),
       );
     }
@@ -70,10 +72,12 @@ class _PaywallPageState extends State<PaywallPage> {
   }
 
   Future<void> _startPurchase() async {
-    await _purchaseService.startPurchase();
+    if (!isPaywallEnabledForCurrentPlatform) return;
+    await _purchaseService.startPurchase(productId: _selectedProductId);
   }
 
   Future<void> _restorePurchases() async {
+    if (!isPaywallEnabledForCurrentPlatform) return;
     await _purchaseService.restorePurchases();
   }
 
@@ -99,17 +103,35 @@ class _PaywallPageState extends State<PaywallPage> {
     }
   }
 
-  String _priceText() {
-    final details = _purchaseService.productDetails;
-    if (details == null) {
-      return 'Depois R\$9,90/m\u00EAs';
-    }
-    return 'Depois ${details.price}/m\u00EAs';
+  String _priceWithPeriod({
+    required String productId,
+    required String fallbackPrice,
+    required String period,
+  }) {
+    final storePrice = _purchaseService.productDetailsFor(productId)?.price;
+    final price =
+        storePrice == null || storePrice.isEmpty ? fallbackPrice : storePrice;
+    return '$price/$period';
+  }
+
+  void _selectPlan(String productId) {
+    if (_selectedProductId == productId) return;
+    setState(() => _selectedProductId = productId);
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final yearlyPrice = _priceWithPeriod(
+      productId: PurchaseService.yearlyProductId,
+      fallbackPrice: 'R\$ 99,90',
+      period: 'ano',
+    );
+    final monthlyPrice = _priceWithPeriod(
+      productId: PurchaseService.monthlyProductId,
+      fallbackPrice: 'R\$ 14,90',
+      period: 'm\u00EAs',
+    );
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
@@ -121,7 +143,7 @@ class _PaywallPageState extends State<PaywallPage> {
           padding: const EdgeInsets.all(UiTokens.spacingMd),
           children: [
             AppSurfaceCard(
-              padding: const EdgeInsets.all(UiTokens.spacingLg),
+              padding: const EdgeInsets.all(UiTokens.spacingMd),
               color: UiTokens.primarySoft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +157,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   ),
                   const SizedBox(height: UiTokens.spacingSm),
                   Text(
-                    'Organize os brinquedos e veja a diferen\u00E7a em poucos dias',
+                    'Organize os brinquedos e veja a diferen\u00E7a em poucos dias.',
                     style: textTheme.bodyLarge?.copyWith(
                       color: UiTokens.textSecondary,
                     ),
@@ -144,109 +166,62 @@ class _PaywallPageState extends State<PaywallPage> {
               ),
             ),
             const SizedBox(height: UiTokens.spacingMd),
-            AppSurfaceCard(
-              padding: const EdgeInsets.all(UiTokens.spacingLg),
+            const AppSurfaceCard(
+              padding: EdgeInsets.all(UiTokens.spacingMd),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _BenefitRow(label: 'Menos brinquedos espalhados'),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  const _BenefitRow(label: 'Crian\u00E7a mais focada'),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  const _BenefitRow(label: 'Rotina mais leve para os pais'),
-                  const SizedBox(height: UiTokens.spacingLg),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(UiTokens.spacingMd),
-                    decoration: BoxDecoration(
-                      color: UiTokens.secondarySoft,
-                      borderRadius: BorderRadius.circular(UiTokens.radiusLg),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '\u{1F381} 1 m\u00EAs gr\u00E1tis',
-                          style: textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: UiTokens.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: UiTokens.spacingXs),
-                        Text(
-                          _priceText(),
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: UiTokens.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (_purchaseService.productDetails == null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: UiTokens.spacingSm),
-                      child: Text(
-                        'Produto: ${PurchaseService.productId}',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: UiTokens.textSecondary,
-                        ),
-                      ),
-                    ),
-                  if (_purchaseService.isPremium)
-                    Padding(
-                      padding: const EdgeInsets.only(top: UiTokens.spacingMd),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(UiTokens.spacingMd),
-                        decoration: BoxDecoration(
-                          color: UiTokens.primarySoft,
-                          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
-                        ),
-                        child: Text(
-                          'Premium ativo neste aparelho.',
-                          style: textTheme.bodyMedium?.copyWith(
-                            color: UiTokens.primaryStrong,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: UiTokens.spacingLg),
-                  FilledButton(
-                    onPressed:
-                        _purchaseService.isLoading ? null : _startPurchase,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52),
-                    ),
-                    child: _purchaseService.isLoading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Come\u00E7ar teste gr\u00E1tis'),
-                  ),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  Center(
-                    child: Text(
-                      'Cancele quando quiser',
-                      style: textTheme.bodySmall?.copyWith(
-                        color: UiTokens.textSecondary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  Center(
-                    child: TextButton(
-                      onPressed:
-                          _purchaseService.isLoading ? null : _restorePurchases,
-                      child: const Text('Restaurar compra'),
-                    ),
-                  ),
+                  _BenefitRow(label: 'Brinquedos ilimitados'),
+                  SizedBox(height: UiTokens.spacingSm),
+                  _BenefitRow(label: 'Categorias ilimitadas'),
+                  SizedBox(height: UiTokens.spacingSm),
+                  _BenefitRow(label: 'Planejamento semanal'),
+                  SizedBox(height: UiTokens.spacingSm),
+                  _BenefitRow(label: 'Rotina mais leve para os pais'),
                 ],
               ),
             ),
             const SizedBox(height: UiTokens.spacingMd),
+            _PlanCard(
+              badge: '\u{2B50} Mais popular',
+              title: 'Rod\u00EDzio Premium Anual',
+              price: yearlyPrice,
+              description: 'equivalente a R\$ 8,32/m\u00EAs',
+              isFeatured: true,
+              isSelected: _selectedProductId == PurchaseService.yearlyProductId,
+              onTap: () => _selectPlan(PurchaseService.yearlyProductId),
+            ),
+            const SizedBox(height: UiTokens.spacingSm),
+            _PlanCard(
+              title: 'Rod\u00EDzio Premium Mensal',
+              price: monthlyPrice,
+              isSelected:
+                  _selectedProductId == PurchaseService.monthlyProductId,
+              onTap: () => _selectPlan(PurchaseService.monthlyProductId),
+            ),
+            const SizedBox(height: UiTokens.spacingLg),
+            FilledButton(
+              onPressed: _purchaseService.isLoading ? null : _startPurchase,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
+              child: _purchaseService.isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Come\u00E7ar agora'),
+            ),
+            const SizedBox(height: UiTokens.spacingSm),
+            Center(
+              child: TextButton(
+                onPressed:
+                    _purchaseService.isLoading ? null : _restorePurchases,
+                child: const Text('Restaurar compra'),
+              ),
+            ),
+            const SizedBox(height: UiTokens.spacingSm),
             Center(
               child: Wrap(
                 alignment: WrapAlignment.center,
@@ -270,6 +245,128 @@ class _PaywallPageState extends State<PaywallPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanCard extends StatelessWidget {
+  final String? badge;
+  final String title;
+  final String price;
+  final String? description;
+  final bool isFeatured;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PlanCard({
+    this.badge,
+    required this.title,
+    required this.price,
+    this.description,
+    this.isFeatured = false,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final borderColor = isSelected ? UiTokens.primaryStrong : UiTokens.border;
+    final backgroundColor =
+        isFeatured ? UiTokens.primarySoft : UiTokens.surfaceLight;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+          border: Border.all(
+            color: borderColor,
+            width: isSelected ? 1.4 : 1,
+          ),
+          boxShadow: UiTokens.softShadow,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(UiTokens.spacingMd),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (badge != null) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: UiTokens.spacingSm,
+                              vertical: UiTokens.spacingXs,
+                            ),
+                            decoration: BoxDecoration(
+                              color: UiTokens.accent.withValues(alpha: 0.16),
+                              borderRadius:
+                                  BorderRadius.circular(UiTokens.radiusSm),
+                            ),
+                            child: Text(
+                              badge!,
+                              style: textTheme.labelSmall?.copyWith(
+                                color: UiTokens.textPrimary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: UiTokens.spacingSm),
+                        ],
+                        Text(
+                          title,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: UiTokens.textPrimary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: UiTokens.spacingXs),
+                        Text(
+                          price,
+                          style: textTheme.titleSmall?.copyWith(
+                            color: UiTokens.primaryStrong,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        if (description != null) ...[
+                          const SizedBox(height: UiTokens.spacingXs),
+                          Text(
+                            description!,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: UiTokens.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: UiTokens.spacingMd),
+                  Icon(
+                    isSelected
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: isSelected
+                        ? UiTokens.primaryStrong
+                        : UiTokens.textSecondary,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
