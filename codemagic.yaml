@@ -139,7 +139,12 @@ workflows:
           cd ..
 
       - name: Set up code signing
-        script: xcode-project use-profiles
+        script: |
+          xcode-project use-profiles \
+            --project ios/Runner.xcodeproj \
+            --archive-method app-store \
+            --export-options-plist=/Users/builder/export_options.plist \
+            --code-signing-setup-verbose-logging
 
       - name: Analyze
         script: flutter analyze --no-pub lib test
@@ -154,9 +159,8 @@ workflows:
 
       - name: Build IPA
         script: |
-          xcode-project build-ipa \
-            --workspace ios/Runner.xcworkspace \
-            --scheme Runner
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
