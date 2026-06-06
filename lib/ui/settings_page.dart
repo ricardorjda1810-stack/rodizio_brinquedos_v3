@@ -480,12 +480,12 @@ class _SettingsPageState extends State<SettingsPage> {
           _SettingsTile(
             icon: Icons.workspace_premium_outlined,
             title: isPaywallEnabledForCurrentPlatform
-                ? 'Teste o Premium'
+                ? 'Planejamento semanal Premium'
                 : 'Premium no Android',
             subtitle: widget.purchaseService.isPremium
                 ? 'Assinatura ativa neste aparelho'
                 : isPaywallEnabledForCurrentPlatform
-                    ? 'Abrir tela de assinatura para testes'
+                    ? 'Abrir tela de assinatura'
                     : 'Assinatura em breve. Recursos liberados por enquanto.',
             onTap: _openPaywall,
           ),

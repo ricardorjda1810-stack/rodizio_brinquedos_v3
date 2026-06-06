@@ -149,7 +149,7 @@ class _PaywallPageState extends State<PaywallPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Menos bagun\u00E7a. Mais brincadeiras de verdade.',
+                    'Planeje a semana com mais calma.',
                     style: textTheme.headlineSmall?.copyWith(
                       color: UiTokens.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -157,7 +157,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   ),
                   const SizedBox(height: UiTokens.spacingSm),
                   Text(
-                    'Organize os brinquedos e veja a diferen\u00E7a em poucos dias.',
+                    'Prepare o rod\u00EDzio com anteced\u00EAncia e deixe a rotina de brincadeiras mais previs\u00EDvel.',
                     style: textTheme.bodyLarge?.copyWith(
                       color: UiTokens.textSecondary,
                     ),
@@ -171,13 +171,19 @@ class _PaywallPageState extends State<PaywallPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _BenefitRow(label: 'Brinquedos ilimitados'),
+                  _BenefitRow(label: 'Planejamento semanal completo'),
                   SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(label: 'Categorias ilimitadas'),
+                  _BenefitRow(label: 'Organize cada dia da semana'),
                   SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(label: 'Planejamento semanal'),
+                  _BenefitRow(label: 'Ajuste categorias por dia'),
                   SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(label: 'Rotina mais leve para os pais'),
+                  _BenefitRow(
+                    label: 'Prepare a rotina com mais previsibilidade',
+                  ),
+                  SizedBox(height: UiTokens.spacingSm),
+                  _BenefitRow(
+                    label: 'Tenha mais controle sobre o rod\u00EDzio',
+                  ),
                 ],
               ),
             ),
