@@ -497,16 +497,25 @@ class _AvailableToysGridCard extends StatelessWidget {
                 ? emptyState
                 : LayoutBuilder(
                     builder: (context, constraints) {
-                      final columns = constraints.maxWidth < 390 ? 3 : 4;
+                      final columns = constraints.maxWidth >= 840
+                          ? 5
+                          : constraints.maxWidth >= 390
+                              ? 4
+                              : 3;
+                      const gridSpacing = 12.0;
+                      final tileWidth =
+                          (constraints.maxWidth - gridSpacing * (columns - 1)) /
+                              columns;
+                      final tileExtent = (tileWidth + 52).clamp(132.0, 224.0);
 
                       return GridView.builder(
                         padding: const EdgeInsets.only(top: UiTokens.spacingXs),
                         physics: const BouncingScrollPhysics(),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: columns,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: 132,
+                          crossAxisSpacing: gridSpacing,
+                          mainAxisSpacing: gridSpacing,
+                          mainAxisExtent: tileExtent.toDouble(),
                         ),
                         itemCount: items.length,
                         itemBuilder: (context, index) {
@@ -562,7 +571,9 @@ class _RoundToyGridItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _GridToyPhoto(imagePath: item.toy.photoPath),
+              Expanded(
+                child: _GridToyPhoto(imagePath: item.toy.photoPath),
+              ),
               const SizedBox(height: UiTokens.spacingXs),
               Text(
                 name,
@@ -592,15 +603,16 @@ class _GridToyPhoto extends StatelessWidget {
   Widget build(BuildContext context) {
     final path = imagePath?.trim();
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+      child: SizedBox.expand(
         child: path == null || path.isEmpty
             ? const _GridToyPlaceholder()
             : Image.file(
                 File(path),
                 fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
                 errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
               ),
       ),
