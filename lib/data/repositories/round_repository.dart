@@ -443,14 +443,17 @@ class RoundRepository {
     ).resolveCategoryConfigForDate(date);
   }
 
-  Future<List<Toy>> suggestRoundForToday() async {
+  Future<List<Toy>> suggestRoundForToday() {
+    return suggestRoundForDate(DateTime.now());
+  }
+
+  Future<List<Toy>> suggestRoundForDate(DateTime date) async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
     }
 
-    final categoryConfigs =
-        await _resolveRoundCategoryConfigsForDate(DateTime.now(), d);
+    final categoryConfigs = await _resolveRoundCategoryConfigsForDate(date, d);
     final includedConfigs = categoryConfigs
         .where((config) => config.isIncluded && config.safeQuota > 0)
         .toList(growable: false);

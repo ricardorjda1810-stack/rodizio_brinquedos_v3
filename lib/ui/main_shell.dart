@@ -12,7 +12,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_preview_card.dart';
-import 'weekly_planning_page.dart';
+import 'weekly_planning_overview_page.dart';
 import 'brinquedos_page.dart' as brinquedos;
 import 'caixas_page.dart';
 import 'rodada_page.dart';
@@ -96,9 +96,10 @@ class _MainShellState extends State<MainShell> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => WeeklyPlanningPage(
+        builder: (_) => WeeklyPlanningOverviewPage(
           settingsRepository: widget.settingsRepository,
           weeklyPlanningRepository: weeklyPlanningRepository,
+          roundRepository: widget.roundRepository,
         ),
       ),
     );
