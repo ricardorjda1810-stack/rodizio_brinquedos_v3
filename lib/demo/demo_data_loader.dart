@@ -9,7 +9,10 @@ import 'package:rodizio_brinquedos_v3/demo/demo_seed.dart';
 
 class DemoDataLoader {
   static const _isDemo = bool.fromEnvironment('DEMO_MODE');
+  static const _isMarketingDemo = bool.fromEnvironment('MARKETING_DEMO');
   static const _demoToyPhotosDirName = 'demo_toy_photos';
+
+  static bool get controlsEnabled => _isDemo || _isMarketingDemo;
 
   static Future<void> load(AppDatabase db) async {
     if (!_isDemo) return;
@@ -21,12 +24,12 @@ class DemoDataLoader {
     // ignore: avoid_print
     print('[DEMO] toys count before seed = $toysCount');
 
-    await _insertData(db);
+    await populate(db);
     // ignore: avoid_print
     print('[DEMO] seed completed');
   }
 
-  static Future<void> _insertData(AppDatabase db) async {
+  static Future<void> populate(AppDatabase db) async {
     final now = DateTime.now().millisecondsSinceEpoch;
 
     await db.transaction(() async {
@@ -40,17 +43,26 @@ class DemoDataLoader {
     });
   }
 
-  static Future<void> _clearDemoState(AppDatabase db) async {
-    if (!_isDemo) return;
+  static Future<void> clear(AppDatabase db) async {
+    await db.transaction(() async {
+      await _clearDemoState(db);
+    });
+  }
 
+  static Future<void> _clearDemoState(AppDatabase db) async {
     await db.delete(db.roundToys).go();
     await db.delete(db.rounds).go();
     await db.delete(db.toys).go();
     await db.delete(db.boxes).go();
     await db.delete(db.weeklyPlanningCategorySettings).go();
+    await db.delete(db.weeklyPlanningSettings).go();
     await db.delete(db.roundCategorySettings).go();
+    await db.delete(db.roundUiSettings).go();
+    await db.delete(db.toyAutoNameCounters).go();
     await db.delete(db.categoryCounters).go();
+    await db.delete(db.locationDefinitions).go();
     await db.delete(db.categoryDefinitions).go();
+    await db.delete(db.historyEvents).go();
     await _clearDemoToyPhotos();
   }
 
@@ -88,15 +100,7 @@ class DemoDataLoader {
   }
 
   static Future<void> _insertLocations(AppDatabase db) async {
-    const locations = <String>[
-      'Sala',
-      'Quarto',
-      'Brinquedoteca',
-      'Varanda',
-      'Banheiro',
-    ];
-
-    for (final name in locations) {
+    for (final name in DemoSeed.locations) {
       await db.into(db.locationDefinitions).insert(
             LocationDefinitionsCompanion.insert(
               id: _slug(name),
@@ -173,7 +177,7 @@ class DemoDataLoader {
     await db.into(db.roundUiSettings).insert(
           RoundUiSettingsCompanion.insert(
             id: const Value(1),
-            perCategoryLimit: const Value(7),
+            perCategoryLimit: const Value(5),
             hapticEnabled: const Value(true),
             soundEnabled: const Value(false),
             darkModeEnabled: const Value(false),
@@ -191,21 +195,26 @@ class DemoDataLoader {
     );
 
     for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      final dayPlan = DemoSeed.weeklyPlans.firstWhere(
+        (plan) => plan.weekday == weekday,
+      );
+
       await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
             WeeklyPlanningSettingsCompanion.insert(
               weekday: Value(weekday),
-              useDefault: const Value(true),
+              useDefault: const Value(false),
               customSize: const Value(null),
             ),
           );
 
       for (final category in DemoSeed.categories) {
+        final quota = dayPlan.quotas[category.id] ?? 0;
         await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
               WeeklyPlanningCategorySettingsCompanion.insert(
                 weekday: weekday,
                 categoryId: category.id,
-                isIncluded: Value(category.quota > 0),
-                quota: Value(category.quota),
+                isIncluded: Value(quota > 0),
+                quota: Value(quota),
               ),
             );
       }

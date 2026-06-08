@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -33,6 +34,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   List<RoundCategorySettingRow> _latestRows = const <RoundCategorySettingRow>[];
   bool _draftInitialized = false;
+  bool _demoActionInProgress = false;
 
   void _initializeDraftIfNeeded(
     List<RoundCategorySettingRow> rows,
@@ -182,11 +184,70 @@ class _SettingsPageState extends State<SettingsPage> {
     await widget.toyRepository.restoreRoundCategoryDefaults();
 
     if (!mounted) return;
-    setState(() {
-      _draftInitialized = false;
-      _includedDraft.clear();
-      _quotaDraft.clear();
-    });
+    setState(_resetRoundDrafts);
+  }
+
+  void _resetRoundDrafts() {
+    _draftInitialized = false;
+    _includedDraft.clear();
+    _quotaDraft.clear();
+  }
+
+  Future<void> _runDemoAction({
+    required Future<void> Function() action,
+    required String successMessage,
+  }) async {
+    if (_demoActionInProgress) return;
+
+    final db = widget.toyRepository.db;
+    if (db == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Banco local indisponivel.')),
+      );
+      return;
+    }
+
+    setState(() => _demoActionInProgress = true);
+
+    try {
+      await action();
+      await widget.settingsRepository.load();
+      if (!mounted) return;
+      setState(_resetRoundDrafts);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(successMessage)),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao atualizar dados demo: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _demoActionInProgress = false);
+      }
+    }
+  }
+
+  Future<void> _populateDemoData() async {
+    await _runDemoAction(
+      action: () async {
+        final db = widget.toyRepository.db!;
+        await DemoDataLoader.populate(db);
+      },
+      successMessage: 'Dados de demonstracao recriados.',
+    );
+  }
+
+  Future<void> _clearDemoData() async {
+    await _runDemoAction(
+      action: () async {
+        final db = widget.toyRepository.db!;
+        await DemoDataLoader.clear(db);
+        await widget.toyRepository.ensureSeedData();
+      },
+      successMessage: 'Dados de demonstracao limpos.',
+    );
   }
 
   Future<void> _onSwitchChanged(
@@ -494,6 +555,42 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildMarketingDemoCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Marketing / Demonstração',
+            style: textTheme.titleSmall,
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          Text(
+            'Ferramenta interna para simuladores. Substitui os dados locais por um conjunto previsivel para screenshots.',
+            style: textTheme.bodySmall,
+          ),
+          const SizedBox(height: UiTokens.spacingMd),
+          FilledButton.icon(
+            onPressed: _demoActionInProgress ? null : _populateDemoData,
+            icon: const Icon(Icons.auto_awesome_outlined),
+            label: Text(
+              _demoActionInProgress
+                  ? 'Atualizando...'
+                  : 'Popular dados de demonstração',
+            ),
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          OutlinedButton.icon(
+            onPressed: _demoActionInProgress ? null : _clearDemoData,
+            icon: const Icon(Icons.cleaning_services_outlined),
+            label: const Text('Limpar dados de demonstração'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -559,6 +656,10 @@ class _SettingsPageState extends State<SettingsPage> {
               const SizedBox(height: UiTokens.s),
               _buildPremiumCard(textTheme),
               const SizedBox(height: UiTokens.s),
+              if (DemoDataLoader.controlsEnabled) ...[
+                _buildMarketingDemoCard(textTheme),
+                const SizedBox(height: UiTokens.s),
+              ],
               AppSurfaceCard(
                 padding: const EdgeInsets.all(UiTokens.spacingMd),
                 child: StreamBuilder<Map<String, int>>(
