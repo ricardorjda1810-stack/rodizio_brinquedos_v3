@@ -16,10 +16,27 @@ void main() {
     expect(DemoSeed.activeRoundToyIds, hasLength(5));
     expect(DemoSeed.categories, hasLength(6));
     expect(DemoSeed.boxes, hasLength(3));
-    expect(DemoSeed.locations, hasLength(4));
+    expect(DemoSeed.locations, hasLength(5));
     expect(
       DemoSeed.categories.map((category) => category.id).toSet(),
       officialCategoryIds,
+    );
+    expect(
+      DemoSeed.toys.map((toy) => toy.name),
+      <String>[
+        'Dinossauro verde',
+        'Bola sensorial',
+        'Triciclo',
+        'Livro de historias',
+        'Blocos coloridos',
+        'Ursinho Caramelo',
+        'Instrumento musical',
+        'Caminhao de martelar',
+        'Kit de arte',
+        'Carrinho vermelho',
+        'Quebra-cabeca',
+        'Bike de equilibrio',
+      ],
     );
 
     final toyIds = DemoSeed.toys.map((toy) => toy.id).toSet();
@@ -38,6 +55,38 @@ void main() {
     for (final toyId in DemoSeed.activeRoundToyIds) {
       expect(toyIds, contains(toyId));
     }
+  });
+
+  test('demo seed alterna categorias e armazenamento no catalogo', () {
+    for (var index = 1; index < DemoSeed.toys.length; index++) {
+      expect(
+        DemoSeed.toys[index].categoryId,
+        isNot(DemoSeed.toys[index - 1].categoryId),
+      );
+    }
+
+    expect(
+      DemoSeed.toys.map((toy) => toy.categoryId).toSet(),
+      officialCategoryIds,
+    );
+
+    final usedBoxIds =
+        DemoSeed.toys.map((toy) => toy.boxId).whereType<String>().toSet();
+    expect(
+      usedBoxIds,
+      <String>{
+        'demo_box_sala',
+        'demo_box_quarto',
+        'demo_box_area_brincar',
+      },
+    );
+
+    final looseLocations = DemoSeed.toys
+        .where((toy) => toy.boxId == null)
+        .map((toy) => toy.locationText)
+        .whereType<String>()
+        .toSet();
+    expect(looseLocations, containsAll(<String>['Estante - Sala', 'Tapete']));
   });
 
   test('demo seed usa cota padrao de 5 brinquedos', () {

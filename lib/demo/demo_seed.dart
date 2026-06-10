@@ -109,17 +109,18 @@ class DemoSeed {
   ];
 
   static const locations = <String>[
-    'Area de servico',
-    'Quarto',
     'Sala',
-    'Estante baixa',
+    'Quarto',
+    'Area de brincar',
+    'Estante - Sala',
+    'Tapete',
   ];
 
   static const boxes = <DemoBoxSeed>[
     DemoBoxSeed(
-      id: 'demo_box_area_servico',
+      id: 'demo_box_sala',
       number: 1,
-      local: 'Area de servico',
+      local: 'Sala',
     ),
     DemoBoxSeed(
       id: 'demo_box_quarto',
@@ -127,48 +128,13 @@ class DemoSeed {
       local: 'Quarto',
     ),
     DemoBoxSeed(
-      id: 'demo_box_sala',
+      id: 'demo_box_area_brincar',
       number: 3,
-      local: 'Sala',
+      local: 'Area de brincar',
     ),
   ];
 
   static const toys = <DemoToySeed>[
-    DemoToySeed(
-      id: 'demo_toy_triciclo',
-      name: 'Triciclo',
-      categoryId: 'movimento',
-      photoAssetPath: 'assets/demo/toys/rampa_de_carrinhos.png',
-      boxId: 'demo_box_area_servico',
-    ),
-    DemoToySeed(
-      id: 'demo_toy_ursinho_caramelo',
-      name: 'Ursinho Caramelo',
-      categoryId: 'faz_de_conta',
-      photoAssetPath: 'assets/demo/toys/boneco_de_pano.png',
-      boxId: 'demo_box_quarto',
-    ),
-    DemoToySeed(
-      id: 'demo_toy_carrinho_vermelho',
-      name: 'Carrinho vermelho',
-      categoryId: 'movimento',
-      photoAssetPath: 'assets/demo/toys/carrinho_de_madeira.png',
-      boxId: 'demo_box_sala',
-    ),
-    DemoToySeed(
-      id: 'demo_toy_caminhao_de_martelar',
-      name: 'Caminhao de martelar',
-      categoryId: 'coordenacao',
-      photoAssetPath: 'assets/demo/toys/caminhao_de_encaixe.png',
-      boxId: 'demo_box_area_servico',
-    ),
-    DemoToySeed(
-      id: 'demo_toy_kombi_laranja',
-      name: 'Kombi laranja',
-      categoryId: 'faz_de_conta',
-      photoAssetPath: 'assets/demo/toys/trem_de_madeira.png',
-      boxId: 'demo_box_sala',
-    ),
     DemoToySeed(
       id: 'demo_toy_dinossauro_verde',
       name: 'Dinossauro verde',
@@ -177,11 +143,27 @@ class DemoSeed {
       boxId: 'demo_box_quarto',
     ),
     DemoToySeed(
-      id: 'demo_toy_bike_de_equilibrio',
-      name: 'Bike de equilibrio',
+      id: 'demo_toy_bola_sensorial',
+      name: 'Bola sensorial',
+      categoryId: 'coordenacao',
+      photoAssetPath: 'assets/demo/toys/bola_sensorial.png',
+      boxId: null,
+      locationText: 'Tapete',
+    ),
+    DemoToySeed(
+      id: 'demo_toy_triciclo',
+      name: 'Triciclo',
       categoryId: 'movimento',
-      photoAssetPath: 'assets/demo/toys/tapete_sensorial.png',
-      boxId: 'demo_box_area_servico',
+      photoAssetPath: 'assets/demo/toys/rampa_de_carrinhos.png',
+      boxId: 'demo_box_area_brincar',
+    ),
+    DemoToySeed(
+      id: 'demo_toy_livro_de_historias',
+      name: 'Livro de historias',
+      categoryId: 'livros',
+      photoAssetPath: 'assets/demo/toys/livro_de_cores.png',
+      boxId: null,
+      locationText: 'Estante - Sala',
     ),
     DemoToySeed(
       id: 'demo_toy_blocos_coloridos',
@@ -191,33 +173,55 @@ class DemoSeed {
       boxId: 'demo_box_sala',
     ),
     DemoToySeed(
-      id: 'demo_toy_livro_de_animais',
-      name: 'Livro de animais',
-      categoryId: 'livros',
-      photoAssetPath: 'assets/demo/toys/livro_dos_animais.png',
-      boxId: null,
-      locationText: 'Estante baixa',
-    ),
-    DemoToySeed(
-      id: 'demo_toy_bonecos_da_familia',
-      name: 'Bonecos da familia',
+      id: 'demo_toy_ursinho_caramelo',
+      name: 'Ursinho Caramelo',
       categoryId: 'faz_de_conta',
-      photoAssetPath: 'assets/demo/toys/fantoches_de_animais.png',
+      photoAssetPath: 'assets/demo/toys/boneco_de_pano.png',
       boxId: 'demo_box_quarto',
     ),
     DemoToySeed(
+      id: 'demo_toy_instrumento_musical',
+      name: 'Instrumento musical',
+      categoryId: 'arte_musica',
+      photoAssetPath: 'assets/demo/toys/tambor_infantil.png',
+      boxId: 'demo_box_area_brincar',
+    ),
+    DemoToySeed(
+      id: 'demo_toy_caminhao_de_martelar',
+      name: 'Caminhao de martelar',
+      categoryId: 'coordenacao',
+      photoAssetPath: 'assets/demo/toys/caminhao_de_encaixe.png',
+      boxId: 'demo_box_sala',
+    ),
+    DemoToySeed(
+      id: 'demo_toy_kit_de_arte',
+      name: 'Kit de arte',
+      categoryId: 'arte_musica',
+      photoAssetPath: 'assets/demo/toys/pecas_magneticas_grandes.png',
+      boxId: null,
+      locationText: 'Estante - Sala',
+    ),
+    DemoToySeed(
+      id: 'demo_toy_carrinho_vermelho',
+      name: 'Carrinho vermelho',
+      categoryId: 'movimento',
+      photoAssetPath: 'assets/demo/toys/carrinho_de_madeira.png',
+      boxId: 'demo_box_area_brincar',
+    ),
+    DemoToySeed(
       id: 'demo_toy_quebra_cabeca_fazenda',
-      name: 'Quebra-cabeca de fazenda',
+      name: 'Quebra-cabeca',
       categoryId: 'construcao',
       photoAssetPath: 'assets/demo/toys/quebra_cabeca.png',
       boxId: 'demo_box_quarto',
     ),
     DemoToySeed(
-      id: 'demo_toy_instrumentos_musicais',
-      name: 'Instrumentos musicais',
-      categoryId: 'arte_musica',
-      photoAssetPath: 'assets/demo/toys/cesta_de_instrumentos.png',
-      boxId: 'demo_box_sala',
+      id: 'demo_toy_bike_de_equilibrio',
+      name: 'Bike de equilibrio',
+      categoryId: 'movimento',
+      photoAssetPath: 'assets/demo/toys/tapete_sensorial.png',
+      boxId: null,
+      locationText: 'Tapete',
     ),
   ];
 
@@ -295,10 +299,10 @@ class DemoSeed {
   ];
 
   static const activeRoundToyIds = <String>[
-    'demo_toy_triciclo',
-    'demo_toy_ursinho_caramelo',
+    'demo_toy_dinossauro_verde',
+    'demo_toy_bola_sensorial',
+    'demo_toy_livro_de_historias',
     'demo_toy_blocos_coloridos',
-    'demo_toy_livro_de_animais',
-    'demo_toy_instrumentos_musicais',
+    'demo_toy_instrumento_musical',
   ];
 }
