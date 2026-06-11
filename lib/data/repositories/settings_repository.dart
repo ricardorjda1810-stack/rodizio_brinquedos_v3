@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 
 class SettingsRepository {
   final AppDatabase? _db;
@@ -14,6 +15,7 @@ class SettingsRepository {
   final _soundEnabledCtrl = StreamController<bool>.broadcast();
   final _darkModeEnabledCtrl = StreamController<bool>.broadcast();
   final _weeklyPlanningEnabledCtrl = StreamController<bool>.broadcast();
+  final _childAgeRangeCtrl = StreamController<ChildAgeRange?>.broadcast();
 
   // Mirrors the `round_ui_settings.per_category_limit` field used by settings
   // and as the global default for weekly planning.
@@ -22,6 +24,7 @@ class SettingsRepository {
   bool _soundEnabled = false;
   bool _darkModeEnabled = false;
   bool _weeklyPlanningEnabled = false;
+  ChildAgeRange? _childAgeRange;
 
   SettingsRepository([this._db]);
 
@@ -31,12 +34,14 @@ class SettingsRepository {
   Stream<bool> watchDarkModeEnabled() => _darkModeEnabledCtrl.stream;
   Stream<bool> watchWeeklyPlanningEnabled() =>
       _weeklyPlanningEnabledCtrl.stream;
+  Stream<ChildAgeRange?> watchChildAgeRange() => _childAgeRangeCtrl.stream;
 
   int get roundSize => _roundSize;
   bool get hapticEnabled => _hapticEnabled;
   bool get soundEnabled => _soundEnabled;
   bool get darkModeEnabled => _darkModeEnabled;
   bool get weeklyPlanningEnabled => _weeklyPlanningEnabled;
+  ChildAgeRange? get childAgeRange => _childAgeRange;
 
   Future<void> load() async {
     final db = _db;
@@ -50,12 +55,14 @@ class SettingsRepository {
     _hapticEnabled = row.hapticEnabled;
     _soundEnabled = row.soundEnabled;
     _darkModeEnabled = row.darkModeEnabled;
+    _childAgeRange = ChildAgeRange.fromStorageValue(row.childAgeRange);
     _weeklyPlanningEnabled = await _loadWeeklyPlanningEnabled(db);
     _roundSizeCtrl.add(_roundSize);
     _hapticEnabledCtrl.add(_hapticEnabled);
     _soundEnabledCtrl.add(_soundEnabled);
     _darkModeEnabledCtrl.add(_darkModeEnabled);
     _weeklyPlanningEnabledCtrl.add(_weeklyPlanningEnabled);
+    _childAgeRangeCtrl.add(_childAgeRange);
   }
 
   // Compatibility-only setter for the historical UI setting.
@@ -134,6 +141,20 @@ class SettingsRepository {
     );
   }
 
+  Future<void> setChildAgeRange(ChildAgeRange? value) async {
+    final db = _db;
+    _childAgeRange = value;
+    _childAgeRangeCtrl.add(_childAgeRange);
+
+    if (db == null) return;
+    await _ensureRoundUiSettingsRow(db);
+    await (db.update(db.roundUiSettings)..where((t) => t.id.equals(1))).write(
+      RoundUiSettingsCompanion(
+        childAgeRange: Value(value?.storageValue),
+      ),
+    );
+  }
+
   Future<void> resetRoundDefaults() async {
     await setRoundSize(7);
   }
@@ -150,6 +171,7 @@ class SettingsRepository {
           mode: InsertMode.insertOrIgnore,
         );
     await _ensureWeeklyPlanningColumn(db);
+    await _ensureChildAgeRangeColumn(db);
   }
 
   Future<bool> _loadWeeklyPlanningEnabled(AppDatabase db) async {
@@ -181,11 +203,29 @@ class SettingsRepository {
     );
   }
 
+  Future<void> _ensureChildAgeRangeColumn(AppDatabase db) async {
+    final columns = await db.customSelect(
+      'PRAGMA table_info(round_ui_settings)',
+      readsFrom: {db.roundUiSettings},
+    ).get();
+    final exists =
+        columns.any((row) => row.read<String>('name') == 'child_age_range');
+    if (exists) return;
+
+    await db.customStatement(
+      '''
+      ALTER TABLE round_ui_settings
+      ADD COLUMN child_age_range TEXT
+      ''',
+    );
+  }
+
   void dispose() {
     _roundSizeCtrl.close();
     _hapticEnabledCtrl.close();
     _soundEnabledCtrl.close();
     _darkModeEnabledCtrl.close();
     _weeklyPlanningEnabledCtrl.close();
+    _childAgeRangeCtrl.close();
   }
 }

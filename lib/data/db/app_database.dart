@@ -69,6 +69,7 @@ class RoundUiSettings extends Table {
   BoolColumn get soundEnabled => boolean().withDefault(const Constant(false))();
   BoolColumn get darkModeEnabled =>
       boolean().withDefault(const Constant(false))();
+  TextColumn get childAgeRange => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -155,7 +156,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -340,6 +341,10 @@ class AppDatabase extends _$AppDatabase {
               categoryDefinitions,
               categoryDefinitions.isDefault,
             );
+          }
+
+          if (from < 16) {
+            await m.addColumn(roundUiSettings, roundUiSettings.childAgeRange);
           }
         },
       );

@@ -1711,9 +1711,21 @@ class $RoundUiSettingsTable extends RoundUiSettings
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("dark_mode_enabled" IN (0, 1))'),
       defaultValue: const Constant(false));
+  static const VerificationMeta _childAgeRangeMeta =
+      const VerificationMeta('childAgeRange');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, perCategoryLimit, hapticEnabled, soundEnabled, darkModeEnabled];
+  late final GeneratedColumn<String> childAgeRange = GeneratedColumn<String>(
+      'child_age_range', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        perCategoryLimit,
+        hapticEnabled,
+        soundEnabled,
+        darkModeEnabled,
+        childAgeRange
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1751,6 +1763,12 @@ class $RoundUiSettingsTable extends RoundUiSettings
           darkModeEnabled.isAcceptableOrUnknown(
               data['dark_mode_enabled']!, _darkModeEnabledMeta));
     }
+    if (data.containsKey('child_age_range')) {
+      context.handle(
+          _childAgeRangeMeta,
+          childAgeRange.isAcceptableOrUnknown(
+              data['child_age_range']!, _childAgeRangeMeta));
+    }
     return context;
   }
 
@@ -1770,6 +1788,8 @@ class $RoundUiSettingsTable extends RoundUiSettings
           .read(DriftSqlType.bool, data['${effectivePrefix}sound_enabled'])!,
       darkModeEnabled: attachedDatabase.typeMapping.read(
           DriftSqlType.bool, data['${effectivePrefix}dark_mode_enabled'])!,
+      childAgeRange: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}child_age_range']),
     );
   }
 
@@ -1785,12 +1805,14 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
   final bool hapticEnabled;
   final bool soundEnabled;
   final bool darkModeEnabled;
+  final String? childAgeRange;
   const RoundUiSetting(
       {required this.id,
       required this.perCategoryLimit,
       required this.hapticEnabled,
       required this.soundEnabled,
-      required this.darkModeEnabled});
+      required this.darkModeEnabled,
+      this.childAgeRange});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1799,6 +1821,9 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
     map['haptic_enabled'] = Variable<bool>(hapticEnabled);
     map['sound_enabled'] = Variable<bool>(soundEnabled);
     map['dark_mode_enabled'] = Variable<bool>(darkModeEnabled);
+    if (!nullToAbsent || childAgeRange != null) {
+      map['child_age_range'] = Variable<String>(childAgeRange);
+    }
     return map;
   }
 
@@ -1809,6 +1834,9 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
       hapticEnabled: Value(hapticEnabled),
       soundEnabled: Value(soundEnabled),
       darkModeEnabled: Value(darkModeEnabled),
+      childAgeRange: childAgeRange == null && nullToAbsent
+          ? const Value.absent()
+          : Value(childAgeRange),
     );
   }
 
@@ -1821,6 +1849,7 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
       hapticEnabled: serializer.fromJson<bool>(json['hapticEnabled']),
       soundEnabled: serializer.fromJson<bool>(json['soundEnabled']),
       darkModeEnabled: serializer.fromJson<bool>(json['darkModeEnabled']),
+      childAgeRange: serializer.fromJson<String?>(json['childAgeRange']),
     );
   }
   @override
@@ -1832,6 +1861,7 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
       'hapticEnabled': serializer.toJson<bool>(hapticEnabled),
       'soundEnabled': serializer.toJson<bool>(soundEnabled),
       'darkModeEnabled': serializer.toJson<bool>(darkModeEnabled),
+      'childAgeRange': serializer.toJson<String?>(childAgeRange),
     };
   }
 
@@ -1840,13 +1870,16 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
           int? perCategoryLimit,
           bool? hapticEnabled,
           bool? soundEnabled,
-          bool? darkModeEnabled}) =>
+          bool? darkModeEnabled,
+          Value<String?> childAgeRange = const Value.absent()}) =>
       RoundUiSetting(
         id: id ?? this.id,
         perCategoryLimit: perCategoryLimit ?? this.perCategoryLimit,
         hapticEnabled: hapticEnabled ?? this.hapticEnabled,
         soundEnabled: soundEnabled ?? this.soundEnabled,
         darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
+        childAgeRange:
+            childAgeRange.present ? childAgeRange.value : this.childAgeRange,
       );
   RoundUiSetting copyWithCompanion(RoundUiSettingsCompanion data) {
     return RoundUiSetting(
@@ -1863,6 +1896,9 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
       darkModeEnabled: data.darkModeEnabled.present
           ? data.darkModeEnabled.value
           : this.darkModeEnabled,
+      childAgeRange: data.childAgeRange.present
+          ? data.childAgeRange.value
+          : this.childAgeRange,
     );
   }
 
@@ -1873,14 +1909,15 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
           ..write('perCategoryLimit: $perCategoryLimit, ')
           ..write('hapticEnabled: $hapticEnabled, ')
           ..write('soundEnabled: $soundEnabled, ')
-          ..write('darkModeEnabled: $darkModeEnabled')
+          ..write('darkModeEnabled: $darkModeEnabled, ')
+          ..write('childAgeRange: $childAgeRange')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, perCategoryLimit, hapticEnabled, soundEnabled, darkModeEnabled);
+  int get hashCode => Object.hash(id, perCategoryLimit, hapticEnabled,
+      soundEnabled, darkModeEnabled, childAgeRange);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1889,7 +1926,8 @@ class RoundUiSetting extends DataClass implements Insertable<RoundUiSetting> {
           other.perCategoryLimit == this.perCategoryLimit &&
           other.hapticEnabled == this.hapticEnabled &&
           other.soundEnabled == this.soundEnabled &&
-          other.darkModeEnabled == this.darkModeEnabled);
+          other.darkModeEnabled == this.darkModeEnabled &&
+          other.childAgeRange == this.childAgeRange);
 }
 
 class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
@@ -1898,12 +1936,14 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
   final Value<bool> hapticEnabled;
   final Value<bool> soundEnabled;
   final Value<bool> darkModeEnabled;
+  final Value<String?> childAgeRange;
   const RoundUiSettingsCompanion({
     this.id = const Value.absent(),
     this.perCategoryLimit = const Value.absent(),
     this.hapticEnabled = const Value.absent(),
     this.soundEnabled = const Value.absent(),
     this.darkModeEnabled = const Value.absent(),
+    this.childAgeRange = const Value.absent(),
   });
   RoundUiSettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -1911,6 +1951,7 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
     this.hapticEnabled = const Value.absent(),
     this.soundEnabled = const Value.absent(),
     this.darkModeEnabled = const Value.absent(),
+    this.childAgeRange = const Value.absent(),
   });
   static Insertable<RoundUiSetting> custom({
     Expression<int>? id,
@@ -1918,6 +1959,7 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
     Expression<bool>? hapticEnabled,
     Expression<bool>? soundEnabled,
     Expression<bool>? darkModeEnabled,
+    Expression<String>? childAgeRange,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1925,6 +1967,7 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
       if (hapticEnabled != null) 'haptic_enabled': hapticEnabled,
       if (soundEnabled != null) 'sound_enabled': soundEnabled,
       if (darkModeEnabled != null) 'dark_mode_enabled': darkModeEnabled,
+      if (childAgeRange != null) 'child_age_range': childAgeRange,
     });
   }
 
@@ -1933,13 +1976,15 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
       Value<int>? perCategoryLimit,
       Value<bool>? hapticEnabled,
       Value<bool>? soundEnabled,
-      Value<bool>? darkModeEnabled}) {
+      Value<bool>? darkModeEnabled,
+      Value<String?>? childAgeRange}) {
     return RoundUiSettingsCompanion(
       id: id ?? this.id,
       perCategoryLimit: perCategoryLimit ?? this.perCategoryLimit,
       hapticEnabled: hapticEnabled ?? this.hapticEnabled,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
+      childAgeRange: childAgeRange ?? this.childAgeRange,
     );
   }
 
@@ -1961,6 +2006,9 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
     if (darkModeEnabled.present) {
       map['dark_mode_enabled'] = Variable<bool>(darkModeEnabled.value);
     }
+    if (childAgeRange.present) {
+      map['child_age_range'] = Variable<String>(childAgeRange.value);
+    }
     return map;
   }
 
@@ -1971,7 +2019,8 @@ class RoundUiSettingsCompanion extends UpdateCompanion<RoundUiSetting> {
           ..write('perCategoryLimit: $perCategoryLimit, ')
           ..write('hapticEnabled: $hapticEnabled, ')
           ..write('soundEnabled: $soundEnabled, ')
-          ..write('darkModeEnabled: $darkModeEnabled')
+          ..write('darkModeEnabled: $darkModeEnabled, ')
+          ..write('childAgeRange: $childAgeRange')
           ..write(')'))
         .toString();
   }
@@ -5261,6 +5310,7 @@ typedef $$RoundUiSettingsTableCreateCompanionBuilder = RoundUiSettingsCompanion
   Value<bool> hapticEnabled,
   Value<bool> soundEnabled,
   Value<bool> darkModeEnabled,
+  Value<String?> childAgeRange,
 });
 typedef $$RoundUiSettingsTableUpdateCompanionBuilder = RoundUiSettingsCompanion
     Function({
@@ -5269,6 +5319,7 @@ typedef $$RoundUiSettingsTableUpdateCompanionBuilder = RoundUiSettingsCompanion
   Value<bool> hapticEnabled,
   Value<bool> soundEnabled,
   Value<bool> darkModeEnabled,
+  Value<String?> childAgeRange,
 });
 
 class $$RoundUiSettingsTableFilterComposer
@@ -5296,6 +5347,9 @@ class $$RoundUiSettingsTableFilterComposer
   ColumnFilters<bool> get darkModeEnabled => $composableBuilder(
       column: $table.darkModeEnabled,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get childAgeRange => $composableBuilder(
+      column: $table.childAgeRange, builder: (column) => ColumnFilters(column));
 }
 
 class $$RoundUiSettingsTableOrderingComposer
@@ -5325,6 +5379,10 @@ class $$RoundUiSettingsTableOrderingComposer
   ColumnOrderings<bool> get darkModeEnabled => $composableBuilder(
       column: $table.darkModeEnabled,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get childAgeRange => $composableBuilder(
+      column: $table.childAgeRange,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$RoundUiSettingsTableAnnotationComposer
@@ -5350,6 +5408,9 @@ class $$RoundUiSettingsTableAnnotationComposer
 
   GeneratedColumn<bool> get darkModeEnabled => $composableBuilder(
       column: $table.darkModeEnabled, builder: (column) => column);
+
+  GeneratedColumn<String> get childAgeRange => $composableBuilder(
+      column: $table.childAgeRange, builder: (column) => column);
 }
 
 class $$RoundUiSettingsTableTableManager extends RootTableManager<
@@ -5384,6 +5445,7 @@ class $$RoundUiSettingsTableTableManager extends RootTableManager<
             Value<bool> hapticEnabled = const Value.absent(),
             Value<bool> soundEnabled = const Value.absent(),
             Value<bool> darkModeEnabled = const Value.absent(),
+            Value<String?> childAgeRange = const Value.absent(),
           }) =>
               RoundUiSettingsCompanion(
             id: id,
@@ -5391,6 +5453,7 @@ class $$RoundUiSettingsTableTableManager extends RootTableManager<
             hapticEnabled: hapticEnabled,
             soundEnabled: soundEnabled,
             darkModeEnabled: darkModeEnabled,
+            childAgeRange: childAgeRange,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -5398,6 +5461,7 @@ class $$RoundUiSettingsTableTableManager extends RootTableManager<
             Value<bool> hapticEnabled = const Value.absent(),
             Value<bool> soundEnabled = const Value.absent(),
             Value<bool> darkModeEnabled = const Value.absent(),
+            Value<String?> childAgeRange = const Value.absent(),
           }) =>
               RoundUiSettingsCompanion.insert(
             id: id,
@@ -5405,6 +5469,7 @@ class $$RoundUiSettingsTableTableManager extends RootTableManager<
             hapticEnabled: hapticEnabled,
             soundEnabled: soundEnabled,
             darkModeEnabled: darkModeEnabled,
+            childAgeRange: childAgeRange,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

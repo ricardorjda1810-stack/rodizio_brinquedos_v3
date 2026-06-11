@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
+import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
@@ -178,6 +180,99 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  AgePresetService? _agePresetService() {
+    final db = widget.toyRepository.db;
+    if (db == null) return null;
+    return AgePresetService(
+      db: db,
+      settingsRepository: widget.settingsRepository,
+    );
+  }
+
+  Future<void> _openChildAgeRangeSelector() async {
+    final service = _agePresetService();
+    if (service == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Banco local indisponivel.')),
+      );
+      return;
+    }
+
+    final selected = await showModalBottomSheet<ChildAgeRange>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        final current = widget.settingsRepository.childAgeRange;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Idade da criança',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+              for (final range in ChildAgeRange.values)
+                ListTile(
+                  title: Text(range.label),
+                  trailing: current == range ? const Icon(Icons.check) : null,
+                  onTap: () => Navigator.of(context).pop(range),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selected == null) return;
+
+    await service.saveAgeRangeOnly(selected);
+    if (!mounted) return;
+
+    final shouldApply = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rodízio sugerido'),
+          content: const Text(
+            'Encontramos uma configuração equilibrada para esta fase.\nDeseja aplicar ao rodízio?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Não agora'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Aplicar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldApply != true) return;
+
+    try {
+      await service.applyAgePreset(selected);
+      if (!mounted) return;
+      setState(_resetRoundDrafts);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Configuração aplicada ao rodízio.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao aplicar configuração: $error')),
+      );
+    }
   }
 
   Future<void> _restoreRoundDefaults() async {
@@ -469,6 +564,37 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildChildAgeCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Idade da criança',
+            style: textTheme.titleSmall,
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          StreamBuilder<ChildAgeRange?>(
+            stream: widget.settingsRepository.watchChildAgeRange(),
+            initialData: widget.settingsRepository.childAgeRange,
+            builder: (context, snapshot) {
+              final ageRange = snapshot.data;
+              return _SettingsTile(
+                icon: Icons.child_care_outlined,
+                title: 'Idade da criança',
+                subtitle: ageRange == null
+                    ? 'Escolha uma faixa etária para sugerir um rodízio equilibrado.'
+                    : 'Faixa atual: ${ageRange.label}',
+                onTap: _openChildAgeRangeSelector,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFeedbackCard(TextTheme textTheme) {
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -651,6 +777,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: UiTokens.s),
               _buildManageCard(textTheme),
+              const SizedBox(height: UiTokens.s),
+              _buildChildAgeCard(textTheme),
               const SizedBox(height: UiTokens.s),
               _buildFeedbackCard(textTheme),
               const SizedBox(height: UiTokens.s),
