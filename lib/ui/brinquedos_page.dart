@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
@@ -157,6 +158,10 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       }
 
       await _feedback.onRoundStarted();
+      await AppAnalytics.logRoundCreated(
+        toyCount: result.selectedCount,
+        source: 'toys_tab',
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

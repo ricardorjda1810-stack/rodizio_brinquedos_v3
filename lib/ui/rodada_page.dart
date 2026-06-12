@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -94,7 +95,15 @@ class _RodadaPageState extends State<RodadaPage> {
       }
 
       await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
-      await _logFirstRoundCreatedOnce();
+      await AppAnalytics.logSuggestionUsed(
+        toyCount: toyIds.length,
+        source: 'home',
+      );
+      await AppAnalytics.logRoundCreated(
+        toyCount: toyIds.length,
+        source: 'home_suggestion',
+      );
+      await _logFirstRoundCreatedOnce(toyIds.length);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -130,6 +139,7 @@ class _RodadaPageState extends State<RodadaPage> {
       final boxes = await widget.toyRepository.watchBoxes().first;
       if (!mounted) return;
 
+      unawaited(AppAnalytics.logSuggestionOpened(source: 'round_page'));
       final selectedToys = await showModalBottomSheet<List<Toy>>(
         context: context,
         isScrollControlled: true,
@@ -145,7 +155,15 @@ class _RodadaPageState extends State<RodadaPage> {
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
       );
-      await _logFirstRoundCreatedOnce();
+      await AppAnalytics.logSuggestionUsed(
+        toyCount: selectedToys.length,
+        source: 'round_page',
+      );
+      await AppAnalytics.logRoundCreated(
+        toyCount: selectedToys.length,
+        source: 'round_suggestion',
+      );
+      await _logFirstRoundCreatedOnce(selectedToys.length);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -169,7 +187,7 @@ class _RodadaPageState extends State<RodadaPage> {
     }
   }
 
-  Future<void> _logFirstRoundCreatedOnce() async {
+  Future<void> _logFirstRoundCreatedOnce(int toyCount) async {
     final preferences = await SharedPreferences.getInstance();
     final alreadyLogged =
         preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
@@ -177,7 +195,7 @@ class _RodadaPageState extends State<RodadaPage> {
     if (alreadyLogged) return;
 
     await preferences.setBool(_firstRoundCreatedLoggedKey, true);
-    await AppAnalytics.logFirstRoundCreated();
+    await AppAnalytics.logFirstRoundCreated(toyCount: toyCount);
   }
 
   @override

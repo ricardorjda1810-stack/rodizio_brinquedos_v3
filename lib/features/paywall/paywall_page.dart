@@ -17,10 +17,12 @@ const String _termsOfUseUrl =
 
 class PaywallPage extends StatefulWidget {
   final PurchaseService purchaseService;
+  final String source;
 
   const PaywallPage({
     super.key,
     required this.purchaseService,
+    this.source = 'direct',
   });
 
   @override
@@ -37,7 +39,7 @@ class _PaywallPageState extends State<PaywallPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(AppAnalytics.logPaywallViewed());
+    unawaited(AppAnalytics.logPaywallViewed(source: widget.source));
     _lastPremiumState = _purchaseService.isPremium;
     _lastErrorMessage = _purchaseService.errorMessage;
     _purchaseService.addListener(_handlePurchaseStateChanged);
@@ -74,12 +76,15 @@ class _PaywallPageState extends State<PaywallPage> {
 
   Future<void> _startPurchase() async {
     if (!isPaywallEnabledForCurrentPlatform) return;
-    await _purchaseService.startPurchase(productId: _selectedProductId);
+    await _purchaseService.startPurchase(
+      productId: _selectedProductId,
+      source: 'paywall',
+    );
   }
 
   Future<void> _restorePurchases() async {
     if (!isPaywallEnabledForCurrentPlatform) return;
-    await _purchaseService.restorePurchases();
+    await _purchaseService.restorePurchases(source: 'paywall');
   }
 
   Future<void> _openExternalLink(String url) async {
@@ -107,6 +112,12 @@ class _PaywallPageState extends State<PaywallPage> {
   void _selectPlan(String productId) {
     if (_selectedProductId == productId) return;
     setState(() => _selectedProductId = productId);
+    unawaited(
+      AppAnalytics.logPremiumPlanSelected(
+        plan: PurchaseService.planForProductId(productId),
+        source: 'paywall',
+      ),
+    );
   }
 
   @override

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -134,6 +135,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         locationText: _isWithoutBoxSelected ? _selectedLooseLocation : null,
         photoSourcePath: _photoSourcePath,
       );
+      await _logToyCreated();
       await _feedback?.onCreateSaved(playSound: true);
       if (!mounted) return;
       Navigator.of(context).pop(true);
@@ -161,6 +163,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       );
 
       _lastCategoryId = _selectedCategoryId;
+      await _logToyCreated();
 
       await _feedback?.onCreateSaved(playSound: true);
       if (!mounted) return;
@@ -181,6 +184,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       ).showSnackBar(SnackBar(content: Text('Erro ao salvar brinquedo: $e')));
       setState(() => _saving = false);
     }
+  }
+
+  Future<void> _logToyCreated() {
+    return AppAnalytics.logToyCreated(
+      category: _selectedCategoryId ?? 'unknown',
+      hasPhoto: (_photoSourcePath ?? '').trim().isNotEmpty,
+      hasBox: _selectedBoxId != null,
+    );
   }
 
   Widget _photoPreview() {

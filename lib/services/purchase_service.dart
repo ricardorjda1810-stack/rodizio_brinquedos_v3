@@ -18,6 +18,17 @@ class PurchaseService extends ChangeNotifier {
   static const String _premiumStorageKey = 'premium_active';
   static const Object _noValue = Object();
 
+  static String planForProductId(String productId) {
+    switch (productId) {
+      case monthlyProductId:
+        return 'monthly';
+      case yearlyProductId:
+        return 'annual';
+      default:
+        return 'unknown';
+    }
+  }
+
   final InAppPurchase _inAppPurchase;
   final SharedPreferences _preferences;
 
@@ -28,6 +39,8 @@ class PurchaseService extends ChangeNotifier {
   ProductDetails? _productDetails;
   Map<String, ProductDetails> _productDetailsById =
       const <String, ProductDetails>{};
+  final Map<String, String> _purchaseSourceByProductId = <String, String>{};
+  String _lastRestoreSource = 'unknown';
   String? _errorMessage;
   bool _storeAvailable = false;
   bool _initialized = false;
@@ -156,7 +169,10 @@ class PurchaseService extends ChangeNotifier {
 
   Future<void> startPurchase({
     String productId = PurchaseService.productId,
+    String source = 'unknown',
   }) async {
+    final plan = planForProductId(productId);
+    _purchaseSourceByProductId[productId] = source;
     if (!isPaywallEnabledForCurrentPlatform) {
       _setState(isLoading: false, errorMessage: null, storeAvailable: false);
       return;
@@ -171,6 +187,11 @@ class PurchaseService extends ChangeNotifier {
     final details = _productDetailsById[productId] ??
         (productId == PurchaseService.productId ? _productDetails : null);
     if (!_storeAvailable || details == null) {
+      await AppAnalytics.logPurchaseFailed(
+        plan: plan,
+        source: source,
+        reason: 'product_unavailable',
+      );
       _setState(
         isLoading: false,
         errorMessage:
@@ -181,7 +202,10 @@ class PurchaseService extends ChangeNotifier {
 
     try {
       final param = PurchaseParam(productDetails: details);
-      await AppAnalytics.logPurchaseStarted();
+      await AppAnalytics.logPurchaseStarted(
+        plan: plan,
+        source: source,
+      );
       final started = await _inAppPurchase.buyNonConsumable(
         purchaseParam: param,
       );
@@ -190,6 +214,11 @@ class PurchaseService extends ChangeNotifier {
         return;
       }
     } catch (error) {
+      await AppAnalytics.logPurchaseFailed(
+        plan: plan,
+        source: source,
+        reason: 'start_error',
+      );
       _setState(
         isLoading: false,
         errorMessage: 'A compra não pôde ser iniciada: $error',
@@ -197,13 +226,21 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
+    await AppAnalytics.logPurchaseFailed(
+      plan: plan,
+      source: source,
+      reason: 'start_failed',
+    );
     _setState(
       isLoading: false,
       errorMessage: 'A compra não pôde ser iniciada.',
     );
   }
 
-  Future<void> restorePurchases() async {
+  Future<void> restorePurchases({
+    String source = 'unknown',
+  }) async {
+    _lastRestoreSource = source;
     if (!isPaywallEnabledForCurrentPlatform) {
       _setState(isLoading: false, errorMessage: null, storeAvailable: false);
       return;
@@ -227,6 +264,11 @@ class PurchaseService extends ChangeNotifier {
       await _inAppPurchase.restorePurchases();
       _setState(isLoading: false, errorMessage: null, storeAvailable: true);
     } catch (error) {
+      await AppAnalytics.logPurchaseFailed(
+        plan: 'unknown',
+        source: source,
+        reason: 'restore_error',
+      );
       _setState(
         isLoading: false,
         errorMessage: 'Falha ao restaurar compras: $error',
@@ -253,18 +295,31 @@ class PurchaseService extends ChangeNotifier {
           break;
         case PurchaseStatus.purchased:
           await _setPremiumActive(true, notify: false);
-          await AppAnalytics.logPurchaseCompleted();
+          await AppAnalytics.logPurchaseCompleted(
+            plan: planForProductId(purchaseDetails.productID),
+            source: _purchaseSourceByProductId[purchaseDetails.productID] ??
+                'unknown',
+          );
           nextLoading = false;
           nextError = null;
           shouldNotify = true;
           break;
         case PurchaseStatus.restored:
           await _setPremiumActive(true, notify: false);
+          await AppAnalytics.logPurchaseRestored(
+            source: _lastRestoreSource,
+          );
           nextLoading = false;
           nextError = null;
           shouldNotify = true;
           break;
         case PurchaseStatus.error:
+          await AppAnalytics.logPurchaseFailed(
+            plan: planForProductId(purchaseDetails.productID),
+            source: _purchaseSourceByProductId[purchaseDetails.productID] ??
+                'unknown',
+            reason: 'purchase_error',
+          );
           nextLoading = false;
           nextError = purchaseDetails.error?.message ??
               'Não foi possível concluir a compra.';

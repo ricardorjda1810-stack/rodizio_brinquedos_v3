@@ -177,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
       MaterialPageRoute(
         builder: (_) => PaywallPage(
           purchaseService: widget.purchaseService,
+          source: 'settings',
         ),
       ),
     );

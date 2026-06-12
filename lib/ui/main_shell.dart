@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
@@ -94,6 +97,7 @@ class _MainShellState extends State<MainShell> {
     );
     if (!allowed || !mounted) return;
 
+    unawaited(AppAnalytics.logWeeklyPlanningOpened(source: 'home'));
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => WeeklyPlanningOverviewPage(

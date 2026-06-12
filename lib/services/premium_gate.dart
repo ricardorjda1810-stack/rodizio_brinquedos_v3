@@ -43,7 +43,10 @@ class PremiumGate {
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PaywallPage(purchaseService: purchaseService),
+        builder: (_) => PaywallPage(
+          purchaseService: purchaseService,
+          source: 'weekly_planning_gate',
+        ),
       ),
     );
 
