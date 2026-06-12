@@ -17,17 +17,42 @@ class OfficialAgeCategory {
 class AgePreset {
   final ChildAgeRange ageRange;
   final Map<String, int> quotasByCategoryId;
+  final String saturdayExtraCategoryId;
+  final String sundayExtraCategoryId;
 
   const AgePreset({
     required this.ageRange,
     required this.quotasByCategoryId,
+    required this.saturdayExtraCategoryId,
+    required this.sundayExtraCategoryId,
   });
 
   String get label => ageRange.label;
 
-  int get total {
+  int get total => _totalFor(quotasByCategoryId);
+
+  Map<String, int> quotasForWeekday(int weekday) {
+    switch (weekday) {
+      case DateTime.saturday:
+        return _withExtra(saturdayExtraCategoryId);
+      case DateTime.sunday:
+        return _withExtra(sundayExtraCategoryId);
+      default:
+        return Map<String, int>.unmodifiable(quotasByCategoryId);
+    }
+  }
+
+  int totalForWeekday(int weekday) => _totalFor(quotasForWeekday(weekday));
+
+  Map<String, int> _withExtra(String categoryId) {
+    final quotas = Map<String, int>.of(quotasByCategoryId);
+    quotas[categoryId] = (quotas[categoryId] ?? 0) + 1;
+    return Map<String, int>.unmodifiable(quotas);
+  }
+
+  int _totalFor(Map<String, int> quotas) {
     var value = 0;
-    for (final quota in quotasByCategoryId.values) {
+    for (final quota in quotas.values) {
       value += quota < 0 ? 0 : quota;
     }
     return value;
@@ -71,6 +96,8 @@ class AgePresetCatalog {
   static const presets = <ChildAgeRange, AgePreset>{
     ChildAgeRange.months0To6: AgePreset(
       ageRange: ChildAgeRange.months0To6,
+      saturdayExtraCategoryId: 'exploracao',
+      sundayExtraCategoryId: 'comunicacao',
       quotasByCategoryId: {
         'corpo': 0,
         'maos': 1,
@@ -81,6 +108,8 @@ class AgePresetCatalog {
     ),
     ChildAgeRange.months6To12: AgePreset(
       ageRange: ChildAgeRange.months6To12,
+      saturdayExtraCategoryId: 'corpo',
+      sundayExtraCategoryId: 'exploracao',
       quotasByCategoryId: {
         'corpo': 1,
         'maos': 1,
@@ -91,6 +120,8 @@ class AgePresetCatalog {
     ),
     ChildAgeRange.years1To2: AgePreset(
       ageRange: ChildAgeRange.years1To2,
+      saturdayExtraCategoryId: 'corpo',
+      sundayExtraCategoryId: 'imaginacao',
       quotasByCategoryId: {
         'corpo': 1,
         'maos': 2,
@@ -101,6 +132,8 @@ class AgePresetCatalog {
     ),
     ChildAgeRange.years2To3: AgePreset(
       ageRange: ChildAgeRange.years2To3,
+      saturdayExtraCategoryId: 'corpo',
+      sundayExtraCategoryId: 'imaginacao',
       quotasByCategoryId: {
         'corpo': 2,
         'maos': 2,
@@ -111,6 +144,8 @@ class AgePresetCatalog {
     ),
     ChildAgeRange.years3To5: AgePreset(
       ageRange: ChildAgeRange.years3To5,
+      saturdayExtraCategoryId: 'corpo',
+      sundayExtraCategoryId: 'comunicacao',
       quotasByCategoryId: {
         'corpo': 1,
         'maos': 2,
@@ -121,6 +156,8 @@ class AgePresetCatalog {
     ),
     ChildAgeRange.years5To7: AgePreset(
       ageRange: ChildAgeRange.years5To7,
+      saturdayExtraCategoryId: 'imaginacao',
+      sundayExtraCategoryId: 'comunicacao',
       quotasByCategoryId: {
         'corpo': 1,
         'maos': 2,

@@ -7,6 +7,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
+import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
 import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 
 void main() {
@@ -97,17 +98,151 @@ void main() {
     );
   });
 
-  test('nao agora salva faixa etaria sem alterar quotas', () async {
+  test('applyAgePreset cria fim de semana com brinquedo extra', () async {
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await service.applyAgePreset(ChildAgeRange.years2To3);
+
+    final monday = await weeklyPlanningRepository.getByWeekday(DateTime.monday);
+    final saturday =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    final sunday = await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
+    final saturdayQuotas = _quotasByCategoryName(saturday!.categories);
+    final sundayQuotas = _quotasByCategoryName(sunday!.categories);
+    final summary = await weeklyPlanningRepository.watchWeekSummary().first;
+
+    expect(settingsRepository.weeklyPlanningEnabled, isTrue);
+    expect(monday!.useDefault, isTrue);
+    expect(monday.total, 8);
+    expect(saturday.useDefault, isFalse);
+    expect(saturday.total, 9);
+    expect(saturdayQuotas['corpo'], 3);
+    expect(saturdayQuotas['imaginacao'], 2);
+    expect(sunday.useDefault, isFalse);
+    expect(sunday.total, 9);
+    expect(sundayQuotas['corpo'], 2);
+    expect(sundayQuotas['imaginacao'], 3);
+    expect(_summaryTotal(summary, DateTime.monday), 8);
+    expect(_summaryTotal(summary, DateTime.saturday), 9);
+    expect(_summaryTotal(summary, DateTime.sunday), 9);
+  });
+
+  test('applyAgePreset atualiza fim de semana automatico anterior', () async {
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await service.applyAgePreset(ChildAgeRange.months0To6);
+    var saturday =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    var sunday = await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
+    expect(saturday!.total, 5);
+    expect(sunday!.total, 5);
+
+    await service.applyAgePreset(ChildAgeRange.years5To7);
+
+    saturday = await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    sunday = await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
+    final saturdayQuotas = _quotasByCategoryName(saturday!.categories);
+    final sundayQuotas = _quotasByCategoryName(sunday!.categories);
+
+    expect(saturday.useDefault, isFalse);
+    expect(saturday.total, 11);
+    expect(saturdayQuotas['imaginacao'], 4);
+    expect(sunday.useDefault, isFalse);
+    expect(sunday.total, 11);
+    expect(sundayQuotas['comunicacao'], 3);
+  });
+
+  test('nao agora salva faixa etaria sem alterar quotas nem planejamento',
+      () async {
     final toyRepository = ToyRepository(db);
     await toyRepository.ensureSeedData();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    await settingsRepository.setWeeklyPlanningEnabled(true);
+    await weeklyPlanningRepository.setUseDefault(
+      weekday: DateTime.saturday,
+      useDefault: false,
+    );
+    await weeklyPlanningRepository.updateCategoryConfig(
+      weekday: DateTime.saturday,
+      categoryId: 'livros',
+      isIncluded: true,
+      quota: 4,
+    );
     final before = await _roundQuotasByCategoryId(db);
+    final saturdayBefore =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
 
     await service.saveAgeRangeOnly(ChildAgeRange.years2To3);
     final after = await _roundQuotasByCategoryId(db);
+    final saturdayAfter =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
     await settingsRepository.load();
 
     expect(settingsRepository.childAgeRange, ChildAgeRange.years2To3);
     expect(after, before);
+    expect(saturdayAfter!.useDefault, saturdayBefore!.useDefault);
+    expect(saturdayAfter.total, saturdayBefore.total);
+    expect(
+      _quotasByCategoryName(saturdayAfter.categories),
+      _quotasByCategoryName(saturdayBefore.categories),
+    );
+  });
+
+  test('applyAgePreset preserva sabado personalizado pelo usuario', () async {
+    final toyRepository = ToyRepository(db);
+    await toyRepository.ensureSeedData();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await settingsRepository.setWeeklyPlanningEnabled(true);
+    await weeklyPlanningRepository.setUseDefault(
+      weekday: DateTime.saturday,
+      useDefault: false,
+    );
+    final saturdayCategories =
+        await weeklyPlanningRepository.getCategoriesForWeekday(
+      DateTime.saturday,
+    );
+    for (final category in saturdayCategories) {
+      await weeklyPlanningRepository.updateCategoryConfig(
+        weekday: DateTime.saturday,
+        categoryId: category.categoryId,
+        isIncluded: false,
+        quota: 0,
+      );
+    }
+    await weeklyPlanningRepository.updateCategoryConfig(
+      weekday: DateTime.saturday,
+      categoryId: 'livros',
+      isIncluded: true,
+      quota: 2,
+    );
+
+    final before =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    await service.applyAgePreset(ChildAgeRange.years3To5);
+    final after =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+
+    expect(before!.total, 2);
+    expect(after!.useDefault, isFalse);
+    expect(after.total, 2);
+    final livro = after.categories
+        .where((category) => category.categoryId == 'livros')
+        .single;
+    expect(livro.isIncluded, isTrue);
+    expect(livro.safeQuota, 2);
   });
 
   test('applyAgePreset nao sobrescreve dias personalizados', () async {
@@ -210,6 +345,19 @@ Future<Map<String, int>> _roundQuotasByCategoryName(AppDatabase db) async {
     result[_normalize(category.name)] = setting.quota;
   }
   return result;
+}
+
+Map<String, int> _quotasByCategoryName(
+  List<WeeklyPlanningCategoryConfig> categories,
+) {
+  return {
+    for (final category in categories)
+      _normalize(category.categoryName): category.safeQuota,
+  };
+}
+
+int _summaryTotal(List<WeekDaySummary> summary, int weekday) {
+  return summary.where((day) => day.weekday == weekday).single.totalToys;
 }
 
 String _normalize(String value) {

@@ -242,7 +242,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return AlertDialog(
           title: const Text('Rodízio sugerido'),
           content: const Text(
-            'Encontramos uma configuração equilibrada para esta fase.\nDeseja aplicar ao rodízio?',
+            'Encontramos uma configuração equilibrada para esta fase.\nNo fim de semana, incluímos 1 brinquedo extra para dar mais variedade.\n\nDeseja aplicar ao rodízio?',
           ),
           actions: [
             TextButton(
