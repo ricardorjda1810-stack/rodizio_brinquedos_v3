@@ -4,12 +4,14 @@ class OfficialAgeCategory {
   final String id;
   final String name;
   final String examples;
+  final String developmentAspect;
   final int sortOrder;
 
   const OfficialAgeCategory({
     required this.id,
     required this.name,
     required this.examples,
+    required this.developmentAspect,
     required this.sortOrder,
   });
 }
@@ -65,30 +67,35 @@ class AgePresetCatalog {
       id: 'corpo',
       name: 'Corpo',
       examples: 'bola • túnel • cavalinho • empurrar',
+      developmentAspect: 'Movimento e coordenação ampla',
       sortOrder: 1,
     ),
     OfficialAgeCategory(
       id: 'maos',
       name: 'Mãos',
       examples: 'blocos • encaixes • quebra-cabeça • argolas',
+      developmentAspect: 'Montar, encaixar e manipular',
       sortOrder: 2,
     ),
     OfficialAgeCategory(
       id: 'imaginacao',
       name: 'Imaginação',
       examples: 'bonecos • cozinha • carrinhos • ferramentas',
+      developmentAspect: 'Histórias e faz de conta',
       sortOrder: 3,
     ),
     OfficialAgeCategory(
       id: 'comunicacao',
       name: 'Comunicação',
       examples: 'livros • fantoches • animais • jogos simples',
+      developmentAspect: 'Linguagem e interação',
       sortOrder: 4,
     ),
     OfficialAgeCategory(
       id: 'exploracao',
       name: 'Exploração',
       examples: 'massinha • chocalho • água • areia • tecidos',
+      developmentAspect: 'Texturas, sons e descobertas',
       sortOrder: 5,
     ),
   ];

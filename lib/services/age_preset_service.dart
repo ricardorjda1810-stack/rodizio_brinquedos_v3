@@ -211,7 +211,7 @@ class AgePresetService {
                 name: official.name,
                 description: const Value(null),
                 examples: Value(official.examples),
-                developmentAspect: const Value(null),
+                developmentAspect: Value(official.developmentAspect),
                 sortOrder: Value(official.sortOrder),
                 isDefault: const Value(true),
                 isActive: const Value(true),
@@ -242,6 +242,9 @@ class AgePresetService {
         CategoryDefinitionsCompanion(
           examples: _isBlank(existing.examples)
               ? Value(official.examples)
+              : const Value.absent(),
+          developmentAspect: _isBlank(existing.developmentAspect)
+              ? Value(official.developmentAspect)
               : const Value.absent(),
           sortOrder: Value(official.sortOrder),
           isDefault: const Value(true),

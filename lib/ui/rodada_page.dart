@@ -57,12 +57,12 @@ class _RodadaPageState extends State<RodadaPage> {
     );
   }
 
-  Future<List<RoundToyWithBox>> _loadHomeSuggestionPreview() async {
+  Future<List<RoundToyWithBox>> _loadHomeSuggestion() async {
     final toys = await widget.roundRepository.suggestRoundForToday();
     final boxes = await widget.toyRepository.watchBoxes().first;
     final boxesById = {for (final box in boxes) box.id: box};
 
-    return toys.take(7).toList(growable: false).asMap().entries.map((entry) {
+    return toys.asMap().entries.map((entry) {
       final toy = entry.value;
       final boxId = toy.boxId;
       return RoundToyWithBox(
@@ -215,6 +215,8 @@ class _RodadaPageState extends State<RodadaPage> {
                 UiTokens.spacingSm +
                 twoRowsGridHeight;
             const emptyGridCardHeight = desiredGridCardHeight * 0.68;
+            final homeSuggestionFuture =
+                _homeSuggestionFuture ??= _loadHomeSuggestion();
 
             return SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
@@ -241,20 +243,46 @@ class _RodadaPageState extends State<RodadaPage> {
                     height: items.isEmpty
                         ? emptyGridCardHeight
                         : desiredGridCardHeight,
-                    child: _AvailableToysGridCard(
-                      items: items,
-                      onOpenToy: _openToyDetail,
-                      emptyTitle: 'Sugest\u00e3o para hoje',
-                      emptyCounterText: 'at\u00e9 7',
-                      emptyState: _HomeSuggestionEmptyState(
-                        suggestionFuture: _homeSuggestionFuture ??=
-                            _loadHomeSuggestionPreview(),
-                        onOpenToy: _openToyDetail,
-                        onUseSuggestion:
-                            _startingRound ? null : _useHomeSuggestion,
-                        usingSuggestion: _startingRound,
-                      ),
-                    ),
+                    child: items.isEmpty
+                        ? FutureBuilder<List<RoundToyWithBox>>(
+                            future: homeSuggestionFuture,
+                            builder: (context, snapshot) {
+                              final suggestionCount = snapshot.data?.length;
+                              final counterText = suggestionCount == null
+                                  ? '...'
+                                  : suggestionCount == 1
+                                      ? '1 item'
+                                      : '$suggestionCount itens';
+
+                              return _AvailableToysGridCard(
+                                items: items,
+                                onOpenToy: _openToyDetail,
+                                emptyTitle: 'Sugest\u00e3o para hoje',
+                                emptyCounterText: counterText,
+                                emptyState: _HomeSuggestionEmptyState(
+                                  suggestionFuture: homeSuggestionFuture,
+                                  onOpenToy: _openToyDetail,
+                                  onUseSuggestion: _startingRound
+                                      ? null
+                                      : _useHomeSuggestion,
+                                  usingSuggestion: _startingRound,
+                                ),
+                              );
+                            },
+                          )
+                        : _AvailableToysGridCard(
+                            items: items,
+                            onOpenToy: _openToyDetail,
+                            emptyTitle: 'Sugest\u00e3o para hoje',
+                            emptyCounterText: '',
+                            emptyState: _HomeSuggestionEmptyState(
+                              suggestionFuture: homeSuggestionFuture,
+                              onOpenToy: _openToyDetail,
+                              onUseSuggestion:
+                                  _startingRound ? null : _useHomeSuggestion,
+                              usingSuggestion: _startingRound,
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -676,6 +704,8 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
           );
         }
 
+        final preview = suggestion.take(8).toList(growable: false);
+
         return Column(
           children: [
             Expanded(
@@ -692,7 +722,7 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        for (final item in suggestion)
+                        for (final item in preview)
                           _SuggestionToyThumb(
                             item: item,
                             size: tileSize,
