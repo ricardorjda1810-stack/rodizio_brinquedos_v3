@@ -121,7 +121,12 @@ class WeeklyPlanningRepository {
     }
 
     await ensureSeeded();
-    await _ensureCategoryRowsForWeekday(weekday);
+    final current = await _dayRowForWeekday(weekday);
+    if (!useDefault && (current == null || current.useDefault)) {
+      await _resetWeeklyCategoryRowsFromDefault(weekday);
+    } else {
+      await _ensureCategoryRowsForWeekday(weekday);
+    }
     await (_db.update(_db.weeklyPlanningSettings)
           ..where((table) => table.weekday.equals(weekday)))
         .write(
@@ -266,7 +271,12 @@ class WeeklyPlanningRepository {
     if (!_isValidWeekday(suggestion.targetWeekday)) return;
 
     await ensureSeeded();
-    await _ensureCategoryRowsForWeekday(suggestion.targetWeekday);
+    final current = await _dayRowForWeekday(suggestion.targetWeekday);
+    if (current == null || current.useDefault) {
+      await _resetWeeklyCategoryRowsFromDefault(suggestion.targetWeekday);
+    } else {
+      await _ensureCategoryRowsForWeekday(suggestion.targetWeekday);
+    }
     final configs = await _loadCustomCategoryConfigs(suggestion.targetWeekday);
     final target = configs.where((category) {
       return category.categoryId == suggestion.categoryId;
@@ -410,6 +420,12 @@ class WeeklyPlanningRepository {
       ]);
   }
 
+  Future<WeeklyPlanningSetting?> _dayRowForWeekday(int weekday) {
+    return (_db.select(_db.weeklyPlanningSettings)
+          ..where((table) => table.weekday.equals(weekday)))
+        .getSingleOrNull();
+  }
+
   Future<WeeklyPlanningDayConfig> _toDayConfig(
     WeeklyPlanningSetting row,
   ) async {
@@ -528,6 +544,22 @@ class WeeklyPlanningRepository {
             ),
             mode: InsertMode.insertOrIgnore,
           );
+    }
+  }
+
+  Future<void> _resetWeeklyCategoryRowsFromDefault(int weekday) async {
+    final defaults = await _loadDefaultCategoryConfigs();
+    await (_db.delete(_db.weeklyPlanningCategorySettings)
+          ..where((table) => table.weekday.equals(weekday)))
+        .go();
+
+    for (final category in defaults) {
+      await _writeWeeklyCategoryConfig(
+        weekday: weekday,
+        categoryId: category.categoryId,
+        isIncluded: category.isIncluded,
+        quota: category.safeQuota,
+      );
     }
   }
 

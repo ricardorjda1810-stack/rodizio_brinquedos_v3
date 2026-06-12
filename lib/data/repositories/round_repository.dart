@@ -354,14 +354,15 @@ class RoundRepository {
 
   // `size` remains in the public API for compatibility. The effective round
   // size is derived from the sum of included category quotas.
-  Future<StartRoundResult> startRound({int? size}) async {
+  Future<StartRoundResult> startRound({int? size, DateTime? date}) async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
     }
 
+    final roundDate = date ?? DateTime.now();
     final categoryConfigs =
-        await _resolveRoundCategoryConfigsForDate(DateTime.now(), d);
+        await _resolveRoundCategoryConfigsForDate(roundDate, d);
     final includedConfigs = categoryConfigs
         .where((config) => config.isIncluded && config.safeQuota > 0)
         .toList(growable: false);
@@ -394,7 +395,7 @@ class RoundRepository {
       (sum, config) => sum + config.safeQuota,
     );
     final requestedSize = totalFromCategories;
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final now = roundDate.millisecondsSinceEpoch;
     final newRoundId = const Uuid().v4();
     final finalSelection = requestedSize > 0 && selected.length > requestedSize
         ? selected.take(requestedSize).toList(growable: false)

@@ -5,6 +5,8 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
+import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 
 void main() {
   late AppDatabase db;
@@ -125,6 +127,80 @@ void main() {
     expect(movement.isIncluded, isTrue);
     expect(movement.safeQuota, 2);
   });
+
+  test('dia que vira proprio copia o preset base atual', () async {
+    await weeklyPlanningRepository.ensureSeeded();
+
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final repository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final agePresetService = AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await agePresetService.applyAgePreset(ChildAgeRange.years2To3);
+    await repository.setUseDefault(
+      weekday: DateTime.monday,
+      useDefault: false,
+    );
+
+    final monday = await repository.getByWeekday(DateTime.monday);
+    final quotas = _quotasByCategoryId(monday!.categories);
+    final included = _includedByCategoryId(monday.categories);
+
+    expect(monday.useDefault, isFalse);
+    expect(monday.total, 8);
+    expect(quotas['corpo'], 2);
+    expect(quotas['maos'], 2);
+    expect(quotas['imaginacao'], 2);
+    expect(quotas['comunicacao'], 1);
+    expect(quotas['exploracao'], 1);
+    expect(included['livros'], isFalse);
+    expect(quotas['livros'], 0);
+
+    settingsRepository.dispose();
+  });
+
+  test('sugestao em dia default parte do preset base efetivo', () async {
+    await weeklyPlanningRepository.ensureSeeded();
+
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final repository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final agePresetService = AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await agePresetService.applyAgePreset(ChildAgeRange.years2To3);
+    await repository.applyCategoryBalanceAdjustment(
+      const CategoryBalanceAdjustmentSuggestion(
+        categoryId: 'corpo',
+        categoryName: 'Corpo',
+        message: 'Corpo apareceu pouco.',
+        targetWeekday: DateTime.monday,
+      ),
+    );
+
+    final monday = await repository.getByWeekday(DateTime.monday);
+    final quotas = _quotasByCategoryId(monday!.categories);
+    final included = _includedByCategoryId(monday.categories);
+
+    expect(monday.useDefault, isFalse);
+    expect(monday.total, 8);
+    expect(quotas['corpo'], 3);
+    expect(included['livros'], isFalse);
+    expect(quotas['livros'], 0);
+
+    settingsRepository.dispose();
+  });
 }
 
 Future<void> _insertToy(
@@ -161,4 +237,20 @@ Future<void> _insertRoundWithToy(
           position: 0,
         ),
       );
+}
+
+Map<String, int> _quotasByCategoryId(
+  List<WeeklyPlanningCategoryConfig> categories,
+) {
+  return {
+    for (final category in categories) category.categoryId: category.safeQuota,
+  };
+}
+
+Map<String, bool> _includedByCategoryId(
+  List<WeeklyPlanningCategoryConfig> categories,
+) {
+  return {
+    for (final category in categories) category.categoryId: category.isIncluded,
+  };
 }

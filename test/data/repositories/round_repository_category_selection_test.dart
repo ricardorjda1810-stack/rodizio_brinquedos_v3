@@ -3,7 +3,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
+import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
+import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 
 void main() {
   late AppDatabase db;
@@ -93,6 +96,116 @@ void main() {
 
     final selectedIds = await _selectedToyIdsByPosition(db);
     expect(selectedIds, ['l1', 'b1']);
+  });
+
+  test('suggestRoundForDate usa cotas efetivas de cada dia por idade',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years2To3);
+    await _insertOfficialToys(db);
+
+    final weekStart = DateTime(2026, 1, 5);
+    final expectedTotals = <int, int>{
+      DateTime.monday: 8,
+      DateTime.tuesday: 8,
+      DateTime.wednesday: 8,
+      DateTime.thursday: 8,
+      DateTime.friday: 8,
+      DateTime.saturday: 9,
+      DateTime.sunday: 9,
+    };
+
+    for (final entry in expectedTotals.entries) {
+      final date = weekStart.add(Duration(days: entry.key - 1));
+      final suggestion = await roundRepository.suggestRoundForDate(date);
+
+      expect(
+        suggestion,
+        hasLength(entry.value),
+        reason: 'weekday ${entry.key}',
+      );
+
+      await roundRepository.setActiveRoundFromToyIds(
+        suggestion.map((toy) => toy.id).toList(growable: false),
+      );
+      expect(
+        await _selectedToyIdsByPosition(db),
+        hasLength(entry.value),
+        reason: 'active round weekday ${entry.key}',
+      );
+    }
+
+    final mondaySuggestion =
+        await roundRepository.suggestRoundForDate(weekStart);
+    final mondayCounts = _categoryCountsForToys(mondaySuggestion);
+    expect(mondayCounts['corpo'], 2);
+    expect(mondayCounts['maos'], 2);
+    expect(mondayCounts['imaginacao'], 2);
+    expect(mondayCounts['comunicacao'], 1);
+    expect(mondayCounts['exploracao'], 1);
+
+    final saturdaySuggestion = await roundRepository.suggestRoundForDate(
+      weekStart.add(const Duration(days: 5)),
+    );
+    final saturdayCounts = _categoryCountsForToys(saturdaySuggestion);
+    expect(saturdayCounts['corpo'], 3);
+    expect(saturdayCounts['imaginacao'], 2);
+
+    final sundaySuggestion = await roundRepository.suggestRoundForDate(
+      weekStart.add(const Duration(days: 6)),
+    );
+    final sundayCounts = _categoryCountsForToys(sundaySuggestion);
+    expect(sundayCounts['corpo'], 2);
+    expect(sundayCounts['imaginacao'], 3);
+
+    settingsRepository.dispose();
+  });
+
+  test('startRound usa cotas efetivas de cada data por idade', () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years2To3);
+    await _insertOfficialToys(db);
+
+    final weekStart = DateTime(2026, 1, 5);
+    final expectedTotals = <int, int>{
+      DateTime.monday: 8,
+      DateTime.tuesday: 8,
+      DateTime.wednesday: 8,
+      DateTime.thursday: 8,
+      DateTime.friday: 8,
+      DateTime.saturday: 9,
+      DateTime.sunday: 9,
+    };
+
+    for (final entry in expectedTotals.entries) {
+      final date = weekStart.add(Duration(days: entry.key - 1));
+      final result = await roundRepository.startRound(date: date);
+      final selectedIds = await _selectedToyIdsByPosition(db);
+
+      expect(result.created, isTrue, reason: 'weekday ${entry.key}');
+      expect(result.selectedCount, entry.value, reason: 'weekday ${entry.key}');
+      expect(selectedIds, hasLength(entry.value),
+          reason: 'weekday ${entry.key}');
+
+      if (entry.key == DateTime.monday) {
+        final counts = await _selectedCategoryCounts(db);
+        expect(counts['corpo'], 2);
+        expect(counts['maos'], 2);
+        expect(counts['imaginacao'], 2);
+        expect(counts['comunicacao'], 1);
+        expect(counts['exploracao'], 1);
+      }
+    }
+
+    settingsRepository.dispose();
   });
 
   test('startRound nao cria rodada quando nao ha brinquedos cadastrados',
@@ -185,6 +298,51 @@ Future<void> _insertToy(
           photoPath: const Value(null),
         ),
       );
+}
+
+Future<void> _insertOfficialToys(
+  AppDatabase db, {
+  int countPerCategory = 20,
+}) async {
+  const categoryIds = <String>[
+    'corpo',
+    'maos',
+    'imaginacao',
+    'comunicacao',
+    'exploracao',
+  ];
+  var createdAt = 10000;
+  for (final categoryId in categoryIds) {
+    for (var index = 0; index < countPerCategory; index++) {
+      await _insertToy(
+        db,
+        id: 'official_${categoryId}_$index',
+        categoryId: categoryId,
+        createdAt: createdAt,
+      );
+      createdAt++;
+    }
+  }
+}
+
+Map<String, int> _categoryCountsForToys(List<Toy> toys) {
+  final result = <String, int>{};
+  for (final toy in toys) {
+    final categoryId = toy.categoryId.trim();
+    if (categoryId.isEmpty) continue;
+    result[categoryId] = (result[categoryId] ?? 0) + 1;
+  }
+  return result;
+}
+
+Future<Map<String, int>> _selectedCategoryCounts(AppDatabase db) async {
+  final selectedIds = await _selectedToyIdsByPosition(db);
+  if (selectedIds.isEmpty) return const <String, int>{};
+
+  final toys = await (db.select(db.toys)
+        ..where((toy) => toy.id.isIn(selectedIds)))
+      .get();
+  return _categoryCountsForToys(toys);
 }
 
 Future<List<String>> _selectedToyIdsByPosition(AppDatabase db) async {

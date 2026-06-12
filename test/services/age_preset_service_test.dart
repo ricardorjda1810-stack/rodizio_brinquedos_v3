@@ -106,7 +106,22 @@ void main() {
 
     await service.applyAgePreset(ChildAgeRange.years2To3);
 
-    final monday = await weeklyPlanningRepository.getByWeekday(DateTime.monday);
+    final expectedTotals = <int, int>{
+      DateTime.monday: 8,
+      DateTime.tuesday: 8,
+      DateTime.wednesday: 8,
+      DateTime.thursday: 8,
+      DateTime.friday: 8,
+      DateTime.saturday: 9,
+      DateTime.sunday: 9,
+    };
+    for (final entry in expectedTotals.entries) {
+      final day = await weeklyPlanningRepository.getByWeekday(entry.key);
+      expect(day, isNotNull);
+      expect(day!.total, entry.value);
+      expect(day.useDefault, entry.key < DateTime.saturday);
+    }
+
     final saturday =
         await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
     final sunday = await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
@@ -115,8 +130,6 @@ void main() {
     final summary = await weeklyPlanningRepository.watchWeekSummary().first;
 
     expect(settingsRepository.weeklyPlanningEnabled, isTrue);
-    expect(monday!.useDefault, isTrue);
-    expect(monday.total, 8);
     expect(saturday.useDefault, isFalse);
     expect(saturday.total, 9);
     expect(saturdayQuotas['corpo'], 3);
@@ -125,9 +138,9 @@ void main() {
     expect(sunday.total, 9);
     expect(sundayQuotas['corpo'], 2);
     expect(sundayQuotas['imaginacao'], 3);
-    expect(_summaryTotal(summary, DateTime.monday), 8);
-    expect(_summaryTotal(summary, DateTime.saturday), 9);
-    expect(_summaryTotal(summary, DateTime.sunday), 9);
+    for (final entry in expectedTotals.entries) {
+      expect(_summaryTotal(summary, entry.key), entry.value);
+    }
   });
 
   test('applyAgePreset atualiza fim de semana automatico anterior', () async {
@@ -228,12 +241,37 @@ void main() {
       isIncluded: true,
       quota: 2,
     );
+    await settingsRepository.setWeeklyPlanningEnabled(true);
+    await weeklyPlanningRepository.setUseDefault(
+      weekday: DateTime.sunday,
+      useDefault: false,
+    );
+    final sundayCategories =
+        await weeklyPlanningRepository.getCategoriesForWeekday(DateTime.sunday);
+    for (final category in sundayCategories) {
+      await weeklyPlanningRepository.updateCategoryConfig(
+        weekday: DateTime.sunday,
+        categoryId: category.categoryId,
+        isIncluded: false,
+        quota: 0,
+      );
+    }
+    await weeklyPlanningRepository.updateCategoryConfig(
+      weekday: DateTime.sunday,
+      categoryId: 'livros',
+      isIncluded: true,
+      quota: 4,
+    );
 
     final before =
         await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    final sundayBefore =
+        await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
     await service.applyAgePreset(ChildAgeRange.years3To5);
     final after =
         await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    final sundayAfter =
+        await weeklyPlanningRepository.getByWeekday(DateTime.sunday);
 
     expect(before!.total, 2);
     expect(after!.useDefault, isFalse);
@@ -243,6 +281,14 @@ void main() {
         .single;
     expect(livro.isIncluded, isTrue);
     expect(livro.safeQuota, 2);
+    expect(sundayBefore!.total, 4);
+    expect(sundayAfter!.useDefault, isFalse);
+    expect(sundayAfter.total, 4);
+    final sundayLivro = sundayAfter.categories
+        .where((category) => category.categoryId == 'livros')
+        .single;
+    expect(sundayLivro.isIncluded, isTrue);
+    expect(sundayLivro.safeQuota, 4);
   });
 
   test('applyAgePreset nao sobrescreve dias personalizados', () async {
