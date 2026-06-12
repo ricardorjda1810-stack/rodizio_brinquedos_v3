@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/features/paywall/paywall_display_prices.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -103,17 +104,6 @@ class _PaywallPageState extends State<PaywallPage> {
     }
   }
 
-  String _priceWithPeriod({
-    required String productId,
-    required String fallbackPrice,
-    required String period,
-  }) {
-    final storePrice = _purchaseService.productDetailsFor(productId)?.price;
-    final price =
-        storePrice == null || storePrice.isEmpty ? fallbackPrice : storePrice;
-    return '$price/$period';
-  }
-
   void _selectPlan(String productId) {
     if (_selectedProductId == productId) return;
     setState(() => _selectedProductId = productId);
@@ -122,16 +112,6 @@ class _PaywallPageState extends State<PaywallPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final yearlyPrice = _priceWithPeriod(
-      productId: PurchaseService.yearlyProductId,
-      fallbackPrice: 'R\$ 99,90',
-      period: 'ano',
-    );
-    final monthlyPrice = _priceWithPeriod(
-      productId: PurchaseService.monthlyProductId,
-      fallbackPrice: 'R\$ 14,90',
-      period: 'm\u00EAs',
-    );
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
@@ -191,8 +171,8 @@ class _PaywallPageState extends State<PaywallPage> {
             _PlanCard(
               badge: '\u{2B50} Mais popular',
               title: 'Rod\u00EDzio Premium Anual',
-              price: yearlyPrice,
-              description: 'equivalente a R\$ 8,32/m\u00EAs',
+              price: paywallYearlyDisplayPrice,
+              description: paywallYearlyMonthlyEquivalent,
               isFeatured: true,
               isSelected: _selectedProductId == PurchaseService.yearlyProductId,
               onTap: () => _selectPlan(PurchaseService.yearlyProductId),
@@ -200,7 +180,7 @@ class _PaywallPageState extends State<PaywallPage> {
             const SizedBox(height: UiTokens.spacingSm),
             _PlanCard(
               title: 'Rod\u00EDzio Premium Mensal',
-              price: monthlyPrice,
+              price: paywallMonthlyDisplayPrice,
               isSelected:
                   _selectedProductId == PurchaseService.monthlyProductId,
               onTap: () => _selectPlan(PurchaseService.monthlyProductId),
