@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,12 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
-import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/toy_category_form_options.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/category_quick_picker.dart';
 
@@ -50,6 +51,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   @override
   void initState() {
     super.initState();
+    unawaited(widget.toyRepository.ensureOfficialToyFormCategories());
     _selectedCategoryId ??= _lastCategoryId;
   }
 
@@ -239,16 +241,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                     builder: (context, locationsSnap) {
                       final locations =
                           locationsSnap.data ?? const <LocationDefinition>[];
-                      final categoriesSorted =
-                          _sortCategoriesForToyForm(categories);
-                      final officialCategories = categoriesSorted
-                          .where(_isOfficialToyFormCategory)
-                          .toList();
-                      final otherCategories = categoriesSorted
-                          .where(
-                            (category) => !_isOfficialToyFormCategory(category),
-                          )
-                          .toList();
+                      final officialCategories =
+                          officialToyFormCategories(categories);
+                      if (_selectedCategoryId != null &&
+                          !officialCategories
+                              .any((c) => c.id == _selectedCategoryId)) {
+                        _selectedCategoryId = null;
+                      }
 
                       if (_selectedBoxId != null &&
                           !boxes.any((b) => b.id == _selectedBoxId)) {
@@ -406,46 +405,23 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           selectedId: _selectedCategoryId,
                                           disabled: _saving,
                                           getId: (c) => c.id,
-                                          getName: (c) => c.name,
-                                          getExamples: _categoryFormExamples,
+                                          getName: toyFormCategoryName,
+                                          getExamples: toyFormCategoryExamples,
                                           getDevelopmentAspect:
-                                              _categoryFormDevelopmentAspect,
+                                              toyFormCategoryDevelopmentAspect,
                                           onSelected: (id) => setState(
                                             () => _selectedCategoryId = id,
                                           ),
                                         ),
-                                      if (otherCategories.isNotEmpty) ...[
-                                        if (officialCategories.isNotEmpty)
-                                          const SizedBox(
-                                            height: UiTokens.spacingMd,
-                                          ),
-                                        if (officialCategories.isNotEmpty) ...[
-                                          Text(
-                                            'Outras categorias',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .labelLarge
-                                                ?.copyWith(
-                                                  color: UiTokens.textSecondary,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
-                                          ),
-                                          const SizedBox(
-                                            height: UiTokens.spacingSm,
-                                          ),
-                                        ],
-                                        CategoryQuickPicker<CategoryDefinition>(
-                                          categories: otherCategories,
-                                          selectedId: _selectedCategoryId,
-                                          disabled: _saving,
-                                          getId: (c) => c.id,
-                                          getName: (c) => c.name,
-                                          getExamples: _categoryFormExamples,
-                                          getDevelopmentAspect:
-                                              _categoryFormDevelopmentAspect,
-                                          onSelected: (id) => setState(
-                                            () => _selectedCategoryId = id,
-                                          ),
+                                      if (officialCategories.isEmpty) ...[
+                                        Text(
+                                          'Preparando categorias oficiais...',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: UiTokens.textSecondary,
+                                              ),
                                         ),
                                       ],
                                       if (_selectedCategoryId == null) ...[
@@ -722,88 +698,4 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       ),
     );
   }
-}
-
-List<CategoryDefinition> _sortCategoriesForToyForm(
-  List<CategoryDefinition> categories,
-) {
-  return [...categories]..sort((a, b) {
-      final officialA = _officialToyFormCategory(a);
-      final officialB = _officialToyFormCategory(b);
-
-      if (officialA != null || officialB != null) {
-        final rankA = officialA?.sortOrder ?? 1000;
-        final rankB = officialB?.sortOrder ?? 1000;
-        if (rankA != rankB) return rankA.compareTo(rankB);
-      }
-
-      final sortOrderCompare = a.sortOrder.compareTo(b.sortOrder);
-      if (sortOrderCompare != 0) return sortOrderCompare;
-
-      return _normalizeCategoryName(a.name).compareTo(
-        _normalizeCategoryName(b.name),
-      );
-    });
-}
-
-bool _isOfficialToyFormCategory(CategoryDefinition category) {
-  return _officialToyFormCategory(category) != null;
-}
-
-String? _categoryFormExamples(CategoryDefinition category) {
-  return _officialToyFormCategory(category)?.examples ?? category.examples;
-}
-
-String? _categoryFormDevelopmentAspect(CategoryDefinition category) {
-  return _officialToyFormCategory(category)?.developmentAspect ??
-      category.developmentAspect;
-}
-
-OfficialAgeCategory? _officialToyFormCategory(CategoryDefinition category) {
-  final normalizedId = _normalizeCategoryName(category.id);
-  final normalizedName = _normalizeCategoryName(category.name);
-
-  for (final official in AgePresetCatalog.officialCategories) {
-    if (normalizedId == official.id ||
-        normalizedName == _normalizeCategoryName(official.name)) {
-      return official;
-    }
-  }
-
-  return null;
-}
-
-String _normalizeCategoryName(String value) {
-  var normalized = value.trim().toLowerCase();
-  const replacements = <String, String>{
-    'á': 'a',
-    'à': 'a',
-    'â': 'a',
-    'ã': 'a',
-    'ä': 'a',
-    'é': 'e',
-    'ê': 'e',
-    'è': 'e',
-    'ë': 'e',
-    'í': 'i',
-    'ì': 'i',
-    'î': 'i',
-    'ï': 'i',
-    'ó': 'o',
-    'ò': 'o',
-    'ô': 'o',
-    'õ': 'o',
-    'ö': 'o',
-    'ú': 'u',
-    'ù': 'u',
-    'û': 'u',
-    'ü': 'u',
-    'ç': 'c',
-  };
-
-  for (final entry in replacements.entries) {
-    normalized = normalized.replaceAll(entry.key, entry.value);
-  }
-
-  return normalized.replaceAll(RegExp(r'\s+'), ' ');
 }

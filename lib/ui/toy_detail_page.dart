@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/toy_category_form_options.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
 const String _toyBoxNoSelectionValue = '__sem_selecao_caixa__';
@@ -136,10 +137,13 @@ class ToyDetailPage extends StatelessWidget {
     required String currentCategoryId,
   }) async {
     final messenger = ScaffoldMessenger.of(context);
+    await toyRepository.ensureOfficialToyFormCategories();
+    if (!context.mounted) return;
+
     final selectedCategoryId = await showDialog<String>(
       context: context,
       builder: (ctx) {
-        String selectedId = currentCategoryId;
+        String? selectedId = currentCategoryId;
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
@@ -147,33 +151,55 @@ class ToyDetailPage extends StatelessWidget {
               content: StreamBuilder(
                 stream: toyRepository.watchCategories(activeOnly: true),
                 builder: (context, snapshot) {
-                  final categories = snapshot.data ?? const [];
+                  final allCategories = snapshot.data ?? const [];
+                  final categories = officialToyFormCategories(allCategories);
                   if (categories.isEmpty) {
-                    return const Text('Nenhuma categoria ativa.');
+                    return const Text('Nenhuma categoria oficial ativa.');
                   }
 
+                  final currentIsOfficial =
+                      categories.any((c) => c.id == currentCategoryId);
                   if (!categories.any((c) => c.id == selectedId)) {
-                    selectedId = categories.first.id;
+                    selectedId = null;
                   }
+                  final currentLabel = _categoryNameForId(
+                    allCategories,
+                    currentCategoryId,
+                  );
 
-                  return SizedBox(
-                    width: double.maxFinite,
-                    child: DropdownButtonFormField<String>(
-                      initialValue: selectedId,
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Categoria'),
-                      items: [
-                        for (final c in categories)
-                          DropdownMenuItem<String>(
-                            value: c.id,
-                            child: _dropdownLabel(c.name),
-                          ),
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!currentIsOfficial && currentLabel != null) ...[
+                        Text(
+                          'Categoria atual: $currentLabel',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: UiTokens.spacingSm),
                       ],
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setDialogState(() => selectedId = value);
-                      },
-                    ),
+                      SizedBox(
+                        width: double.maxFinite,
+                        child: DropdownButtonFormField<String>(
+                          initialValue: selectedId,
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Categoria oficial',
+                          ),
+                          hint: const Text('Escolha uma categoria'),
+                          items: [
+                            for (final c in categories)
+                              DropdownMenuItem<String>(
+                                value: c.id,
+                                child: _dropdownLabel(toyFormCategoryName(c)),
+                              ),
+                          ],
+                          onChanged: (value) {
+                            setDialogState(() => selectedId = value);
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -183,7 +209,9 @@ class ToyDetailPage extends StatelessWidget {
                   child: const Text('Cancelar'),
                 ),
                 FilledButton(
-                  onPressed: () => Navigator.of(ctx).pop(selectedId),
+                  onPressed: selectedId == null
+                      ? null
+                      : () => Navigator.of(ctx).pop(selectedId),
                   child: const Text('Salvar'),
                 ),
               ],
@@ -214,6 +242,18 @@ class ToyDetailPage extends StatelessWidget {
         SnackBar(content: Text('Erro ao atualizar categoria: $e')),
       );
     }
+  }
+
+  String? _categoryNameForId(
+    List<CategoryDefinition> categories,
+    String categoryId,
+  ) {
+    final trimmed = categoryId.trim();
+    if (trimmed.isEmpty) return null;
+    for (final category in categories) {
+      if (category.id == trimmed) return category.name;
+    }
+    return trimmed;
   }
 
   Future<void> _editToyBox(

@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/services/photo_cropper_service.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 
 class ToyWithBox {
   final Toy toy;
@@ -471,6 +472,93 @@ class ToyRepository {
       q.where((c) => c.isActive.equals(true));
     }
     return q.watch();
+  }
+
+  Future<void> ensureOfficialToyFormCategories() async {
+    final d = db;
+    if (d == null) return;
+
+    await d.transaction(() async {
+      final categories = await d.select(d.categoryDefinitions).get();
+      final existingIds = categories.map((category) => category.id).toSet();
+      final byNormalizedName = <String, CategoryDefinition>{
+        for (final category in categories)
+          _normalizeCategoryKey(category.name): category,
+      };
+
+      for (final official in AgePresetCatalog.officialCategories) {
+        final existing = byNormalizedName[_normalizeCategoryKey(official.name)];
+        if (existing == null) {
+          final categoryId = _generateUniqueId(
+            official.id,
+            existingIds,
+            prefix: 'cat',
+          );
+          existingIds.add(categoryId);
+
+          await d.into(d.categoryDefinitions).insert(
+                CategoryDefinitionsCompanion.insert(
+                  id: categoryId,
+                  name: official.name,
+                  description: const Value(null),
+                  examples: Value(official.examples),
+                  developmentAspect: Value(official.developmentAspect),
+                  sortOrder: Value(official.sortOrder),
+                  isDefault: const Value(true),
+                  isActive: const Value(true),
+                ),
+              );
+          await d.into(d.categoryCounters).insert(
+                CategoryCountersCompanion.insert(
+                  categoryId: categoryId,
+                  nextNumber: const Value(1),
+                ),
+                mode: InsertMode.insertOrIgnore,
+              );
+          await d.into(d.roundCategorySettings).insert(
+                RoundCategorySettingsCompanion.insert(
+                  categoryId: categoryId,
+                  isIncluded: const Value(false),
+                  quota: const Value(0),
+                ),
+                mode: InsertMode.insertOrIgnore,
+              );
+          continue;
+        }
+
+        await (d.update(d.categoryDefinitions)
+              ..where((category) => category.id.equals(existing.id)))
+            .write(
+          CategoryDefinitionsCompanion(
+            examples: _normalizeNullable(existing.examples) == null
+                ? Value(official.examples)
+                : const Value.absent(),
+            developmentAspect:
+                _normalizeNullable(existing.developmentAspect) == null
+                    ? Value(official.developmentAspect)
+                    : const Value.absent(),
+            sortOrder: Value(official.sortOrder),
+            isDefault: const Value(true),
+            isActive: const Value(true),
+          ),
+        );
+        await d.into(d.categoryCounters).insert(
+              CategoryCountersCompanion.insert(
+                categoryId: existing.id,
+                nextNumber: const Value(1),
+              ),
+              mode: InsertMode.insertOrIgnore,
+            );
+        await d.into(d.roundCategorySettings).insert(
+              RoundCategorySettingsCompanion.insert(
+                categoryId: existing.id,
+                isIncluded: const Value(false),
+                quota: const Value(0),
+              ),
+              mode: InsertMode.insertOrIgnore,
+            );
+      }
+    });
   }
 
   Stream<List<CategoryDefinition>> watchRoundIncludedCategories() {
@@ -1384,6 +1472,41 @@ class ToyRepository {
     } catch (_) {
       return input;
     }
+  }
+
+  String _normalizeCategoryKey(String value) {
+    var normalized = _repairTextSafely(value).trim().toLowerCase();
+    const replacements = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'ê': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'î': 'i',
+      'ï': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ö': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+
+    for (final entry in replacements.entries) {
+      normalized = normalized.replaceAll(entry.key, entry.value);
+    }
+
+    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   String _slugify(String value) {
