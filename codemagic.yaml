@@ -162,8 +162,75 @@ workflows:
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
 
+      - name: Upload Crashlytics dSYMs
+        script: |
+          set -e
+
+          UPLOAD_SYMBOLS="ios/Pods/FirebaseCrashlytics/upload-symbols"
+          GOOGLE_SERVICE_PLIST="ios/Runner/GoogleService-Info.plist"
+          DSYM_LIST="$(mktemp)"
+
+          echo "Crashlytics upload-symbols: $UPLOAD_SYMBOLS"
+          echo "GoogleService-Info.plist: $GOOGLE_SERVICE_PLIST"
+
+          if [ ! -f "$UPLOAD_SYMBOLS" ]; then
+            echo "ERROR: Firebase Crashlytics upload-symbols not found at $UPLOAD_SYMBOLS"
+            echo "Available FirebaseCrashlytics files:"
+            find ios/Pods -maxdepth 4 -iname "*Crashlytics*" -print || true
+            exit 1
+          fi
+
+          if [ ! -x "$UPLOAD_SYMBOLS" ]; then
+            echo "ERROR: upload-symbols exists but is not executable."
+            ls -l "$UPLOAD_SYMBOLS"
+            exit 1
+          fi
+
+          if [ ! -f "$GOOGLE_SERVICE_PLIST" ]; then
+            echo "ERROR: GoogleService-Info.plist not found at $GOOGLE_SERVICE_PLIST"
+            exit 1
+          fi
+
+          echo "Inspecting iOS build output:"
+          find build/ios -maxdepth 5 \( -name "*.xcarchive" -o -name "*.dSYM" -o -name "*.ipa" \) -print 2>/dev/null || true
+
+          : > "$DSYM_LIST"
+          for path in \
+            build/ios/archive/*.xcarchive/dSYMs \
+            build/ios/archive/Runner.xcarchive/dSYMs \
+            build/ios/ipa \
+            build/ios/Release-iphoneos
+          do
+            if [ -d "$path" ]; then
+              find "$path" -type d -name "*.dSYM" -print >> "$DSYM_LIST"
+            fi
+          done
+
+          sort -u "$DSYM_LIST" -o "$DSYM_LIST"
+
+          if [ ! -s "$DSYM_LIST" ]; then
+            echo "ERROR: No dSYM bundles found after flutter build ipa."
+            echo "Full build/ios tree for diagnostics:"
+            find build/ios -maxdepth 6 -print 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Found dSYMs:"
+          cat "$DSYM_LIST"
+
+          while IFS= read -r dsym; do
+            echo "Uploading dSYM: $dsym"
+            "$UPLOAD_SYMBOLS" -gsp "$GOOGLE_SERVICE_PLIST" -p ios "$dsym"
+          done < "$DSYM_LIST"
+
+          rm -f "$DSYM_LIST"
+          echo "Crashlytics dSYM upload finished."
+
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/archive/*.xcarchive
+      - build/ios/archive/**/*.dSYM
+      - build/ios/Release-iphoneos/**/*.dSYM
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
 
