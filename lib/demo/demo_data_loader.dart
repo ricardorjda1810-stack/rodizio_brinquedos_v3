@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_seed.dart';
@@ -11,11 +12,15 @@ class DemoDataLoader {
   static const _isDemo = bool.fromEnvironment('DEMO_MODE');
   static const _isMarketingDemo = bool.fromEnvironment('MARKETING_DEMO');
   static const _demoToyPhotosDirName = 'demo_toy_photos';
+  static const _initialSeedAppliedKey = 'demo_initial_seed_applied_v1';
 
   static bool get controlsEnabled => _isDemo || _isMarketingDemo;
 
   static Future<void> load(AppDatabase db) async {
-    if (!_isDemo) return;
+    if (!_isDemo) {
+      await _populateInitialIfNeeded(db);
+      return;
+    }
 
     // ignore: avoid_print
     print('[DEMO] DemoDataLoader.load started');
@@ -27,6 +32,22 @@ class DemoDataLoader {
     await populate(db);
     // ignore: avoid_print
     print('[DEMO] seed completed');
+  }
+
+  static Future<void> _populateInitialIfNeeded(AppDatabase db) async {
+    final prefs = await SharedPreferences.getInstance();
+    final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
+    if (alreadyHandled) return;
+
+    final toysCount =
+        await db.select(db.toys).get().then((toys) => toys.length);
+    if (toysCount > 0) {
+      await prefs.setBool(_initialSeedAppliedKey, true);
+      return;
+    }
+
+    await populate(db);
+    await prefs.setBool(_initialSeedAppliedKey, true);
   }
 
   static Future<void> populate(AppDatabase db) async {
