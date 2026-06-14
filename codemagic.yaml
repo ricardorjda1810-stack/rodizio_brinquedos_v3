@@ -168,38 +168,68 @@ workflows:
 
           GOOGLE_SERVICE_PLIST="ios/Runner/GoogleService-Info.plist"
           DSYM_LIST="$(mktemp)"
+          trap 'rm -f "$DSYM_LIST"' EXIT
 
           echo "Working directory:"
           pwd
+          echo "Flutter version:"
+          flutter --version
+          echo "Dart version:"
+          dart --version
           echo "iOS directory:"
           ls -la ios || true
           echo "iOS Pods directory:"
           ls -la ios/Pods || true
-          echo "Crashlytics-related files under ios/Pods:"
-          find ios/Pods -maxdepth 4 -iname "*crashlytics*" -print || true
+          echo "Crashlytics dependency lines before pod fallback:"
+          grep -n "firebase_crashlytics\|FirebaseCrashlytics\|Crashlytics" pubspec.yaml ios/Podfile.lock || true
           echo "upload-symbols candidates before pod fallback:"
-          find ios/Pods -type f -name "upload-symbols" -print || true
+          find . -type f -name "upload-symbols" -print || true
+          echo "Crashlytics-related files before pod fallback:"
+          find . -iname "*Crashlytics*" -print || true
 
-          if [ ! -d ios/Pods ]; then
-            echo "ios/Pods not found. Running pod install as fallback."
-            (cd ios && pod install)
+          echo "Ensuring Flutter and CocoaPods dependencies are available."
+          flutter pub get
+          if [ ! -d ios/Pods ] || [ ! -f ios/Podfile.lock ] || ! grep -q "FirebaseCrashlytics" ios/Podfile.lock || ! find . -type f -name "upload-symbols" -print -quit | grep -q .; then
+            echo "Pods or Crashlytics upload-symbols are missing. Running pod install --repo-update as fallback."
+            (cd ios && pod install --repo-update)
           fi
 
+          echo "Crashlytics dependency lines after pod check:"
+          grep -n "firebase_crashlytics\|FirebaseCrashlytics\|Crashlytics" pubspec.yaml ios/Podfile.lock || true
           echo "upload-symbols candidates after pod check:"
-          find ios/Pods -type f -name "upload-symbols" -print || true
+          find . -type f -name "upload-symbols" -print || true
+          echo "Crashlytics run candidates after pod check:"
+          find . -type f -name "run" | grep -i Crashlytics || true
 
-          UPLOAD_SYMBOLS="$(find ios/Pods -type f -name "upload-symbols" | head -n 1)"
+          UPLOAD_SYMBOLS="$(find . -type f -name "upload-symbols" | head -n 1)"
+          if [ -z "$UPLOAD_SYMBOLS" ]; then
+            echo "upload-symbols not found in the repository. Checking CocoaPods caches."
+            UPLOAD_SYMBOLS="$(find "$HOME/Library/Caches/CocoaPods" "$HOME/.cocoapods" -type f -path "*FirebaseCrashlytics*" -name "upload-symbols" -print 2>/dev/null | head -n 1 || true)"
+          fi
+          CRASHLYTICS_RUN="$(find . -type f -path "*FirebaseCrashlytics*run" | head -n 1)"
           echo "GoogleService-Info.plist: $GOOGLE_SERVICE_PLIST"
 
-          if [ -z "$UPLOAD_SYMBOLS" ]; then
-            echo "ERROR: Firebase Crashlytics upload-symbols was not found under ios/Pods."
-            echo "Firebase/Crashlytics files available under ios/Pods:"
-            find ios/Pods -maxdepth 6 \( -iname "*firebase*" -o -iname "*crashlytics*" -o -name "upload-symbols" \) -print || true
+          if [ -z "$UPLOAD_SYMBOLS" ] && [ -z "$CRASHLYTICS_RUN" ]; then
+            echo "ERROR: Firebase Crashlytics upload-symbols and run scripts were not found."
+            echo "Podfile.lock Crashlytics lines:"
+            grep -n "firebase_crashlytics\|FirebaseCrashlytics\|Crashlytics" ios/Podfile.lock || true
+            echo "Firebase/Crashlytics files available:"
+            find . -iname "*Crashlytics*" -print || true
+            echo "upload-symbols candidates:"
+            find . -type f -name "upload-symbols" -print || true
+            echo "dSYM bundles currently available:"
+            find build/ios -type d -name "*.dSYM" -print 2>/dev/null || true
             exit 1
           fi
 
-          chmod +x "$UPLOAD_SYMBOLS" || true
-          echo "Crashlytics upload-symbols found at: $UPLOAD_SYMBOLS"
+          if [ -n "$UPLOAD_SYMBOLS" ]; then
+            chmod +x "$UPLOAD_SYMBOLS" || true
+            echo "Crashlytics upload-symbols found at: $UPLOAD_SYMBOLS"
+          fi
+          if [ -n "$CRASHLYTICS_RUN" ]; then
+            chmod +x "$CRASHLYTICS_RUN" || true
+            echo "Crashlytics run fallback found at: $CRASHLYTICS_RUN"
+          fi
 
           if [ ! -f "$GOOGLE_SERVICE_PLIST" ]; then
             echo "ERROR: GoogleService-Info.plist not found at $GOOGLE_SERVICE_PLIST"
@@ -238,15 +268,30 @@ workflows:
 
           while IFS= read -r dsym; do
             echo "Uploading dSYM: $dsym"
-            if "$UPLOAD_SYMBOLS" -gsp "$GOOGLE_SERVICE_PLIST" -p ios "$dsym"; then
-              echo "Uploaded dSYM: $dsym"
+            if [ -n "$UPLOAD_SYMBOLS" ]; then
+              if "$UPLOAD_SYMBOLS" -gsp "$GOOGLE_SERVICE_PLIST" -p ios "$dsym"; then
+                echo "Uploaded dSYM with upload-symbols: $dsym"
+              else
+                echo "ERROR: Crashlytics upload-symbols failed for dSYM: $dsym"
+                exit 1
+              fi
             else
-              echo "ERROR: Crashlytics upload-symbols failed for dSYM: $dsym"
-              exit 1
+              echo "upload-symbols is unavailable. Using Crashlytics run script fallback for: $dsym"
+              export PODS_ROOT="$(pwd)/ios/Pods"
+              export PLATFORM_NAME="iphoneos"
+              export CONFIGURATION="Release"
+              export DWARF_DSYM_FOLDER_PATH="$(dirname "$dsym")"
+              export DWARF_DSYM_FILE_NAME="$(basename "$dsym")"
+              export GOOGLE_APP_ID="$(/usr/libexec/PlistBuddy -c 'Print :GOOGLE_APP_ID' "$GOOGLE_SERVICE_PLIST" 2>/dev/null || true)"
+              if "$CRASHLYTICS_RUN" -gsp "$GOOGLE_SERVICE_PLIST" -p ios "$dsym"; then
+                echo "Crashlytics run fallback completed for dSYM: $dsym"
+              else
+                echo "ERROR: Crashlytics run fallback failed for dSYM: $dsym"
+                exit 1
+              fi
             fi
           done < "$DSYM_LIST"
 
-          rm -f "$DSYM_LIST"
           echo "Crashlytics dSYM upload finished."
 
     artifacts:
