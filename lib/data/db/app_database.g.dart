@@ -3383,6 +3383,283 @@ class RoundToysCompanion extends UpdateCompanion<RoundToy> {
   }
 }
 
+class $RoundToyChecklistItemsTable extends RoundToyChecklistItems
+    with TableInfo<$RoundToyChecklistItemsTable, RoundToyChecklistItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RoundToyChecklistItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateKeyMeta =
+      const VerificationMeta('dateKey');
+  @override
+  late final GeneratedColumn<String> dateKey = GeneratedColumn<String>(
+      'date_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _toyIdMeta = const VerificationMeta('toyId');
+  @override
+  late final GeneratedColumn<String> toyId = GeneratedColumn<String>(
+      'toy_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES toys (id) ON DELETE CASCADE'));
+  static const VerificationMeta _collectedMeta =
+      const VerificationMeta('collected');
+  @override
+  late final GeneratedColumn<bool> collected = GeneratedColumn<bool>(
+      'collected', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("collected" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [dateKey, toyId, collected, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'round_toy_checklist_items';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<RoundToyChecklistItem> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date_key')) {
+      context.handle(_dateKeyMeta,
+          dateKey.isAcceptableOrUnknown(data['date_key']!, _dateKeyMeta));
+    } else if (isInserting) {
+      context.missing(_dateKeyMeta);
+    }
+    if (data.containsKey('toy_id')) {
+      context.handle(
+          _toyIdMeta, toyId.isAcceptableOrUnknown(data['toy_id']!, _toyIdMeta));
+    } else if (isInserting) {
+      context.missing(_toyIdMeta);
+    }
+    if (data.containsKey('collected')) {
+      context.handle(_collectedMeta,
+          collected.isAcceptableOrUnknown(data['collected']!, _collectedMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {dateKey, toyId};
+  @override
+  RoundToyChecklistItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RoundToyChecklistItem(
+      dateKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}date_key'])!,
+      toyId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}toy_id'])!,
+      collected: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}collected'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $RoundToyChecklistItemsTable createAlias(String alias) {
+    return $RoundToyChecklistItemsTable(attachedDatabase, alias);
+  }
+}
+
+class RoundToyChecklistItem extends DataClass
+    implements Insertable<RoundToyChecklistItem> {
+  final String dateKey;
+  final String toyId;
+  final bool collected;
+  final int updatedAt;
+  const RoundToyChecklistItem(
+      {required this.dateKey,
+      required this.toyId,
+      required this.collected,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date_key'] = Variable<String>(dateKey);
+    map['toy_id'] = Variable<String>(toyId);
+    map['collected'] = Variable<bool>(collected);
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  RoundToyChecklistItemsCompanion toCompanion(bool nullToAbsent) {
+    return RoundToyChecklistItemsCompanion(
+      dateKey: Value(dateKey),
+      toyId: Value(toyId),
+      collected: Value(collected),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory RoundToyChecklistItem.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RoundToyChecklistItem(
+      dateKey: serializer.fromJson<String>(json['dateKey']),
+      toyId: serializer.fromJson<String>(json['toyId']),
+      collected: serializer.fromJson<bool>(json['collected']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'dateKey': serializer.toJson<String>(dateKey),
+      'toyId': serializer.toJson<String>(toyId),
+      'collected': serializer.toJson<bool>(collected),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  RoundToyChecklistItem copyWith(
+          {String? dateKey, String? toyId, bool? collected, int? updatedAt}) =>
+      RoundToyChecklistItem(
+        dateKey: dateKey ?? this.dateKey,
+        toyId: toyId ?? this.toyId,
+        collected: collected ?? this.collected,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  RoundToyChecklistItem copyWithCompanion(
+      RoundToyChecklistItemsCompanion data) {
+    return RoundToyChecklistItem(
+      dateKey: data.dateKey.present ? data.dateKey.value : this.dateKey,
+      toyId: data.toyId.present ? data.toyId.value : this.toyId,
+      collected: data.collected.present ? data.collected.value : this.collected,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoundToyChecklistItem(')
+          ..write('dateKey: $dateKey, ')
+          ..write('toyId: $toyId, ')
+          ..write('collected: $collected, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(dateKey, toyId, collected, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RoundToyChecklistItem &&
+          other.dateKey == this.dateKey &&
+          other.toyId == this.toyId &&
+          other.collected == this.collected &&
+          other.updatedAt == this.updatedAt);
+}
+
+class RoundToyChecklistItemsCompanion
+    extends UpdateCompanion<RoundToyChecklistItem> {
+  final Value<String> dateKey;
+  final Value<String> toyId;
+  final Value<bool> collected;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const RoundToyChecklistItemsCompanion({
+    this.dateKey = const Value.absent(),
+    this.toyId = const Value.absent(),
+    this.collected = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RoundToyChecklistItemsCompanion.insert({
+    required String dateKey,
+    required String toyId,
+    this.collected = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  })  : dateKey = Value(dateKey),
+        toyId = Value(toyId),
+        updatedAt = Value(updatedAt);
+  static Insertable<RoundToyChecklistItem> custom({
+    Expression<String>? dateKey,
+    Expression<String>? toyId,
+    Expression<bool>? collected,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (dateKey != null) 'date_key': dateKey,
+      if (toyId != null) 'toy_id': toyId,
+      if (collected != null) 'collected': collected,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RoundToyChecklistItemsCompanion copyWith(
+      {Value<String>? dateKey,
+      Value<String>? toyId,
+      Value<bool>? collected,
+      Value<int>? updatedAt,
+      Value<int>? rowid}) {
+    return RoundToyChecklistItemsCompanion(
+      dateKey: dateKey ?? this.dateKey,
+      toyId: toyId ?? this.toyId,
+      collected: collected ?? this.collected,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (dateKey.present) {
+      map['date_key'] = Variable<String>(dateKey.value);
+    }
+    if (toyId.present) {
+      map['toy_id'] = Variable<String>(toyId.value);
+    }
+    if (collected.present) {
+      map['collected'] = Variable<bool>(collected.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoundToyChecklistItemsCompanion(')
+          ..write('dateKey: $dateKey, ')
+          ..write('toyId: $toyId, ')
+          ..write('collected: $collected, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $HistoryEventsTable extends HistoryEvents
     with TableInfo<$HistoryEventsTable, HistoryEvent> {
   @override
@@ -3665,6 +3942,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocationDefinitionsTable(this);
   late final $RoundsTable rounds = $RoundsTable(this);
   late final $RoundToysTable roundToys = $RoundToysTable(this);
+  late final $RoundToyChecklistItemsTable roundToyChecklistItems =
+      $RoundToyChecklistItemsTable(this);
   late final $HistoryEventsTable historyEvents = $HistoryEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3683,8 +3962,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         locationDefinitions,
         rounds,
         roundToys,
+        roundToyChecklistItems,
         historyEvents
       ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
+        [
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('toys',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('round_toy_checklist_items', kind: UpdateKind.delete),
+            ],
+          ),
+        ],
+      );
 }
 
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
@@ -4016,6 +4308,25 @@ final class $$ToysTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$RoundToyChecklistItemsTable,
+      List<RoundToyChecklistItem>> _roundToyChecklistItemsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.roundToyChecklistItems,
+          aliasName: $_aliasNameGenerator(
+              db.toys.id, db.roundToyChecklistItems.toyId));
+
+  $$RoundToyChecklistItemsTableProcessedTableManager
+      get roundToyChecklistItemsRefs {
+    final manager = $$RoundToyChecklistItemsTableTableManager(
+            $_db, $_db.roundToyChecklistItems)
+        .filter((f) => f.toyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_roundToyChecklistItemsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$ToysTableFilterComposer extends Composer<_$AppDatabase, $ToysTable> {
@@ -4082,6 +4393,29 @@ class $$ToysTableFilterComposer extends Composer<_$AppDatabase, $ToysTable> {
               $removeJoinBuilderFromRootComposer:
                   $removeJoinBuilderFromRootComposer,
             ));
+    return f(composer);
+  }
+
+  Expression<bool> roundToyChecklistItemsRefs(
+      Expression<bool> Function($$RoundToyChecklistItemsTableFilterComposer f)
+          f) {
+    final $$RoundToyChecklistItemsTableFilterComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roundToyChecklistItems,
+            getReferencedColumn: (t) => t.toyId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoundToyChecklistItemsTableFilterComposer(
+                  $db: $db,
+                  $table: $db.roundToyChecklistItems,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
@@ -4201,6 +4535,29 @@ class $$ToysTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> roundToyChecklistItemsRefs<T extends Object>(
+      Expression<T> Function($$RoundToyChecklistItemsTableAnnotationComposer a)
+          f) {
+    final $$RoundToyChecklistItemsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.roundToyChecklistItems,
+            getReferencedColumn: (t) => t.toyId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$RoundToyChecklistItemsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.roundToyChecklistItems,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$ToysTableTableManager extends RootTableManager<
@@ -4214,7 +4571,8 @@ class $$ToysTableTableManager extends RootTableManager<
     $$ToysTableUpdateCompanionBuilder,
     (Toy, $$ToysTableReferences),
     Toy,
-    PrefetchHooks Function({bool boxId, bool roundToysRefs})> {
+    PrefetchHooks Function(
+        {bool boxId, bool roundToysRefs, bool roundToyChecklistItemsRefs})> {
   $$ToysTableTableManager(_$AppDatabase db, $ToysTable table)
       : super(TableManagerState(
           db: db,
@@ -4269,10 +4627,16 @@ class $$ToysTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$ToysTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({boxId = false, roundToysRefs = false}) {
+          prefetchHooksCallback: (
+              {boxId = false,
+              roundToysRefs = false,
+              roundToyChecklistItemsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (roundToysRefs) db.roundToys],
+              explicitlyWatchedTables: [
+                if (roundToysRefs) db.roundToys,
+                if (roundToyChecklistItemsRefs) db.roundToyChecklistItems
+              ],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -4309,6 +4673,19 @@ class $$ToysTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.toyId == item.id),
+                        typedResults: items),
+                  if (roundToyChecklistItemsRefs)
+                    await $_getPrefetchedData<Toy, $ToysTable,
+                            RoundToyChecklistItem>(
+                        currentTable: table,
+                        referencedTable: $$ToysTableReferences
+                            ._roundToyChecklistItemsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ToysTableReferences(db, table, p0)
+                                .roundToyChecklistItemsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.toyId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4328,7 +4705,8 @@ typedef $$ToysTableProcessedTableManager = ProcessedTableManager<
     $$ToysTableUpdateCompanionBuilder,
     (Toy, $$ToysTableReferences),
     Toy,
-    PrefetchHooks Function({bool boxId, bool roundToysRefs})>;
+    PrefetchHooks Function(
+        {bool boxId, bool roundToysRefs, bool roundToyChecklistItemsRefs})>;
 typedef $$CategoryDefinitionsTableCreateCompanionBuilder
     = CategoryDefinitionsCompanion Function({
   required String id,
@@ -6714,6 +7092,272 @@ typedef $$RoundToysTableProcessedTableManager = ProcessedTableManager<
     (RoundToy, $$RoundToysTableReferences),
     RoundToy,
     PrefetchHooks Function({bool roundId, bool toyId})>;
+typedef $$RoundToyChecklistItemsTableCreateCompanionBuilder
+    = RoundToyChecklistItemsCompanion Function({
+  required String dateKey,
+  required String toyId,
+  Value<bool> collected,
+  required int updatedAt,
+  Value<int> rowid,
+});
+typedef $$RoundToyChecklistItemsTableUpdateCompanionBuilder
+    = RoundToyChecklistItemsCompanion Function({
+  Value<String> dateKey,
+  Value<String> toyId,
+  Value<bool> collected,
+  Value<int> updatedAt,
+  Value<int> rowid,
+});
+
+final class $$RoundToyChecklistItemsTableReferences extends BaseReferences<
+    _$AppDatabase, $RoundToyChecklistItemsTable, RoundToyChecklistItem> {
+  $$RoundToyChecklistItemsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ToysTable _toyIdTable(_$AppDatabase db) => db.toys.createAlias(
+      $_aliasNameGenerator(db.roundToyChecklistItems.toyId, db.toys.id));
+
+  $$ToysTableProcessedTableManager get toyId {
+    final $_column = $_itemColumn<String>('toy_id')!;
+
+    final manager = $$ToysTableTableManager($_db, $_db.toys)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_toyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$RoundToyChecklistItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $RoundToyChecklistItemsTable> {
+  $$RoundToyChecklistItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get dateKey => $composableBuilder(
+      column: $table.dateKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get collected => $composableBuilder(
+      column: $table.collected, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ToysTableFilterComposer get toyId {
+    final $$ToysTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.toyId,
+        referencedTable: $db.toys,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ToysTableFilterComposer(
+              $db: $db,
+              $table: $db.toys,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoundToyChecklistItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RoundToyChecklistItemsTable> {
+  $$RoundToyChecklistItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get dateKey => $composableBuilder(
+      column: $table.dateKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get collected => $composableBuilder(
+      column: $table.collected, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ToysTableOrderingComposer get toyId {
+    final $$ToysTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.toyId,
+        referencedTable: $db.toys,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ToysTableOrderingComposer(
+              $db: $db,
+              $table: $db.toys,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoundToyChecklistItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RoundToyChecklistItemsTable> {
+  $$RoundToyChecklistItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get dateKey =>
+      $composableBuilder(column: $table.dateKey, builder: (column) => column);
+
+  GeneratedColumn<bool> get collected =>
+      $composableBuilder(column: $table.collected, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ToysTableAnnotationComposer get toyId {
+    final $$ToysTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.toyId,
+        referencedTable: $db.toys,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ToysTableAnnotationComposer(
+              $db: $db,
+              $table: $db.toys,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$RoundToyChecklistItemsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $RoundToyChecklistItemsTable,
+    RoundToyChecklistItem,
+    $$RoundToyChecklistItemsTableFilterComposer,
+    $$RoundToyChecklistItemsTableOrderingComposer,
+    $$RoundToyChecklistItemsTableAnnotationComposer,
+    $$RoundToyChecklistItemsTableCreateCompanionBuilder,
+    $$RoundToyChecklistItemsTableUpdateCompanionBuilder,
+    (RoundToyChecklistItem, $$RoundToyChecklistItemsTableReferences),
+    RoundToyChecklistItem,
+    PrefetchHooks Function({bool toyId})> {
+  $$RoundToyChecklistItemsTableTableManager(
+      _$AppDatabase db, $RoundToyChecklistItemsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RoundToyChecklistItemsTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RoundToyChecklistItemsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RoundToyChecklistItemsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> dateKey = const Value.absent(),
+            Value<String> toyId = const Value.absent(),
+            Value<bool> collected = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoundToyChecklistItemsCompanion(
+            dateKey: dateKey,
+            toyId: toyId,
+            collected: collected,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String dateKey,
+            required String toyId,
+            Value<bool> collected = const Value.absent(),
+            required int updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              RoundToyChecklistItemsCompanion.insert(
+            dateKey: dateKey,
+            toyId: toyId,
+            collected: collected,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$RoundToyChecklistItemsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({toyId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (toyId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.toyId,
+                    referencedTable:
+                        $$RoundToyChecklistItemsTableReferences._toyIdTable(db),
+                    referencedColumn: $$RoundToyChecklistItemsTableReferences
+                        ._toyIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$RoundToyChecklistItemsTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $RoundToyChecklistItemsTable,
+        RoundToyChecklistItem,
+        $$RoundToyChecklistItemsTableFilterComposer,
+        $$RoundToyChecklistItemsTableOrderingComposer,
+        $$RoundToyChecklistItemsTableAnnotationComposer,
+        $$RoundToyChecklistItemsTableCreateCompanionBuilder,
+        $$RoundToyChecklistItemsTableUpdateCompanionBuilder,
+        (RoundToyChecklistItem, $$RoundToyChecklistItemsTableReferences),
+        RoundToyChecklistItem,
+        PrefetchHooks Function({bool toyId})>;
 typedef $$HistoryEventsTableCreateCompanionBuilder = HistoryEventsCompanion
     Function({
   Value<int> id,
@@ -6896,6 +7540,9 @@ class $AppDatabaseManager {
       $$RoundsTableTableManager(_db, _db.rounds);
   $$RoundToysTableTableManager get roundToys =>
       $$RoundToysTableTableManager(_db, _db.roundToys);
+  $$RoundToyChecklistItemsTableTableManager get roundToyChecklistItems =>
+      $$RoundToyChecklistItemsTableTableManager(
+          _db, _db.roundToyChecklistItems);
   $$HistoryEventsTableTableManager get historyEvents =>
       $$HistoryEventsTableTableManager(_db, _db.historyEvents);
 }

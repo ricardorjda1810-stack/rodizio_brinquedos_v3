@@ -19,6 +19,46 @@ class RoundToyWithBox {
   });
 }
 
+class RoundChecklistProgress {
+  final int collectedCount;
+  final int totalCount;
+
+  const RoundChecklistProgress({
+    required this.collectedCount,
+    required this.totalCount,
+  });
+
+  factory RoundChecklistProgress.fromToyIds(
+    Iterable<String> toyIds,
+    Map<String, bool> checklistByToyId,
+  ) {
+    final uniqueToyIds = <String>{};
+    for (final toyId in toyIds) {
+      final normalized = toyId.trim();
+      if (normalized.isNotEmpty) uniqueToyIds.add(normalized);
+    }
+
+    final collected =
+        uniqueToyIds.where((toyId) => checklistByToyId[toyId] == true).length;
+
+    return RoundChecklistProgress(
+      collectedCount: collected,
+      totalCount: uniqueToyIds.length,
+    );
+  }
+
+  bool get isReady => totalCount > 0 && collectedCount >= totalCount;
+
+  double get fraction => totalCount == 0
+      ? 0
+      : (collectedCount / totalCount).clamp(0, 1).toDouble();
+
+  String get label {
+    if (isReady) return 'Rodada pronta';
+    return '$collectedCount de $totalCount brinquedos separados';
+  }
+}
+
 class CategoryDistributionItem {
   final String categoryId;
   final String categoryLabel;
@@ -169,6 +209,13 @@ class RoundRepository {
   static const String noCandidateToAddReason = 'no_candidate_to_add';
   static const String noActiveRoundReason = 'no_active_round';
 
+  static String checklistDateKey(DateTime date) {
+    final local = date.toLocal();
+    final month = local.month.toString().padLeft(2, '0');
+    final day = local.day.toString().padLeft(2, '0');
+    return '${local.year}-$month-$day';
+  }
+
   Stream<Round?> watchActiveRound() {
     final d = db;
     if (d == null) return const Stream<Round?>.empty();
@@ -207,6 +254,102 @@ class RoundRepository {
         );
       }).toList();
     });
+  }
+
+  Stream<Map<String, bool>> watchRoundChecklistForDate(DateTime date) {
+    final d = db;
+    if (d == null) return Stream.value(const <String, bool>{});
+
+    final dateKey = checklistDateKey(date);
+    final query = d.select(d.roundToyChecklistItems)
+      ..where((row) => row.dateKey.equals(dateKey));
+
+    return query.watch().map(
+          (rows) => <String, bool>{
+            for (final row in rows) row.toyId: row.collected,
+          },
+        );
+  }
+
+  Future<Map<String, bool>> loadRoundChecklistForDate(DateTime date) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final dateKey = checklistDateKey(date);
+    final rows = await (d.select(d.roundToyChecklistItems)
+          ..where((row) => row.dateKey.equals(dateKey)))
+        .get();
+
+    return <String, bool>{
+      for (final row in rows) row.toyId: row.collected,
+    };
+  }
+
+  Future<bool> toggleToyCollectedForDate({
+    required DateTime date,
+    required String toyId,
+  }) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final normalizedToyId = toyId.trim();
+    if (normalizedToyId.isEmpty) return false;
+
+    final dateKey = checklistDateKey(date);
+    final existing = await (d.select(d.roundToyChecklistItems)
+          ..where(
+            (row) =>
+                row.dateKey.equals(dateKey) & row.toyId.equals(normalizedToyId),
+          ))
+        .getSingleOrNull();
+    final nextCollected = !(existing?.collected ?? false);
+
+    await setToyCollectedForDate(
+      date: date,
+      toyId: normalizedToyId,
+      collected: nextCollected,
+    );
+
+    return nextCollected;
+  }
+
+  Future<void> setToyCollectedForDate({
+    required DateTime date,
+    required String toyId,
+    required bool collected,
+  }) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final normalizedToyId = toyId.trim();
+    if (normalizedToyId.isEmpty) return;
+
+    await d.into(d.roundToyChecklistItems).insertOnConflictUpdate(
+          RoundToyChecklistItemsCompanion.insert(
+            dateKey: checklistDateKey(date),
+            toyId: normalizedToyId,
+            collected: Value(collected),
+            updatedAt: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
+  }
+
+  Future<void> clearRoundChecklistForDate(DateTime date) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final dateKey = checklistDateKey(date);
+    await (d.delete(d.roundToyChecklistItems)
+          ..where((row) => row.dateKey.equals(dateKey)))
+        .go();
   }
 
   Future<CategoryDistributionStats> getCategoryDistributionForStats() async {

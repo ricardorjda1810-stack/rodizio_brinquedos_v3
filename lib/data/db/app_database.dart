@@ -128,6 +128,17 @@ class RoundToys extends Table {
   Set<Column> get primaryKey => {roundId, toyId};
 }
 
+class RoundToyChecklistItems extends Table {
+  TextColumn get dateKey => text()();
+  TextColumn get toyId =>
+      text().references(Toys, #id, onDelete: KeyAction.cascade)();
+  BoolColumn get collected => boolean().withDefault(const Constant(false))();
+  IntColumn get updatedAt => integer()();
+
+  @override
+  Set<Column> get primaryKey => {dateKey, toyId};
+}
+
 class HistoryEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get eventType => text()();
@@ -149,6 +160,7 @@ class HistoryEvents extends Table {
     LocationDefinitions,
     Rounds,
     RoundToys,
+    RoundToyChecklistItems,
     HistoryEvents,
   ],
 )
@@ -156,7 +168,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -345,6 +357,10 @@ class AppDatabase extends _$AppDatabase {
 
           if (from < 16) {
             await m.addColumn(roundUiSettings, roundUiSettings.childAgeRange);
+          }
+
+          if (from < 17) {
+            await m.createTable(roundToyChecklistItems);
           }
         },
       );

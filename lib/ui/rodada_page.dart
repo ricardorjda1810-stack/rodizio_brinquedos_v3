@@ -44,6 +44,7 @@ class _RodadaPageState extends State<RodadaPage> {
 
   bool _startingRound = false;
   bool _loadingSuggestion = false;
+  bool _assemblyMode = false;
   Future<List<RoundToyWithBox>>? _homeSuggestionFuture;
 
   void _openToyDetail(String toyId) {
@@ -223,16 +224,16 @@ class _RodadaPageState extends State<RodadaPage> {
             };
 
             const gridSpacing = 12.0;
-            const gridTileHeight = 132.0;
+            final gridTileHeight = _assemblyMode ? 168.0 : 148.0;
             const gridCardPadding = 14.0;
-            const gridHeaderReserve = 32.0;
-            const twoRowsGridHeight =
+            final gridHeaderReserve = _assemblyMode ? 78.0 : 40.0;
+            final twoRowsGridHeight =
                 UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
-            const desiredGridCardHeight = (gridCardPadding * 2) +
+            final desiredGridCardHeight = (gridCardPadding * 2) +
                 gridHeaderReserve +
                 UiTokens.spacingSm +
                 twoRowsGridHeight;
-            const emptyGridCardHeight = desiredGridCardHeight * 0.68;
+            final emptyGridCardHeight = desiredGridCardHeight * 0.68;
             final homeSuggestionFuture =
                 _homeSuggestionFuture ??= _loadHomeSuggestion();
 
@@ -288,18 +289,45 @@ class _RodadaPageState extends State<RodadaPage> {
                               );
                             },
                           )
-                        : _AvailableToysGridCard(
-                            items: items,
-                            onOpenToy: _openToyDetail,
-                            emptyTitle: 'Sugest\u00e3o para hoje',
-                            emptyCounterText: '',
-                            emptyState: _HomeSuggestionEmptyState(
-                              suggestionFuture: homeSuggestionFuture,
-                              onOpenToy: _openToyDetail,
-                              onUseSuggestion:
-                                  _startingRound ? null : _useHomeSuggestion,
-                              usingSuggestion: _startingRound,
-                            ),
+                        : StreamBuilder<Map<String, bool>>(
+                            stream: widget.roundRepository
+                                .watchRoundChecklistForDate(DateTime.now()),
+                            builder: (context, checklistSnapshot) {
+                              final checklistByToyId = checklistSnapshot.data ??
+                                  const <String, bool>{};
+
+                              return _AvailableToysGridCard(
+                                items: items,
+                                onOpenToy: _openToyDetail,
+                                emptyTitle: 'Sugest\u00e3o para hoje',
+                                emptyCounterText: '',
+                                emptyState: _HomeSuggestionEmptyState(
+                                  suggestionFuture: homeSuggestionFuture,
+                                  onOpenToy: _openToyDetail,
+                                  onUseSuggestion: _startingRound
+                                      ? null
+                                      : _useHomeSuggestion,
+                                  usingSuggestion: _startingRound,
+                                ),
+                                assemblyMode: _assemblyMode,
+                                checklistByToyId: checklistByToyId,
+                                categoryNamesById: categoryNamesById,
+                                onToggleAssemblyMode: () {
+                                  setState(
+                                    () => _assemblyMode = !_assemblyMode,
+                                  );
+                                },
+                                onToggleCollected: (toyId) {
+                                  unawaited(
+                                    widget.roundRepository
+                                        .toggleToyCollectedForDate(
+                                      date: DateTime.now(),
+                                      toyId: toyId,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
                           ),
                   ),
                 ],
@@ -482,6 +510,11 @@ class _AvailableToysGridCard extends StatelessWidget {
   final Widget emptyState;
   final String emptyTitle;
   final String emptyCounterText;
+  final bool assemblyMode;
+  final Map<String, bool> checklistByToyId;
+  final Map<String, String> categoryNamesById;
+  final VoidCallback? onToggleAssemblyMode;
+  final ValueChanged<String>? onToggleCollected;
 
   const _AvailableToysGridCard({
     required this.items,
@@ -489,12 +522,44 @@ class _AvailableToysGridCard extends StatelessWidget {
     required this.emptyState,
     required this.emptyTitle,
     required this.emptyCounterText,
+    this.assemblyMode = false,
+    this.checklistByToyId = const <String, bool>{},
+    this.categoryNamesById = const <String, String>{},
+    this.onToggleAssemblyMode,
+    this.onToggleCollected,
   });
+
+  String _categoryNameFor(RoundToyWithBox item) {
+    final categoryId = item.toy.categoryId.trim();
+    if (categoryId.isEmpty) return 'Sem categoria';
+
+    final categoryName = categoryNamesById[categoryId]?.trim();
+    if (categoryName != null && categoryName.isNotEmpty) return categoryName;
+
+    final fallback = categoryId.replaceAll('_', ' ').trim();
+    if (fallback.isEmpty) return 'Sem categoria';
+    return fallback[0].toUpperCase() + fallback.substring(1);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final progress = RoundChecklistProgress.fromToyIds(
+      items.map((item) => item.toy.id),
+      checklistByToyId,
+    );
+    final hasItems = items.isNotEmpty;
+    final title = items.isEmpty
+        ? emptyTitle
+        : assemblyMode
+            ? 'Montar rodada'
+            : 'Brinquedos dispon\u00edveis';
+    final counterText = items.isEmpty
+        ? emptyCounterText
+        : assemblyMode
+            ? progress.label
+            : '${items.length} itens';
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(14),
@@ -506,7 +571,7 @@ class _AvailableToysGridCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  items.isEmpty ? emptyTitle : 'Brinquedos dispon\u00edveis',
+                  title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textTitle.copyWith(
@@ -526,7 +591,7 @@ class _AvailableToysGridCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(UiTokens.radiusLg),
                 ),
                 child: Text(
-                  items.isEmpty ? emptyCounterText : '${items.length} itens',
+                  counterText,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -535,8 +600,42 @@ class _AvailableToysGridCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (hasItems && onToggleAssemblyMode != null) ...[
+                const SizedBox(width: UiTokens.spacingXs),
+                TextButton.icon(
+                  onPressed: onToggleAssemblyMode,
+                  icon: Icon(
+                    assemblyMode
+                        ? Icons.list_alt_rounded
+                        : Icons.checklist_rtl_rounded,
+                    size: 18,
+                  ),
+                  label: Text(assemblyMode ? 'Detalhes' : 'Montar'),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: UiTokens.spacingXs,
+                    ),
+                    textStyle: UiTokens.textButton.copyWith(fontSize: 12),
+                  ),
+                ),
+              ],
             ],
           ),
+          if (assemblyMode && hasItems) ...[
+            const SizedBox(height: UiTokens.spacingXs),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+              child: LinearProgressIndicator(
+                value: progress.fraction,
+                minHeight: 6,
+                backgroundColor: UiTokens.primarySoft,
+                color: progress.isReady
+                    ? UiTokens.success
+                    : UiTokens.primaryStrong,
+              ),
+            ),
+          ],
           const SizedBox(height: UiTokens.spacingSm),
           Expanded(
             child: items.isEmpty
@@ -566,9 +665,19 @@ class _AvailableToysGridCard extends StatelessWidget {
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           final item = items[index];
+                          final isCollected =
+                              checklistByToyId[item.toy.id] == true;
                           return _RoundToyGridItem(
                             item: item,
-                            onTap: () => onOpenToy(item.toy.id),
+                            categoryName: _categoryNameFor(item),
+                            isCollected: assemblyMode && isCollected,
+                            onTap: () {
+                              if (assemblyMode) {
+                                onToggleCollected?.call(item.toy.id);
+                                return;
+                              }
+                              onOpenToy(item.toy.id);
+                            },
                           );
                         },
                       );
@@ -583,18 +692,37 @@ class _AvailableToysGridCard extends StatelessWidget {
 
 class _RoundToyGridItem extends StatelessWidget {
   final RoundToyWithBox item;
+  final String categoryName;
+  final bool isCollected;
   final VoidCallback onTap;
 
   const _RoundToyGridItem({
     required this.item,
+    required this.categoryName,
+    required this.isCollected,
     required this.onTap,
   });
+
+  String _locationLabel() {
+    final box = item.box;
+    final locationText = (item.toy.locationText ?? '').trim();
+
+    if (box != null) {
+      final local = box.local.trim();
+      if (local.isEmpty) return 'Caixa ${box.number}';
+      return 'Caixa ${box.number} - $local';
+    }
+
+    if (locationText.isNotEmpty) return locationText;
+    return 'Sem caixa';
+  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final name =
         item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
+    final locationLabel = _locationLabel();
 
     return Material(
       color: Colors.transparent,
@@ -605,6 +733,10 @@ class _RoundToyGridItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isCollected ? UiTokens.primaryStrong : Colors.transparent,
+              width: isCollected ? 1.4 : 1,
+            ),
             boxShadow: const [
               BoxShadow(
                 color: UiTokens.shadow,
@@ -618,18 +750,44 @@ class _RoundToyGridItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: _GridToyPhoto(imagePath: item.toy.photoPath),
+                child: _GridToyPhoto(
+                  imagePath: item.toy.photoPath,
+                  isCollected: isCollected,
+                ),
               ),
               const SizedBox(height: UiTokens.spacingXs),
               Text(
                 name,
-                maxLines: 2,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: UiTokens.textMicro.copyWith(
                   fontSize: 13,
                   height: 1.2,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                categoryName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textMicro.copyWith(
+                  fontSize: 11,
+                  height: 1.15,
+                  fontWeight: FontWeight.w700,
+                  color: UiTokens.primaryStrong,
+                ),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                locationLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textMicro.copyWith(
+                  fontSize: 11,
+                  height: 1.15,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -642,26 +800,89 @@ class _RoundToyGridItem extends StatelessWidget {
 
 class _GridToyPhoto extends StatelessWidget {
   final String? imagePath;
+  final bool isCollected;
 
-  const _GridToyPhoto({required this.imagePath});
+  const _GridToyPhoto({
+    required this.imagePath,
+    this.isCollected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final path = imagePath?.trim();
+    final image = SizedBox.expand(
+      child: path == null || path.isEmpty
+          ? const _GridToyPlaceholder()
+          : Image.file(
+              File(path),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+              errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
+            ),
+    );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-      child: SizedBox.expand(
-        child: path == null || path.isEmpty
-            ? const _GridToyPlaceholder()
-            : Image.file(
-                File(path),
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
-              ),
-      ),
+      child: isCollected
+          ? Stack(
+              fit: StackFit.expand,
+              children: [
+                ColorFiltered(
+                  colorFilter: const ColorFilter.matrix(<double>[
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0.2126,
+                    0.7152,
+                    0.0722,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                  ]),
+                  child: image,
+                ),
+                ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.24),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: UiTokens.primaryStrong,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: UiTokens.shadow,
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : image,
     );
   }
 }
