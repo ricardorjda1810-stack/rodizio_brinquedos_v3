@@ -23,6 +23,8 @@ class RodadaPage extends StatefulWidget {
   final VoidCallback onOpenRodizioTab;
   final VoidCallback onOpenBrinquedosTab;
   final VoidCallback onOpenSettings;
+  final bool fillAvailableHeight;
+  final String activeItemsTitle;
 
   const RodadaPage({
     super.key,
@@ -32,6 +34,8 @@ class RodadaPage extends StatefulWidget {
     required this.onOpenRodizioTab,
     required this.onOpenBrinquedosTab,
     required this.onOpenSettings,
+    this.fillAvailableHeight = false,
+    this.activeItemsTitle = 'Brinquedos disponíveis',
   });
 
   @override
@@ -45,6 +49,7 @@ class _RodadaPageState extends State<RodadaPage> {
   bool _startingRound = false;
   bool _loadingSuggestion = false;
   bool _assemblyMode = false;
+  List<RoundToyWithBox> _immediateRoundItems = const <RoundToyWithBox>[];
   Future<List<RoundToyWithBox>>? _homeSuggestionFuture;
 
   void _openToyDetail(String toyId) {
@@ -64,6 +69,13 @@ class _RodadaPageState extends State<RodadaPage> {
     final boxes = await widget.toyRepository.watchBoxes().first;
     final boxesById = {for (final box in boxes) box.id: box};
 
+    return _roundItemsFromToys(toys, boxesById);
+  }
+
+  List<RoundToyWithBox> _roundItemsFromToys(
+    List<Toy> toys,
+    Map<String, Boxe> boxesById,
+  ) {
     return toys.asMap().entries.map((entry) {
       final toy = entry.value;
       final boxId = toy.boxId;
@@ -73,6 +85,23 @@ class _RodadaPageState extends State<RodadaPage> {
         position: entry.key,
       );
     }).toList(growable: false);
+  }
+
+  void _openAssemblyModeWith(List<RoundToyWithBox> items) {
+    if (items.isEmpty) return;
+    setState(() {
+      _immediateRoundItems = items;
+      _assemblyMode = true;
+    });
+  }
+
+  void _clearImmediateRoundItemsAfterFrame() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _immediateRoundItems.isEmpty) return;
+      setState(() {
+        _immediateRoundItems = const <RoundToyWithBox>[];
+      });
+    });
   }
 
   Future<void> _useHomeSuggestion(List<RoundToyWithBox> suggestion) async {
@@ -107,6 +136,7 @@ class _RodadaPageState extends State<RodadaPage> {
       await _logFirstRoundCreatedOnce(toyIds.length);
       if (!mounted) return;
 
+      _openAssemblyModeWith(suggestion);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Rodada criada com ${toyIds.length} brinquedos.'),
@@ -138,6 +168,7 @@ class _RodadaPageState extends State<RodadaPage> {
     try {
       final suggestedToys = await widget.roundRepository.suggestRoundForToday();
       final boxes = await widget.toyRepository.watchBoxes().first;
+      final boxesById = {for (final box in boxes) box.id: box};
       if (!mounted) return;
 
       unawaited(AppAnalytics.logSuggestionOpened(source: 'round_page'));
@@ -148,7 +179,7 @@ class _RodadaPageState extends State<RodadaPage> {
         builder: (_) => RoundSuggestionSheet(
           toys: suggestedToys,
           categoryNamesById: categoryNamesById,
-          boxesById: {for (final box in boxes) box.id: box},
+          boxesById: boxesById,
         ),
       );
       if (selectedToys == null || selectedToys.isEmpty) return;
@@ -167,6 +198,7 @@ class _RodadaPageState extends State<RodadaPage> {
       await _logFirstRoundCreatedOnce(selectedToys.length);
       if (!mounted) return;
 
+      _openAssemblyModeWith(_roundItemsFromToys(selectedToys, boxesById));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -204,134 +236,163 @@ class _RodadaPageState extends State<RodadaPage> {
     final bottomNavigationReserve =
         AppBottomNavigation.reservedScrollPadding(context) + UiTokens.spacingLg;
 
-    return StreamBuilder<List<RoundToyWithBox>>(
-      stream: widget.roundRepository.watchActiveRoundToysWithBox(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return LayoutBuilder(
+      builder: (context, viewportConstraints) {
+        return StreamBuilder<List<RoundToyWithBox>>(
+          stream: widget.roundRepository.watchActiveRoundToysWithBox(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        final items = snapshot.data ?? const <RoundToyWithBox>[];
+            final activeItems = snapshot.data ?? const <RoundToyWithBox>[];
+            final items =
+                activeItems.isNotEmpty ? activeItems : _immediateRoundItems;
+            if (activeItems.isNotEmpty && _immediateRoundItems.isNotEmpty) {
+              _clearImmediateRoundItemsAfterFrame();
+            }
 
-        return StreamBuilder<List<CategoryDefinition>>(
-          stream: widget.toyRepository.watchCategories(),
-          builder: (context, categoriesSnapshot) {
-            final categories =
-                categoriesSnapshot.data ?? const <CategoryDefinition>[];
-            final categoryNamesById = <String, String>{
-              for (final category in categories) category.id: category.name,
-            };
+            return StreamBuilder<List<CategoryDefinition>>(
+              stream: widget.toyRepository.watchCategories(),
+              builder: (context, categoriesSnapshot) {
+                final categories =
+                    categoriesSnapshot.data ?? const <CategoryDefinition>[];
+                final categoryNamesById = <String, String>{
+                  for (final category in categories) category.id: category.name,
+                };
 
-            const gridSpacing = 12.0;
-            final gridTileHeight = _assemblyMode ? 168.0 : 148.0;
-            const gridCardPadding = 14.0;
-            final gridHeaderReserve = _assemblyMode ? 78.0 : 40.0;
-            final twoRowsGridHeight =
-                UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
-            final desiredGridCardHeight = (gridCardPadding * 2) +
-                gridHeaderReserve +
-                UiTokens.spacingSm +
-                twoRowsGridHeight;
-            final emptyGridCardHeight = desiredGridCardHeight * 0.68;
-            final homeSuggestionFuture =
-                _homeSuggestionFuture ??= _loadHomeSuggestion();
-
-            return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                UiTokens.spacingMd,
-                0,
-                UiTokens.spacingMd,
-                bottomNavigationReserve,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _RoundMomentCard(
-                    itemCount: items.length,
-                    loadingSuggestion: _loadingSuggestion,
-                    onSuggestRound: () => _openRoundSuggestionSheet(
-                      categoryNamesById,
-                    ),
-                    onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
-                    onOpenSettings: widget.onOpenSettings,
-                  ),
-                  const SizedBox(height: UiTokens.spacingSm),
-                  SizedBox(
-                    width: double.infinity,
-                    height: items.isEmpty
-                        ? emptyGridCardHeight
-                        : desiredGridCardHeight,
-                    child: items.isEmpty
-                        ? FutureBuilder<List<RoundToyWithBox>>(
-                            future: homeSuggestionFuture,
-                            builder: (context, snapshot) {
-                              final suggestionCount = snapshot.data?.length;
-                              final counterText = suggestionCount == null
-                                  ? '...'
-                                  : suggestionCount == 1
-                                      ? '1 item'
-                                      : '$suggestionCount itens';
-
-                              return _AvailableToysGridCard(
-                                items: items,
-                                onOpenToy: _openToyDetail,
-                                emptyTitle: 'Sugest\u00e3o para hoje',
-                                emptyCounterText: counterText,
-                                emptyState: _HomeSuggestionEmptyState(
-                                  suggestionFuture: homeSuggestionFuture,
-                                  onOpenToy: _openToyDetail,
-                                  onUseSuggestion: _startingRound
-                                      ? null
-                                      : _useHomeSuggestion,
-                                  usingSuggestion: _startingRound,
-                                ),
-                              );
-                            },
+                const gridSpacing = 12.0;
+                final gridTileHeight = _assemblyMode ? 168.0 : 148.0;
+                const gridCardPadding = 14.0;
+                final gridHeaderReserve = _assemblyMode ? 78.0 : 40.0;
+                final twoRowsGridHeight =
+                    UiTokens.spacingXs + (gridTileHeight * 2) + gridSpacing;
+                final desiredGridCardHeight = (gridCardPadding * 2) +
+                    gridHeaderReserve +
+                    UiTokens.spacingSm +
+                    twoRowsGridHeight;
+                final viewportHeight = viewportConstraints.maxHeight;
+                final preferSingleRowGrid = widget.fillAvailableHeight &&
+                    viewportConstraints.maxWidth >= 560 &&
+                    items.isNotEmpty &&
+                    items.length <= 5;
+                final maxFilledGridCardHeight =
+                    preferSingleRowGrid ? 460.0 : 660.0;
+                final expandedGridCardHeight =
+                    widget.fillAvailableHeight && viewportHeight.isFinite
+                        ? (viewportHeight - 74).clamp(
+                            desiredGridCardHeight,
+                            maxFilledGridCardHeight,
                           )
-                        : StreamBuilder<Map<String, bool>>(
-                            stream: widget.roundRepository
-                                .watchRoundChecklistForDate(DateTime.now()),
-                            builder: (context, checklistSnapshot) {
-                              final checklistByToyId = checklistSnapshot.data ??
-                                  const <String, bool>{};
+                        : desiredGridCardHeight;
+                final gridCardHeight = expandedGridCardHeight.toDouble();
+                final emptyGridCardHeight = widget.fillAvailableHeight
+                    ? gridCardHeight
+                    : desiredGridCardHeight * 0.68;
+                final homeSuggestionFuture =
+                    _homeSuggestionFuture ??= _loadHomeSuggestion();
 
-                              return _AvailableToysGridCard(
-                                items: items,
-                                onOpenToy: _openToyDetail,
-                                emptyTitle: 'Sugest\u00e3o para hoje',
-                                emptyCounterText: '',
-                                emptyState: _HomeSuggestionEmptyState(
-                                  suggestionFuture: homeSuggestionFuture,
-                                  onOpenToy: _openToyDetail,
-                                  onUseSuggestion: _startingRound
-                                      ? null
-                                      : _useHomeSuggestion,
-                                  usingSuggestion: _startingRound,
-                                ),
-                                assemblyMode: _assemblyMode,
-                                checklistByToyId: checklistByToyId,
-                                categoryNamesById: categoryNamesById,
-                                onToggleAssemblyMode: () {
-                                  setState(
-                                    () => _assemblyMode = !_assemblyMode,
-                                  );
-                                },
-                                onToggleCollected: (toyId) {
-                                  unawaited(
-                                    widget.roundRepository
-                                        .toggleToyCollectedForDate(
-                                      date: DateTime.now(),
-                                      toyId: toyId,
+                return SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    UiTokens.spacingMd,
+                    0,
+                    UiTokens.spacingMd,
+                    widget.fillAvailableHeight ? 0 : bottomNavigationReserve,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _RoundMomentCard(
+                        itemCount: items.length,
+                        loadingSuggestion: _loadingSuggestion,
+                        onSuggestRound: () => _openRoundSuggestionSheet(
+                          categoryNamesById,
+                        ),
+                        onOpenBrinquedosTab: widget.onOpenBrinquedosTab,
+                        onOpenSettings: widget.onOpenSettings,
+                      ),
+                      const SizedBox(height: UiTokens.spacingSm),
+                      SizedBox(
+                        width: double.infinity,
+                        height: items.isEmpty
+                            ? emptyGridCardHeight
+                            : gridCardHeight,
+                        child: items.isEmpty
+                            ? FutureBuilder<List<RoundToyWithBox>>(
+                                future: homeSuggestionFuture,
+                                builder: (context, snapshot) {
+                                  final suggestionCount = snapshot.data?.length;
+                                  final counterText = suggestionCount == null
+                                      ? '...'
+                                      : suggestionCount == 1
+                                          ? '1 item'
+                                          : '$suggestionCount itens';
+
+                                  return _AvailableToysGridCard(
+                                    items: items,
+                                    onOpenToy: _openToyDetail,
+                                    emptyTitle: 'Sugest\u00e3o para hoje',
+                                    emptyCounterText: counterText,
+                                    emptyState: _HomeSuggestionEmptyState(
+                                      suggestionFuture: homeSuggestionFuture,
+                                      onOpenToy: _openToyDetail,
+                                      onUseSuggestion: _startingRound
+                                          ? null
+                                          : _useHomeSuggestion,
+                                      usingSuggestion: _startingRound,
                                     ),
                                   );
                                 },
-                              );
-                            },
-                          ),
+                              )
+                            : StreamBuilder<Map<String, bool>>(
+                                stream: widget.roundRepository
+                                    .watchRoundChecklistForDate(DateTime.now()),
+                                builder: (context, checklistSnapshot) {
+                                  final checklistByToyId =
+                                      checklistSnapshot.data ??
+                                          const <String, bool>{};
+
+                                  return _AvailableToysGridCard(
+                                    items: items,
+                                    onOpenToy: _openToyDetail,
+                                    emptyTitle: 'Sugest\u00e3o para hoje',
+                                    emptyCounterText: '',
+                                    emptyState: _HomeSuggestionEmptyState(
+                                      suggestionFuture: homeSuggestionFuture,
+                                      onOpenToy: _openToyDetail,
+                                      onUseSuggestion: _startingRound
+                                          ? null
+                                          : _useHomeSuggestion,
+                                      usingSuggestion: _startingRound,
+                                    ),
+                                    activeItemsTitle: widget.activeItemsTitle,
+                                    preferSingleRowLayout: preferSingleRowGrid,
+                                    assemblyMode: _assemblyMode,
+                                    checklistByToyId: checklistByToyId,
+                                    categoryNamesById: categoryNamesById,
+                                    onToggleAssemblyMode: () {
+                                      setState(
+                                        () => _assemblyMode = !_assemblyMode,
+                                      );
+                                    },
+                                    onToggleCollected: (toyId) {
+                                      unawaited(
+                                        widget.roundRepository
+                                            .toggleToyCollectedForDate(
+                                          date: DateTime.now(),
+                                          toyId: toyId,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -510,6 +571,8 @@ class _AvailableToysGridCard extends StatelessWidget {
   final Widget emptyState;
   final String emptyTitle;
   final String emptyCounterText;
+  final String activeItemsTitle;
+  final bool preferSingleRowLayout;
   final bool assemblyMode;
   final Map<String, bool> checklistByToyId;
   final Map<String, String> categoryNamesById;
@@ -522,6 +585,8 @@ class _AvailableToysGridCard extends StatelessWidget {
     required this.emptyState,
     required this.emptyTitle,
     required this.emptyCounterText,
+    this.activeItemsTitle = 'Brinquedos disponíveis',
+    this.preferSingleRowLayout = false,
     this.assemblyMode = false,
     this.checklistByToyId = const <String, bool>{},
     this.categoryNamesById = const <String, String>{},
@@ -554,12 +619,66 @@ class _AvailableToysGridCard extends StatelessWidget {
         ? emptyTitle
         : assemblyMode
             ? 'Montar rodada'
-            : 'Brinquedos dispon\u00edveis';
+            : activeItemsTitle;
     final counterText = items.isEmpty
         ? emptyCounterText
         : assemblyMode
             ? progress.label
             : '${items.length} itens';
+
+    Widget buildTitle() {
+      return Text(
+        title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: UiTokens.textTitle.copyWith(
+          fontSize: 21,
+          fontWeight: FontWeight.w800,
+          color: colorScheme.onSurface,
+        ),
+      );
+    }
+
+    Widget buildCounterChip() {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: UiTokens.spacingSm,
+          vertical: UiTokens.spacingXs,
+        ),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        ),
+        child: Text(
+          counterText,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: UiTokens.textCaption.copyWith(
+            fontWeight: FontWeight.w700,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
+    Widget? buildModeButton() {
+      if (!hasItems || onToggleAssemblyMode == null) return null;
+      return TextButton.icon(
+        onPressed: onToggleAssemblyMode,
+        icon: Icon(
+          assemblyMode ? Icons.list_alt_rounded : Icons.checklist_rtl_rounded,
+          size: 18,
+        ),
+        label: Text(assemblyMode ? 'Detalhes' : 'Montar'),
+        style: TextButton.styleFrom(
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiTokens.spacingXs,
+          ),
+          textStyle: UiTokens.textButton.copyWith(fontSize: 12),
+        ),
+      );
+    }
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(14),
@@ -567,60 +686,52 @@ class _AvailableToysGridCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w800,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: UiTokens.spacingSm,
-                  vertical: UiTokens.spacingXs,
-                ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(UiTokens.radiusLg),
-                ),
-                child: Text(
-                  counterText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              if (hasItems && onToggleAssemblyMode != null) ...[
-                const SizedBox(width: UiTokens.spacingXs),
-                TextButton.icon(
-                  onPressed: onToggleAssemblyMode,
-                  icon: Icon(
-                    assemblyMode
-                        ? Icons.list_alt_rounded
-                        : Icons.checklist_rtl_rounded,
-                    size: 18,
-                  ),
-                  label: Text(assemblyMode ? 'Detalhes' : 'Montar'),
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: UiTokens.spacingXs,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 390;
+              final modeButton = buildModeButton();
+
+              if (compact) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: buildTitle()),
+                        if (modeButton != null) ...[
+                          const SizedBox(width: UiTokens.spacingXs),
+                          modeButton,
+                        ],
+                      ],
                     ),
-                    textStyle: UiTokens.textButton.copyWith(fontSize: 12),
+                    const SizedBox(height: UiTokens.spacingXs),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: constraints.maxWidth,
+                      ),
+                      child: buildCounterChip(),
+                    ),
+                  ],
+                );
+              }
+
+              return Row(
+                children: [
+                  Expanded(child: buildTitle()),
+                  const SizedBox(width: UiTokens.spacingXs),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: buildCounterChip(),
+                    ),
                   ),
-                ),
-              ],
-            ],
+                  if (modeButton != null) ...[
+                    const SizedBox(width: UiTokens.spacingXs),
+                    modeButton,
+                  ],
+                ],
+              );
+            },
           ),
           if (assemblyMode && hasItems) ...[
             const SizedBox(height: UiTokens.spacingXs),
@@ -642,11 +753,14 @@ class _AvailableToysGridCard extends StatelessWidget {
                 ? emptyState
                 : LayoutBuilder(
                     builder: (context, constraints) {
-                      final columns = constraints.maxWidth >= 840
-                          ? 5
-                          : constraints.maxWidth >= 390
-                              ? 4
-                              : 3;
+                      final columns =
+                          preferSingleRowLayout && constraints.maxWidth >= 560
+                              ? math.min(5, math.max(items.length, 1))
+                              : constraints.maxWidth >= 840
+                                  ? 5
+                                  : constraints.maxWidth >= 390
+                                      ? 4
+                                      : 3;
                       const gridSpacing = 12.0;
                       final tileWidth =
                           (constraints.maxWidth - gridSpacing * (columns - 1)) /
