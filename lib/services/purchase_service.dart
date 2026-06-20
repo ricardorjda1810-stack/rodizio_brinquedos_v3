@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/services/paywall_bypass.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,7 +64,7 @@ class PurchaseService extends ChangeNotifier {
 
   bool get isPremium => _isPremium;
   bool get hasPremiumAccess =>
-      _isPremium || !isPaywallEnabledForCurrentPlatform;
+      _isPremium || kBypassPaywall || !isPaywallEnabledForCurrentPlatform;
   bool get isLoading => _isLoading;
   ProductDetails? get productDetails => _productDetails;
   ProductDetails? productDetailsFor(String productId) =>
@@ -73,6 +74,7 @@ class PurchaseService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_initialized) return;
     _initialized = true;
+    debugLogPaywallBypassIfEnabled();
     _isPremium = _preferences.getBool(_premiumStorageKey) ?? false;
 
     if (!isPaywallEnabledForCurrentPlatform) {

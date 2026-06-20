@@ -13,7 +13,7 @@ class PremiumGate {
     required BuildContext context,
     required PurchaseService? purchaseService,
   }) async {
-    if (purchaseService == null || purchaseService.isPremium) {
+    if (purchaseService == null || purchaseService.hasPremiumAccess) {
       return true;
     }
 
