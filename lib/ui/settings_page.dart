@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -11,18 +12,35 @@ import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
+
+const String _settingsPrivacyPolicyUrl =
+    'https://first-lime-7b2.notion.site/Pol-tica-de-Privacidade-Rod-zio-de-Brinquedos-d40b83abf35f4d089e1ae5f46423b4ca?pvs=143';
+const String _settingsTermsOfUseUrl =
+    'https://first-lime-7b2.notion.site/Termos-de-Uso-Rod-zio-de-Brinquedos-34c496b60a598015ba29cb3322ebfbc6?pvs=143';
+const String _settingsAppVersionLabel = '1.0.5+90';
 
 class SettingsPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final ToyRepository toyRepository;
   final PurchaseService purchaseService;
+  final VoidCallback? onOpenHomeTab;
+  final VoidCallback? onOpenRoundTab;
+  final VoidCallback? onOpenWeeklyPlanning;
+  final VoidCallback? onOpenToysTab;
+  final VoidCallback? onOpenBoxesTab;
 
   const SettingsPage({
     super.key,
     required this.settingsRepository,
     required this.toyRepository,
     required this.purchaseService,
+    this.onOpenHomeTab,
+    this.onOpenRoundTab,
+    this.onOpenWeeklyPlanning,
+    this.onOpenToysTab,
+    this.onOpenBoxesTab,
   });
 
   @override
@@ -192,6 +210,85 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _selectChildAgeRange(ChildAgeRange selected) async {
+    final service = _agePresetService();
+    if (service == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Banco local indisponivel.')),
+      );
+      return;
+    }
+
+    await service.saveAgeRangeOnly(selected);
+    if (!mounted) return;
+    await _confirmAndApplyAgePreset(service, selected);
+  }
+
+  Future<void> _confirmAndApplyAgePreset(
+    AgePresetService service,
+    ChildAgeRange selected,
+  ) async {
+    final shouldApply = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Rodízio sugerido'),
+          content: const Text(
+            'Encontramos uma configuração equilibrada para esta fase.\nNo fim de semana, incluímos 1 brinquedo extra para dar mais variedade.\n\nDeseja aplicar ao rodízio?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Não agora'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Aplicar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldApply != true) return;
+
+    try {
+      await service.applyAgePreset(selected);
+      if (!mounted) return;
+      setState(_resetRoundDrafts);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Configuração aplicada ao rodízio.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao aplicar configuração: $error')),
+      );
+    }
+  }
+
+  Future<void> _applySelectedAgePreset() async {
+    final service = _agePresetService();
+    if (service == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Banco local indisponivel.')),
+      );
+      return;
+    }
+
+    final selected = widget.settingsRepository.childAgeRange;
+    if (selected == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Escolha uma faixa etária antes de aplicar.'),
+        ),
+      );
+      return;
+    }
+
+    await _confirmAndApplyAgePreset(service, selected);
+  }
+
   Future<void> _openChildAgeRangeSelector() async {
     final service = _agePresetService();
     if (service == null) {
@@ -233,47 +330,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (selected == null) return;
-
-    await service.saveAgeRangeOnly(selected);
-    if (!mounted) return;
-
-    final shouldApply = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Rodízio sugerido'),
-          content: const Text(
-            'Encontramos uma configuração equilibrada para esta fase.\nNo fim de semana, incluímos 1 brinquedo extra para dar mais variedade.\n\nDeseja aplicar ao rodízio?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Não agora'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Aplicar'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (shouldApply != true) return;
-
-    try {
-      await service.applyAgePreset(selected);
-      if (!mounted) return;
-      setState(_resetRoundDrafts);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configuração aplicada ao rodízio.')),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Falha ao aplicar configuração: $error')),
-      );
-    }
+    await _selectChildAgeRange(selected);
   }
 
   Future<void> _restoreRoundDefaults() async {
@@ -536,6 +593,826 @@ class _SettingsPageState extends State<SettingsPage> {
     return total;
   }
 
+  void _closeSettingsRoute() {
+    Navigator.of(context).maybePop();
+  }
+
+  Future<void> _changeRoundSize(int delta) async {
+    final next =
+        (widget.settingsRepository.roundSize + delta).clamp(1, 50).toInt();
+    if (next == widget.settingsRepository.roundSize) return;
+    await widget.settingsRepository.setRoundSize(next);
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  void _changeCategoryQuota(
+    RoundCategorySettingRow row,
+    int availableCount,
+    int delta,
+  ) {
+    final id = row.category.id;
+    final current = _quotaDraft[id] ?? (row.quota < 0 ? 0 : row.quota);
+    final maxSelectable = _maxSelectableForRow(row, {id: availableCount});
+    final next = (current + delta).clamp(0, maxSelectable).toInt();
+    if (next == current) return;
+
+    setState(() {
+      _quotaDraft[id] = next;
+      if (next > 0) {
+        _includedDraft[id] = true;
+      }
+    });
+  }
+
+  String _compactAgeLabel(ChildAgeRange range) {
+    switch (range) {
+      case ChildAgeRange.months0To6:
+        return '0–6m';
+      case ChildAgeRange.months6To12:
+        return '6–12m';
+      case ChildAgeRange.years1To2:
+        return '1–2a';
+      case ChildAgeRange.years2To3:
+        return '2–3a';
+      case ChildAgeRange.years3To5:
+        return '3–5a';
+      case ChildAgeRange.years5To7:
+        return '5–7a';
+    }
+  }
+
+  Future<void> _openExternalLink(String url) async {
+    final uri = Uri.parse(url);
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (opened || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Não foi possível abrir o link.')),
+    );
+  }
+
+  Widget _buildIpadTopNavigation() {
+    return AppTopNavigation(
+      currentIndex: 4,
+      onHomeTap: widget.onOpenHomeTab ?? _closeSettingsRoute,
+      onRoundTap: widget.onOpenRoundTab ?? _closeSettingsRoute,
+      onWeeklyPlanningTap: widget.onOpenWeeklyPlanning ?? _closeSettingsRoute,
+      onToysTap: widget.onOpenToysTab ?? _closeSettingsRoute,
+      onBoxesTap: widget.onOpenBoxesTab ?? _closeSettingsRoute,
+      onSettingsTap: () {},
+    );
+  }
+
+  Widget _buildIpadLayout(TextTheme textTheme) {
+    final bottomPadding = MediaQuery.paddingOf(context).bottom + 28;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDF7F0),
+      body: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1032),
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(24, 18, 24, bottomPadding),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                _buildIpadTopNavigation(),
+                const SizedBox(height: 18),
+                _buildIpadHeader(textTheme),
+                const SizedBox(height: 18),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final gap = constraints.maxWidth >= 980 ? 22.0 : 18.0;
+                    final leftWidth = (constraints.maxWidth - gap) * 0.58;
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: leftWidth.clamp(520.0, 620.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildIpadChildAgeCard(textTheme),
+                              const SizedBox(height: 16),
+                              _buildIpadRoundCard(textTheme),
+                            ],
+                          ),
+                        ),
+                        SizedBox(width: gap),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildIpadPremiumCard(textTheme),
+                              const SizedBox(height: 16),
+                              _buildIpadDemoDataCard(textTheme),
+                              const SizedBox(height: 16),
+                              _buildIpadAboutCard(textTheme),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIpadHeader(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(24),
+      child: Row(
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFA51E), Color(0xFFF97316)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x33F97316),
+                  blurRadius: 18,
+                  offset: Offset(0, 8),
+                ),
+              ],
+            ),
+            alignment: Alignment.center,
+            child: const Icon(
+              Icons.settings_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'RODÍZIO DE BRINQUEDOS',
+                  style: textTheme.labelMedium?.copyWith(
+                    color: const Color(0xFFF97316),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Configurações',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: const Color(0xFF25180A),
+                    fontWeight: FontWeight.w900,
+                    height: 1.05,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ajuste idade, rodízio, premium e preferências do app.',
+                  style: textTheme.titleSmall?.copyWith(
+                    color: const Color(0xFF6B4F30),
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpadChildAgeCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(24),
+      child: StreamBuilder<ChildAgeRange?>(
+        stream: widget.settingsRepository.watchChildAgeRange(),
+        initialData: widget.settingsRepository.childAgeRange,
+        builder: (context, snapshot) {
+          final selected = snapshot.data;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _IpadSettingsSectionHeader(
+                icon: Icons.child_care_rounded,
+                title: 'Criança e idade',
+                subtitle: 'A faixa etária ajuda o app a equilibrar estímulos.',
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (final range in ChildAgeRange.values)
+                    ChoiceChip(
+                      label: Text(_compactAgeLabel(range)),
+                      selected: selected == range,
+                      showCheckmark: false,
+                      selectedColor: const Color(0xFFF97316),
+                      backgroundColor: const Color(0xFFFFF7ED),
+                      side: BorderSide(
+                        color: selected == range
+                            ? const Color(0xFFF97316)
+                            : const Color(0xFFF3E2D0),
+                      ),
+                      labelStyle: textTheme.labelLarge?.copyWith(
+                        color: selected == range
+                            ? Colors.white
+                            : const Color(0xFF6B4F30),
+                        fontWeight: FontWeight.w800,
+                      ),
+                      onSelected: (_) => _selectChildAgeRange(range),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: selected == null
+                      ? const Color(0xFFFFF7ED)
+                      : const Color(0xFFEFFAF2),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: selected == null
+                        ? const Color(0xFFFFD7AA)
+                        : const Color(0xFF8EE0A7),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected == null
+                          ? Icons.info_outline_rounded
+                          : Icons.check_circle_outline_rounded,
+                      color: selected == null
+                          ? const Color(0xFFF97316)
+                          : const Color(0xFF16A34A),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        selected == null
+                            ? 'Escolha uma faixa etária para ativar recomendações.'
+                            : 'Configurado para ${selected.label} · Sugestões ajustadas automaticamente',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF6B4F30),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildIpadRoundCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(24),
+      child: StreamBuilder<Map<String, int>>(
+        stream: widget.toyRepository.watchAvailableToyCountByCategory(),
+        builder: (context, availableSnapshot) {
+          final availableCounts =
+              availableSnapshot.data ?? const <String, int>{};
+
+          return StreamBuilder<List<RoundCategorySettingRow>>(
+            stream: widget.toyRepository.watchRoundCategorySettings(),
+            builder: (context, snapshot) {
+              final rows = snapshot.data ?? const <RoundCategorySettingRow>[];
+              _latestRows = rows;
+
+              _initializeDraftIfNeeded(rows, availableCounts);
+              _syncDraftWithAvailability(rows, availableCounts);
+
+              final availableTotal = rows.fold<int>(
+                0,
+                (sum, row) => sum + (availableCounts[row.category.id] ?? 0),
+              );
+              final totalSelected = _currentTotal();
+              final activeRows = rows.where((row) {
+                final id = row.category.id;
+                return _includedDraft[id] ?? row.isIncluded;
+              }).toList();
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _IpadSettingsSectionHeader(
+                    icon: Icons.tune_rounded,
+                    title: 'Rodízio',
+                    subtitle: 'Como as rodadas são montadas.',
+                  ),
+                  const SizedBox(height: 20),
+                  StreamBuilder<int>(
+                    stream: widget.settingsRepository.watchRoundSize(),
+                    initialData: widget.settingsRepository.roundSize,
+                    builder: (context, roundSizeSnapshot) {
+                      final roundSize = roundSizeSnapshot.data ??
+                          widget.settingsRepository.roundSize;
+                      return _IpadRoundSizeControl(
+                        value: roundSize,
+                        onDecrease: () => _changeRoundSize(-1),
+                        onIncrease: () => _changeRoundSize(1),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _IpadSettingsMetric(
+                          label: 'Disponíveis',
+                          value: '$availableTotal',
+                          color: const Color(0xFFF97316),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _IpadSettingsMetric(
+                          label: 'Na rodada',
+                          value: '$totalSelected',
+                          color: const Color(0xFF7C3AED),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Categorias ativas',
+                    style: textTheme.titleSmall?.copyWith(
+                      color: const Color(0xFF25180A),
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (rows.isEmpty)
+                    const Text('Nenhuma categoria encontrada.')
+                  else ...[
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final row in activeRows)
+                          _IpadSettingsPill(
+                            label: row.category.name,
+                            icon: Icons.check_rounded,
+                          ),
+                        if (activeRows.isEmpty)
+                          const _IpadSettingsPill(
+                            label: 'Nenhuma categoria ativa',
+                            icon: Icons.info_outline_rounded,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    for (final row in rows)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: _buildIpadCategoryQuotaRow(
+                          textTheme: textTheme,
+                          row: row,
+                          available: availableCounts[row.category.id] ?? 0,
+                        ),
+                      ),
+                  ],
+                  const SizedBox(height: 10),
+                  _buildIpadWeekendPresetInfo(textTheme),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _restoreRoundDefaults,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Restaurar padrão'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _save,
+                          icon: const Icon(Icons.save_outlined),
+                          label: const Text('Salvar rodízio'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFF97316),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.tonalIcon(
+                    onPressed: _applySelectedAgePreset,
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    label: const Text('Aplicar configuração recomendada'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFEDD5),
+                      foregroundColor: const Color(0xFFC2410C),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _IpadSettingsActionButton(
+                          icon: Icons.category_outlined,
+                          label: 'Categorias',
+                          onTap: _openCategories,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _IpadSettingsActionButton(
+                          icon: Icons.place_outlined,
+                          label: 'Locais',
+                          onTap: _openLocations,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildIpadCategoryQuotaRow({
+    required TextTheme textTheme,
+    required RoundCategorySettingRow row,
+    required int available,
+  }) {
+    final id = row.category.id;
+    final included = _includedDraft[id] ?? row.isIncluded;
+    final quota = _quotaDraft[id] ?? (row.quota < 0 ? 0 : row.quota);
+    final canDecrease = quota > 0;
+    final canIncrease = quota < available;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBF7),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFF3E2D0)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color:
+                  included ? const Color(0xFFFFEDD5) : const Color(0xFFF4EDE5),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              Icons.category_outlined,
+              color:
+                  included ? const Color(0xFFF97316) : const Color(0xFFA8896A),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  row.category.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF25180A),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  !row.category.isActive
+                      ? 'Disponíveis: $available · Categoria inativa'
+                      : 'Disponíveis: $available',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: const Color(0xFF8A6B4B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _IpadSettingsIconButton(
+            icon: Icons.remove_rounded,
+            onTap: canDecrease
+                ? () => _changeCategoryQuota(row, available, -1)
+                : null,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: () => _selectQuota(row, available),
+              child: Container(
+                width: 42,
+                height: 38,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF7ED),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: const Color(0xFFFFD7AA)),
+                ),
+                child: Text(
+                  '$quota',
+                  style: textTheme.titleSmall?.copyWith(
+                    color: const Color(0xFFF97316),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _IpadSettingsIconButton(
+            icon: Icons.add_rounded,
+            onTap: canIncrease
+                ? () => _changeCategoryQuota(row, available, 1)
+                : null,
+          ),
+          const SizedBox(width: 8),
+          Switch(
+            value: included,
+            activeThumbColor: const Color(0xFFF97316),
+            onChanged: (value) => _onSwitchChanged(row, value, available),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpadWeekendPresetInfo(TextTheme textTheme) {
+    return StreamBuilder<ChildAgeRange?>(
+      stream: widget.settingsRepository.watchChildAgeRange(),
+      initialData: widget.settingsRepository.childAgeRange,
+      builder: (context, snapshot) {
+        final ageRange = snapshot.data;
+        final text = ageRange == null
+            ? 'Escolha uma faixa etária para ativar sugestão de fim de semana.'
+            : 'Fim de semana +1 · Preset de ${ageRange.label} adiciona variedade no sábado e domingo.';
+        return Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFFAF2),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFA7F3D0)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.weekend_outlined,
+                color: Color(0xFF16A34A),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  text,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF4A5F36),
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildIpadPremiumCard(TextTheme textTheme) {
+    final isPremium = widget.purchaseService.isPremium;
+    final subtitle = isPremium
+        ? 'Assinatura ativa neste aparelho.'
+        : isPaywallEnabledForCurrentPlatform
+            ? 'Acesse recursos avançados.'
+            : 'Assinatura em breve. Recursos liberados por enquanto.';
+
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _IpadSettingsSectionHeader(
+            icon: Icons.workspace_premium_outlined,
+            title: 'Rodízio Premium',
+            subtitle: subtitle,
+          ),
+          const SizedBox(height: 16),
+          const _IpadBenefitRow(label: 'Planejamento semanal completo'),
+          const SizedBox(height: 10),
+          const _IpadBenefitRow(label: 'Organize cada dia da semana'),
+          const SizedBox(height: 10),
+          const _IpadBenefitRow(label: 'Ajuste categorias por dia'),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _openPaywall,
+              icon: const Icon(Icons.workspace_premium_outlined),
+              label: Text(isPremium ? 'Ver assinatura' : 'Ver Premium'),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFF97316),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpadDemoDataCard(TextTheme textTheme) {
+    final controlsEnabled = DemoDataLoader.controlsEnabled;
+    final disabled = !controlsEnabled || _demoActionInProgress;
+
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _IpadSettingsSectionHeader(
+            icon: Icons.auto_awesome_outlined,
+            title: 'Dados de demonstração',
+            subtitle: controlsEnabled
+                ? 'Prepare o simulador para screenshots.'
+                : 'Disponível apenas em builds de demonstração.',
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: disabled ? null : _populateDemoData,
+            icon: const Icon(Icons.auto_awesome_outlined),
+            label: Text(
+              _demoActionInProgress
+                  ? 'Atualizando...'
+                  : 'Popular dados de demonstração',
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFF97316),
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: disabled ? null : _clearDemoData,
+            icon: const Icon(Icons.cleaning_services_outlined),
+            label: const Text('Limpar dados de demonstração'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFFBE123C),
+              side: const BorderSide(color: Color(0xFFFDA4AF)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpadAboutCard(TextTheme textTheme) {
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const _IpadSettingsSectionHeader(
+            icon: Icons.info_outline_rounded,
+            title: 'Sobre',
+            subtitle: 'Links, versão e preferências rápidas.',
+          ),
+          const SizedBox(height: 16),
+          _IpadSettingsLinkRow(
+            icon: Icons.privacy_tip_outlined,
+            label: 'Política de privacidade',
+            onTap: () => _openExternalLink(_settingsPrivacyPolicyUrl),
+          ),
+          const SizedBox(height: 10),
+          _IpadSettingsLinkRow(
+            icon: Icons.description_outlined,
+            label: 'Termos de uso',
+            onTap: () => _openExternalLink(_settingsTermsOfUseUrl),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: const Color(0xFFFFD7AA)),
+            ),
+            child: Text(
+              'Versão $_settingsAppVersionLabel',
+              style: textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF6B4F30),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildIpadPreferenceSwitches(textTheme),
+          const SizedBox(height: 16),
+          Text(
+            'Rodízio de Brinquedos',
+            style: textTheme.titleSmall?.copyWith(
+              color: const Color(0xFF25180A),
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Feito com carinho para famílias que valorizam a brincadeira equilibrada.',
+            style: textTheme.bodySmall?.copyWith(
+              color: const Color(0xFF8A6B4B),
+              height: 1.35,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpadPreferenceSwitches(TextTheme textTheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Preferências do app',
+          style: textTheme.titleSmall?.copyWith(
+            color: const Color(0xFF25180A),
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 10),
+        StreamBuilder<bool>(
+          stream: widget.settingsRepository.watchHapticEnabled(),
+          initialData: widget.settingsRepository.hapticEnabled,
+          builder: (context, snapshot) {
+            return _IpadSettingsSwitchRow(
+              title: 'Vibração',
+              subtitle: 'Toques leves nas ações principais',
+              value: snapshot.data ?? true,
+              onChanged: widget.settingsRepository.setHapticEnabled,
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        StreamBuilder<bool>(
+          stream: widget.settingsRepository.watchSoundEnabled(),
+          initialData: widget.settingsRepository.soundEnabled,
+          builder: (context, snapshot) {
+            return _IpadSettingsSwitchRow(
+              title: 'Sons do app',
+              subtitle: 'Feedback sonoro em eventos do app',
+              value: snapshot.data ?? false,
+              onChanged: widget.settingsRepository.setSoundEnabled,
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        StreamBuilder<bool>(
+          stream: widget.settingsRepository.watchDarkModeEnabled(),
+          initialData: widget.settingsRepository.darkModeEnabled,
+          builder: (context, snapshot) {
+            return _IpadSettingsSwitchRow(
+              title: 'Modo escuro',
+              subtitle: 'Altera apenas a aparência do app',
+              value: snapshot.data ?? false,
+              onChanged: widget.settingsRepository.setDarkModeEnabled,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildManageCard(TextTheme textTheme) {
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -721,6 +1598,11 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+
+    if (isTablet) {
+      return _buildIpadLayout(textTheme);
+    }
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
@@ -954,6 +1836,438 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _IpadSettingsSectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _IpadSettingsSectionHeader({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF1E7),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, color: const Color(0xFFF97316), size: 24),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: textTheme.titleLarge?.copyWith(
+                  color: const Color(0xFF25180A),
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                subtitle,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF6B4F30),
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IpadRoundSizeControl extends StatelessWidget {
+  final int value;
+  final VoidCallback onDecrease;
+  final VoidCallback onIncrease;
+
+  const _IpadRoundSizeControl({
+    required this.value,
+    required this.onDecrease,
+    required this.onIncrease,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBF7),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF3E2D0)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Quantidade por dia',
+                  style: textTheme.titleSmall?.copyWith(
+                    color: const Color(0xFF25180A),
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Mínimo 1 · máximo 50 brinquedos',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: const Color(0xFF8A6B4B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _IpadSettingsIconButton(
+            icon: Icons.remove_rounded,
+            onTap: value > 1 ? onDecrease : null,
+          ),
+          Container(
+            width: 58,
+            height: 46,
+            alignment: Alignment.center,
+            margin: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF7ED),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFFFD7AA)),
+            ),
+            child: Text(
+              '$value',
+              style: textTheme.headlineSmall?.copyWith(
+                color: const Color(0xFFF97316),
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          _IpadSettingsIconButton(
+            icon: Icons.add_rounded,
+            onTap: value < 50 ? onIncrease : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IpadSettingsIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _IpadSettingsIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+
+    return Tooltip(
+      message: icon == Icons.add_rounded ? 'Adicionar' : 'Remover',
+      child: Material(
+        color: enabled ? const Color(0xFFF97316) : const Color(0xFFF4EDE5),
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: SizedBox(
+            width: 38,
+            height: 38,
+            child: Icon(
+              icon,
+              color: enabled ? Colors.white : const Color(0xFFC7AA8B),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IpadSettingsMetric extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _IpadSettingsMetric({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.34)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: textTheme.headlineMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF6B4F30),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IpadSettingsPill extends StatelessWidget {
+  final String label;
+  final IconData icon;
+
+  const _IpadSettingsPill({
+    required this.label,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFFFD7AA)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFFF97316)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: textTheme.labelMedium?.copyWith(
+              color: const Color(0xFF6B4F30),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IpadSettingsActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _IpadSettingsActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFFC2410C),
+        side: const BorderSide(color: Color(0xFFFFD7AA)),
+      ),
+    );
+  }
+}
+
+class _IpadBenefitRow extends StatelessWidget {
+  final String label;
+
+  const _IpadBenefitRow({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFFAF2),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: const Icon(
+            Icons.check_rounded,
+            size: 18,
+            color: Color(0xFF16A34A),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            label,
+            style: textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF6B4F30),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IpadSettingsLinkRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _IpadSettingsLinkRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFBF7),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF3E2D0)),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: const Color(0xFFF97316)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF25180A),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.open_in_new_rounded,
+                size: 18,
+                color: Color(0xFFA8896A),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IpadSettingsSwitchRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _IpadSettingsSwitchRow({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBF7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF3E2D0)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF25180A),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: const Color(0xFF8A6B4B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            activeThumbColor: const Color(0xFFF97316),
+            onChanged: onChanged,
+          ),
+        ],
       ),
     );
   }

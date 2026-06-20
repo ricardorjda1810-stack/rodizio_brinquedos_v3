@@ -140,7 +140,7 @@ class AppTopNavigation extends StatelessWidget {
         label: 'Config.',
         icon: Icons.settings_outlined,
         activeIcon: Icons.settings_rounded,
-        selected: false,
+        selected: currentIndex == 4,
         onTap: onSettingsTap,
       ),
     ];
