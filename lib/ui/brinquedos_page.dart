@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
@@ -14,6 +16,7 @@ import 'package:rodizio_brinquedos_v3/ui/toy_category_form_options.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/active_round_list.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/empty_state.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/filter_bar.dart';
@@ -29,6 +32,12 @@ class BrinquedosPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final PurchaseService? purchaseService;
   final VoidCallback onOpenRodizioTab;
+  final VoidCallback? onOpenHomeTab;
+  final VoidCallback? onOpenRoundTab;
+  final VoidCallback? onOpenWeeklyPlanning;
+  final VoidCallback? onOpenToysTab;
+  final VoidCallback? onOpenBoxesTab;
+  final VoidCallback? onOpenSettings;
   final String? requestedBoxFilterId;
   final int requestedBoxFilterVersion;
 
@@ -39,6 +48,12 @@ class BrinquedosPage extends StatefulWidget {
     required this.settingsRepository,
     this.purchaseService,
     required this.onOpenRodizioTab,
+    this.onOpenHomeTab,
+    this.onOpenRoundTab,
+    this.onOpenWeeklyPlanning,
+    this.onOpenToysTab,
+    this.onOpenBoxesTab,
+    this.onOpenSettings,
     this.requestedBoxFilterId,
     this.requestedBoxFilterVersion = 0,
   });
@@ -133,6 +148,12 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );
@@ -608,7 +629,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: UiTokens.primaryStrong,
+                          color: const Color(0xFFF97316),
                         ),
                   ),
                 ],
@@ -787,155 +808,1840 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     return hasQuery || hasBox || hasCat || hasLocal;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
-        child: StreamBuilder<BrinquedosCatalogState>(
-          stream: _controller.stream,
-          initialData: BrinquedosCatalogState.empty,
-          builder: (context, snapshot) {
-            final state = snapshot.data ?? BrinquedosCatalogState.empty;
+  Widget _buildIpadCatalogFigmaLayout(
+    BuildContext context, {
+    required BrinquedosCatalogState state,
+    required List<BrinquedosCatalogItem> visibleItems,
+    required Map<String, String> categoryById,
+    required List<FilterOption> locationOptions,
+    required String selectedCategoryId,
+    required bool showClear,
+  }) {
+    final bottomPadding = AppBottomNavigation.reservedScrollPadding(context);
+    final boxOptions = _boxOptions(state);
+    final categoryOptions = _categoryOptions(state);
 
-            final selectedCategoryId = state.selectedCategoryId ?? '';
-            final baseItems = state.filteredItems;
-            final categoryById = <String, String>{
-              for (final c in state.categories) c.id: c.label,
-            };
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columnsHeight =
+            (constraints.maxHeight - bottomPadding - 24 - 134 - 18)
+                .clamp(760.0, 1040.0)
+                .toDouble();
 
-            final locInfo = _locationOptions(baseItems);
-            if (!locInfo.locations.any((e) => e.id == _selectedLocalFilter)) {
-              _selectedLocalFilter = _localAll;
-            }
-
-            final visibleItems = _applyLocalFilter(baseItems);
-            final showClear = _hasActiveFilters(state);
-
-            if (state.loading && state.totalItemsCount == 0) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (state.totalItemsCount == 0) {
-              return EmptyState(
-                icon: Icons.toys,
-                title: 'Nenhum brinquedo cadastrado',
-                message: 'Adicione brinquedos para montar seu catálogo visual.',
-                actionLabel: 'Novo brinquedo',
-                onAction: () => _openToyCreate(context),
-              );
-            }
-
-            if (visibleItems.isEmpty) {
-              return EmptyState(
-                icon: Icons.search_off,
-                title: 'Nenhum resultado',
-                message: 'Ajuste busca e filtros para encontrar brinquedos.',
-                actionLabel: 'Limpar',
-                onAction: _clearFilters,
-              );
-            }
-
-            return ListView(
-              padding: EdgeInsets.only(
-                top: UiTokens.m,
-                bottom: UiTokens.spacingXl +
-                    MediaQuery.paddingOf(context).bottom +
-                    88,
-              ),
-              children: [
-                AppSurfaceCard(
-                  padding: const EdgeInsets.all(UiTokens.spacingMd),
-                  color: UiTokens.primarySoft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Brinquedos da casa',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: UiTokens.spacingXs),
-                      Text(
-                        'Veja tudo de forma clara, filtre com leveza e monte a rodada quando quiser.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-                      const SizedBox(height: UiTokens.spacingSm),
-                      Wrap(
-                        spacing: UiTokens.s,
-                        runSpacing: UiTokens.s,
+        return ListView(
+          padding: EdgeInsets.fromLTRB(28, 24, 28, bottomPadding),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1032),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _CatalogIpadHeader(
+                      totalItems: state.totalItemsCount,
+                      visibleItems: visibleItems.length,
+                      filtersActive: showClear,
+                      onNewToy: () => _openToyCreate(context),
+                      onFiltersPressed: showClear ? _clearFilters : () {},
+                    ),
+                    const SizedBox(height: 18),
+                    SizedBox(
+                      height: columnsHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          SizedBox(
-                            width: MediaQuery.sizeOf(context).width < 560
-                                ? double.infinity
-                                : 240,
-                            child: FilledButton.icon(
-                              onPressed: _startingRound ? null : _startRound,
-                              icon: _startingRound
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : const Icon(Icons.play_arrow),
-                              label: Text(
-                                _startingRound
-                                    ? 'Iniciando...'
-                                    : 'Iniciar rod\u00edzio',
-                              ),
+                          Expanded(
+                            child: _CatalogIpadCatalogCard(
+                              items: visibleItems,
+                              totalItems: state.totalItemsCount,
+                              categoryById: categoryById,
+                              filtersActive: showClear,
+                              onToyTap: (toyId) =>
+                                  _openToyDetail(context, toyId),
+                              onClearFilters: _clearFilters,
+                              onNewToy: () => _openToyCreate(context),
                             ),
                           ),
+                          const SizedBox(width: 18),
                           SizedBox(
-                            width: MediaQuery.sizeOf(context).width < 560
-                                ? double.infinity
-                                : 132,
-                            child: Tooltip(
-                              message: 'Novo brinquedo',
-                              child: FilledButton.tonalIcon(
-                                onPressed: () => _openToyCreate(context),
-                                icon: const Icon(Icons.add),
-                                label: const Text('Novo'),
-                              ),
+                            width: 332,
+                            child: _CatalogIpadSideColumn(
+                              searchController: _searchController,
+                              boxOptions: boxOptions,
+                              selectedBoxId: state.selectedBoxFilter,
+                              onBoxChanged: _controller.setBoxFilter,
+                              categoryOptions: categoryOptions,
+                              selectedCategoryId: selectedCategoryId,
+                              onCategoryChanged: (id) => _controller
+                                  .setCategoryFilter(id.isEmpty ? null : id),
+                              locationOptions: locationOptions,
+                              selectedLocationId: _selectedLocalFilter,
+                              onLocationChanged: (id) =>
+                                  setState(() => _selectedLocalFilter = id),
+                              totalItems: state.totalItemsCount,
+                              boxesCount: state.boxes.length,
+                              visibleItems: visibleItems,
+                              onClearFilters: showClear ? _clearFilters : null,
                             ),
                           ),
                         ],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isIpad = constraints.maxWidth >= 860;
+
+          return ColoredBox(
+            color: isIpad ? _CatalogIpadPalette.bg : Colors.transparent,
+            child: StreamBuilder<BrinquedosCatalogState>(
+              stream: _controller.stream,
+              initialData: BrinquedosCatalogState.empty,
+              builder: (context, snapshot) {
+                final state = snapshot.data ?? BrinquedosCatalogState.empty;
+
+                final selectedCategoryId = state.selectedCategoryId ?? '';
+                final baseItems = state.filteredItems;
+                final categoryById = <String, String>{
+                  for (final c in state.categories) c.id: c.label,
+                };
+
+                final locInfo = _locationOptions(baseItems);
+                if (!locInfo.locations
+                    .any((e) => e.id == _selectedLocalFilter)) {
+                  _selectedLocalFilter = _localAll;
+                }
+
+                final visibleItems = _applyLocalFilter(baseItems);
+                final showClear = _hasActiveFilters(state);
+
+                if (state.loading && state.totalItemsCount == 0) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: isIpad ? _CatalogIpadPalette.orange : null,
+                    ),
+                  );
+                }
+
+                if (isIpad) {
+                  return _buildIpadCatalogFigmaLayout(
+                    context,
+                    state: state,
+                    visibleItems: visibleItems,
+                    categoryById: categoryById,
+                    locationOptions: locInfo.locations,
+                    selectedCategoryId: selectedCategoryId,
+                    showClear: showClear,
+                  );
+                }
+
+                if (state.totalItemsCount == 0) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
+                    child: EmptyState(
+                      icon: Icons.toys,
+                      title: 'Nenhum brinquedo cadastrado',
+                      message:
+                          'Adicione brinquedos para montar seu catálogo visual.',
+                      actionLabel: 'Novo brinquedo',
+                      onAction: () => _openToyCreate(context),
+                    ),
+                  );
+                }
+
+                if (visibleItems.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
+                    child: EmptyState(
+                      icon: Icons.search_off,
+                      title: 'Nenhum resultado',
+                      message:
+                          'Ajuste busca e filtros para encontrar brinquedos.',
+                      actionLabel: 'Limpar',
+                      onAction: _clearFilters,
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
+                  child: ListView(
+                    padding: EdgeInsets.only(
+                      top: UiTokens.m,
+                      bottom: UiTokens.spacingXl +
+                          MediaQuery.paddingOf(context).bottom +
+                          88,
+                    ),
+                    children: [
+                      AppSurfaceCard(
+                        padding: const EdgeInsets.all(UiTokens.spacingMd),
+                        color: const Color(0xFFFFF5E8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Brinquedos da casa',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: UiTokens.spacingXs),
+                            Text(
+                              'Veja tudo de forma clara, filtre com leveza e monte a rodada quando quiser.',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                            ),
+                            const SizedBox(height: UiTokens.spacingSm),
+                            Wrap(
+                              spacing: UiTokens.s,
+                              runSpacing: UiTokens.s,
+                              children: [
+                                SizedBox(
+                                  width: MediaQuery.sizeOf(context).width < 560
+                                      ? double.infinity
+                                      : 240,
+                                  child: FilledButton.icon(
+                                    onPressed:
+                                        _startingRound ? null : _startRound,
+                                    icon: _startingRound
+                                        ? const SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.play_arrow),
+                                    label: Text(
+                                      _startingRound
+                                          ? 'Iniciando...'
+                                          : 'Iniciar rod\u00edzio',
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.sizeOf(context).width < 560
+                                      ? double.infinity
+                                      : 132,
+                                  child: Tooltip(
+                                    message: 'Novo brinquedo',
+                                    child: FilledButton.tonalIcon(
+                                      onPressed: () => _openToyCreate(context),
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Novo'),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingMd),
+                      FilterBar(
+                        boxes: _boxOptions(state),
+                        categories: _categoryOptions(state),
+                        locations: locInfo.locations,
+                        selectedBoxId: state.selectedBoxFilter,
+                        selectedCategoryId: selectedCategoryId,
+                        selectedLocationId: _selectedLocalFilter,
+                        onBoxChanged: _controller.setBoxFilter,
+                        onCategoryChanged: (id) => _controller
+                            .setCategoryFilter(id.isEmpty ? null : id),
+                        onLocationChanged: (id) =>
+                            setState(() => _selectedLocalFilter = id),
+                        onSearchTap: () => _openSearchDialog(context),
+                        showClear: showClear,
+                        onClear: _clearFilters,
+                      ),
+                      const SizedBox(height: UiTokens.spacingSm),
+                      _buildToyList(
+                        context,
+                        visibleItems,
+                        categoryById: categoryById,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _CatalogIpadHeader extends StatelessWidget {
+  final int totalItems;
+  final int visibleItems;
+  final bool filtersActive;
+  final VoidCallback onNewToy;
+  final VoidCallback onFiltersPressed;
+
+  const _CatalogIpadHeader({
+    required this.totalItems,
+    required this.visibleItems,
+    required this.filtersActive,
+    required this.onNewToy,
+    required this.onFiltersPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return _CatalogIpadSurface(
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
+      child: Row(
+        children: [
+          const _CatalogIpadHeroIcon(),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Rodízio de Brinquedos',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textMicro.copyWith(
+                    color: _CatalogIpadPalette.textMuted,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Brinquedos',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textTitle.copyWith(
+                    color: _CatalogIpadPalette.text,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Veja todos os brinquedos cadastrados e mantenha o acervo organizado.',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textCaption.copyWith(
+                    color: _CatalogIpadPalette.textMuted,
+                    height: 1.35,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          _CatalogIpadHeaderStats(
+            visibleItems: visibleItems,
+            totalItems: totalItems,
+          ),
+          const SizedBox(width: 14),
+          _CatalogIpadPrimaryButton(
+            icon: Icons.add_rounded,
+            label: 'Novo brinquedo',
+            onPressed: onNewToy,
+          ),
+          const SizedBox(width: 10),
+          _CatalogIpadSecondaryButton(
+            icon: Icons.tune_rounded,
+            label: filtersActive ? 'Filtros •' : 'Filtros',
+            active: filtersActive,
+            onPressed: onFiltersPressed,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadHeaderStats extends StatelessWidget {
+  final int visibleItems;
+  final int totalItems;
+
+  const _CatalogIpadHeaderStats({
+    required this.visibleItems,
+    required this.totalItems,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 104),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: _CatalogIpadPalette.orangeLight,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _CatalogIpadPalette.orangeBorder),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$visibleItems',
+            style: UiTokens.textTitle.copyWith(
+              color: _CatalogIpadPalette.orange,
+              fontSize: 21,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            totalItems == visibleItems ? 'no acervo' : 'de $totalItems',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: UiTokens.textMicro.copyWith(
+              color: _CatalogIpadPalette.textMid,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadHeroIcon extends StatelessWidget {
+  const _CatalogIpadHeroIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFF97316), Color(0xFFFBBF24)],
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x4DF97316),
+            blurRadius: 14,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: const Icon(
+        Icons.toys_rounded,
+        color: Colors.white,
+        size: 29,
+      ),
+    );
+  }
+}
+
+class _CatalogIpadCatalogCard extends StatelessWidget {
+  final List<BrinquedosCatalogItem> items;
+  final int totalItems;
+  final Map<String, String> categoryById;
+  final bool filtersActive;
+  final ValueChanged<String> onToyTap;
+  final VoidCallback onClearFilters;
+  final VoidCallback onNewToy;
+
+  const _CatalogIpadCatalogCard({
+    required this.items,
+    required this.totalItems,
+    required this.categoryById,
+    required this.filtersActive,
+    required this.onToyTap,
+    required this.onClearFilters,
+    required this.onNewToy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = filtersActive
+        ? '${items.length} de $totalItems brinquedos · filtros ativos'
+        : '$totalItems brinquedos · acervo completo';
+
+    return _CatalogIpadSurface(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 18, 22, 15),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Catálogo',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: UiTokens.textSectionTitle.copyWith(
+                          color: _CatalogIpadPalette.text,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        totalItems == 0
+                            ? 'Nenhum brinquedo cadastrado'
+                            : subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: UiTokens.textMicro.copyWith(
+                          color: _CatalogIpadPalette.textMuted,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: UiTokens.spacingMd),
-                FilterBar(
-                  boxes: _boxOptions(state),
-                  categories: _categoryOptions(state),
-                  locations: locInfo.locations,
-                  selectedBoxId: state.selectedBoxFilter,
-                  selectedCategoryId: selectedCategoryId,
-                  selectedLocationId: _selectedLocalFilter,
-                  onBoxChanged: _controller.setBoxFilter,
-                  onCategoryChanged: (id) =>
-                      _controller.setCategoryFilter(id.isEmpty ? null : id),
-                  onLocationChanged: (id) =>
-                      setState(() => _selectedLocalFilter = id),
-                  onSearchTap: () => _openSearchDialog(context),
-                  showClear: showClear,
-                  onClear: _clearFilters,
-                ),
-                const SizedBox(height: UiTokens.spacingSm),
-                _buildToyList(
-                  context,
-                  visibleItems,
-                  categoryById: categoryById,
-                ),
+                if (filtersActive) ...[
+                  const SizedBox(width: 12),
+                  const _CatalogIpadSmallPill(
+                    label: 'Filtros ativos',
+                    foreground: _CatalogIpadPalette.orange,
+                    background: _CatalogIpadPalette.orangeLight,
+                    border: _CatalogIpadPalette.orangeBorder,
+                  ),
+                ],
               ],
-            );
-          },
+            ),
+          ),
+          const Divider(height: 1, color: _CatalogIpadPalette.border),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: items.isEmpty
+                  ? _CatalogIpadEmptyCatalog(
+                      totalItems: totalItems,
+                      onAction: totalItems == 0 ? onNewToy : onClearFilters,
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return _CatalogIpadToyListItem(
+                          item: item,
+                          categoryLabel: categoryById[item.toy.categoryId] ??
+                              item.toy.categoryId,
+                          onTap: () => onToyTap(item.toy.id),
+                        );
+                      },
+                    ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+            child: _CatalogIpadCatalogFooter(
+              visibleItems: items.length,
+              totalItems: totalItems,
+              filtersActive: filtersActive,
+              onClearFilters: onClearFilters,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadEmptyCatalog extends StatelessWidget {
+  final int totalItems;
+  final VoidCallback onAction;
+
+  const _CatalogIpadEmptyCatalog({
+    required this.totalItems,
+    required this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasNoToys = totalItems == 0;
+
+    return Container(
+      height: 286,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.inventory_2_outlined,
+            size: 42,
+            color: _CatalogIpadPalette.textMuted,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            hasNoToys
+                ? 'Nenhum brinquedo cadastrado'
+                : 'Nenhum brinquedo encontrado',
+            textAlign: TextAlign.center,
+            style: UiTokens.textCaption.copyWith(
+              color: _CatalogIpadPalette.textMuted,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: onAction,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _CatalogIpadPalette.orange,
+              side: const BorderSide(
+                color: _CatalogIpadPalette.orangeBorder,
+                width: 1.5,
+              ),
+              backgroundColor: _CatalogIpadPalette.orangeLight,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(11),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+            ),
+            child: Text(hasNoToys ? 'Novo brinquedo' : 'Limpar filtros'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadToyListItem extends StatefulWidget {
+  final BrinquedosCatalogItem item;
+  final String categoryLabel;
+  final VoidCallback onTap;
+
+  const _CatalogIpadToyListItem({
+    required this.item,
+    required this.categoryLabel,
+    required this.onTap,
+  });
+
+  @override
+  State<_CatalogIpadToyListItem> createState() =>
+      _CatalogIpadToyListItemState();
+}
+
+class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = widget.item.toy.name.trim().isEmpty
+        ? 'Sem nome'
+        : widget.item.toy.name.trim();
+    final categoryStyle = _catalogCategoryStyle(
+      widget.item.toy.categoryId,
+      widget.categoryLabel,
+    );
+
+    final locationColor = widget.item.box == null
+        ? const Color(0xFF92400E)
+        : _CatalogIpadPalette.textMid;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 170),
+        curve: Curves.easeOut,
+        transform: Matrix4.translationValues(_hovered ? 2 : 0, 0, 0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(17),
+          border: Border.all(
+            color: _hovered
+                ? _CatalogIpadPalette.orangeBorder
+                : _CatalogIpadPalette.border,
+            width: 1.4,
+          ),
+          boxShadow: _hovered
+              ? const [
+                  BoxShadow(
+                    color: Color(0x1FAA6E32),
+                    blurRadius: 18,
+                    offset: Offset(0, 6),
+                  ),
+                  BoxShadow(color: Color(0x26F97316), spreadRadius: 1),
+                ]
+              : const [
+                  BoxShadow(
+                    color: Color(0x10AA6E32),
+                    blurRadius: 5,
+                    offset: Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(17),
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(17),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: _CatalogIpadToyPhoto(
+                      path: widget.item.toy.photoPath,
+                      size: 78,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: UiTokens.textSectionTitle.copyWith(
+                            color: _CatalogIpadPalette.text,
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w900,
+                            height: 1.18,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            _CatalogIpadSmallPill(
+                              label: widget.categoryLabel.trim().isEmpty
+                                  ? 'Sem categoria'
+                                  : widget.categoryLabel,
+                              foreground: categoryStyle.foreground,
+                              background: categoryStyle.background,
+                              border: categoryStyle.border,
+                            ),
+                            _CatalogIpadLocationPill(
+                              label: _catalogLocationLabel(widget.item),
+                              foreground: locationColor,
+                              highlighted: widget.item.box == null,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _CatalogIpadSmallPill(
+                        label:
+                            widget.item.box == null ? 'Sem caixa' : 'Guardado',
+                        foreground: widget.item.box == null
+                            ? const Color(0xFF92400E)
+                            : _CatalogIpadPalette.orange,
+                        background: widget.item.box == null
+                            ? const Color(0xFFFFFBEB)
+                            : _CatalogIpadPalette.orangeLight,
+                        border: widget.item.box == null
+                            ? const Color(0xFFFDE68A)
+                            : _CatalogIpadPalette.orangeBorder,
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: _hovered
+                              ? _CatalogIpadPalette.orange
+                              : _CatalogIpadPalette.orangeLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _CatalogIpadPalette.orangeBorder,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.chevron_right_rounded,
+                          color: _hovered
+                              ? Colors.white
+                              : _CatalogIpadPalette.orange,
+                          size: 21,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+class _CatalogIpadToyPhoto extends StatelessWidget {
+  final String? path;
+  final double size;
+
+  const _CatalogIpadToyPhoto({
+    required this.path,
+    this.size = 115,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = (path ?? '').trim();
+    if (p.isEmpty) {
+      return _CatalogIpadPhotoPlaceholder(size: size);
+    }
+
+    if (p.startsWith('assets/')) {
+      return Image.asset(
+        p,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => _CatalogIpadPhotoPlaceholder(size: size),
+      );
+    }
+
+    return Image.file(
+      File(p),
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      gaplessPlayback: true,
+      errorBuilder: (_, __, ___) => _CatalogIpadPhotoPlaceholder(size: size),
+    );
+  }
+}
+
+class _CatalogIpadPhotoPlaceholder extends StatelessWidget {
+  final double size;
+
+  const _CatalogIpadPhotoPlaceholder({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      color: const Color(0xFFF9F0E6),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.image_outlined,
+        size: 30,
+        color: _CatalogIpadPalette.textMuted,
+      ),
+    );
+  }
+}
+
+class _CatalogIpadLocationPill extends StatelessWidget {
+  final String label;
+  final Color foreground;
+  final bool highlighted;
+
+  const _CatalogIpadLocationPill({
+    required this.label,
+    required this.foreground,
+    required this.highlighted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 258),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: highlighted ? const Color(0xFFFFFBEB) : const Color(0xFFFFFAF4),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: highlighted
+              ? const Color(0xFFFDE68A)
+              : _CatalogIpadPalette.border,
+          width: 1.1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.inventory_2_outlined, size: 11, color: foreground),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UiTokens.textMicro.copyWith(
+                color: foreground,
+                fontSize: 10.8,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadCatalogFooter extends StatelessWidget {
+  final int visibleItems;
+  final int totalItems;
+  final bool filtersActive;
+  final VoidCallback onClearFilters;
+
+  const _CatalogIpadCatalogFooter({
+    required this.visibleItems,
+    required this.totalItems,
+    required this.filtersActive,
+    required this.onClearFilters,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final text = totalItems == 0
+        ? 'Cadastre brinquedos para começar o catálogo'
+        : 'Mostrando $visibleItems de $totalItems brinquedos cadastrados';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+      decoration: BoxDecoration(
+        color: _CatalogIpadPalette.bg,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: _CatalogIpadPalette.border),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UiTokens.textMicro.copyWith(
+                color: _CatalogIpadPalette.textMuted,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          if (filtersActive) ...[
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: onClearFilters,
+              style: TextButton.styleFrom(
+                foregroundColor: _CatalogIpadPalette.orange,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('Limpar filtros'),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadSideColumn extends StatelessWidget {
+  final TextEditingController searchController;
+  final List<FilterOption> boxOptions;
+  final String selectedBoxId;
+  final ValueChanged<String> onBoxChanged;
+  final List<FilterOption> categoryOptions;
+  final String selectedCategoryId;
+  final ValueChanged<String> onCategoryChanged;
+  final List<FilterOption> locationOptions;
+  final String selectedLocationId;
+  final ValueChanged<String> onLocationChanged;
+  final int totalItems;
+  final int boxesCount;
+  final List<BrinquedosCatalogItem> visibleItems;
+  final VoidCallback? onClearFilters;
+
+  const _CatalogIpadSideColumn({
+    required this.searchController,
+    required this.boxOptions,
+    required this.selectedBoxId,
+    required this.onBoxChanged,
+    required this.categoryOptions,
+    required this.selectedCategoryId,
+    required this.onCategoryChanged,
+    required this.locationOptions,
+    required this.selectedLocationId,
+    required this.onLocationChanged,
+    required this.totalItems,
+    required this.boxesCount,
+    required this.visibleItems,
+    required this.onClearFilters,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final categoryCount =
+        categoryOptions.where((option) => option.id.isNotEmpty).length;
+    final locationCount =
+        locationOptions.where((option) => !option.id.startsWith('__')).length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _CatalogIpadSearchCard(controller: searchController),
+        const SizedBox(height: 12),
+        _CatalogIpadFilterCard(
+          title: 'Caixas',
+          options: boxOptions,
+          selectedId: selectedBoxId,
+          onChanged: onBoxChanged,
+          titleForValueLabel: 'Caixa',
+          styleFor: _catalogBoxStyle,
+          maxOptionsHeight: 116,
+        ),
+        const SizedBox(height: 12),
+        _CatalogIpadFilterCard(
+          title: 'Categorias',
+          options: categoryOptions,
+          selectedId: selectedCategoryId,
+          onChanged: onCategoryChanged,
+          titleForValueLabel: 'Categoria',
+          styleFor: (option) => _catalogCategoryStyle(option.id, option.label),
+          showCheck: true,
+          maxOptionsHeight: 150,
+        ),
+        const SizedBox(height: 12),
+        _CatalogIpadFilterCard(
+          title: 'Locais',
+          options: locationOptions,
+          selectedId: selectedLocationId,
+          onChanged: onLocationChanged,
+          titleForValueLabel: 'Local',
+          styleFor: _catalogLocationStyle,
+          maxOptionsHeight: 116,
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: _CatalogIpadSummaryCard(
+            totalItems: totalItems,
+            categoryCount: categoryCount,
+            boxesCount: boxesCount,
+            locationCount: locationCount,
+            visibleItems: visibleItems,
+            onClearFilters: onClearFilters,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CatalogIpadSearchCard extends StatelessWidget {
+  final TextEditingController controller;
+
+  const _CatalogIpadSearchCard({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return _CatalogIpadSurface(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Buscar brinquedo',
+            style: UiTokens.textMicro.copyWith(
+              color: _CatalogIpadPalette.textMuted,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 0,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            textInputAction: TextInputAction.search,
+            style: UiTokens.textCaption.copyWith(
+              color: _CatalogIpadPalette.text,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Nome do brinquedo...',
+              hintStyle: UiTokens.textCaption.copyWith(
+                color: _CatalogIpadPalette.textMuted,
+                fontWeight: FontWeight.w500,
+              ),
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                size: 18,
+                color: _CatalogIpadPalette.textMuted,
+              ),
+              suffixIcon: controller.text.trim().isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Limpar busca',
+                      onPressed: controller.clear,
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                    ),
+              filled: true,
+              fillColor: _CatalogIpadPalette.bg,
+              isDense: true,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(11),
+                borderSide: const BorderSide(
+                  color: _CatalogIpadPalette.border,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(11),
+                borderSide: const BorderSide(
+                  color: _CatalogIpadPalette.orangeBorder,
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadFilterCard extends StatelessWidget {
+  final String title;
+  final List<FilterOption> options;
+  final String selectedId;
+  final ValueChanged<String> onChanged;
+  final String titleForValueLabel;
+  final _CatalogChipStyle Function(FilterOption option) styleFor;
+  final bool showCheck;
+  final double? maxOptionsHeight;
+
+  const _CatalogIpadFilterCard({
+    required this.title,
+    required this.options,
+    required this.selectedId,
+    required this.onChanged,
+    required this.titleForValueLabel,
+    required this.styleFor,
+    this.showCheck = false,
+    this.maxOptionsHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        for (final option in options)
+          _CatalogIpadFilterChip(
+            label: option.valueLabel(title: titleForValueLabel),
+            selected: option.id == selectedId,
+            style: styleFor(option),
+            showCheck: showCheck && option.id == selectedId,
+            onPressed: () => onChanged(option.id),
+          ),
+      ],
+    );
+
+    return _CatalogIpadSurface(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: UiTokens.textCaption.copyWith(
+              color: _CatalogIpadPalette.text,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (maxOptionsHeight == null)
+            chips
+          else
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxOptionsHeight!),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.zero,
+                child: chips,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadFilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final bool showCheck;
+  final _CatalogChipStyle style;
+  final VoidCallback onPressed;
+
+  const _CatalogIpadFilterChip({
+    required this.label,
+    required this.selected,
+    required this.showCheck,
+    required this.style,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final background = selected ? style.background : const Color(0xFFFAFAF9);
+    final foreground =
+        selected ? style.foreground : _CatalogIpadPalette.textMuted;
+    final border = selected ? style.border : const Color(0xFFE7E5E4);
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 292),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: border, width: 1.5),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: style.foreground.withValues(alpha: 0.09),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showCheck) ...[
+                Icon(Icons.check_rounded, size: 13, color: foreground),
+                const SizedBox(width: 3),
+              ],
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textMicro.copyWith(
+                  color: foreground,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CatalogIpadSummaryCard extends StatelessWidget {
+  final int totalItems;
+  final int categoryCount;
+  final int boxesCount;
+  final int locationCount;
+  final List<BrinquedosCatalogItem> visibleItems;
+  final VoidCallback? onClearFilters;
+
+  const _CatalogIpadSummaryCard({
+    required this.totalItems,
+    required this.categoryCount,
+    required this.boxesCount,
+    required this.locationCount,
+    required this.visibleItems,
+    required this.onClearFilters,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final breakdown = _catalogBoxBreakdown(visibleItems);
+
+    return _CatalogIpadSurface(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Resumo',
+            style: UiTokens.textCaption.copyWith(
+              color: _CatalogIpadPalette.text,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.9,
+            children: [
+              _CatalogIpadStatTile(
+                value: '$totalItems',
+                label: 'Brinquedos',
+                foreground: _CatalogIpadPalette.orange,
+                background: _CatalogIpadPalette.orangeLight,
+                border: _CatalogIpadPalette.orangeBorder,
+              ),
+              _CatalogIpadStatTile(
+                value: '$categoryCount',
+                label: 'Categorias',
+                foreground: const Color(0xFF8B5CF6),
+                background: const Color(0xFFF5F3FF),
+                border: const Color(0xFFDDD6FE),
+              ),
+              _CatalogIpadStatTile(
+                value: '$boxesCount',
+                label: 'Caixas',
+                foreground: const Color(0xFF16A34A),
+                background: const Color(0xFFDCFCE7),
+                border: const Color(0xFF86EFAC),
+              ),
+              _CatalogIpadStatTile(
+                value: '$locationCount',
+                label: 'Locais',
+                foreground: const Color(0xFF2563EB),
+                background: const Color(0xFFEFF6FF),
+                border: const Color(0xFFBFDBFE),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: _CatalogIpadPalette.border),
+          const SizedBox(height: 12),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                children: [
+                  if (breakdown.isEmpty)
+                    const _CatalogIpadBreakdownRow(
+                      data: _CatalogBreakdownData(
+                        label: 'Sem brinquedos visíveis',
+                        value: 0,
+                        foreground: _CatalogIpadPalette.textMuted,
+                        background: Color(0xFFF8FAFC),
+                      ),
+                    )
+                  else
+                    for (var index = 0; index < breakdown.length; index++) ...[
+                      _CatalogIpadBreakdownRow(data: breakdown[index]),
+                      if (index < breakdown.length - 1)
+                        const SizedBox(height: 6),
+                    ],
+                  if (onClearFilters != null) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: onClearFilters,
+                        icon: const Icon(Icons.close_rounded, size: 17),
+                        label: const Text('Limpar filtros'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _CatalogIpadPalette.orange,
+                          side: const BorderSide(
+                            color: _CatalogIpadPalette.orangeBorder,
+                            width: 1.5,
+                          ),
+                          backgroundColor: _CatalogIpadPalette.orangeLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadStatTile extends StatelessWidget {
+  final String value;
+  final String label;
+  final Color foreground;
+  final Color background;
+  final Color border;
+
+  const _CatalogIpadStatTile({
+    required this.value,
+    required this.label,
+    required this.foreground,
+    required this.background,
+    required this.border,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(color: border, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: UiTokens.textTitle.copyWith(
+              color: foreground,
+              fontSize: 23,
+              fontWeight: FontWeight.w900,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: UiTokens.textMicro.copyWith(
+              color: _CatalogIpadPalette.textMid,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadBreakdownRow extends StatelessWidget {
+  final _CatalogBreakdownData data;
+
+  const _CatalogIpadBreakdownRow({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: data.background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: data.foreground,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              data.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: UiTokens.textMicro.copyWith(
+                color: _CatalogIpadPalette.textMid,
+                fontSize: 12.2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${data.value}',
+            style: UiTokens.textMicro.copyWith(
+              color: _CatalogIpadPalette.textMid,
+              fontSize: 12.2,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CatalogIpadPrimaryButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _CatalogIpadPrimaryButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 17),
+      label: Text(label),
+      style: FilledButton.styleFrom(
+        backgroundColor: _CatalogIpadPalette.orange,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shadowColor: _CatalogIpadPalette.orange.withValues(alpha: 0.35),
+        textStyle: UiTokens.textButton.copyWith(
+          fontWeight: FontWeight.w900,
+          fontSize: 14,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+      ),
+    );
+  }
+}
+
+class _CatalogIpadSecondaryButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool active;
+  final VoidCallback onPressed;
+
+  const _CatalogIpadSecondaryButton({
+    required this.icon,
+    required this.label,
+    required this.active,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 17),
+      label: Text(label),
+      style: OutlinedButton.styleFrom(
+        foregroundColor:
+            active ? const Color(0xFFC2410C) : _CatalogIpadPalette.textMid,
+        backgroundColor:
+            active ? _CatalogIpadPalette.orangeLight : const Color(0xFFF5F5F4),
+        side: BorderSide(
+          color: active
+              ? _CatalogIpadPalette.orangeBorder
+              : const Color(0xFFE7E5E4),
+          width: 1.5,
+        ),
+        textStyle: UiTokens.textButton.copyWith(
+          fontWeight: FontWeight.w800,
+          fontSize: 14,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+      ),
+    );
+  }
+}
+
+class _CatalogIpadSmallPill extends StatelessWidget {
+  final String label;
+  final Color foreground;
+  final Color background;
+  final Color border;
+
+  const _CatalogIpadSmallPill({
+    required this.label,
+    required this.foreground,
+    required this.background,
+    required this.border,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 132),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border, width: 1.1),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: UiTokens.textMicro.copyWith(
+          color: foreground,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _CatalogIpadSurface extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  const _CatalogIpadSurface({
+    required this.child,
+    this.padding = const EdgeInsets.all(18),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _CatalogIpadPalette.card,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12AA6E32),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+          BoxShadow(color: Color(0x0EAA6E32), spreadRadius: 1),
+        ],
+      ),
+      child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class _CatalogChipStyle {
+  final Color background;
+  final Color foreground;
+  final Color border;
+
+  const _CatalogChipStyle({
+    required this.background,
+    required this.foreground,
+    required this.border,
+  });
+}
+
+class _CatalogBreakdownData {
+  final String label;
+  final int value;
+  final Color foreground;
+  final Color background;
+
+  const _CatalogBreakdownData({
+    required this.label,
+    required this.value,
+    required this.foreground,
+    required this.background,
+  });
+}
+
+class _CatalogIpadPalette {
+  _CatalogIpadPalette._();
+
+  static const Color bg = Color(0xFFFDF7F0);
+  static const Color card = Colors.white;
+  static const Color orange = Color(0xFFF97316);
+  static const Color orangeLight = Color(0xFFFFF5E8);
+  static const Color orangeBorder = Color(0xFFFDDCBA);
+  static const Color text = Color(0xFF25180A);
+  static const Color textMid = Color(0xFF6B4F30);
+  static const Color textMuted = Color(0xFFA8896A);
+  static const Color border = Color(0x1FB98750);
+}
+
+_CatalogChipStyle _catalogBoxStyle(FilterOption option) {
+  if (option.id == BrinquedosCatalogState.boxFilterNone) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFEFF6FF),
+      foreground: Color(0xFF1D4ED8),
+      border: Color(0xFFBFDBFE),
+    );
+  }
+
+  if (option.id == BrinquedosCatalogState.boxFilterAll) {
+    return const _CatalogChipStyle(
+      background: _CatalogIpadPalette.orangeLight,
+      foreground: _CatalogIpadPalette.orange,
+      border: _CatalogIpadPalette.orangeBorder,
+    );
+  }
+
+  return const _CatalogChipStyle(
+    background: Color(0xFFF5F3FF),
+    foreground: Color(0xFF6D28D9),
+    border: Color(0xFFDDD6FE),
+  );
+}
+
+_CatalogChipStyle _catalogLocationStyle(FilterOption option) {
+  if (option.id.endsWith('NONE__')) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFFFFBEB),
+      foreground: Color(0xFF92400E),
+      border: Color(0xFFFDE68A),
+    );
+  }
+
+  if (option.id.endsWith('ALL__')) {
+    return const _CatalogChipStyle(
+      background: _CatalogIpadPalette.orangeLight,
+      foreground: _CatalogIpadPalette.orange,
+      border: _CatalogIpadPalette.orangeBorder,
+    );
+  }
+
+  return const _CatalogChipStyle(
+    background: Color(0xFFEFF6FF),
+    foreground: Color(0xFF1D4ED8),
+    border: Color(0xFFBFDBFE),
+  );
+}
+
+_CatalogChipStyle _catalogCategoryStyle(String id, String label) {
+  final text = '$id $label'.toLowerCase();
+
+  if (text.contains('corpo') ||
+      text.contains('movimento') ||
+      text.contains('bola')) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFFFF1F2),
+      foreground: Color(0xFFBE123C),
+      border: Color(0xFFFECDD3),
+    );
+  }
+
+  if (text.contains('mão') ||
+      text.contains('maos') ||
+      text.contains('coord') ||
+      text.contains('constru') ||
+      text.contains('mont')) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFFFFBEB),
+      foreground: Color(0xFF92400E),
+      border: Color(0xFFFDE68A),
+    );
+  }
+
+  if (text.contains('imag') ||
+      text.contains('faz') ||
+      text.contains('bonec') ||
+      text.contains('conta')) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFF5F3FF),
+      foreground: Color(0xFF5B21B6),
+      border: Color(0xFFDDD6FE),
+    );
+  }
+
+  if (text.contains('comun') ||
+      text.contains('livro') ||
+      text.contains('música') ||
+      text.contains('musica')) {
+    return const _CatalogChipStyle(
+      background: Color(0xFFEFF6FF),
+      foreground: Color(0xFF1D4ED8),
+      border: Color(0xFFBFDBFE),
+    );
+  }
+
+  return const _CatalogChipStyle(
+    background: Color(0xFFFFF7ED),
+    foreground: Color(0xFFC2410C),
+    border: Color(0xFFFED7AA),
+  );
+}
+
+String _catalogLocationLabel(BrinquedosCatalogItem item) {
+  final box = item.box;
+  final toyLocation = (item.toy.locationText ?? '').trim();
+  final boxLocation = (box?.local ?? '').trim();
+  final location = boxLocation.isNotEmpty
+      ? boxLocation
+      : (toyLocation.isNotEmpty ? toyLocation : 'Sem local');
+
+  if (box == null) return 'Sem caixa · $location';
+  return 'Caixa ${box.number} · $location';
+}
+
+List<_CatalogBreakdownData> _catalogBoxBreakdown(
+  List<BrinquedosCatalogItem> items,
+) {
+  final counts = <String, int>{};
+
+  for (final item in items) {
+    final box = item.box;
+    final label = box == null ? 'Sem caixa' : 'Caixa ${box.number}';
+    counts[label] = (counts[label] ?? 0) + 1;
+  }
+
+  const colors = [
+    (
+      foreground: Color(0xFFF97316),
+      background: Color(0xFFFFF7ED),
+    ),
+    (
+      foreground: Color(0xFF8B5CF6),
+      background: Color(0xFFF5F3FF),
+    ),
+    (
+      foreground: Color(0xFF2563EB),
+      background: Color(0xFFEFF6FF),
+    ),
+  ];
+
+  final entries = counts.entries.toList()
+    ..sort((a, b) {
+      final byCount = b.value.compareTo(a.value);
+      if (byCount != 0) return byCount;
+      return a.key.toLowerCase().compareTo(b.key.toLowerCase());
+    });
+
+  return [
+    for (var index = 0; index < entries.length && index < 3; index++)
+      _CatalogBreakdownData(
+        label: entries[index].key,
+        value: entries[index].value,
+        foreground: colors[index].foreground,
+        background: colors[index].background,
+      ),
+  ];
 }

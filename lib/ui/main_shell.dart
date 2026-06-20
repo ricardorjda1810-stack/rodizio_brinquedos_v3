@@ -56,6 +56,7 @@ class _MainShellState extends State<MainShell> {
     'Rod\u00edzio',
     'Brinquedos',
     'Caixas',
+    'Rodada',
   ];
 
   @override
@@ -102,9 +103,45 @@ class _MainShellState extends State<MainShell> {
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
+          onOpenHomeTab: () => _openTopNavigationTab(0),
+          onOpenRoundTab: () => _openTopNavigationTab(3),
+          onOpenWeeklyPlanning: _openTopNavigationWeeklyPlanning,
+          onOpenToysTab: () => _openTopNavigationTab(1),
+          onOpenBoxesTab: () => _openTopNavigationTab(2),
+          onOpenSettings: _openTopNavigationSettings,
         ),
       ),
     );
+  }
+
+  void _openTopNavigationTab(int index) {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    _goTo(index);
+  }
+
+  void _openTopNavigationWeeklyPlanning() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(_openWeeklyPlanning());
+    });
+  }
+
+  void _openTopNavigationSettings() {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _openSettings();
+    });
   }
 
   void _openCategories() {
@@ -238,9 +275,28 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  PreferredSizeWidget _buildStandardAppBar(BuildContext context) {
+  Widget _buildRodadaTab(BuildContext context) {
+    return ColoredBox(
+      color: UiTokens.bg,
+      child: SafeArea(
+        child: RodadaPage(
+          roundRepository: widget.roundRepository,
+          toyRepository: widget.toyRepository,
+          purchaseService: widget.purchaseService,
+          onOpenRodizioTab: () => _goTo(3),
+          onOpenBrinquedosTab: () => _goTo(1),
+          onOpenSettings: _openSettings,
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildStandardAppBar(
+    BuildContext context,
+    int currentIndex,
+  ) {
     return AppBar(
-      title: Text(_titles[_currentIndex]),
+      title: Text(_titles[currentIndex]),
       actions: [
         IconButton(
           tooltip: 'Configura\u00e7\u00f5es',
@@ -253,10 +309,10 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isIpadHome =
-        _currentIndex == 0 && MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final effectiveIndex = isTablet || _currentIndex <= 2 ? _currentIndex : 0;
     final body = IndexedStack(
-      index: _currentIndex,
+      index: effectiveIndex,
       children: [
         _buildHomePage(context),
         brinquedos.BrinquedosPage(
@@ -264,7 +320,13 @@ class _MainShellState extends State<MainShell> {
           roundRepository: widget.roundRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
-          onOpenRodizioTab: () => _goTo(0),
+          onOpenRodizioTab: () => _goTo(isTablet ? 3 : 0),
+          onOpenHomeTab: () => _openTopNavigationTab(0),
+          onOpenRoundTab: () => _openTopNavigationTab(3),
+          onOpenWeeklyPlanning: _openTopNavigationWeeklyPlanning,
+          onOpenToysTab: () => _openTopNavigationTab(1),
+          onOpenBoxesTab: () => _openTopNavigationTab(2),
+          onOpenSettings: _openTopNavigationSettings,
           requestedBoxFilterId: _requestedBoxFilterId,
           requestedBoxFilterVersion: _requestedBoxFilterVersion,
         ),
@@ -274,16 +336,58 @@ class _MainShellState extends State<MainShell> {
           purchaseService: widget.purchaseService,
           onOpenBrinquedosForBox: _openBrinquedosForBox,
         ),
+        _buildRodadaTab(context),
       ],
     );
+
+    if (isTablet) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFFDF7F0),
+        extendBody: false,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  UiTokens.spacingLg,
+                  UiTokens.spacingSm,
+                  UiTokens.spacingLg,
+                  UiTokens.spacingSm,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1032),
+                    child: AppTopNavigation(
+                      currentIndex: effectiveIndex,
+                      onHomeTap: () => _goTo(0),
+                      onRoundTap: () => _goTo(3),
+                      onWeeklyPlanningTap: _openWeeklyPlanning,
+                      onToysTap: () => _goTo(1),
+                      onBoxesTap: () => _goTo(2),
+                      onSettingsTap: _openSettings,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(child: body),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: UiTokens.bg,
       extendBody: false,
-      appBar: _currentIndex == 0 ? null : _buildStandardAppBar(context),
-      body: body,
-      bottomNavigationBar: isIpadHome
+      appBar: effectiveIndex == 0
           ? null
-          : AppBottomNavigation(currentIndex: _currentIndex, onTap: _goTo),
+          : _buildStandardAppBar(context, effectiveIndex),
+      body: body,
+      bottomNavigationBar: AppBottomNavigation(
+        currentIndex: effectiveIndex,
+        onTap: _goTo,
+      ),
     );
   }
 }
@@ -331,7 +435,7 @@ class _CompactHomeHeader extends StatelessWidget {
         vertical: UiTokens.spacingSm,
       ),
       decoration: BoxDecoration(
-        color: UiTokens.primarySoft,
+        color: const Color(0xFFFFF5E8),
         borderRadius: BorderRadius.circular(UiTokens.radiusLg),
       ),
       child: Row(
@@ -354,7 +458,7 @@ class _CompactHomeHeader extends StatelessWidget {
                     const Icon(
                       Icons.calendar_today_outlined,
                       size: 14,
-                      color: UiTokens.primaryStrong,
+                      color: Color(0xFFF97316),
                     ),
                     const SizedBox(width: UiTokens.spacingXs),
                     Flexible(
@@ -422,19 +526,15 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
     final boxes = await widget.toyRepository.watchBoxes().first;
     final boxesById = {for (final box in boxes) box.id: box};
 
-    return toys
-        .asMap()
-        .entries
-        .map((entry) {
-          final toy = entry.value;
-          final boxId = toy.boxId;
-          return RoundToyWithBox(
-            toy: toy,
-            box: boxId == null ? null : boxesById[boxId],
-            position: entry.key,
-          );
-        })
-        .toList(growable: false);
+    return toys.asMap().entries.map((entry) {
+      final toy = entry.value;
+      final boxId = toy.boxId;
+      return RoundToyWithBox(
+        toy: toy,
+        box: boxId == null ? null : boxesById[boxId],
+        position: entry.key,
+      );
+    }).toList(growable: false);
   }
 
   Future<void> _openRoundSuggestionSheet() async {
@@ -442,9 +542,8 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
 
     setState(() => _loadingSuggestion = true);
     try {
-      final categories = await widget.toyRepository
-          .watchCategories(activeOnly: true)
-          .first;
+      final categories =
+          await widget.toyRepository.watchCategories(activeOnly: true).first;
       final categoryNamesById = <String, String>{
         for (final category in categories)
           category.id: _categoryDisplayName(category.id, category),
@@ -553,12 +652,10 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       child: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final horizontalPadding = constraints.maxWidth >= 980
-                ? UiTokens.spacingLg
-                : 18.0;
-            final verticalPadding = constraints.maxHeight >= 900
-                ? UiTokens.spacingMd
-                : 12.0;
+            final horizontalPadding =
+                constraints.maxWidth >= 980 ? UiTokens.spacingLg : 18.0;
+            final verticalPadding =
+                constraints.maxHeight >= 900 ? UiTokens.spacingMd : 12.0;
             final gap = constraints.maxWidth >= 900 ? 18.0 : 14.0;
             final rightWidth = (constraints.maxWidth * 0.40).clamp(
               306.0,
@@ -819,8 +916,7 @@ class _IpadRoundTodayCard extends StatelessWidget {
               builder: (context, suggestionSnapshot) {
                 final suggestion =
                     suggestionSnapshot.data ?? const <RoundToyWithBox>[];
-                final loading =
-                    suggestionSnapshot.connectionState ==
+                final loading = suggestionSnapshot.connectionState ==
                         ConnectionState.waiting &&
                     suggestion.isEmpty;
 
@@ -863,9 +959,8 @@ class _IpadRoundTodayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final countLabel = items.length == 1
-        ? '1 brinquedo'
-        : '${items.length} brinquedos';
+    final countLabel =
+        items.length == 1 ? '1 brinquedo' : '${items.length} brinquedos';
     final ready = items.isNotEmpty && !loading;
     final visibleItems = items.take(6).toList(growable: false);
 
@@ -1048,9 +1143,8 @@ class _IpadToyTileState extends State<_IpadToyTile> {
           ),
           boxShadow: [
             BoxShadow(
-              color: _hovering
-                  ? const Color(0x21AA6E32)
-                  : const Color(0x0FAA6E32),
+              color:
+                  _hovering ? const Color(0x21AA6E32) : const Color(0x0FAA6E32),
               blurRadius: _hovering ? 20 : 6,
               offset: Offset(0, _hovering ? 6 : 2),
             ),
@@ -1158,8 +1252,8 @@ class _IpadSelectionReason extends StatelessWidget {
     final detail = items.isEmpty
         ? 'A sugestão aparece assim que houver brinquedos cadastrados.'
         : categories >= 3
-        ? 'Mistura categorias diferentes e prioriza brinquedos menos usados.'
-        : 'Prioriza brinquedos disponíveis para manter a brincadeira variada.';
+            ? 'Mistura categorias diferentes e prioriza brinquedos menos usados.'
+            : 'Prioriza brinquedos disponíveis para manter a brincadeira variada.';
 
     return Container(
       width: double.infinity,
@@ -1644,9 +1738,9 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                           _IpadStatTile(
                             value: locationCount,
                             label: 'Locais',
-                            foreground: const Color(0xFF059669),
-                            background: const Color(0xFFECFDF5),
-                            border: const Color(0xFFA7F3D0),
+                            foreground: const Color(0xFF16A34A),
+                            background: const Color(0xFFDCFCE7),
+                            border: const Color(0xFF86EFAC),
                           ),
                           _IpadStatTile(
                             value: AgePresetCatalog.officialCategories.length,
@@ -1756,8 +1850,8 @@ class _IpadQuickActionsPanel extends StatelessWidget {
       _IpadQuickActionData(
         label: 'Categorias',
         icon: Icons.sell_outlined,
-        foreground: const Color(0xFF059669),
-        background: const Color(0xFFECFDF5),
+        foreground: const Color(0xFFC2410C),
+        background: const Color(0xFFFFF7ED),
         onTap: onOpenCategories,
       ),
       _IpadQuickActionData(
@@ -2077,8 +2171,8 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
     case 'exploração':
     case 'exploracao':
       return const _CategoryVisualStyle(
-        background: Color(0xFFECFDF5),
-        foreground: Color(0xFF065F46),
+        background: Color(0xFFFFF7ED),
+        foreground: Color(0xFFC2410C),
       );
   }
   return const _CategoryVisualStyle(
