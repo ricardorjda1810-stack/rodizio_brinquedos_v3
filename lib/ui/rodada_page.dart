@@ -23,6 +23,11 @@ class RodadaPage extends StatefulWidget {
   final VoidCallback onOpenRodizioTab;
   final VoidCallback onOpenBrinquedosTab;
   final VoidCallback onOpenSettings;
+  final VoidCallback? onOpenHomeTab;
+  final VoidCallback? onOpenRoundTab;
+  final VoidCallback? onOpenWeeklyPlanning;
+  final VoidCallback? onOpenToysTab;
+  final VoidCallback? onOpenBoxesTab;
   final bool fillAvailableHeight;
   final String activeItemsTitle;
 
@@ -34,6 +39,11 @@ class RodadaPage extends StatefulWidget {
     required this.onOpenRodizioTab,
     required this.onOpenBrinquedosTab,
     required this.onOpenSettings,
+    this.onOpenHomeTab,
+    this.onOpenRoundTab,
+    this.onOpenWeeklyPlanning,
+    this.onOpenToysTab,
+    this.onOpenBoxesTab,
     this.fillAvailableHeight = false,
     this.activeItemsTitle = 'Brinquedos disponíveis',
   });
@@ -59,6 +69,13 @@ class _RodadaPageState extends State<RodadaPage> {
           toyId: toyId,
           toyRepository: widget.toyRepository,
           purchaseService: widget.purchaseService,
+          topNavigationIndex: 3,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab ?? widget.onOpenBrinquedosTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );

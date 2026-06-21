@@ -25,6 +25,12 @@ class CaixasPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final PurchaseService? purchaseService;
   final void Function(String boxId) onOpenBrinquedosForBox;
+  final VoidCallback? onOpenHomeTab;
+  final VoidCallback? onOpenRoundTab;
+  final VoidCallback? onOpenWeeklyPlanning;
+  final VoidCallback? onOpenToysTab;
+  final VoidCallback? onOpenBoxesTab;
+  final VoidCallback? onOpenSettings;
 
   const CaixasPage({
     super.key,
@@ -32,6 +38,12 @@ class CaixasPage extends StatefulWidget {
     required this.settingsRepository,
     this.purchaseService,
     required this.onOpenBrinquedosForBox,
+    this.onOpenHomeTab,
+    this.onOpenRoundTab,
+    this.onOpenWeeklyPlanning,
+    this.onOpenToysTab,
+    this.onOpenBoxesTab,
+    this.onOpenSettings,
   });
 
   @override
@@ -288,6 +300,13 @@ class _CaixasPageState extends State<CaixasPage> {
           toyId: toyId,
           toyRepository: widget.toyRepository,
           purchaseService: widget.purchaseService,
+          topNavigationIndex: 2,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );

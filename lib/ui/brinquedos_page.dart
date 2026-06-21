@@ -136,6 +136,13 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
           toyId: toyId,
           toyRepository: widget.toyRepository,
           purchaseService: widget.purchaseService,
+          topNavigationIndex: 1,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );
