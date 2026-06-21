@@ -190,6 +190,12 @@ class _MainShellState extends State<MainShell> {
           settingsRepository: widget.settingsRepository,
           weeklyPlanningRepository: weeklyPlanningRepository,
           roundRepository: widget.roundRepository,
+          onOpenHomeTab: () => _openTopNavigationTab(0),
+          onOpenRoundTab: () => _openTopNavigationTab(3),
+          onOpenWeeklyPlanning: () {},
+          onOpenToysTab: () => _openTopNavigationTab(1),
+          onOpenBoxesTab: () => _openTopNavigationTab(2),
+          onOpenSettings: _openTopNavigationSettings,
         ),
       ),
     );

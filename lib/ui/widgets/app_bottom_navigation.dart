@@ -79,6 +79,8 @@ class AppBottomNavigation extends StatelessWidget {
 }
 
 class AppTopNavigation extends StatelessWidget {
+  static const int weeklyPlanningIndex = 5;
+
   final int currentIndex;
   final VoidCallback onHomeTap;
   final VoidCallback onRoundTap;
@@ -119,7 +121,7 @@ class AppTopNavigation extends StatelessWidget {
         label: 'Planejamento',
         icon: Icons.calendar_month_outlined,
         activeIcon: Icons.calendar_month_rounded,
-        selected: false,
+        selected: currentIndex == weeklyPlanningIndex,
         onTap: onWeeklyPlanningTap,
       ),
       _AppTopNavigationItemData(

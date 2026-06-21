@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/weekly_planning_overview.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/weekly_planning_page.dart';
 
@@ -16,12 +17,24 @@ class WeeklyPlanningOverviewPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final WeeklyPlanningRepository weeklyPlanningRepository;
   final RoundRepository roundRepository;
+  final VoidCallback? onOpenHomeTab;
+  final VoidCallback? onOpenRoundTab;
+  final VoidCallback? onOpenWeeklyPlanning;
+  final VoidCallback? onOpenToysTab;
+  final VoidCallback? onOpenBoxesTab;
+  final VoidCallback? onOpenSettings;
 
   const WeeklyPlanningOverviewPage({
     super.key,
     required this.settingsRepository,
     required this.weeklyPlanningRepository,
     required this.roundRepository,
+    this.onOpenHomeTab,
+    this.onOpenRoundTab,
+    this.onOpenWeeklyPlanning,
+    this.onOpenToysTab,
+    this.onOpenBoxesTab,
+    this.onOpenSettings,
   });
 
   @override
@@ -111,36 +124,71 @@ class _WeeklyPlanningOverviewPageState
 
   @override
   Widget build(BuildContext context) {
+    final isIpad = MediaQuery.sizeOf(context).width >= 860;
+
     return Scaffold(
       backgroundColor: _FigmaPlanningPalette.bg,
-      appBar: AppBar(
-        backgroundColor: _FigmaPlanningPalette.bg,
-        title: const Text('Planejamento semanal'),
-      ),
+      appBar: isIpad
+          ? null
+          : AppBar(
+              backgroundColor: _FigmaPlanningPalette.bg,
+              title: const Text('Planejamento semanal'),
+            ),
       body: SafeArea(
-        child: FutureBuilder<WeeklyPlanningOverview>(
-          future: _overviewFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return _OverviewMessage(
-                title: 'Não foi possível carregar o planejamento.',
-                message: '${snapshot.error}',
-              );
-            }
+        child: Column(
+          children: [
+            if (isIpad) _buildIpadTopNavigation(),
+            Expanded(
+              child: FutureBuilder<WeeklyPlanningOverview>(
+                future: _overviewFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return _OverviewMessage(
+                      title: 'Não foi possível carregar o planejamento.',
+                      message: '${snapshot.error}',
+                    );
+                  }
 
-            final overview = snapshot.data;
-            if (overview == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
+                  final overview = snapshot.data;
+                  if (overview == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-            return _OverviewContent(
-              overview: overview,
-              onOpenEditor: _openEditor,
-            );
-          },
+                  return _OverviewContent(
+                    overview: overview,
+                    onOpenEditor: _openEditor,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildIpadTopNavigation() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 8, 28, 8),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1032),
+          child: AppTopNavigation(
+            currentIndex: AppTopNavigation.weeklyPlanningIndex,
+            onHomeTap: widget.onOpenHomeTab ?? _closeRoute,
+            onRoundTap: widget.onOpenRoundTab ?? _closeRoute,
+            onWeeklyPlanningTap: widget.onOpenWeeklyPlanning ?? () {},
+            onToysTap: widget.onOpenToysTab ?? _closeRoute,
+            onBoxesTap: widget.onOpenBoxesTab ?? _closeRoute,
+            onSettingsTap: widget.onOpenSettings ?? _closeRoute,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _closeRoute() {
+    Navigator.of(context).maybePop();
   }
 }
 
