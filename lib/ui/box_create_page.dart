@@ -228,6 +228,13 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
+          topNavigationIndex: widget.topNavigationIndex,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );
