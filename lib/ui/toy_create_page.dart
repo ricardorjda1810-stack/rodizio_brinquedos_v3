@@ -150,6 +150,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
           toyRepository: widget.toyRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
+          topNavigationIndex: 1,
+          onOpenHomeTab: widget.onOpenHomeTab,
+          onOpenRoundTab: widget.onOpenRoundTab,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
+          onOpenToysTab: widget.onOpenToysTab,
+          onOpenBoxesTab: widget.onOpenBoxesTab,
+          onOpenSettings: widget.onOpenSettings,
         ),
       ),
     );
