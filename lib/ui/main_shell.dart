@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
@@ -19,9 +20,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_category_form_options.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
-import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/round_suggestion_sheet.dart';
-import 'package:rodizio_brinquedos_v3/ui/widgets/weekly_planning_preview_card.dart';
 import 'weekly_planning_overview_page.dart';
 import 'brinquedos_page.dart' as brinquedos;
 import 'caixas_page.dart';
@@ -48,10 +47,14 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  static const String _firstRoundCreatedLoggedKey =
+      'analytics_first_round_created_logged';
+
   int _currentIndex = 0;
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
   WeeklyPlanningRepository? _weeklyPlanningRepository;
+  bool _mobileLoadingSuggestion = false;
   static const List<String> _titles = <String>[
     'Rod\u00edzio',
     'Brinquedos',
@@ -217,76 +220,92 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  Widget _buildWeeklyPlanningCard() {
-    final weeklyPlanningRepository = _weeklyPlanningRepository;
-    if (weeklyPlanningRepository == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(UiTokens.m, 0, UiTokens.m, UiTokens.s),
-      child: StreamBuilder<List<WeekDaySummary>>(
-        stream: weeklyPlanningRepository.watchWeekSummary(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const _WeeklyPlanningPreviewState(
-              message: 'Não foi possível carregar o planejamento semanal.',
-            );
-          }
-
-          final summaries = snapshot.data ?? const <WeekDaySummary>[];
-          if (summaries.isEmpty) {
-            final waiting = snapshot.connectionState == ConnectionState.waiting;
-            return _WeeklyPlanningPreviewState(
-              message: waiting
-                  ? 'Carregando planejamento semanal...'
-                  : 'Nenhum planejamento semanal encontrado.',
-            );
-          }
-
-          return WeeklyPlanningPreviewCard(
-            summaries: summaries,
-            onTap: _openWeeklyPlanning,
-          );
-        },
-      ),
-    );
-  }
-
   String _currentDatePtBr() {
     return DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(DateTime.now());
   }
 
-  Widget _buildHomeHeader() {
-    return _CompactHomeHeader(
-      title: 'Hora de brincar',
-      dateLabel: _currentDatePtBr(),
-      onSettingsTap: _openSettings,
-    );
+  Future<void> _openMobileRoundSuggestionSheet() async {
+    if (_mobileLoadingSuggestion) return;
+
+    setState(() {
+      _mobileLoadingSuggestion = true;
+    });
+
+    try {
+      final categories =
+          await widget.toyRepository.watchCategories(activeOnly: true).first;
+      final categoryNamesById = <String, String>{
+        for (final category in categories)
+          category.id: _categoryDisplayName(category.id, category),
+      };
+      final suggestedToys = await widget.roundRepository.suggestRoundForToday();
+      final boxes = await widget.toyRepository.watchBoxes().first;
+      if (!mounted) return;
+
+      unawaited(AppAnalytics.logSuggestionOpened(source: 'home'));
+      final selectedToys = await showRoundSuggestionPicker(
+        context: context,
+        toys: suggestedToys,
+        categoryNamesById: categoryNamesById,
+        boxesById: {for (final box in boxes) box.id: box},
+      );
+      if (selectedToys == null || selectedToys.isEmpty) return;
+
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        selectedToys.map((toy) => toy.id).toList(growable: false),
+      );
+      await AppAnalytics.logSuggestionUsed(
+        toyCount: selectedToys.length,
+        source: 'home',
+      );
+      await AppAnalytics.logRoundCreated(
+        toyCount: selectedToys.length,
+        source: 'home_suggestion',
+      );
+      await _logFirstRoundCreatedOnce(selectedToys.length);
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Rodada criada com ${selectedToys.length} brinquedos.'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possível montar a rodada: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _mobileLoadingSuggestion = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _logFirstRoundCreatedOnce(int toyCount) async {
+    final preferences = await SharedPreferences.getInstance();
+    final alreadyLogged =
+        preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
+
+    if (alreadyLogged) return;
+
+    await preferences.setBool(_firstRoundCreatedLoggedKey, true);
+    await AppAnalytics.logFirstRoundCreated(toyCount: toyCount);
   }
 
   Widget _buildMobileHomePage() {
-    return SafeArea(
-      bottom: false,
-      child: Column(
-        children: [
-          _buildHomeHeader(),
-          _buildWeeklyPlanningCard(),
-          Expanded(
-            child: RodadaPage(
-              roundRepository: widget.roundRepository,
-              toyRepository: widget.toyRepository,
-              purchaseService: widget.purchaseService,
-              onOpenRodizioTab: () => _goTo(0),
-              onOpenBrinquedosTab: () => _goTo(1),
-              onOpenSettings: _openSettings,
-              onOpenHomeTab: () => _openTopNavigationTab(0),
-              onOpenRoundTab: () => _openTopNavigationTab(3),
-              onOpenWeeklyPlanning: _openTopNavigationWeeklyPlanning,
-              onOpenToysTab: () => _openTopNavigationTab(1),
-              onOpenBoxesTab: () => _openTopNavigationTab(2),
-            ),
-          ),
-        ],
-      ),
+    return _IphoneHomeDashboard(
+      roundRepository: widget.roundRepository,
+      toyRepository: widget.toyRepository,
+      weeklyPlanningRepository: _weeklyPlanningRepository,
+      dateLabel: _currentDatePtBr(),
+      loadingSuggestion: _mobileLoadingSuggestion,
+      onBuildRound: _openMobileRoundSuggestionSheet,
+      onOpenNewToy: _openToyCreate,
+      onOpenWeeklyPlanning: _openWeeklyPlanning,
+      onOpenSettings: _openSettings,
     );
   }
 
@@ -435,96 +454,740 @@ class _MainShellState extends State<MainShell> {
   }
 }
 
-class _WeeklyPlanningPreviewState extends StatelessWidget {
-  final String message;
+class _IphoneHomeDashboard extends StatelessWidget {
+  final RoundRepository roundRepository;
+  final ToyRepository toyRepository;
+  final WeeklyPlanningRepository? weeklyPlanningRepository;
+  final String dateLabel;
+  final bool loadingSuggestion;
+  final VoidCallback onBuildRound;
+  final VoidCallback onOpenNewToy;
+  final VoidCallback onOpenWeeklyPlanning;
+  final VoidCallback onOpenSettings;
 
-  const _WeeklyPlanningPreviewState({required this.message});
+  const _IphoneHomeDashboard({
+    required this.roundRepository,
+    required this.toyRepository,
+    required this.weeklyPlanningRepository,
+    required this.dateLabel,
+    required this.loadingSuggestion,
+    required this.onBuildRound,
+    required this.onOpenNewToy,
+    required this.onOpenWeeklyPlanning,
+    required this.onOpenSettings,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AppSurfaceCard(
-      child: Text(
-        message,
-        style: Theme.of(
-          context,
-        ).textTheme.bodyMedium?.copyWith(color: UiTokens.textSecondary),
+    return ColoredBox(
+      color: _IpadHomePalette.bg,
+      child: SafeArea(
+        bottom: false,
+        child: StreamBuilder<List<RoundToyWithBox>>(
+          stream: roundRepository.watchActiveRoundToysWithBox(),
+          builder: (context, roundSnapshot) {
+            final activeCount =
+                (roundSnapshot.data ?? const <RoundToyWithBox>[]).length;
+            final repository = weeklyPlanningRepository;
+
+            if (repository == null) {
+              return _IphoneHomeContent(
+                toyRepository: toyRepository,
+                dateLabel: dateLabel,
+                todayCount: activeCount > 0 ? activeCount : 7,
+                weeklySummaries: const <WeekDaySummary>[],
+                weeklyLoading: false,
+                loadingSuggestion: loadingSuggestion,
+                onBuildRound: onBuildRound,
+                onOpenNewToy: onOpenNewToy,
+                onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+                onSettingsTap: onOpenSettings,
+              );
+            }
+
+            return StreamBuilder<List<WeekDaySummary>>(
+              stream: repository.watchWeekSummary(),
+              builder: (context, planningSnapshot) {
+                final summaries =
+                    planningSnapshot.data ?? const <WeekDaySummary>[];
+                final todaySummary = _todaySummary(summaries);
+                final todayCount = activeCount > 0
+                    ? activeCount
+                    : todaySummary?.totalToys ?? 7;
+
+                return _IphoneHomeContent(
+                  toyRepository: toyRepository,
+                  dateLabel: dateLabel,
+                  todayCount: todayCount,
+                  weeklySummaries: summaries,
+                  weeklyLoading: planningSnapshot.connectionState ==
+                      ConnectionState.waiting,
+                  loadingSuggestion: loadingSuggestion,
+                  onBuildRound: onBuildRound,
+                  onOpenNewToy: onOpenNewToy,
+                  onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+                  onSettingsTap: onOpenSettings,
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-class _CompactHomeHeader extends StatelessWidget {
-  final String title;
+class _IphoneHomeContent extends StatelessWidget {
+  final ToyRepository toyRepository;
+  final String dateLabel;
+  final int todayCount;
+  final List<WeekDaySummary> weeklySummaries;
+  final bool weeklyLoading;
+  final bool loadingSuggestion;
+  final VoidCallback onBuildRound;
+  final VoidCallback onOpenNewToy;
+  final VoidCallback onOpenWeeklyPlanning;
+  final VoidCallback onSettingsTap;
+
+  const _IphoneHomeContent({
+    required this.toyRepository,
+    required this.dateLabel,
+    required this.todayCount,
+    required this.weeklySummaries,
+    required this.weeklyLoading,
+    required this.loadingSuggestion,
+    required this.onBuildRound,
+    required this.onOpenNewToy,
+    required this.onOpenWeeklyPlanning,
+    required this.onSettingsTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomReserve =
+        AppBottomNavigation.reservedScrollPadding(context) + UiTokens.spacingSm;
+
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.15,
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          UiTokens.spacingMd,
+          UiTokens.spacingSm,
+          UiTokens.spacingMd,
+          bottomReserve,
+        ),
+        physics: const BouncingScrollPhysics(),
+        children: [
+          _IphoneHomeTopBar(
+            dateLabel: dateLabel,
+            onSettingsTap: onSettingsTap,
+          ),
+          const SizedBox(height: 10),
+          _IphoneRoundTodayHero(
+            itemCount: todayCount,
+            loadingSuggestion: loadingSuggestion,
+            onBuildRound: onBuildRound,
+          ),
+          const SizedBox(height: 14),
+          _IphoneEssentialActions(
+            onOpenNewToy: onOpenNewToy,
+            onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+          ),
+          const SizedBox(height: 14),
+          _IphoneOrganizationCard(toyRepository: toyRepository),
+          const SizedBox(height: 14),
+          _IphoneWeeklyPlanningCompactCard(
+            summaries: weeklySummaries,
+            loading: weeklyLoading,
+            onTap: onOpenWeeklyPlanning,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IphoneHomeTopBar extends StatelessWidget {
   final String dateLabel;
   final VoidCallback onSettingsTap;
 
-  const _CompactHomeHeader({
-    required this.title,
+  const _IphoneHomeTopBar({
     required this.dateLabel,
     required this.onSettingsTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hora de brincar',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textSectionTitle.copyWith(
+                  color: _IpadHomePalette.text,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today_outlined,
+                    size: 14,
+                    color: _IpadHomePalette.orange,
+                  ),
+                  const SizedBox(width: UiTokens.spacingXs),
+                  Flexible(
+                    child: Text(
+                      dateLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: UiTokens.textMicro.copyWith(
+                        color: _IpadHomePalette.textMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: UiTokens.spacingSm),
+        IconButton.filledTonal(
+          tooltip: 'Configurações',
+          onPressed: onSettingsTap,
+          icon: const Icon(Icons.settings_outlined, size: 20),
+        ),
+      ],
+    );
+  }
+}
+
+class _IphoneRoundTodayHero extends StatelessWidget {
+  final int itemCount;
+  final bool loadingSuggestion;
+  final VoidCallback onBuildRound;
+
+  const _IphoneRoundTodayHero({
+    required this.itemCount,
+    required this.loadingSuggestion,
+    required this.onBuildRound,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(
-        UiTokens.spacingMd,
-        UiTokens.spacingSm,
-        UiTokens.spacingMd,
-        UiTokens.spacingSm,
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: UiTokens.spacingMd,
-        vertical: UiTokens.spacingSm,
-      ),
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF5E8),
-        borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_IpadHomePalette.orange, Color(0xFFFBBF24)],
+        ),
+        borderRadius: BorderRadius.circular(UiTokens.radiusXl),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x40F97316),
+            blurRadius: 20,
+            offset: Offset(0, 10),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textSectionTitle.copyWith(
-                    color: UiTokens.textPrimary,
+          Text(
+            'Rodada de hoje',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: UiTokens.textSectionTitle.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$itemCount',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textTitle.copyWith(
+                  color: Colors.white,
+                  fontSize: 74,
+                  fontWeight: FontWeight.w900,
+                  height: 0.9,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'brinquedos\npara hoje',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: UiTokens.textCaption.copyWith(
+                      color: Colors.white.withValues(alpha: 0.86),
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                    ),
                   ),
                 ),
-                const SizedBox(height: UiTokens.spacingXs),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 14,
-                      color: Color(0xFFF97316),
-                    ),
-                    const SizedBox(width: UiTokens.spacingXs),
-                    Flexible(
-                      child: Text(
-                        dateLabel,
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: loadingSuggestion ? null : onBuildRound,
+              icon: loadingSuggestion
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: _IpadHomePalette.orange,
+                      ),
+                    )
+                  : const Icon(Icons.shuffle_rounded, size: 20),
+              label: const Text('Montar Rodada'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: _IpadHomePalette.orange,
+                disabledBackgroundColor: Colors.white.withValues(alpha: 0.72),
+                disabledForegroundColor:
+                    _IpadHomePalette.orange.withValues(alpha: 0.62),
+                minimumSize: const Size.fromHeight(54),
+                textStyle: UiTokens.textButton.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IphoneEssentialActions extends StatelessWidget {
+  final VoidCallback onOpenNewToy;
+  final VoidCallback onOpenWeeklyPlanning;
+
+  const _IphoneEssentialActions({
+    required this.onOpenNewToy,
+    required this.onOpenWeeklyPlanning,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _IphoneActionTile(
+            label: 'Novo brinquedo',
+            icon: Icons.add_rounded,
+            foreground: _IpadHomePalette.orange,
+            background: _IpadHomePalette.orangeLight,
+            border: _IpadHomePalette.orangeBorder,
+            onTap: onOpenNewToy,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _IphoneActionTile(
+            label: 'Planejamento\nsemanal',
+            icon: Icons.calendar_month_outlined,
+            foreground: const Color(0xFF2563EB),
+            background: const Color(0xFFEFF6FF),
+            border: const Color(0xFFBFDBFE),
+            onTap: onOpenWeeklyPlanning,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IphoneActionTile extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+  final Color border;
+  final VoidCallback onTap;
+
+  const _IphoneActionTile({
+    required this.label,
+    required this.icon,
+    required this.foreground,
+    required this.background,
+    required this.border,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget iconBox({required double size, required double iconSize}) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: foreground, size: iconSize),
+      );
+    }
+
+    final textStyle = UiTokens.textCaption.copyWith(
+      color: _IpadHomePalette.text,
+      fontSize: 12,
+      fontWeight: FontWeight.w900,
+      height: 1,
+    );
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: 90,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: border, width: 1.2),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0FAA6E32),
+                blurRadius: 16,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              iconBox(size: 32, iconSize: 19),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: textStyle,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IphoneOrganizationCard extends StatelessWidget {
+  final ToyRepository toyRepository;
+
+  const _IphoneOrganizationCard({required this.toyRepository});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<Toy>>(
+      stream: toyRepository.watchAll(),
+      builder: (context, toysSnapshot) {
+        final toyCount = toysSnapshot.data?.length ?? 0;
+
+        return StreamBuilder<List<Boxe>>(
+          stream: toyRepository.watchBoxes(),
+          builder: (context, boxesSnapshot) {
+            final boxCount = boxesSnapshot.data?.length ?? 0;
+
+            return StreamBuilder<List<LocationDefinition>>(
+              stream: toyRepository.watchLocations(),
+              builder: (context, locationsSnapshot) {
+                final locationCount = locationsSnapshot.data?.length ?? 0;
+
+                return Container(
+                  padding: const EdgeInsets.fromLTRB(18, 17, 18, 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2F3A36),
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x26313A36),
+                        blurRadius: 18,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Organização da casa',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textCaption.copyWith(
-                          color: UiTokens.textSecondary,
-                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _IphoneDarkStat(
+                              value: toyCount,
+                              label: 'brinquedos',
+                            ),
+                          ),
+                          const _IphoneDarkDivider(),
+                          Expanded(
+                            child: _IphoneDarkStat(
+                              value: boxCount,
+                              label: 'caixas',
+                            ),
+                          ),
+                          const _IphoneDarkDivider(),
+                          Expanded(
+                            child: _IphoneDarkStat(
+                              value: locationCount,
+                              label: 'locais',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+class _IphoneDarkStat extends StatelessWidget {
+  final int value;
+  final String label;
+
+  const _IphoneDarkStat({
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$value',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: UiTokens.textTitle.copyWith(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.w900,
+            height: 1,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: UiTokens.textMicro.copyWith(
+            color: Colors.white.withValues(alpha: 0.64),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _IphoneDarkDivider extends StatelessWidget {
+  const _IphoneDarkDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 42,
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      color: Colors.white.withValues(alpha: 0.12),
+    );
+  }
+}
+
+class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
+  final List<WeekDaySummary> summaries;
+  final bool loading;
+  final VoidCallback onTap;
+
+  const _IphoneWeeklyPlanningCompactCard({
+    required this.summaries,
+    required this.loading,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final upcoming = _upcomingSummaries(summaries, limit: 3);
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: _IpadHomePalette.border),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0FAA6E32),
+                blurRadius: 16,
+                offset: Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: _IpadHomePalette.orangeLight,
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: const Icon(
+                      Icons.calendar_month_outlined,
+                      color: _IpadHomePalette.orange,
+                      size: 19,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Planejamento semanal',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: UiTokens.textCaption.copyWith(
+                        color: _IpadHomePalette.text,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: _IpadHomePalette.textMuted,
+                    size: 22,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (upcoming.isEmpty)
+                Text(
+                  loading
+                      ? 'Carregando próximos dias...'
+                      : 'Toque para ajustar os próximos dias.',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: UiTokens.textMicro.copyWith(
+                    color: _IpadHomePalette.textMuted,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
+              else
+                Row(
+                  children: [
+                    for (var index = 0; index < upcoming.length; index++) ...[
+                      if (index > 0) const SizedBox(width: 8),
+                      Expanded(
+                        child: _IphoneWeekPreviewCell(summary: upcoming[index]),
+                      ),
+                    ],
                   ],
                 ),
-              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IphoneWeekPreviewCell extends StatelessWidget {
+  final WeekDaySummary summary;
+
+  const _IphoneWeekPreviewCell({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final isToday = summary.isToday;
+    final background =
+        isToday ? _IpadHomePalette.orangeLight : const Color(0xFFFFFBF6);
+    final foreground =
+        isToday ? _IpadHomePalette.orange : _IpadHomePalette.text;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color:
+              isToday ? _IpadHomePalette.orangeBorder : const Color(0xFFF3E2D0),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            isToday ? 'HOJE' : _weekdayShortLabel(summary.weekday),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: UiTokens.textMicro.copyWith(
+              color: foreground,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(width: UiTokens.spacingSm),
-          IconButton.filledTonal(
-            tooltip: 'Configurações',
-            onPressed: onSettingsTap,
-            icon: const Icon(Icons.settings_outlined, size: 20),
+          const SizedBox(height: 5),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '${summary.totalToys} brinq.',
+              maxLines: 1,
+              style: UiTokens.textMicro.copyWith(
+                color: _IpadHomePalette.textMuted,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
         ],
       ),
@@ -2241,6 +2904,43 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
     background: _IpadHomePalette.orangeLight,
     foreground: _IpadHomePalette.orange,
   );
+}
+
+WeekDaySummary? _todaySummary(List<WeekDaySummary> summaries) {
+  for (final summary in summaries) {
+    if (summary.isToday) return summary;
+  }
+
+  final today = DateTime.now().weekday;
+  for (final summary in summaries) {
+    if (summary.weekday == today) return summary;
+  }
+
+  return null;
+}
+
+List<WeekDaySummary> _upcomingSummaries(
+  List<WeekDaySummary> summaries, {
+  required int limit,
+}) {
+  if (summaries.isEmpty || limit <= 0) return const <WeekDaySummary>[];
+
+  final byWeekday = <int, WeekDaySummary>{
+    for (final summary in summaries) summary.weekday: summary,
+  };
+  final today = DateTime.now().weekday;
+  final upcoming = <WeekDaySummary>[];
+
+  for (var offset = 0; offset < 7 && upcoming.length < limit; offset++) {
+    final weekday = ((today - 1 + offset) % 7) + 1;
+    final summary = byWeekday[weekday];
+    if (summary != null) upcoming.add(summary);
+  }
+
+  if (upcoming.isNotEmpty) return upcoming;
+
+  final sorted = [...summaries]..sort((a, b) => a.weekday.compareTo(b.weekday));
+  return sorted.take(limit).toList(growable: false);
 }
 
 String _weekdayShortLabel(int weekday) {
