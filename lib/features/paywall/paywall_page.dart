@@ -122,6 +122,13 @@ class _PaywallPageState extends State<PaywallPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    if (isTablet) return _buildIpadScaffold(context);
+
+    return _buildMobileScaffold(context);
+  }
+
+  Widget _buildMobileScaffold(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -243,6 +250,437 @@ class _PaywallPageState extends State<PaywallPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildIpadScaffold(BuildContext context) {
+    final bottomPadding = MediaQuery.paddingOf(context).bottom + 32;
+
+    return Scaffold(
+      backgroundColor: _PaywallIpadPalette.bg,
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(24, 18, 24, bottomPadding),
+          physics: const BouncingScrollPhysics(),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1032),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _PaywallIpadHeader(
+                      onClose: () => Navigator.of(context).maybePop(),
+                    ),
+                    const SizedBox(height: 18),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final useColumns = constraints.maxWidth >= 820;
+                        const valueCard = _PaywallIpadValueCard();
+                        final plansPanel = _PaywallIpadPlansPanel(
+                          selectedProductId: _selectedProductId,
+                          isLoading: _purchaseService.isLoading,
+                          onSelectMonthly: () =>
+                              _selectPlan(PurchaseService.monthlyProductId),
+                          onSelectYearly: () =>
+                              _selectPlan(PurchaseService.yearlyProductId),
+                          onPurchase: _startPurchase,
+                          onRestore: _restorePurchases,
+                          onClose: () => Navigator.of(context).maybePop(),
+                          onTerms: () => _openExternalLink(_termsOfUseUrl),
+                          onPrivacy: () => _openExternalLink(_privacyPolicyUrl),
+                        );
+
+                        if (!useColumns) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              valueCard,
+                              const SizedBox(height: 18),
+                              plansPanel,
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Expanded(flex: 11, child: valueCard),
+                            const SizedBox(width: 22),
+                            Expanded(flex: 9, child: plansPanel),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PaywallIpadPalette {
+  _PaywallIpadPalette._();
+
+  static const Color bg = Color(0xFFFDF7F0);
+  static const Color ink = Color(0xFF25180A);
+  static const Color muted = Color(0xFF6B4F30);
+  static const Color soft = Color(0xFFFFF3E7);
+  static const Color orange = Color(0xFFF97316);
+  static const Color orangeDark = Color(0xFFC2410C);
+  static const Color border = Color(0xFFF0DEC8);
+}
+
+class _PaywallIpadHeader extends StatelessWidget {
+  final VoidCallback onClose;
+
+  const _PaywallIpadHeader({required this.onClose});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: UiTokens.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: _PaywallIpadPalette.border),
+        boxShadow: UiTokens.softShadow,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: _PaywallIpadPalette.orange.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.workspace_premium_outlined,
+              color: _PaywallIpadPalette.orange,
+              size: 30,
+            ),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'RODÍZIO PREMIUM',
+                  style: UiTokens.textMicro.copyWith(
+                    color: _PaywallIpadPalette.orangeDark,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Desbloqueie o Planejamento Semanal',
+                  style: textTheme.headlineSmall?.copyWith(
+                    color: _PaywallIpadPalette.ink,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Organize a semana inteira de brincadeiras com mais previsibilidade.',
+                  style: UiTokens.textBody.copyWith(
+                    color: _PaywallIpadPalette.muted,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          OutlinedButton.icon(
+            onPressed: onClose,
+            icon: const Icon(Icons.close_rounded, size: 18),
+            label: const Text('Agora não'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: _PaywallIpadPalette.muted,
+              side: const BorderSide(color: _PaywallIpadPalette.border),
+              minimumSize: const Size(132, 46),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaywallIpadValueCard extends StatelessWidget {
+  const _PaywallIpadValueCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(26),
+      decoration: BoxDecoration(
+        color: UiTokens.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: _PaywallIpadPalette.border),
+        boxShadow: UiTokens.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: _PaywallIpadPalette.soft,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: _PaywallIpadPalette.orange.withValues(alpha: 0.18),
+              ),
+            ),
+            child: Text(
+              'Premium desbloqueia Planejamento Semanal',
+              style: UiTokens.textCaption.copyWith(
+                color: _PaywallIpadPalette.orangeDark,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(height: 22),
+          Text(
+            'Uma semana organizada antes da rotina começar.',
+            style: textTheme.headlineSmall?.copyWith(
+              color: _PaywallIpadPalette.ink,
+              fontWeight: FontWeight.w800,
+              height: 1.12,
+              letterSpacing: 0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.',
+            style: UiTokens.textBody.copyWith(
+              color: _PaywallIpadPalette.muted,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const _PaywallIpadBenefit(
+            icon: Icons.calendar_month_outlined,
+            title: 'Planejamento da semana',
+            text: 'Prepare os dias com antecedência e reduza decisões na hora.',
+          ),
+          const SizedBox(height: 14),
+          const _PaywallIpadBenefit(
+            icon: Icons.category_outlined,
+            title: 'Categorias equilibradas',
+            text: 'Ajuste a variedade das brincadeiras ao longo da semana.',
+          ),
+          const SizedBox(height: 14),
+          const _PaywallIpadBenefit(
+            icon: Icons.lightbulb_outline,
+            title: 'Menos improviso no dia a dia',
+            text: 'Tenha uma rotina mais previsível sem perder flexibilidade.',
+          ),
+          const SizedBox(height: 14),
+          const _PaywallIpadBenefit(
+            icon: Icons.view_week_outlined,
+            title: 'Visão clara da rotina',
+            text: 'Acompanhe dias, quantidades e distribuição dos brinquedos.',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaywallIpadBenefit extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String text;
+
+  const _PaywallIpadBenefit({
+    required this.icon,
+    required this.title,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: _PaywallIpadPalette.orange.withValues(alpha: 0.11),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(icon, color: _PaywallIpadPalette.orange, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: UiTokens.textBody.copyWith(
+                  color: _PaywallIpadPalette.ink,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                text,
+                style: UiTokens.textCaption.copyWith(
+                  color: _PaywallIpadPalette.muted,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PaywallIpadPlansPanel extends StatelessWidget {
+  final String selectedProductId;
+  final bool isLoading;
+  final VoidCallback onSelectMonthly;
+  final VoidCallback onSelectYearly;
+  final VoidCallback onPurchase;
+  final VoidCallback onRestore;
+  final VoidCallback onClose;
+  final VoidCallback onTerms;
+  final VoidCallback onPrivacy;
+
+  const _PaywallIpadPlansPanel({
+    required this.selectedProductId,
+    required this.isLoading,
+    required this.onSelectMonthly,
+    required this.onSelectYearly,
+    required this.onPurchase,
+    required this.onRestore,
+    required this.onClose,
+    required this.onTerms,
+    required this.onPrivacy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: UiTokens.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: _PaywallIpadPalette.border),
+        boxShadow: UiTokens.softShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Escolha seu plano',
+            style: UiTokens.textSectionTitle.copyWith(
+              color: _PaywallIpadPalette.ink,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Assine para liberar o Planejamento Semanal.',
+            style: UiTokens.textCaption.copyWith(
+              color: _PaywallIpadPalette.muted,
+              height: 1.35,
+            ),
+          ),
+          const SizedBox(height: 18),
+          _PlanCard(
+            badge: 'Plano anual',
+            title: 'Rodízio Premium Anual',
+            price: paywallYearlyDisplayPrice,
+            description: paywallYearlyMonthlyEquivalent,
+            isFeatured: true,
+            isSelected: selectedProductId == PurchaseService.yearlyProductId,
+            onTap: onSelectYearly,
+          ),
+          const SizedBox(height: 12),
+          _PlanCard(
+            title: 'Rodízio Premium Mensal',
+            price: paywallMonthlyDisplayPrice,
+            isSelected: selectedProductId == PurchaseService.monthlyProductId,
+            onTap: onSelectMonthly,
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: isLoading ? null : onPurchase,
+            icon: isLoading
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.workspace_premium_outlined),
+            label: Text(isLoading ? 'Processando...' : 'Assinar Premium'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(54),
+              backgroundColor: _PaywallIpadPalette.orange,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: isLoading ? null : onRestore,
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: const Text('Restaurar compras'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              foregroundColor: _PaywallIpadPalette.orangeDark,
+              side: BorderSide(
+                color: _PaywallIpadPalette.orange.withValues(alpha: 0.26),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: isLoading ? null : onClose,
+            child: const Text('Agora não'),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              TextButton(
+                onPressed: onTerms,
+                child: const Text('Termos de uso'),
+              ),
+              Text(
+                '|',
+                style: UiTokens.textCaption.copyWith(
+                  color: _PaywallIpadPalette.muted,
+                ),
+              ),
+              TextButton(
+                onPressed: onPrivacy,
+                child: const Text('Política de privacidade'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
