@@ -189,15 +189,11 @@ class _RodadaPageState extends State<RodadaPage> {
       if (!mounted) return;
 
       unawaited(AppAnalytics.logSuggestionOpened(source: 'round_page'));
-      final selectedToys = await showModalBottomSheet<List<Toy>>(
+      final selectedToys = await showRoundSuggestionPicker(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => RoundSuggestionSheet(
-          toys: suggestedToys,
-          categoryNamesById: categoryNamesById,
-          boxesById: boxesById,
-        ),
+        toys: suggestedToys,
+        categoryNamesById: categoryNamesById,
+        boxesById: boxesById,
       );
       if (selectedToys == null || selectedToys.isEmpty) return;
 

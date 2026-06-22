@@ -594,15 +594,11 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       if (!mounted) return;
 
       unawaited(AppAnalytics.logSuggestionOpened(source: 'home_ipad'));
-      final selectedToys = await showModalBottomSheet<List<Toy>>(
+      final selectedToys = await showRoundSuggestionPicker(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (_) => RoundSuggestionSheet(
-          toys: suggestedToys,
-          categoryNamesById: categoryNamesById,
-          boxesById: {for (final box in boxes) box.id: box},
-        ),
+        toys: suggestedToys,
+        categoryNamesById: categoryNamesById,
+        boxesById: {for (final box in boxes) box.id: box},
       );
       if (selectedToys == null || selectedToys.isEmpty) return;
 
