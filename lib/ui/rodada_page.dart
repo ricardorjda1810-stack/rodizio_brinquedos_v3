@@ -124,7 +124,9 @@ class _RodadaPageState extends State<RodadaPage> {
   Future<void> _useHomeSuggestion(List<RoundToyWithBox> suggestion) async {
     if (_startingRound) return;
 
-    setState(() => _startingRound = true);
+    setState(() {
+      _startingRound = true;
+    });
     try {
       final toyIds = suggestion
           .map((item) => item.toy.id)
@@ -171,7 +173,9 @@ class _RodadaPageState extends State<RodadaPage> {
       );
     } finally {
       if (mounted) {
-        setState(() => _startingRound = false);
+        setState(() {
+          _startingRound = false;
+        });
       }
     }
   }
@@ -181,7 +185,9 @@ class _RodadaPageState extends State<RodadaPage> {
   ) async {
     if (_loadingSuggestion) return;
 
-    setState(() => _loadingSuggestion = true);
+    setState(() {
+      _loadingSuggestion = true;
+    });
     try {
       final suggestedToys = await widget.roundRepository.suggestRoundForToday();
       final boxes = await widget.toyRepository.watchBoxes().first;
@@ -228,7 +234,9 @@ class _RodadaPageState extends State<RodadaPage> {
       );
     } finally {
       if (mounted) {
-        setState(() => _loadingSuggestion = false);
+        setState(() {
+          _loadingSuggestion = false;
+        });
       }
     }
   }

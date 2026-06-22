@@ -73,7 +73,9 @@ class _MainShellState extends State<MainShell> {
 
   void _goTo(int index) {
     if (_currentIndex == index) return;
-    setState(() => _currentIndex = index);
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   void _openBrinquedosForBox(String boxId) {
@@ -581,7 +583,9 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
   Future<void> _openRoundSuggestionSheet() async {
     if (_loadingSuggestion) return;
 
-    setState(() => _loadingSuggestion = true);
+    setState(() {
+      _loadingSuggestion = true;
+    });
     try {
       final categories =
           await widget.toyRepository.watchCategories(activeOnly: true).first;
@@ -615,7 +619,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       );
       if (!mounted) return;
 
-      setState(() => _suggestionFuture = _loadHomeSuggestion());
+      _refreshHomeSuggestion();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -630,7 +634,9 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       );
     } finally {
       if (mounted) {
-        setState(() => _loadingSuggestion = false);
+        setState(() {
+          _loadingSuggestion = false;
+        });
       }
     }
   }
@@ -638,7 +644,9 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
   Future<void> _startRound(List<RoundToyWithBox> selection) async {
     if (_startingRound) return;
 
-    setState(() => _startingRound = true);
+    setState(() {
+      _startingRound = true;
+    });
     try {
       final toyIds = selection
           .map((item) => item.toy.id)
@@ -664,7 +672,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       );
       if (!mounted) return;
 
-      setState(() => _suggestionFuture = _loadHomeSuggestion());
+      _refreshHomeSuggestion();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Rodada pronta com ${toyIds.length} brinquedos.'),
@@ -677,9 +685,18 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       );
     } finally {
       if (mounted) {
-        setState(() => _startingRound = false);
+        setState(() {
+          _startingRound = false;
+        });
       }
     }
+  }
+
+  void _refreshHomeSuggestion() {
+    final suggestionFuture = _loadHomeSuggestion();
+    setState(() {
+      _suggestionFuture = suggestionFuture;
+    });
   }
 
   @override
@@ -1163,8 +1180,12 @@ class _IpadToyTileState extends State<_IpadToyTile> {
         : widget.item.toy.name.trim();
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) => setState(() {
+        _hovering = true;
+      }),
+      onExit: (_) => setState(() {
+        _hovering = false;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         curve: Curves.easeOut,
@@ -1986,8 +2007,12 @@ class _IpadQuickActionTileState extends State<_IpadQuickActionTile> {
     final data = widget.data;
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
+      onEnter: (_) => setState(() {
+        _hovering = true;
+      }),
+      onExit: (_) => setState(() {
+        _hovering = false;
+      }),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
