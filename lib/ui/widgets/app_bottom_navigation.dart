@@ -6,6 +6,32 @@ class AppBottomNavigation extends StatelessWidget {
   static const double _bottomMargin = UiTokens.spacingMd;
   static const double _barHeight = kBottomNavigationBarHeight;
   static const double _contentClearance = UiTokens.spacingXl;
+  static const List<_BottomNavigationDestination> _destinations = [
+    _BottomNavigationDestination(
+      pageIndex: 0,
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+      label: 'Home',
+    ),
+    _BottomNavigationDestination(
+      pageIndex: 1,
+      icon: Icons.toys_outlined,
+      activeIcon: Icons.toys_rounded,
+      label: 'Brinquedos',
+    ),
+    _BottomNavigationDestination(
+      pageIndex: 3,
+      icon: Icons.autorenew_rounded,
+      activeIcon: Icons.autorenew_rounded,
+      label: 'Rod\u00edzio',
+    ),
+    _BottomNavigationDestination(
+      pageIndex: 2,
+      icon: Icons.inventory_2_outlined,
+      activeIcon: Icons.inventory_2_rounded,
+      label: 'Caixas',
+    ),
+  ];
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -29,6 +55,10 @@ class AppBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navigationIndex = _destinations.indexWhere(
+      (destination) => destination.pageIndex == currentIndex,
+    );
+
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(
         UiTokens.spacingMd,
@@ -49,33 +79,41 @@ class AppBottomNavigation extends StatelessWidget {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: currentIndex,
-          onTap: onTap,
+          currentIndex: navigationIndex >= 0 ? navigationIndex : 0,
+          onTap: (index) => onTap(_destinations[index].pageIndex),
           backgroundColor: Colors.transparent,
           selectedItemColor: const Color(0xFFF97316),
           unselectedItemColor: const Color(0xFFA8896A),
           elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home_rounded),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.toys_outlined),
-              activeIcon: Icon(Icons.toys_rounded),
-              label: 'Brinquedos',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.inventory_2_outlined),
-              activeIcon: Icon(Icons.inventory_2_rounded),
-              label: 'Caixas',
-            ),
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 12,
+          unselectedFontSize: 11,
+          items: [
+            for (final destination in _destinations)
+              BottomNavigationBarItem(
+                icon: Icon(destination.icon),
+                activeIcon: Icon(destination.activeIcon),
+                label: destination.label,
+              ),
           ],
         ),
       ),
     );
   }
+}
+
+class _BottomNavigationDestination {
+  final int pageIndex;
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+
+  const _BottomNavigationDestination({
+    required this.pageIndex,
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
 }
 
 class AppTopNavigation extends StatelessWidget {

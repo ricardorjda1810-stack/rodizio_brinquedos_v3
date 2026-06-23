@@ -56,10 +56,10 @@ class _MainShellState extends State<MainShell> {
   WeeklyPlanningRepository? _weeklyPlanningRepository;
   bool _mobileLoadingSuggestion = false;
   static const List<String> _titles = <String>[
-    'Rod\u00edzio',
+    'Home',
     'Brinquedos',
     'Caixas',
-    'Rodada',
+    'Rod\u00edzio',
   ];
 
   @override
@@ -366,7 +366,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
-    final effectiveIndex = isTablet || _currentIndex <= 2 ? _currentIndex : 0;
+    final effectiveIndex = isTablet || _currentIndex <= 3 ? _currentIndex : 0;
     final body = IndexedStack(
       index: effectiveIndex,
       children: [
@@ -376,7 +376,7 @@ class _MainShellState extends State<MainShell> {
           roundRepository: widget.roundRepository,
           settingsRepository: widget.settingsRepository,
           purchaseService: widget.purchaseService,
-          onOpenRodizioTab: () => _goTo(isTablet ? 3 : 0),
+          onOpenRodizioTab: () => _goTo(3),
           onOpenHomeTab: () => _openTopNavigationTab(0),
           onOpenRoundTab: () => _openTopNavigationTab(3),
           onOpenWeeklyPlanning: _openTopNavigationWeeklyPlanning,
