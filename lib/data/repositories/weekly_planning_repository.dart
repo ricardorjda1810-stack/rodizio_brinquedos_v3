@@ -4,6 +4,8 @@ import 'package:drift/drift.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
 
 class WeeklyPlanningCategoryConfig {
@@ -363,7 +365,8 @@ class WeeklyPlanningRepository {
   Future<List<WeeklyPlanningCategoryConfig>> resolveCategoryConfigForDate(
     DateTime date,
   ) async {
-    final defaultConfig = await _loadDefaultCategoryConfigs();
+    final defaultConfig =
+        await _loadEffectiveDefaultCategoryConfigs(date.weekday);
     if (!_settingsRepository.weeklyPlanningEnabled) return defaultConfig;
 
     final day = await getByWeekday(date.weekday);
@@ -371,6 +374,18 @@ class WeeklyPlanningRepository {
 
     final customConfig = await _loadCustomCategoryConfigs(date.weekday);
     if (!_hasValidIncludedQuota(customConfig)) return defaultConfig;
+    if (_isStaleDefaultSuperset(
+      defaultConfig: defaultConfig,
+      customConfig: customConfig,
+    )) {
+      return defaultConfig;
+    }
+    if (_isAutomaticAgePresetConfig(
+      weekday: date.weekday,
+      categories: customConfig,
+    )) {
+      return defaultConfig;
+    }
     return customConfig;
   }
 
@@ -441,9 +456,10 @@ class WeeklyPlanningRepository {
 
   Future<List<WeekDaySummary>> _buildWeekSummary() async {
     await ensureSeeded();
-    final defaultCategories = await _loadDefaultCategoryConfigs();
-    final defaultTotal = _sumIncludedQuotas(defaultCategories);
-    final today = DateTime.now().weekday;
+    final now = DateTime.now();
+    final today = now.weekday;
+    final monday = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: today - DateTime.monday));
     final planningEnabled = _settingsRepository.weeklyPlanningEnabled;
     final rows = await _orderedDayQuery().get();
     final rowsByWeekday = <int, WeeklyPlanningSetting>{
@@ -453,10 +469,10 @@ class WeeklyPlanningRepository {
     final result = <WeekDaySummary>[];
     for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
       final row = rowsByWeekday[weekday];
+      final date = monday.add(Duration(days: weekday - DateTime.monday));
+      final categories = await resolveCategoryConfigForDate(date);
       final usesDefault = !planningEnabled || row == null || row.useDefault;
-      final total = usesDefault
-          ? defaultTotal
-          : _sumIncludedQuotas(await _loadCustomCategoryConfigs(weekday));
+      final total = _sumIncludedQuotas(categories);
 
       result.add(
         WeekDaySummary(
@@ -497,6 +513,57 @@ class WeeklyPlanningRepository {
             );
           }).toList(growable: false),
         );
+  }
+
+  Future<List<WeeklyPlanningCategoryConfig>>
+      _loadEffectiveDefaultCategoryConfigs(
+    int weekday,
+  ) async {
+    final agePresetConfig = await _loadAgePresetCategoryConfigs(weekday);
+    if (agePresetConfig != null && _hasValidIncludedQuota(agePresetConfig)) {
+      return agePresetConfig;
+    }
+    return _loadDefaultCategoryConfigs();
+  }
+
+  Future<List<WeeklyPlanningCategoryConfig>?> _loadAgePresetCategoryConfigs(
+    int weekday,
+  ) async {
+    final ageRange = await _loadChildAgeRange();
+    if (ageRange == null) return null;
+
+    final categories = await (_db.select(_db.categoryDefinitions)
+          ..where((category) => category.isActive.equals(true))
+          ..orderBy([
+            (category) => OrderingTerm.asc(category.sortOrder),
+            (category) => OrderingTerm.asc(category.name),
+          ]))
+        .get();
+    final categoryIdsByOfficialId = _categoryIdsByOfficialId(categories);
+    final quotasByOfficialId =
+        AgePresetCatalog.presetFor(ageRange).quotasForWeekday(weekday);
+
+    for (final entry in quotasByOfficialId.entries) {
+      if (entry.value <= 0) continue;
+      if (!categoryIdsByOfficialId.containsKey(entry.key)) return null;
+    }
+
+    final officialIdByCategoryId = <String, String>{
+      for (final entry in categoryIdsByOfficialId.entries)
+        entry.value: entry.key,
+    };
+
+    return categories.map((category) {
+      final officialId = officialIdByCategoryId[category.id];
+      final quota =
+          officialId == null ? 0 : quotasByOfficialId[officialId] ?? 0;
+      return WeeklyPlanningCategoryConfig(
+        categoryId: category.id,
+        categoryName: category.name,
+        isIncluded: quota > 0,
+        quota: quota,
+      );
+    }).toList(growable: false);
   }
 
   Future<List<WeeklyPlanningCategoryConfig>> _loadCustomCategoryConfigs(
@@ -608,6 +675,108 @@ class WeeklyPlanningRepository {
     return false;
   }
 
+  bool _isAutomaticAgePresetConfig({
+    required int weekday,
+    required List<WeeklyPlanningCategoryConfig> categories,
+  }) {
+    if (weekday != DateTime.saturday && weekday != DateTime.sunday) {
+      return false;
+    }
+
+    final categoryIdsByOfficialId = _configCategoryIdsByOfficialId(categories);
+    for (final ageRange in ChildAgeRange.values) {
+      final quotasByOfficialId =
+          AgePresetCatalog.presetFor(ageRange).quotasForWeekday(weekday);
+      if (_matchesOfficialQuotas(
+        categories: categories,
+        categoryIdsByOfficialId: categoryIdsByOfficialId,
+        quotasByOfficialId: quotasByOfficialId,
+      )) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool _isStaleDefaultSuperset({
+    required List<WeeklyPlanningCategoryConfig> defaultConfig,
+    required List<WeeklyPlanningCategoryConfig> customConfig,
+  }) {
+    final defaultByCategoryId = <String, WeeklyPlanningCategoryConfig>{
+      for (final category in defaultConfig) category.categoryId: category,
+    };
+    final customByCategoryId = <String, WeeklyPlanningCategoryConfig>{
+      for (final category in customConfig) category.categoryId: category,
+    };
+    final includedDefaults = defaultConfig.where((category) {
+      return category.isIncluded && category.safeQuota > 0;
+    }).toList(growable: false);
+    if (includedDefaults.isEmpty) return false;
+
+    var customIncludesDefaultCategories = true;
+    for (final category in includedDefaults) {
+      final customCategory = customByCategoryId[category.categoryId];
+      if (customCategory == null ||
+          !customCategory.isIncluded ||
+          customCategory.safeQuota <= 0) {
+        customIncludesDefaultCategories = false;
+        break;
+      }
+    }
+    if (!customIncludesDefaultCategories) return false;
+
+    final extraIncluded = customConfig.where((category) {
+      final defaultCategory = defaultByCategoryId[category.categoryId];
+      final defaultQuota = defaultCategory?.safeQuota ?? 0;
+      return category.isIncluded && category.safeQuota > 0 && defaultQuota == 0;
+    }).toList(growable: false);
+    if (extraIncluded.isEmpty) return false;
+
+    final officialCategoryIds =
+        _configCategoryIdsByOfficialId([...defaultConfig, ...customConfig])
+            .values
+            .toSet();
+    final nonOfficialExtras = extraIncluded.where((category) {
+      return !officialCategoryIds.contains(category.categoryId);
+    }).toList(growable: false);
+    return nonOfficialExtras.length >= 2;
+  }
+
+  bool _matchesOfficialQuotas({
+    required List<WeeklyPlanningCategoryConfig> categories,
+    required Map<String, String> categoryIdsByOfficialId,
+    required Map<String, int> quotasByOfficialId,
+  }) {
+    for (final entry in quotasByOfficialId.entries) {
+      final categoryId = categoryIdsByOfficialId[entry.key];
+      if (categoryId == null) {
+        if (entry.value > 0) return false;
+        continue;
+      }
+      final category = categories
+          .where((config) => config.categoryId == categoryId)
+          .firstOrNull;
+      final expectedQuota = entry.value < 0 ? 0 : entry.value;
+      final expectedIncluded = expectedQuota > 0;
+      if (category == null) {
+        if (expectedIncluded) return false;
+        continue;
+      }
+      if (category.isIncluded != expectedIncluded) return false;
+      if (category.safeQuota != expectedQuota) return false;
+    }
+
+    final officialCategoryIds = categoryIdsByOfficialId.values.toSet();
+    for (final category in categories) {
+      if (!officialCategoryIds.contains(category.categoryId) &&
+          category.isIncluded &&
+          category.safeQuota > 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   int _sumIncludedQuotas(List<WeeklyPlanningCategoryConfig> categories) {
     var total = 0;
     for (final category in categories) {
@@ -615,6 +784,88 @@ class WeeklyPlanningRepository {
       total += category.safeQuota;
     }
     return total;
+  }
+
+  Future<ChildAgeRange?> _loadChildAgeRange() async {
+    final row = await (_db.select(_db.roundUiSettings)
+          ..where((settings) => settings.id.equals(1)))
+        .getSingleOrNull();
+    return ChildAgeRange.fromStorageValue(row?.childAgeRange);
+  }
+
+  Map<String, String> _categoryIdsByOfficialId(
+    List<CategoryDefinition> categories,
+  ) {
+    final byId = <String, CategoryDefinition>{
+      for (final category in categories) category.id: category,
+    };
+    final byNormalizedName = <String, CategoryDefinition>{
+      for (final category in categories)
+        _normalizeCategoryName(category.name): category,
+    };
+    return <String, String>{
+      for (final official in AgePresetCatalog.officialCategories)
+        if (byId[official.id] != null ||
+            byNormalizedName[_normalizeCategoryName(official.name)] != null)
+          official.id: (byId[official.id] ??
+                  byNormalizedName[_normalizeCategoryName(official.name)]!)
+              .id,
+    };
+  }
+
+  Map<String, String> _configCategoryIdsByOfficialId(
+    List<WeeklyPlanningCategoryConfig> categories,
+  ) {
+    final byId = <String, WeeklyPlanningCategoryConfig>{
+      for (final category in categories) category.categoryId: category,
+    };
+    final byNormalizedName = <String, WeeklyPlanningCategoryConfig>{
+      for (final category in categories)
+        _normalizeCategoryName(category.categoryName): category,
+    };
+    return <String, String>{
+      for (final official in AgePresetCatalog.officialCategories)
+        if (byId[official.id] != null ||
+            byNormalizedName[_normalizeCategoryName(official.name)] != null)
+          official.id: (byId[official.id] ??
+                  byNormalizedName[_normalizeCategoryName(official.name)]!)
+              .categoryId,
+    };
+  }
+
+  String _normalizeCategoryName(String value) {
+    var normalized = value.trim().toLowerCase();
+    const replacements = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'ê': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'î': 'i',
+      'ï': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ö': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+
+    for (final entry in replacements.entries) {
+      normalized = normalized.replaceAll(entry.key, entry.value);
+    }
+
+    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   String _shortWeekdayLabel(int weekday) {

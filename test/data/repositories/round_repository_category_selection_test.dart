@@ -5,6 +5,8 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 
@@ -165,6 +167,113 @@ void main() {
     settingsRepository.dispose();
   });
 
+  test('suggestRoundForDate aplica faixa etaria apesar de cota bruta antiga',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.months6To12);
+    await _insertOfficialToys(db);
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 2,
+      'maos': 3,
+      'imaginacao': 3,
+      'comunicacao': 2,
+      'exploracao': 2,
+    });
+
+    final weekStart = DateTime(2026, 1, 5);
+    final preset = AgePresetCatalog.presetFor(ChildAgeRange.months6To12);
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      final date = weekStart.add(Duration(days: weekday - DateTime.monday));
+      final suggestion = await roundRepository.suggestRoundForDate(date);
+
+      expect(
+        suggestion,
+        hasLength(preset.totalForWeekday(weekday)),
+        reason: 'weekday $weekday',
+      );
+    }
+
+    settingsRepository.dispose();
+  });
+
+  test(
+      'suggestRoundForDate ignora copia semanal antiga com categorias duplicadas',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.months6To12);
+    await settingsRepository.setChildAgeRange(null);
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 1,
+      'maos': 1,
+      'imaginacao': 1,
+      'comunicacao': 1,
+      'exploracao': 1,
+    });
+    await _insertOfficialToys(db);
+    await _writeStaleWeeklyCustomQuotas(db);
+
+    final weekStart = DateTime(2026, 1, 5);
+    const expectedTotal = 5;
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      final date = weekStart.add(Duration(days: weekday - DateTime.monday));
+      final suggestion = await roundRepository.suggestRoundForDate(date);
+
+      expect(suggestion, hasLength(expectedTotal), reason: 'weekday $weekday');
+    }
+
+    settingsRepository.dispose();
+  });
+
+  test('suggestRoundForDate aplica faixa etaria sobre copia semanal duplicada',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.months0To6);
+    await _insertOfficialToys(db);
+    await _writeStaleWeeklyCustomQuotas(db);
+
+    final weekStart = DateTime(2026, 1, 5);
+    final preset = AgePresetCatalog.presetFor(ChildAgeRange.months0To6);
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      final date = weekStart.add(Duration(days: weekday - DateTime.monday));
+      final suggestion = await roundRepository.suggestRoundForDate(date);
+
+      expect(
+        suggestion,
+        hasLength(preset.totalForWeekday(weekday)),
+        reason: 'weekday $weekday',
+      );
+    }
+
+    settingsRepository.dispose();
+  });
+
   test('startRound usa cotas efetivas de cada data por idade', () async {
     final settingsRepository = SettingsRepository(db);
     await settingsRepository.load();
@@ -321,6 +430,57 @@ Future<void> _insertOfficialToys(
         createdAt: createdAt,
       );
       createdAt++;
+    }
+  }
+}
+
+Future<void> _overwriteRoundCategoryQuotas(
+  AppDatabase db,
+  Map<String, int> quotasByCategoryId,
+) async {
+  for (final entry in quotasByCategoryId.entries) {
+    await db.into(db.roundCategorySettings).insertOnConflictUpdate(
+          RoundCategorySettingsCompanion.insert(
+            categoryId: entry.key,
+            isIncluded: Value(entry.value > 0),
+            quota: Value(entry.value),
+          ),
+        );
+  }
+}
+
+Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
+  const quotasByCategoryId = <String, int>{
+    'livros': 1,
+    'construcao': 2,
+    'faz_de_conta': 1,
+    'movimento': 1,
+    'coordenacao': 2,
+    'corpo': 1,
+    'maos': 1,
+    'imaginacao': 1,
+    'comunicacao': 1,
+    'exploracao': 1,
+  };
+
+  for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+    await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
+          WeeklyPlanningSettingsCompanion.insert(
+            weekday: Value(weekday),
+            useDefault: const Value(false),
+            customSize: const Value(null),
+          ),
+        );
+
+    for (final entry in quotasByCategoryId.entries) {
+      await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+            WeeklyPlanningCategorySettingsCompanion.insert(
+              weekday: weekday,
+              categoryId: entry.key,
+              isIncluded: Value(entry.value > 0),
+              quota: Value(entry.value),
+            ),
+          );
     }
   }
 }
