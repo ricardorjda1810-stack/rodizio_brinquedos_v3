@@ -66,8 +66,12 @@ class _WeeklyPlanningOverviewPageState
     final dayConfigByWeekday = <int, WeeklyPlanningDayConfig>{
       for (final config in dayConfigs) config.weekday: config,
     };
+    final activeRoundItems = await _loadActiveRoundToys();
+    final activeRoundToys =
+        activeRoundItems.map((item) => item.toy).toList(growable: false);
 
     final days = <WeeklyPlanningOverviewDayInput>[];
+    List<WeeklyPlanningOverviewToyInput>? todayVisualToys;
     for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
       final date = weekStart.add(Duration(days: weekday - 1));
       final dayConfig = dayConfigByWeekday[weekday];
@@ -76,10 +80,17 @@ class _WeeklyPlanningOverviewPageState
         date,
       );
       final toys = await widget.roundRepository.suggestRoundForDate(date);
+      final isToday = _isSameDate(date, DateTime.now());
+      final visualToys =
+          isToday && activeRoundToys.isNotEmpty ? activeRoundToys : toys;
       final customConfigIsEffective = planningEnabled &&
           dayConfig != null &&
           !dayConfig.useDefault &&
           _hasIncludedQuota(dayConfig.categories);
+
+      if (isToday) {
+        todayVisualToys = visualToys.map(_toyToPreview).toList(growable: false);
+      }
 
       days.add(
         WeeklyPlanningOverviewDayInput(
@@ -96,17 +107,31 @@ class _WeeklyPlanningOverviewPageState
                 ),
               )
               .toList(growable: false),
-          toys: toys.map(_toyToPreview).toList(growable: false),
+          toys: visualToys.map(_toyToPreview).toList(growable: false),
           isDefaultConfig: !customConfigIsEffective,
           isCustomConfig: customConfigIsEffective,
         ),
       );
     }
 
-    return buildWeeklyPlanningOverview(
+    final overview = buildWeeklyPlanningOverview(
       planningEnabled: planningEnabled,
       days: days,
     );
+    if (todayVisualToys == null) return overview;
+
+    return _overviewWithTodayVisualCount(
+      overview,
+      todayToys: todayVisualToys,
+    );
+  }
+
+  Future<List<RoundToyWithBox>> _loadActiveRoundToys() async {
+    try {
+      return await widget.roundRepository.watchActiveRoundToysWithBox().first;
+    } on Object {
+      return const <RoundToyWithBox>[];
+    }
   }
 
   Future<void> _openEditor() async {
@@ -877,7 +902,7 @@ class _FigmaWeekFooter extends StatelessWidget {
                 text: 'Total da semana: ',
                 children: [
                   TextSpan(
-                    text: '${overview.totalToysInWeek} brinquedos programados',
+                    text: '${overview.totalToysInWeek} brinquedos na semana',
                     style: const TextStyle(
                       color: _FigmaPlanningPalette.textMid,
                       fontWeight: FontWeight.w800,
@@ -1066,6 +1091,8 @@ class _FigmaCategoriesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = overview.categoryDistribution;
+    final categoryTotal =
+        items.fold<int>(0, (total, item) => total + item.total);
 
     return _FigmaSurface(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
@@ -1089,7 +1116,7 @@ class _FigmaCategoriesCard extends StatelessWidget {
             for (var index = 0; index < items.length; index++) ...[
               _FigmaCategoryProgressRow(
                 item: items[index],
-                total: overview.totalToysInWeek,
+                total: categoryTotal,
                 style: _figmaCategoryStyle(index),
               ),
               if (index != items.length - 1) const SizedBox(height: 9),
@@ -1773,7 +1800,7 @@ class _WeekSummaryCard extends StatelessWidget {
           const SizedBox(height: UiTokens.spacingSm),
           Text(
             overview.hasConfiguredToys
-                ? 'Totais derivados das quantidades por categoria de cada dia.'
+                ? 'Totais consideram a rodada de hoje e os próximos dias.'
                 : 'Nenhuma categoria com quantidade ativa nesta semana.',
             style: textTheme.bodySmall?.copyWith(
               color: UiTokens.textSecondary,
@@ -2394,6 +2421,50 @@ WeeklyPlanningOverviewToyInput _toyToPreview(Toy toy) {
     categoryId: toy.categoryId,
     boxId: toy.boxId,
     photoPath: toy.photoPath,
+  );
+}
+
+WeeklyPlanningOverview _overviewWithTodayVisualCount(
+  WeeklyPlanningOverview overview, {
+  required List<WeeklyPlanningOverviewToyInput> todayToys,
+}) {
+  var replacedToday = false;
+  final today = DateTime.now();
+  final days = overview.days.map((day) {
+    if (!_isSameDate(day.date, today)) return day;
+
+    replacedToday = true;
+    return WeeklyPlanningDayOverview(
+      date: day.date,
+      weekday: day.weekday,
+      weekdayLabel: day.weekdayLabel,
+      toys: todayToys,
+      total: todayToys.length,
+      isDefaultConfig: day.isDefaultConfig,
+      isCustomConfig: day.isCustomConfig,
+    );
+  }).toList(growable: false);
+
+  if (!replacedToday) return overview;
+
+  final totalToysInWeek = days.fold<int>(0, (total, day) => total + day.total);
+  final boxesInUse = <String>{};
+  for (final day in days) {
+    for (final toy in day.toys) {
+      final boxId = toy.boxId?.trim();
+      if (boxId != null && boxId.isNotEmpty) {
+        boxesInUse.add(boxId);
+      }
+    }
+  }
+
+  return WeeklyPlanningOverview(
+    planningEnabled: overview.planningEnabled,
+    totalToysInWeek: totalToysInWeek,
+    averagePerDay: days.isEmpty ? 0 : totalToysInWeek / days.length,
+    boxesInUse: boxesInUse.length,
+    categoryDistribution: overview.categoryDistribution,
+    days: days,
   );
 }
 

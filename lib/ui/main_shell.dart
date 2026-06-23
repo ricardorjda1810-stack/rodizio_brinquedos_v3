@@ -598,6 +598,7 @@ class _IphoneHomeContent extends StatelessWidget {
           const SizedBox(height: 14),
           _IphoneWeeklyPlanningCompactCard(
             summaries: weeklySummaries,
+            todayCount: todayCount,
             loading: weeklyLoading,
             onTap: onOpenWeeklyPlanning,
           ),
@@ -1040,11 +1041,13 @@ class _IphoneDarkDivider extends StatelessWidget {
 
 class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
   final List<WeekDaySummary> summaries;
+  final int todayCount;
   final bool loading;
   final VoidCallback onTap;
 
   const _IphoneWeeklyPlanningCompactCard({
     required this.summaries,
+    required this.todayCount,
     required this.loading,
     required this.onTap,
   });
@@ -1128,7 +1131,10 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
                     for (var index = 0; index < upcoming.length; index++) ...[
                       if (index > 0) const SizedBox(width: 8),
                       Expanded(
-                        child: _IphoneWeekPreviewCell(summary: upcoming[index]),
+                        child: _IphoneWeekPreviewCell(
+                          summary: upcoming[index],
+                          todayCount: todayCount,
+                        ),
                       ),
                     ],
                   ],
@@ -1143,12 +1149,18 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
 
 class _IphoneWeekPreviewCell extends StatelessWidget {
   final WeekDaySummary summary;
+  final int todayCount;
 
-  const _IphoneWeekPreviewCell({required this.summary});
+  const _IphoneWeekPreviewCell({
+    required this.summary,
+    required this.todayCount,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isToday = summary.isToday;
+    final isToday =
+        summary.isToday || summary.weekday == DateTime.now().weekday;
+    final totalToys = isToday ? todayCount : summary.totalToys;
     final background =
         isToday ? _IpadHomePalette.orangeLight : const Color(0xFFFFFBF6);
     final foreground =
@@ -1181,7 +1193,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              '${summary.totalToys} brinq.',
+              '$totalToys brinq.',
               maxLines: 1,
               style: UiTokens.textMicro.copyWith(
                 color: _IpadHomePalette.textMuted,
@@ -1379,6 +1391,11 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
               390.0,
             );
 
+            final activeRoundStream =
+                widget.roundRepository.watchActiveRoundToysWithBox();
+            final suggestionFuture =
+                _suggestionFuture ??= _loadHomeSuggestion();
+
             return Padding(
               padding: EdgeInsets.fromLTRB(
                 horizontalPadding,
@@ -1395,37 +1412,56 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                   ),
                   SizedBox(height: gap),
                   Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Expanded(
-                          child: _IpadRoundTodayCard(
-                            activeStream: widget.roundRepository
-                                .watchActiveRoundToysWithBox(),
-                            categoriesStream: widget.toyRepository
-                                .watchCategories(activeOnly: true),
-                            suggestionFuture: _suggestionFuture ??=
-                                _loadHomeSuggestion(),
-                            startingRound: _startingRound,
-                            onStartRound: _startRound,
-                            onOpenToy: widget.onOpenToy,
-                          ),
-                        ),
-                        SizedBox(width: gap),
-                        SizedBox(
-                          width: rightWidth,
-                          child: _IpadRightColumn(
-                            toyRepository: widget.toyRepository,
-                            weeklyPlanningRepository:
-                                widget.weeklyPlanningRepository,
-                            onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning,
-                            onOpenNewToy: widget.onOpenNewToy,
-                            onOpenBoxes: widget.onOpenBoxes,
-                            onOpenCategories: widget.onOpenCategories,
-                            onOpenSettings: widget.onOpenSettings,
-                          ),
-                        ),
-                      ],
+                    child: StreamBuilder<List<RoundToyWithBox>>(
+                      stream: activeRoundStream,
+                      builder: (context, activeSnapshot) {
+                        final activeItems =
+                            activeSnapshot.data ?? const <RoundToyWithBox>[];
+                        final activeCount = activeItems.length;
+
+                        return FutureBuilder<List<RoundToyWithBox>>(
+                          future: suggestionFuture,
+                          builder: (context, suggestionSnapshot) {
+                            final suggestionCount =
+                                suggestionSnapshot.data?.length;
+                            final todayCount =
+                                activeCount > 0 ? activeCount : suggestionCount;
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: _IpadRoundTodayCard(
+                                    activeStream: activeRoundStream,
+                                    categoriesStream: widget.toyRepository
+                                        .watchCategories(activeOnly: true),
+                                    suggestionFuture: suggestionFuture,
+                                    startingRound: _startingRound,
+                                    onStartRound: _startRound,
+                                    onOpenToy: widget.onOpenToy,
+                                  ),
+                                ),
+                                SizedBox(width: gap),
+                                SizedBox(
+                                  width: rightWidth,
+                                  child: _IpadRightColumn(
+                                    toyRepository: widget.toyRepository,
+                                    weeklyPlanningRepository:
+                                        widget.weeklyPlanningRepository,
+                                    todayCountOverride: todayCount,
+                                    onOpenWeeklyPlanning:
+                                        widget.onOpenWeeklyPlanning,
+                                    onOpenNewToy: widget.onOpenNewToy,
+                                    onOpenBoxes: widget.onOpenBoxes,
+                                    onOpenCategories: widget.onOpenCategories,
+                                    onOpenSettings: widget.onOpenSettings,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -2154,6 +2190,7 @@ class _IpadRoundStatus extends StatelessWidget {
 class _IpadRightColumn extends StatelessWidget {
   final ToyRepository toyRepository;
   final WeeklyPlanningRepository? weeklyPlanningRepository;
+  final int? todayCountOverride;
   final VoidCallback onOpenWeeklyPlanning;
   final VoidCallback onOpenNewToy;
   final VoidCallback onOpenBoxes;
@@ -2163,6 +2200,7 @@ class _IpadRightColumn extends StatelessWidget {
   const _IpadRightColumn({
     required this.toyRepository,
     required this.weeklyPlanningRepository,
+    required this.todayCountOverride,
     required this.onOpenWeeklyPlanning,
     required this.onOpenNewToy,
     required this.onOpenBoxes,
@@ -2177,6 +2215,7 @@ class _IpadRightColumn extends StatelessWidget {
         _IpadWeeklyPlanningPanel(
           toyRepository: toyRepository,
           weeklyPlanningRepository: weeklyPlanningRepository,
+          todayCountOverride: todayCountOverride,
           onTap: onOpenWeeklyPlanning,
         ),
         const SizedBox(height: 14),
@@ -2198,11 +2237,13 @@ class _IpadRightColumn extends StatelessWidget {
 class _IpadWeeklyPlanningPanel extends StatelessWidget {
   final ToyRepository toyRepository;
   final WeeklyPlanningRepository? weeklyPlanningRepository;
+  final int? todayCountOverride;
   final VoidCallback onTap;
 
   const _IpadWeeklyPlanningPanel({
     required this.toyRepository,
     required this.weeklyPlanningRepository,
+    required this.todayCountOverride,
     required this.onTap,
   });
 
@@ -2263,7 +2304,10 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                           ),
                         )
                       else
-                        _IpadWeekStrip(summaries: summaries),
+                        _IpadWeekStrip(
+                          summaries: summaries,
+                          todayCountOverride: todayCountOverride,
+                        ),
                     ],
                   ),
                 ),
@@ -2278,8 +2322,12 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
 
 class _IpadWeekStrip extends StatelessWidget {
   final List<WeekDaySummary> summaries;
+  final int? todayCountOverride;
 
-  const _IpadWeekStrip({required this.summaries});
+  const _IpadWeekStrip({
+    required this.summaries,
+    required this.todayCountOverride,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2296,6 +2344,7 @@ class _IpadWeekStrip extends StatelessWidget {
             child: _IpadWeekCell(
               summary: sorted[index],
               dayNumber: monday.add(Duration(days: index)).day,
+              todayCountOverride: todayCountOverride,
             ),
           ),
         ],
@@ -2307,12 +2356,20 @@ class _IpadWeekStrip extends StatelessWidget {
 class _IpadWeekCell extends StatelessWidget {
   final WeekDaySummary summary;
   final int dayNumber;
+  final int? todayCountOverride;
 
-  const _IpadWeekCell({required this.summary, required this.dayNumber});
+  const _IpadWeekCell({
+    required this.summary,
+    required this.dayNumber,
+    required this.todayCountOverride,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final isToday = summary.isToday;
+    final isToday =
+        summary.isToday || summary.weekday == DateTime.now().weekday;
+    final totalToys =
+        isToday ? todayCountOverride ?? summary.totalToys : summary.totalToys;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -2370,7 +2427,7 @@ class _IpadWeekCell extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              '${summary.totalToys} itens',
+              '$totalToys itens',
               maxLines: 1,
               style: UiTokens.textMicro.copyWith(
                 fontSize: 10,
