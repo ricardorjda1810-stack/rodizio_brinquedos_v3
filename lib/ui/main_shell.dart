@@ -13,6 +13,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
+import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
@@ -33,6 +34,8 @@ class MainShell extends StatefulWidget {
   final RoundRepository roundRepository;
   final SettingsRepository settingsRepository;
   final PurchaseService purchaseService;
+  final AppTrialStatus trialStatus;
+  final Future<void> Function() onTrialIntroAcknowledged;
 
   const MainShell({
     super.key,
@@ -40,6 +43,8 @@ class MainShell extends StatefulWidget {
     required this.roundRepository,
     required this.settingsRepository,
     required this.purchaseService,
+    required this.trialStatus,
+    required this.onTrialIntroAcknowledged,
   });
 
   @override
@@ -55,6 +60,7 @@ class _MainShellState extends State<MainShell> {
   int _requestedBoxFilterVersion = 0;
   WeeklyPlanningRepository? _weeklyPlanningRepository;
   bool _mobileLoadingSuggestion = false;
+  bool _trialIntroDialogScheduled = false;
   static const List<String> _titles = <String>[
     'Home',
     'Brinquedos',
@@ -72,6 +78,60 @@ class _MainShellState extends State<MainShell> {
         settingsRepository: widget.settingsRepository,
       );
     }
+    _scheduleTrialIntroIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant MainShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.trialStatus.introPending &&
+        widget.trialStatus.introPending) {
+      _trialIntroDialogScheduled = false;
+    }
+    _scheduleTrialIntroIfNeeded();
+  }
+
+  void _scheduleTrialIntroIfNeeded() {
+    if (_trialIntroDialogScheduled || !widget.trialStatus.introPending) {
+      return;
+    }
+    _trialIntroDialogScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !widget.trialStatus.introPending) return;
+      unawaited(_showTrialIntroDialog());
+    });
+  }
+
+  Future<void> _showTrialIntroDialog() async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Você tem 7 dias grátis'),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Use todos os recursos do Rodízio de Brinquedos para organizar os brinquedos da casa.',
+              ),
+              SizedBox(height: 12),
+              Text(
+                'Depois de 7 dias, será necessário assinar para continuar usando.',
+              ),
+            ],
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Começar'),
+            ),
+          ],
+        );
+      },
+    );
+    await widget.onTrialIntroAcknowledged();
   }
 
   void _goTo(int index) {
@@ -199,6 +259,7 @@ class _MainShellState extends State<MainShell> {
     final allowed = await PremiumGate.ensureWeeklyPlanningPremium(
       context: context,
       purchaseService: widget.purchaseService,
+      hasTrialAccess: widget.trialStatus.isTrialActive,
     );
     if (!allowed || !mounted) return;
 
@@ -306,6 +367,7 @@ class _MainShellState extends State<MainShell> {
       onOpenNewToy: _openToyCreate,
       onOpenWeeklyPlanning: _openWeeklyPlanning,
       onOpenSettings: _openSettings,
+      trialStatus: widget.trialStatus,
     );
   }
 
@@ -323,6 +385,7 @@ class _MainShellState extends State<MainShell> {
       onOpenCategories: _openCategories,
       onOpenSettings: _openSettings,
       onOpenToy: _openToyDetail,
+      trialStatus: widget.trialStatus,
     );
   }
 
@@ -465,6 +528,7 @@ class _IphoneHomeDashboard extends StatelessWidget {
   final VoidCallback onOpenNewToy;
   final VoidCallback onOpenWeeklyPlanning;
   final VoidCallback onOpenSettings;
+  final AppTrialStatus trialStatus;
 
   const _IphoneHomeDashboard({
     required this.roundRepository,
@@ -476,6 +540,7 @@ class _IphoneHomeDashboard extends StatelessWidget {
     required this.onOpenNewToy,
     required this.onOpenWeeklyPlanning,
     required this.onOpenSettings,
+    required this.trialStatus,
   });
 
   @override
@@ -503,6 +568,7 @@ class _IphoneHomeDashboard extends StatelessWidget {
                 onOpenNewToy: onOpenNewToy,
                 onOpenWeeklyPlanning: onOpenWeeklyPlanning,
                 onSettingsTap: onOpenSettings,
+                trialStatus: trialStatus,
               );
             }
 
@@ -528,6 +594,7 @@ class _IphoneHomeDashboard extends StatelessWidget {
                   onOpenNewToy: onOpenNewToy,
                   onOpenWeeklyPlanning: onOpenWeeklyPlanning,
                   onSettingsTap: onOpenSettings,
+                  trialStatus: trialStatus,
                 );
               },
             );
@@ -549,6 +616,7 @@ class _IphoneHomeContent extends StatelessWidget {
   final VoidCallback onOpenNewToy;
   final VoidCallback onOpenWeeklyPlanning;
   final VoidCallback onSettingsTap;
+  final AppTrialStatus trialStatus;
 
   const _IphoneHomeContent({
     required this.toyRepository,
@@ -561,6 +629,7 @@ class _IphoneHomeContent extends StatelessWidget {
     required this.onOpenNewToy,
     required this.onOpenWeeklyPlanning,
     required this.onSettingsTap,
+    required this.trialStatus,
   });
 
   @override
@@ -584,6 +653,10 @@ class _IphoneHomeContent extends StatelessWidget {
             onSettingsTap: onSettingsTap,
           ),
           const SizedBox(height: 10),
+          if (trialStatus.homeNotice != null) ...[
+            _TrialNoticeBanner(message: trialStatus.homeNotice!),
+            const SizedBox(height: 10),
+          ],
           _IphoneRoundTodayHero(
             itemCount: todayCount,
             loadingSuggestion: loadingSuggestion,
@@ -667,6 +740,46 @@ class _IphoneHomeTopBar extends StatelessWidget {
           icon: const Icon(Icons.settings_outlined, size: 20),
         ),
       ],
+    );
+  }
+}
+
+class _TrialNoticeBanner extends StatelessWidget {
+  final String message;
+
+  const _TrialNoticeBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF7ED),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFFD7AA)),
+      ),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.workspace_premium_outlined,
+            size: 18,
+            color: _IpadHomePalette.orange,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: UiTokens.textCaption.copyWith(
+                color: _IpadHomePalette.text,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -1223,6 +1336,7 @@ class _IpadHomeDashboard extends StatefulWidget {
   final VoidCallback onOpenCategories;
   final VoidCallback onOpenSettings;
   final ValueChanged<String> onOpenToy;
+  final AppTrialStatus trialStatus;
 
   const _IpadHomeDashboard({
     required this.roundRepository,
@@ -1234,6 +1348,7 @@ class _IpadHomeDashboard extends StatefulWidget {
     required this.onOpenCategories,
     required this.onOpenSettings,
     required this.onOpenToy,
+    required this.trialStatus,
   });
 
   @override
@@ -1416,6 +1531,12 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                     onBuildRound: _openRoundSuggestionSheet,
                     onOpenNewToy: widget.onOpenNewToy,
                   ),
+                  if (widget.trialStatus.homeNotice != null) ...[
+                    SizedBox(height: gap),
+                    _TrialNoticeBanner(
+                      message: widget.trialStatus.homeNotice!,
+                    ),
+                  ],
                   SizedBox(height: gap),
                   Expanded(
                     child: StreamBuilder<List<RoundToyWithBox>>(

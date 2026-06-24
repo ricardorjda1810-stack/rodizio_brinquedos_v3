@@ -1,9 +1,11 @@
-﻿// lib/app.dart
+// lib/app.dart
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
+import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/app_theme.dart';
 import 'ui/main_shell.dart';
@@ -13,6 +15,7 @@ class App extends StatefulWidget {
   final RoundRepository roundRepository;
   final SettingsRepository settingsRepository;
   final PurchaseService purchaseService;
+  final AppTrialService appTrialService;
 
   const App({
     super.key,
@@ -20,6 +23,7 @@ class App extends StatefulWidget {
     required this.roundRepository,
     required this.settingsRepository,
     required this.purchaseService,
+    required this.appTrialService,
   });
 
   @override
@@ -28,7 +32,44 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   @override
+  void initState() {
+    super.initState();
+    widget.purchaseService.addListener(_handleAccessChanged);
+    widget.appTrialService.addListener(_handleAccessChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant App oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.purchaseService != widget.purchaseService) {
+      oldWidget.purchaseService.removeListener(_handleAccessChanged);
+      widget.purchaseService.addListener(_handleAccessChanged);
+    }
+    if (oldWidget.appTrialService != widget.appTrialService) {
+      oldWidget.appTrialService.removeListener(_handleAccessChanged);
+      widget.appTrialService.addListener(_handleAccessChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.purchaseService.removeListener(_handleAccessChanged);
+    widget.appTrialService.removeListener(_handleAccessChanged);
+    super.dispose();
+  }
+
+  void _handleAccessChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final trialStatus = widget.appTrialService.status;
+    final hasFullAppAccess = trialStatus.allowsFullAppAccess(
+      hasActiveSubscription: widget.purchaseService.hasPremiumAccess,
+    );
+
     return StreamBuilder<bool>(
       stream: widget.settingsRepository.watchDarkModeEnabled(),
       initialData: widget.settingsRepository.darkModeEnabled,
@@ -36,20 +77,29 @@ class _AppState extends State<App> {
         final isDarkMode = snapshot.data ?? false;
 
         return MaterialApp(
+          key: ValueKey(hasFullAppAccess ? 'full_app' : 'trial_expired'),
           debugShowCheckedModeBanner: false,
           title: 'Rodízio de Brinquedos',
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-          home: MainShell(
-            toyRepository: widget.toyRepository,
-            roundRepository: widget.roundRepository,
-            settingsRepository: widget.settingsRepository,
-            purchaseService: widget.purchaseService,
-          ),
+          home: hasFullAppAccess
+              ? MainShell(
+                  toyRepository: widget.toyRepository,
+                  roundRepository: widget.roundRepository,
+                  settingsRepository: widget.settingsRepository,
+                  purchaseService: widget.purchaseService,
+                  trialStatus: trialStatus,
+                  onTrialIntroAcknowledged:
+                      widget.appTrialService.markIntroSeen,
+                )
+              : PaywallPage(
+                  purchaseService: widget.purchaseService,
+                  source: 'app_trial_expired',
+                  blocking: true,
+                ),
         );
       },
     );
   }
 }
-

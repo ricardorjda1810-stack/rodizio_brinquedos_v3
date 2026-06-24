@@ -18,11 +18,13 @@ const String _termsOfUseUrl =
 class PaywallPage extends StatefulWidget {
   final PurchaseService purchaseService;
   final String source;
+  final bool blocking;
 
   const PaywallPage({
     super.key,
     required this.purchaseService,
     this.source = 'direct',
+    this.blocking = false,
   });
 
   @override
@@ -35,6 +37,17 @@ class _PaywallPageState extends State<PaywallPage> {
   String _selectedProductId = PurchaseService.yearlyProductId;
 
   PurchaseService get _purchaseService => widget.purchaseService;
+
+  bool get _isTrialExpiredPaywall =>
+      widget.blocking || widget.source == 'app_trial_expired';
+
+  String get _headline => _isTrialExpiredPaywall
+      ? 'Seu teste grátis terminou'
+      : 'Planeje a semana com mais calma.';
+
+  String get _subtitle => _isTrialExpiredPaywall
+      ? 'Para continuar organizando os brinquedos da casa, escolha um plano Premium.'
+      : 'Prepare o rod\u00EDzio com anteced\u00EAncia e deixe a rotina de brincadeiras mais previs\u00EDvel.';
 
   @override
   void initState() {
@@ -147,7 +160,7 @@ class _PaywallPageState extends State<PaywallPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Planeje a semana com mais calma.',
+                    _headline,
                     style: textTheme.headlineSmall?.copyWith(
                       color: UiTokens.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -155,7 +168,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   ),
                   const SizedBox(height: UiTokens.spacingSm),
                   Text(
-                    'Prepare o rod\u00EDzio com anteced\u00EAncia e deixe a rotina de brincadeiras mais previs\u00EDvel.',
+                    _subtitle,
                     style: textTheme.bodyLarge?.copyWith(
                       color: UiTokens.textSecondary,
                     ),
@@ -164,24 +177,33 @@ class _PaywallPageState extends State<PaywallPage> {
               ),
             ),
             const SizedBox(height: UiTokens.spacingMd),
-            const AppSurfaceCard(
-              padding: EdgeInsets.all(UiTokens.spacingMd),
+            AppSurfaceCard(
+              padding: const EdgeInsets.all(UiTokens.spacingMd),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _BenefitRow(label: 'Planejamento semanal completo'),
-                  SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(label: 'Organize cada dia da semana'),
-                  SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(label: 'Ajuste categorias por dia'),
-                  SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(
-                    label: 'Prepare a rotina com mais previsibilidade',
-                  ),
-                  SizedBox(height: UiTokens.spacingSm),
-                  _BenefitRow(
-                    label: 'Tenha mais controle sobre o rod\u00EDzio',
-                  ),
+                  for (final benefit in _isTrialExpiredPaywall
+                      ? const [
+                          'App completo liberado',
+                          'Cadastro, fotos, caixas e locais',
+                          'Rodízio diário e sugestão de rodada',
+                          'Planejamento semanal completo',
+                          'Restaurar compra sempre acessível',
+                        ]
+                      : const [
+                          'Planejamento semanal completo',
+                          'Organize cada dia da semana',
+                          'Ajuste categorias por dia',
+                          'Prepare a rotina com mais previsibilidade',
+                          'Tenha mais controle sobre o rod\u00EDzio',
+                        ]) ...[
+                    _BenefitRow(label: benefit),
+                    if (benefit !=
+                        (_isTrialExpiredPaywall
+                            ? 'Restaurar compra sempre acessível'
+                            : 'Tenha mais controle sobre o rod\u00EDzio'))
+                      const SizedBox(height: UiTokens.spacingSm),
+                  ],
                 ],
               ),
             ),
@@ -215,7 +237,11 @@ class _PaywallPageState extends State<PaywallPage> {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Come\u00E7ar agora'),
+                  : Text(
+                      _isTrialExpiredPaywall
+                          ? 'Assinar Premium'
+                          : 'Come\u00E7ar agora',
+                    ),
             ),
             const SizedBox(height: UiTokens.spacingSm),
             Center(
@@ -272,14 +298,20 @@ class _PaywallPageState extends State<PaywallPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _PaywallIpadHeader(
+                      isBlocking: _isTrialExpiredPaywall,
+                      title: _headline,
+                      subtitle: _subtitle,
                       onClose: () => Navigator.of(context).maybePop(),
                     ),
                     const SizedBox(height: 18),
                     LayoutBuilder(
                       builder: (context, constraints) {
                         final useColumns = constraints.maxWidth >= 820;
-                        const valueCard = _PaywallIpadValueCard();
+                        final valueCard = _PaywallIpadValueCard(
+                          isTrialExpired: _isTrialExpiredPaywall,
+                        );
                         final plansPanel = _PaywallIpadPlansPanel(
+                          isBlocking: _isTrialExpiredPaywall,
                           selectedProductId: _selectedProductId,
                           isLoading: _purchaseService.isLoading,
                           onSelectMonthly: () =>
@@ -307,7 +339,7 @@ class _PaywallPageState extends State<PaywallPage> {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Expanded(flex: 11, child: valueCard),
+                            Expanded(flex: 11, child: valueCard),
                             const SizedBox(width: 22),
                             Expanded(flex: 9, child: plansPanel),
                           ],
@@ -338,9 +370,17 @@ class _PaywallIpadPalette {
 }
 
 class _PaywallIpadHeader extends StatelessWidget {
+  final bool isBlocking;
+  final String title;
+  final String subtitle;
   final VoidCallback onClose;
 
-  const _PaywallIpadHeader({required this.onClose});
+  const _PaywallIpadHeader({
+    required this.isBlocking,
+    required this.title,
+    required this.subtitle,
+    required this.onClose,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +416,7 @@ class _PaywallIpadHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'RODÍZIO PREMIUM',
+                  isBlocking ? 'ASSINATURA NECESSÁRIA' : 'RODÍZIO PREMIUM',
                   style: UiTokens.textMicro.copyWith(
                     color: _PaywallIpadPalette.orangeDark,
                     fontWeight: FontWeight.w800,
@@ -385,7 +425,7 @@ class _PaywallIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Desbloqueie o Planejamento Semanal',
+                  title,
                   style: textTheme.headlineSmall?.copyWith(
                     color: _PaywallIpadPalette.ink,
                     fontWeight: FontWeight.w800,
@@ -394,7 +434,7 @@ class _PaywallIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Organize a semana inteira de brincadeiras com mais previsibilidade.',
+                  subtitle,
                   style: UiTokens.textBody.copyWith(
                     color: _PaywallIpadPalette.muted,
                     height: 1.35,
@@ -403,17 +443,19 @@ class _PaywallIpadHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
-          OutlinedButton.icon(
-            onPressed: onClose,
-            icon: const Icon(Icons.close_rounded, size: 18),
-            label: const Text('Agora não'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: _PaywallIpadPalette.muted,
-              side: const BorderSide(color: _PaywallIpadPalette.border),
-              minimumSize: const Size(132, 46),
+          if (!isBlocking) ...[
+            const SizedBox(width: 16),
+            OutlinedButton.icon(
+              onPressed: onClose,
+              icon: const Icon(Icons.close_rounded, size: 18),
+              label: const Text('Agora não'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _PaywallIpadPalette.muted,
+                side: const BorderSide(color: _PaywallIpadPalette.border),
+                minimumSize: const Size(132, 46),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -421,7 +463,9 @@ class _PaywallIpadHeader extends StatelessWidget {
 }
 
 class _PaywallIpadValueCard extends StatelessWidget {
-  const _PaywallIpadValueCard();
+  final bool isTrialExpired;
+
+  const _PaywallIpadValueCard({required this.isTrialExpired});
 
   @override
   Widget build(BuildContext context) {
@@ -448,7 +492,9 @@ class _PaywallIpadValueCard extends StatelessWidget {
               ),
             ),
             child: Text(
-              'Premium desbloqueia Planejamento Semanal',
+              isTrialExpired
+                  ? 'Premium libera o app completo'
+                  : 'Premium desbloqueia Planejamento Semanal',
               style: UiTokens.textCaption.copyWith(
                 color: _PaywallIpadPalette.orangeDark,
                 fontWeight: FontWeight.w800,
@@ -457,7 +503,9 @@ class _PaywallIpadValueCard extends StatelessWidget {
           ),
           const SizedBox(height: 22),
           Text(
-            'Uma semana organizada antes da rotina começar.',
+            isTrialExpired
+                ? 'Continue usando todos os recursos que organizaram sua rotina.'
+                : 'Uma semana organizada antes da rotina começar.',
             style: textTheme.headlineSmall?.copyWith(
               color: _PaywallIpadPalette.ink,
               fontWeight: FontWeight.w800,
@@ -467,7 +515,9 @@ class _PaywallIpadValueCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.',
+            isTrialExpired
+                ? 'Assine para manter Home, brinquedos, caixas, rodízio, sugestão de rodada e planejamento semanal liberados.'
+                : 'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.',
             style: UiTokens.textBody.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.45,
@@ -557,6 +607,7 @@ class _PaywallIpadBenefit extends StatelessWidget {
 }
 
 class _PaywallIpadPlansPanel extends StatelessWidget {
+  final bool isBlocking;
   final String selectedProductId;
   final bool isLoading;
   final VoidCallback onSelectMonthly;
@@ -568,6 +619,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
   final VoidCallback onPrivacy;
 
   const _PaywallIpadPlansPanel({
+    required this.isBlocking,
     required this.selectedProductId,
     required this.isLoading,
     required this.onSelectMonthly,
@@ -601,7 +653,9 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Assine para liberar o Planejamento Semanal.',
+            isBlocking
+                ? 'Assine para continuar usando o Rodízio de Brinquedos.'
+                : 'Assine para liberar o Planejamento Semanal.',
             style: UiTokens.textCaption.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.35,
@@ -655,11 +709,13 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          TextButton(
-            onPressed: isLoading ? null : onClose,
-            child: const Text('Agora não'),
-          ),
-          const SizedBox(height: 10),
+          if (!isBlocking) ...[
+            TextButton(
+              onPressed: isLoading ? null : onClose,
+              child: const Text('Agora não'),
+            ),
+            const SizedBox(height: 10),
+          ],
           Wrap(
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,

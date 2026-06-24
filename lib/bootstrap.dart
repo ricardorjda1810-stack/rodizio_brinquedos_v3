@@ -7,6 +7,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
+import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
 class Bootstrap extends StatefulWidget {
@@ -22,6 +23,7 @@ class _BootstrapState extends State<Bootstrap> {
   late final RoundRepository _roundRepository;
   late final SettingsRepository _settingsRepository;
   PurchaseService? _purchaseService;
+  AppTrialService? _appTrialService;
   late Future<void> _initFuture;
 
   @override
@@ -36,6 +38,7 @@ class _BootstrapState extends State<Bootstrap> {
 
   @override
   void dispose() {
+    _appTrialService?.dispose();
     _purchaseService?.dispose();
     _settingsRepository.dispose();
     _db.close();
@@ -83,6 +86,7 @@ class _BootstrapState extends State<Bootstrap> {
           roundRepository: _roundRepository,
           settingsRepository: _settingsRepository,
           purchaseService: _purchaseService!,
+          appTrialService: _appTrialService!,
         );
       },
     );
@@ -93,6 +97,7 @@ class _BootstrapState extends State<Bootstrap> {
     await DemoDataLoader.load(_db);
     await _settingsRepository.load();
     _purchaseService = await PurchaseService.create();
+    _appTrialService = await AppTrialService.create();
   }
 }
 

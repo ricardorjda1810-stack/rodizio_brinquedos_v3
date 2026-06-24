@@ -7,8 +7,11 @@ class PremiumGate {
   static Future<bool> ensureWeeklyPlanningPremium({
     required BuildContext context,
     required PurchaseService? purchaseService,
+    bool hasTrialAccess = false,
   }) async {
-    if (purchaseService == null || purchaseService.hasPremiumAccess) {
+    if (purchaseService == null ||
+        purchaseService.hasPremiumAccess ||
+        hasTrialAccess) {
       return true;
     }
 

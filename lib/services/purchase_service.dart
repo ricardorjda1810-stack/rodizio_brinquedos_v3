@@ -52,6 +52,22 @@ class PurchaseService extends ChangeNotifier {
   })  : _inAppPurchase = inAppPurchase,
         _preferences = preferences;
 
+  @visibleForTesting
+  factory PurchaseService.forTesting({
+    required SharedPreferences preferences,
+    bool isPremium = false,
+  }) {
+    final service = PurchaseService._(
+      inAppPurchase: InAppPurchase.instance,
+      preferences: preferences,
+    );
+    service._initialized = true;
+    service._isPremium = isPremium;
+    service._isLoading = false;
+    service._storeAvailable = true;
+    return service;
+  }
+
   static Future<PurchaseService> create() async {
     final preferences = await SharedPreferences.getInstance();
     final service = PurchaseService._(
