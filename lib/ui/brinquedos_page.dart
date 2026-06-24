@@ -1829,7 +1829,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
           onChanged: onBoxChanged,
           titleForValueLabel: 'Caixa',
           styleFor: _catalogBoxStyle,
-          maxOptionsHeight: 116,
+          maxOptionsHeight: 146,
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
@@ -1840,7 +1840,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
           titleForValueLabel: 'Categoria',
           styleFor: (option) => _catalogCategoryStyle(option.id, option.label),
           showCheck: true,
-          maxOptionsHeight: 150,
+          maxOptionsHeight: 184,
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
@@ -1850,7 +1850,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
           onChanged: onLocationChanged,
           titleForValueLabel: 'Local',
           styleFor: _catalogLocationStyle,
-          maxOptionsHeight: 116,
+          maxOptionsHeight: 146,
         ),
         const SizedBox(height: 12),
         Expanded(
@@ -1999,7 +1999,7 @@ class _CatalogIpadFilterCard extends StatelessWidget {
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: maxOptionsHeight!),
               child: SingleChildScrollView(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.only(bottom: 4),
                 child: chips,
               ),
             ),

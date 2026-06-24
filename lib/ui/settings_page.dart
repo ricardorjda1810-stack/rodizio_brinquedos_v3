@@ -19,7 +19,7 @@ const String _settingsPrivacyPolicyUrl =
     'https://first-lime-7b2.notion.site/Pol-tica-de-Privacidade-Rod-zio-de-Brinquedos-d40b83abf35f4d089e1ae5f46423b4ca?pvs=143';
 const String _settingsTermsOfUseUrl =
     'https://first-lime-7b2.notion.site/Termos-de-Uso-Rod-zio-de-Brinquedos-34c496b60a598015ba29cb3322ebfbc6?pvs=143';
-const String _settingsAppVersionLabel = '1.0.5+90';
+const String _settingsAppVersionLabel = '1.0.5+93';
 
 class SettingsPage extends StatefulWidget {
   final SettingsRepository settingsRepository;

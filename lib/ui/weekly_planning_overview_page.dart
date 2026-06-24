@@ -1049,7 +1049,7 @@ class _FigmaStatTile extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 42,
+            width: 68,
             child: Text(
               data.value,
               textAlign: TextAlign.right,

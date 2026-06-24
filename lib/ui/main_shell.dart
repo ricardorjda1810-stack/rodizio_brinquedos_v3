@@ -13,6 +13,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
+import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/categories_manage_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -194,6 +195,12 @@ class _MainShellState extends State<MainShell> {
   Future<void> _openWeeklyPlanning() async {
     final weeklyPlanningRepository = _weeklyPlanningRepository;
     if (weeklyPlanningRepository == null) return;
+
+    final allowed = await PremiumGate.ensureWeeklyPlanningPremium(
+      context: context,
+      purchaseService: widget.purchaseService,
+    );
+    if (!allowed || !mounted) return;
 
     unawaited(AppAnalytics.logWeeklyPlanningOpened(source: 'home'));
     Navigator.of(context).push(
