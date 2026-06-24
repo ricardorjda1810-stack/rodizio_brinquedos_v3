@@ -1678,15 +1678,6 @@ class _PlanningHeroCopy extends StatelessWidget {
           runSpacing: 6,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Text(
-              'Premium',
-              maxLines: 1,
-              style: UiTokens.textMicro.copyWith(
-                color: _WeeklyIpadPalette.orange,
-                fontSize: 11,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
             _PlanningPill(
               label: '$totalLabel nesta semana',
               foreground: _WeeklyIpadPalette.orange,
