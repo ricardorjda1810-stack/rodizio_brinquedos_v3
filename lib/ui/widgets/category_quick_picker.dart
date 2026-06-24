@@ -103,19 +103,19 @@ class _CategoryQuickPickerCard extends StatelessWidget {
             vertical: UiTokens.spacingSm,
           ),
           decoration: BoxDecoration(
-            color: selected ? UiTokens.primarySoft : UiTokens.surface,
-            borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+            color: selected ? UiTokens.actionOrangeSoft : UiTokens.surface,
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
             boxShadow: selected
                 ? const [
                     BoxShadow(
-                      color: UiTokens.shadow,
+                      color: Color(0x12A76A2B),
                       blurRadius: 14,
                       offset: Offset(0, 4),
                     ),
                   ]
                 : null,
             border: Border.all(
-              color: selected ? UiTokens.primaryStrong : UiTokens.border,
+              color: selected ? UiTokens.actionOrangeBorder : UiTokens.border,
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -141,7 +141,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                     const Icon(
                       Icons.check_circle,
                       size: 18,
-                      color: UiTokens.primaryStrong,
+                      color: UiTokens.actionOrange,
                     ),
                 ],
               ),

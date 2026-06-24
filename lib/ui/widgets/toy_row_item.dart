@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -36,7 +36,8 @@ class ToyRowItem extends StatelessWidget {
             child: SizedBox(
               height: itemHeight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: horizontalPadding),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: Row(
                   children: [
                     _ToyThumbnail(
@@ -98,14 +99,15 @@ class _ToyThumbnail extends StatelessWidget {
         width: thumbnailSize,
         height: thumbnailSize,
         decoration: BoxDecoration(
-          color: UiTokens.primarySoft,
+          color: const Color(0xFFF9F0E6),
           borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+          border: Border.all(color: const Color(0xFFE9DED2)),
         ),
         alignment: Alignment.center,
         child: Icon(
           Icons.image_outlined,
           size: iconSize,
-          color: UiTokens.textSecondary,
+          color: const Color(0xFFA8896A),
         ),
       );
     }
@@ -123,14 +125,15 @@ class _ToyThumbnail extends StatelessWidget {
             width: thumbnailSize,
             height: thumbnailSize,
             decoration: BoxDecoration(
-              color: UiTokens.primarySoft,
+              color: const Color(0xFFF9F0E6),
               borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+              border: Border.all(color: const Color(0xFFE9DED2)),
             ),
             alignment: Alignment.center,
             child: Icon(
               Icons.broken_image_outlined,
               size: iconSize,
-              color: UiTokens.textSecondary,
+              color: const Color(0xFFA8896A),
             ),
           );
         },

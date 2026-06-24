@@ -342,6 +342,7 @@ class _MainShellState extends State<MainShell> {
           onOpenWeeklyPlanning: _openTopNavigationWeeklyPlanning,
           onOpenToysTab: () => _openTopNavigationTab(1),
           onOpenBoxesTab: () => _openTopNavigationTab(2),
+          fillAvailableHeight: true,
         ),
       ),
     );
@@ -1054,7 +1055,7 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final upcoming = _upcomingSummaries(summaries, limit: 3);
+    final upcoming = _upcomingSummaries(summaries, limit: 7);
 
     return Material(
       color: Colors.white,
@@ -1126,18 +1127,23 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
                   ),
                 )
               else
-                Row(
-                  children: [
-                    for (var index = 0; index < upcoming.length; index++) ...[
-                      if (index > 0) const SizedBox(width: 8),
-                      Expanded(
-                        child: _IphoneWeekPreviewCell(
-                          summary: upcoming[index],
-                          todayCount: todayCount,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      for (var index = 0; index < upcoming.length; index++) ...[
+                        if (index > 0) const SizedBox(width: 8),
+                        SizedBox(
+                          width: 116,
+                          child: _IphoneWeekPreviewCell(
+                            summary: upcoming[index],
+                            todayCount: todayCount,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
             ],
           ),

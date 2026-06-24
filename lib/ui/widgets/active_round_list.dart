@@ -414,10 +414,15 @@ class RoundToyThumb extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: const Color(0xFFF9F0E6),
           borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+          border: Border.all(color: const Color(0xFFE9DED2)),
         ),
-        child: Icon(Icons.image_outlined, size: dense ? 18 : 22),
+        child: Icon(
+          Icons.image_outlined,
+          size: dense ? 18 : 22,
+          color: const Color(0xFFA8896A),
+        ),
       ));
     }
 
@@ -433,8 +438,17 @@ class RoundToyThumb extends StatelessWidget {
           return Container(
             width: size,
             height: size,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Icon(Icons.broken_image_outlined, size: dense ? 18 : 22),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9F0E6),
+              borderRadius: BorderRadius.circular(UiTokens.radiusPhoto),
+              border: Border.all(color: const Color(0xFFE9DED2)),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.broken_image_outlined,
+              size: dense ? 18 : 22,
+              color: const Color(0xFFA8896A),
+            ),
           );
         },
       ),

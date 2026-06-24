@@ -391,7 +391,7 @@ class LocationsManagePage extends StatelessWidget {
               children: [
                 AppSurfaceCard(
                   padding: const EdgeInsets.all(UiTokens.spacingLg),
-                  color: UiTokens.primarySoft,
+                  color: UiTokens.actionOrangeSoft,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -401,7 +401,7 @@ class LocationsManagePage extends StatelessWidget {
                       ),
                       const SizedBox(height: UiTokens.spacingXs),
                       Text(
-                        'Use nomes simples e f\u00e1ceis de reconhecer para manter caixas e brinquedos sempre bem localizados.',
+                        'Use nomes curtos para encontrar caixas e brinquedos mais rápido.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme

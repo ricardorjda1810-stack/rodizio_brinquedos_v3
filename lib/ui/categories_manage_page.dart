@@ -470,7 +470,7 @@ class CategoriesManagePage extends StatelessWidget {
               children: [
                 AppSurfaceCard(
                   padding: const EdgeInsets.all(UiTokens.spacingLg),
-                  color: UiTokens.primarySoft,
+                  color: UiTokens.actionOrangeSoft,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -480,7 +480,7 @@ class CategoriesManagePage extends StatelessWidget {
                       ),
                       const SizedBox(height: UiTokens.spacingXs),
                       Text(
-                        'Mantenha nomes e exemplos claros para facilitar a escolha na hora de cadastrar.',
+                        'Mantenha nomes claros para escolher categoria sem pensar demais.',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme

@@ -567,9 +567,9 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 _FigmaStatusPill(
                   label: '$readyDays de ${overview.days.length} dias prontos',
-                  foreground: const Color(0xFF065F46),
-                  background: const Color(0xFFECFDF5),
-                  border: const Color(0xFFA7F3D0),
+                  foreground: _FigmaPlanningPalette.orange,
+                  background: _FigmaPlanningPalette.orangeLight,
+                  border: _FigmaPlanningPalette.orangeBorder,
                 ),
               ],
             ),
@@ -925,7 +925,7 @@ class _FigmaWeekFooter extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
-              color: const Color(0xFF065F46),
+              color: _FigmaPlanningPalette.textMid,
               fontSize: 12.5,
               fontWeight: FontWeight.w800,
             ),
@@ -990,9 +990,9 @@ class _FigmaSummaryCard extends StatelessWidget {
       _FigmaStatData(
         value: '${overview.categoryDistribution.length}',
         label: 'categorias equilibradas',
-        foreground: const Color(0xFF059669),
-        background: const Color(0xFFECFDF5),
-        border: const Color(0xFFA7F3D0),
+        foreground: _FigmaPlanningPalette.warmAccent,
+        background: _FigmaPlanningPalette.warmLight,
+        border: _FigmaPlanningPalette.warmBorder,
       ),
     ];
 
@@ -1240,8 +1240,8 @@ class _FigmaQuickActionsCard extends StatelessWidget {
       _FigmaActionData(
         label: 'Revisar cotas',
         icon: Icons.rule_rounded,
-        foreground: const Color(0xFF059669),
-        background: const Color(0xFFECFDF5),
+        foreground: _FigmaPlanningPalette.warmAccent,
+        background: _FigmaPlanningPalette.warmLight,
         onTap: onOpenEditor,
       ),
     ];
@@ -1571,22 +1571,22 @@ class _PlanningHeroCard extends StatelessWidget {
         ? 'Planeje a semana sem improviso'
         : 'Ative o planejamento semanal';
     final subtitle = overview.planningEnabled
-        ? 'Organize quantidades por categoria e veja a semana inteira antes de montar as rodadas.'
-        : 'A semana abaixo usa a configuração padrão até você ativar a programação personalizada.';
+        ? 'Veja os próximos dias e ajuste quantidades por categoria.'
+        : 'A semana usa o padrão até você ativar a programação.';
     final action = FilledButton.icon(
       onPressed: onOpenEditor,
       icon: const Icon(Icons.edit_calendar_outlined),
       label: const Text('Editar programação'),
       style: FilledButton.styleFrom(
-        backgroundColor: _WeeklyIpadPalette.green,
+        backgroundColor: UiTokens.actionOrange,
         foregroundColor: Colors.white,
         minimumSize: Size(isWide ? 196 : 0, 50),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
-        elevation: 2,
-        shadowColor: _WeeklyIpadPalette.green.withValues(alpha: 0.26),
+        elevation: 0,
+        shadowColor: UiTokens.actionOrange.withValues(alpha: 0.24),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
         ),
       ),
     );
@@ -1689,9 +1689,9 @@ class _PlanningHeroCopy extends StatelessWidget {
             ),
             _PlanningPill(
               label: '$totalLabel nesta semana',
-              foreground: _WeeklyIpadPalette.green,
-              background: _WeeklyIpadPalette.greenSoft,
-              border: _WeeklyIpadPalette.greenBorder,
+              foreground: _WeeklyIpadPalette.orange,
+              background: _WeeklyIpadPalette.orangeSoft,
+              border: _WeeklyIpadPalette.orangeBorder,
             ),
           ],
         ),
@@ -1730,11 +1730,11 @@ class _PlanningDisabledNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppSurfaceCard(
-      color: UiTokens.primarySoft,
+      color: UiTokens.actionOrangeSoft,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, color: UiTokens.primaryStrong),
+          const Icon(Icons.info_outline, color: UiTokens.actionOrange),
           const SizedBox(width: UiTokens.spacingSm),
           Expanded(
             child: Text(
@@ -1865,13 +1865,13 @@ class _MetricTile extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(UiTokens.spacingMd),
       decoration: BoxDecoration(
-        color: UiTokens.primarySoft,
+        color: UiTokens.actionOrangeSoft,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
         border: Border.all(color: UiTokens.border),
       ),
       child: Row(
         children: [
-          Icon(data.icon, color: UiTokens.primaryStrong),
+          Icon(data.icon, color: UiTokens.actionOrange),
           const SizedBox(width: UiTokens.spacingSm),
           Expanded(
             child: Column(
@@ -1883,7 +1883,7 @@ class _MetricTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: UiTokens.primaryStrong,
+                        color: UiTokens.actionOrange,
                       ),
                 ),
                 Text(
@@ -1967,13 +1967,14 @@ class _CategoryChip extends StatelessWidget {
         vertical: UiTokens.spacingSm,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: UiTokens.actionOrangeSoft,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+        border: Border.all(color: UiTokens.actionOrangeBorder),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20, color: UiTokens.primaryStrong),
+          Icon(icon, size: 20, color: UiTokens.actionOrange),
           const SizedBox(width: UiTokens.spacingSm),
           Flexible(
             child: Text(
@@ -1990,7 +1991,7 @@ class _CategoryChip extends StatelessWidget {
             '${item.total}',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: UiTokens.primaryStrong,
+                  color: UiTokens.actionOrange,
                 ),
           ),
         ],
@@ -2228,11 +2229,11 @@ class _ToyThumbnailPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: UiTokens.primarySoft,
+      color: const Color(0xFFF9F0E6),
       child: const Icon(
         Icons.toys_outlined,
         size: 20,
-        color: UiTokens.primaryStrong,
+        color: UiTokens.textSecondary,
       ),
     );
   }
@@ -2250,14 +2251,14 @@ class _MoreToysBadge extends StatelessWidget {
       height: 46,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: UiTokens.secondarySoft,
+        color: UiTokens.actionOrangeSoft,
         borderRadius: BorderRadius.circular(UiTokens.radiusSm),
       ),
       child: Text(
         '+$count',
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w800,
-              color: UiTokens.primaryStrong,
+              color: UiTokens.actionOrange,
             ),
       ),
     );
@@ -2359,7 +2360,7 @@ class _EditButtonBar extends StatelessWidget {
           icon: const Icon(Icons.edit_calendar_outlined),
           label: const Text('Editar programação'),
           style: FilledButton.styleFrom(
-            backgroundColor: _WeeklyIpadPalette.green,
+            backgroundColor: UiTokens.actionOrange,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(52),
             textStyle: UiTokens.textButton.copyWith(
@@ -2549,9 +2550,9 @@ _FigmaVisualStyle _figmaCategoryStyle(int index) {
       border: Color(0xFFFECDD3),
     ),
     _FigmaVisualStyle(
-      foreground: Color(0xFF065F46),
-      background: Color(0xFFECFDF5),
-      border: Color(0xFFA7F3D0),
+      foreground: Color(0xFF9A5A1E),
+      background: Color(0xFFFFFBF6),
+      border: Color(0xFFF3E2D0),
     ),
   ];
 
@@ -2700,9 +2701,8 @@ class _WeeklyIpadPalette {
   static const Color text = Color(0xFF25180A);
   static const Color textMid = Color(0xFF6B4F30);
   static const Color orange = Color(0xFFF97316);
-  static const Color green = Color(0xFF5F806F);
-  static const Color greenSoft = Color(0xFFEAF1EC);
-  static const Color greenBorder = Color(0xFFD5E1D9);
+  static const Color orangeSoft = Color(0xFFFFF5E8);
+  static const Color orangeBorder = Color(0xFFFDDCBA);
 }
 
 class _FigmaPlanningPalette {
@@ -2713,6 +2713,9 @@ class _FigmaPlanningPalette {
   static const Color orange = Color(0xFFF97316);
   static const Color orangeLight = Color(0xFFFFF5E8);
   static const Color orangeBorder = Color(0xFFFDDCBA);
+  static const Color warmAccent = Color(0xFF9A5A1E);
+  static const Color warmLight = Color(0xFFFFFBF6);
+  static const Color warmBorder = Color(0xFFF3E2D0);
   static const Color text = Color(0xFF25180A);
   static const Color textMid = Color(0xFF6B4F30);
   static const Color textMuted = Color(0xFFA8896A);

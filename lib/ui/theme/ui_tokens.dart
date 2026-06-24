@@ -58,6 +58,10 @@ class UiTokens {
   static const Color primaryDark = Color(0xFF8EAE9E);
   static const Color accent = Color(0xFFC79F6B);
   static const Color accentDark = Color(0xFFD4A76A);
+  static const Color actionOrange = Color(0xFFF97316);
+  static const Color actionOrangeDark = Color(0xFFC2410C);
+  static const Color actionOrangeSoft = Color(0xFFFFF5E8);
+  static const Color actionOrangeBorder = Color(0xFFFDDCBA);
   static const Color textPrimary = graphite;
   static const Color textPrimaryDark = Color(0xFFDDE7DE);
   static const Color textSecondary = Color(0xFF68756F);

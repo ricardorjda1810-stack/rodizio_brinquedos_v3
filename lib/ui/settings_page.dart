@@ -853,14 +853,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: selected == null
-                      ? const Color(0xFFFFF7ED)
-                      : const Color(0xFFEFFAF2),
+                  color: const Color(0xFFFFF7ED),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: selected == null
                         ? const Color(0xFFFFD7AA)
-                        : const Color(0xFF8EE0A7),
+                        : const Color(0xFFFED7AA),
                   ),
                 ),
                 child: Row(
@@ -869,9 +867,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       selected == null
                           ? Icons.info_outline_rounded
                           : Icons.check_circle_outline_rounded,
-                      color: selected == null
-                          ? const Color(0xFFF97316)
-                          : const Color(0xFF16A34A),
+                      color: const Color(0xFFF97316),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -1192,22 +1188,22 @@ class _SettingsPageState extends State<SettingsPage> {
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFFAF2),
+            color: const Color(0xFFFFF7ED),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFA7F3D0)),
+            border: Border.all(color: const Color(0xFFFFD7AA)),
           ),
           child: Row(
             children: [
               const Icon(
                 Icons.weekend_outlined,
-                color: Color(0xFF16A34A),
+                color: Color(0xFFF97316),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   text,
                   style: textTheme.bodyMedium?.copyWith(
-                    color: const Color(0xFF4A5F36),
+                    color: const Color(0xFF6B4F30),
                     fontWeight: FontWeight.w700,
                     height: 1.25,
                   ),
@@ -1507,6 +1503,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text('Altera apenas a aparencia do app'),
                 value: enabled,
                 onChanged: widget.settingsRepository.setDarkModeEnabled,
+                activeThumbColor: UiTokens.actionOrange,
               );
             },
           ),
@@ -1521,6 +1518,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text('Toques leves nas ações principais'),
                 value: enabled,
                 onChanged: widget.settingsRepository.setHapticEnabled,
+                activeThumbColor: UiTokens.actionOrange,
               );
             },
           ),
@@ -1535,6 +1533,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: const Text('Feedback sonoro em eventos do app'),
                 value: enabled,
                 onChanged: widget.settingsRepository.setSoundEnabled,
+                activeThumbColor: UiTokens.actionOrange,
               );
             },
           ),
@@ -1652,7 +1651,7 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               AppSurfaceCard(
                 padding: const EdgeInsets.all(UiTokens.spacingLg),
-                color: UiTokens.primarySoft,
+                color: UiTokens.actionOrangeSoft,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1662,7 +1661,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: UiTokens.spacingXs),
                     Text(
-                      'Ajuste prefer\u00eancias e a composi\u00e7\u00e3o da rodada de forma simples e organizada.',
+                      'Ajuste preferências e organização sem sair do fluxo.',
                       style: textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -1795,7 +1794,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             ),
                                             decoration: BoxDecoration(
                                               color: included
-                                                  ? UiTokens.primarySoft
+                                                  ? UiTokens.actionOrangeSoft
                                                   : Theme.of(context)
                                                       .disabledColor
                                                       .withValues(alpha: 0.18),
@@ -1807,7 +1806,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                               style: textTheme.labelMedium
                                                   ?.copyWith(
                                                 color: included
-                                                    ? UiTokens.primaryStrong
+                                                    ? UiTokens.actionOrange
                                                     : UiTokens.textSecondary,
                                               ),
                                             ),
@@ -1816,6 +1815,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                         const SizedBox(width: UiTokens.s),
                                         Switch(
                                           value: included,
+                                          activeThumbColor:
+                                              UiTokens.actionOrange,
                                           onChanged: (value) =>
                                               _onSwitchChanged(
                                             row,
@@ -2149,13 +2150,13 @@ class _IpadBenefitRow extends StatelessWidget {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: const Color(0xFFEFFAF2),
+            color: const Color(0xFFFFF7ED),
             borderRadius: BorderRadius.circular(999),
           ),
           child: const Icon(
             Icons.check_rounded,
             size: 18,
-            color: Color(0xFF16A34A),
+            color: Color(0xFFF97316),
           ),
         ),
         const SizedBox(width: 10),
@@ -2317,14 +2318,14 @@ class _SettingsTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: UiTokens.primarySoft,
+                  color: UiTokens.actionOrangeSoft,
                   borderRadius: BorderRadius.circular(UiTokens.radiusLg),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   icon,
                   size: 20,
-                  color: UiTokens.primaryStrong,
+                  color: UiTokens.actionOrange,
                 ),
               ),
               const SizedBox(width: UiTokens.spacingMd),

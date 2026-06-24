@@ -153,6 +153,9 @@ class RoundSuggestionSheet extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: UiTokens.actionOrangeDark,
+                      ),
                       child: const Text('Cancelar'),
                     ),
                   ),
@@ -162,6 +165,14 @@ class RoundSuggestionSheet extends StatelessWidget {
                       onPressed: toys.isEmpty
                           ? null
                           : () => Navigator.of(context).pop(toys),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: UiTokens.actionOrange,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor:
+                            UiTokens.actionOrange.withValues(alpha: 0.32),
+                        disabledForegroundColor:
+                            Colors.white.withValues(alpha: 0.82),
+                      ),
                       child: const Text('Usar sugest\u00e3o'),
                     ),
                   ),
@@ -243,13 +254,14 @@ class _SuggestionSummary extends StatelessWidget {
         vertical: UiTokens.spacingSm,
       ),
       decoration: BoxDecoration(
-        color: UiTokens.primarySoft,
+        color: _RoundSuggestionPalette.surfaceWarm,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+        border: Border.all(color: _RoundSuggestionPalette.border),
       ),
       child: Text(
         count == 1 ? '1 brinquedo' : '$count brinquedos',
         style: UiTokens.textTitle.copyWith(
-          color: UiTokens.primaryStrong,
+          color: _RoundSuggestionPalette.orangeDark,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -737,8 +749,10 @@ class _IpadSuggestionFooter extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(132, 52),
-            foregroundColor: _RoundSuggestionPalette.textMid,
-            side: const BorderSide(color: _RoundSuggestionPalette.border),
+            foregroundColor: _RoundSuggestionPalette.orangeDark,
+            side: const BorderSide(
+              color: _RoundSuggestionPalette.orangeBorder,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
@@ -852,12 +866,12 @@ class _SuggestionToyPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: UiTokens.primarySoft,
+      color: const Color(0xFFF9F0E6),
       alignment: Alignment.center,
       child: const Icon(
         Icons.image_outlined,
         size: 22,
-        color: UiTokens.textSecondary,
+        color: Color(0xFFA8896A),
       ),
     );
   }

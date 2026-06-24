@@ -518,7 +518,7 @@ class ToyDetailPage extends StatelessWidget {
             children: [
               AppSurfaceCard(
                 padding: const EdgeInsets.all(UiTokens.spacingLg),
-                color: UiTokens.primarySoft,
+                color: UiTokens.actionOrangeSoft,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -532,7 +532,7 @@ class ToyDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: UiTokens.spacingXs),
                           Text(
-                            'Uma visão simples e organizada das informações principais.',
+                            'Foto, categoria e localização em uma visão simples.',
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium

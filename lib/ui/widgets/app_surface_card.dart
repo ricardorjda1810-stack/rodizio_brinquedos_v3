@@ -31,9 +31,9 @@ class AppSurfaceCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark ? UiTokens.shadowDark : UiTokens.shadow,
-            blurRadius: isDark ? 12 : 18,
-            offset: Offset(0, isDark ? 4 : 8),
+            color: isDark ? UiTokens.shadowDark : const Color(0x12A76A2B),
+            blurRadius: isDark ? 14 : 18,
+            offset: Offset(0, isDark ? 4 : 7),
           ),
         ],
       ),

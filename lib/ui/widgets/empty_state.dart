@@ -35,14 +35,15 @@ class EmptyState extends StatelessWidget {
                 width: 72,
                 height: 72,
                 decoration: BoxDecoration(
-                  color: UiTokens.primarySoft,
-                  borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+                  color: UiTokens.actionOrangeSoft,
+                  borderRadius: BorderRadius.circular(UiTokens.radiusXl),
+                  border: Border.all(color: UiTokens.actionOrangeBorder),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   icon,
                   size: 34,
-                  color: UiTokens.primaryStrong,
+                  color: UiTokens.actionOrange,
                 ),
               ),
               const SizedBox(height: UiTokens.spacingMd),

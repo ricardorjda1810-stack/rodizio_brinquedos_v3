@@ -7,9 +7,9 @@ class AppTheme {
   static ThemeData light() {
     const scheme = ColorScheme(
       brightness: Brightness.light,
-      primary: UiTokens.primary,
+      primary: UiTokens.actionOrange,
       onPrimary: UiTokens.surfaceLight,
-      primaryContainer: UiTokens.primarySoft,
+      primaryContainer: UiTokens.actionOrangeSoft,
       onPrimaryContainer: UiTokens.textPrimary,
       secondary: UiTokens.primaryStrong,
       onSecondary: UiTokens.surfaceLight,
@@ -56,8 +56,9 @@ class AppTheme {
       border: UiTokens.border,
       shadow: UiTokens.shadow,
       primaryStrong: UiTokens.primaryStrong,
-      primarySoft: UiTokens.primarySoft,
-      accent: UiTokens.accent,
+      actionColor: UiTokens.actionOrange,
+      actionSoft: UiTokens.actionOrangeSoft,
+      accent: UiTokens.actionOrange,
       isDark: false,
     );
   }
@@ -114,7 +115,8 @@ class AppTheme {
       border: UiTokens.borderDark,
       shadow: UiTokens.shadowDark,
       primaryStrong: UiTokens.primaryDark,
-      primarySoft: const Color(0xFF2D4438),
+      actionColor: UiTokens.accentDark,
+      actionSoft: const Color(0xFF463723),
       accent: UiTokens.accentDark,
       isDark: true,
     );
@@ -130,7 +132,8 @@ class AppTheme {
     required Color border,
     required Color shadow,
     required Color primaryStrong,
-    required Color primarySoft,
+    required Color actionColor,
+    required Color actionSoft,
     required Color accent,
     required bool isDark,
   }) {
@@ -221,15 +224,15 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: primaryStrong,
+          backgroundColor: actionColor,
           foregroundColor: isDark ? UiTokens.backgroundDark : surface,
           disabledBackgroundColor: border,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton,
+          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
           elevation: 0,
-          minimumSize: const Size(0, 48),
+          minimumSize: const Size(0, 50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiTokens.radiusButton),
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.spacingLg,
@@ -258,13 +261,14 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryStrong,
+          foregroundColor: actionColor,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton,
-          minimumSize: const Size(0, 48),
-          side: BorderSide(color: border),
+          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
+          minimumSize: const Size(0, 50),
+          side:
+              BorderSide(color: isDark ? border : UiTokens.actionOrangeBorder),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiTokens.radiusButton),
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.spacingLg,
@@ -274,11 +278,11 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: primaryStrong,
+          foregroundColor: actionColor,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton,
+          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiTokens.radiusButton),
+            borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.spacingMd,
@@ -287,27 +291,52 @@ class AppTheme {
         ),
       ),
       iconTheme: IconThemeData(color: textSecondary, size: UiTokens.icon),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: actionColor,
+        foregroundColor: isDark ? UiTokens.backgroundDark : surface,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        ),
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: surfaceSubtle.withValues(alpha: isDark ? 0.72 : 0.62),
+        selectedColor: actionSoft,
+        disabledColor: border.withValues(alpha: 0.62),
+        labelStyle: textTheme.labelMedium,
+        secondaryLabelStyle: textTheme.labelMedium?.copyWith(
+          color: isDark ? textPrimary : UiTokens.actionOrangeDark,
+          fontWeight: FontWeight.w800,
+        ),
+        side: BorderSide(color: border),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UiTokens.radiusLg),
+        ),
+      ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: surface,
-        selectedItemColor: primaryStrong,
+        selectedItemColor: actionColor,
         unselectedItemColor: textSecondary,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: primarySoft,
+        indicatorColor: actionSoft,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shadowColor: Colors.transparent,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
-          return IconThemeData(color: selected ? primaryStrong : textSecondary);
+          return IconThemeData(color: selected ? actionColor : textSecondary);
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return textTheme.labelSmall?.copyWith(
-            color: selected ? primaryStrong : textSecondary,
+            color: selected ? actionColor : textSecondary,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           );
         }),

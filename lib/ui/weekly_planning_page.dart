@@ -39,7 +39,7 @@ class WeeklyPlanningPage extends StatelessWidget {
           padding: const EdgeInsets.all(UiTokens.m),
           children: [
             AppSurfaceCard(
-              color: UiTokens.primarySoft,
+              color: UiTokens.actionOrangeSoft,
               padding: const EdgeInsets.all(UiTokens.spacingLg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,12 +412,12 @@ class _PlanningEditorStatusPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
       decoration: BoxDecoration(
         color: enabled
-            ? _PlanningEditorPalette.greenLight
+            ? _PlanningEditorPalette.orangeLight
             : const Color(0xFFFFFBF6),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: enabled
-              ? _PlanningEditorPalette.greenBorder
+              ? _PlanningEditorPalette.orangeBorder
               : _PlanningEditorPalette.border,
           width: 1.2,
         ),
@@ -429,7 +429,7 @@ class _PlanningEditorStatusPill extends StatelessWidget {
             enabled ? Icons.check_circle_rounded : Icons.pause_circle_outline,
             size: 16,
             color: enabled
-                ? _PlanningEditorPalette.green
+                ? _PlanningEditorPalette.orange
                 : _PlanningEditorPalette.textMuted,
           ),
           const SizedBox(width: 7),
@@ -437,7 +437,7 @@ class _PlanningEditorStatusPill extends StatelessWidget {
             enabled ? 'Ativo' : 'Desativado',
             style: UiTokens.textMicro.copyWith(
               color: enabled
-                  ? _PlanningEditorPalette.green
+                  ? _PlanningEditorPalette.orange
                   : _PlanningEditorPalette.textMid,
               fontWeight: FontWeight.w900,
             ),
@@ -577,12 +577,12 @@ class _PlanningEditorIpadFeatureSwitch extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
         color: enabled
-            ? _PlanningEditorPalette.greenLight
+            ? _PlanningEditorPalette.orangeLight
             : const Color(0xFFFFFBF6),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: enabled
-              ? _PlanningEditorPalette.greenBorder
+              ? _PlanningEditorPalette.orangeBorder
               : _PlanningEditorPalette.border,
           width: 1.25,
         ),
@@ -599,7 +599,7 @@ class _PlanningEditorIpadFeatureSwitch extends StatelessWidget {
             child: Icon(
               enabled ? Icons.event_available_rounded : Icons.event_busy,
               color: enabled
-                  ? _PlanningEditorPalette.green
+                  ? _PlanningEditorPalette.orange
                   : _PlanningEditorPalette.textMuted,
               size: 22,
             ),
@@ -636,7 +636,7 @@ class _PlanningEditorIpadFeatureSwitch extends StatelessWidget {
           const SizedBox(width: 12),
           Switch.adaptive(
             value: enabled,
-            activeThumbColor: _PlanningEditorPalette.green,
+            activeThumbColor: _PlanningEditorPalette.orange,
             onChanged: onChanged,
           ),
         ],
@@ -971,9 +971,9 @@ class _PlanningEditorIpadWeekdayCard extends StatelessWidget {
                         if (showDistributionSuggestion)
                           const _PlanningEditorMiniPill(
                             label: 'Sugestão disponível',
-                            foreground: _PlanningEditorPalette.green,
-                            background: _PlanningEditorPalette.greenLight,
-                            border: _PlanningEditorPalette.greenBorder,
+                            foreground: _PlanningEditorPalette.orange,
+                            background: _PlanningEditorPalette.orangeLight,
+                            border: _PlanningEditorPalette.orangeBorder,
                           ),
                       ],
                     ),
@@ -1217,7 +1217,7 @@ class _PlanningEditorIpadCategoryRow extends StatelessWidget {
           const SizedBox(width: 12),
           Switch.adaptive(
             value: category.isIncluded,
-            activeThumbColor: _PlanningEditorPalette.green,
+            activeThumbColor: _PlanningEditorPalette.orange,
             onChanged: (value) => onChanged(
               weekday: weekday,
               categoryId: category.categoryId,
@@ -1367,10 +1367,10 @@ class _PlanningEditorIpadSummaryCard extends StatelessWidget {
             value: planningEnabled ? 'Ativo' : 'Off',
             label: 'Planejamento semanal',
             color: planningEnabled
-                ? _PlanningEditorPalette.green
+                ? _PlanningEditorPalette.orange
                 : _PlanningEditorPalette.textMuted,
             background: planningEnabled
-                ? _PlanningEditorPalette.greenLight
+                ? _PlanningEditorPalette.orangeLight
                 : const Color(0xFFF8F2EA),
           ),
           const SizedBox(height: 10),
@@ -1414,8 +1414,8 @@ class _PlanningEditorIpadSummaryCard extends StatelessWidget {
                 child: _PlanningEditorSummaryStat(
                   value: '$totalAdjustments',
                   label: 'Ajustes',
-                  color: _PlanningEditorPalette.green,
-                  background: _PlanningEditorPalette.greenLight,
+                  color: _PlanningEditorPalette.warmAccent,
+                  background: _PlanningEditorPalette.warmLight,
                   compact: true,
                 ),
               ),
@@ -1560,10 +1560,10 @@ class _PlanningEditorIpadQuickActionsCard extends StatelessWidget {
         icon: planningEnabled ? Icons.pause_rounded : Icons.play_arrow_rounded,
         foreground: planningEnabled
             ? _PlanningEditorPalette.orange
-            : _PlanningEditorPalette.green,
+            : _PlanningEditorPalette.orange,
         background: planningEnabled
             ? _PlanningEditorPalette.orangeLight
-            : _PlanningEditorPalette.greenLight,
+            : _PlanningEditorPalette.orangeLight,
         onTap: () => settingsRepository.setWeeklyPlanningEnabled(
           !planningEnabled,
         ),
@@ -2072,9 +2072,8 @@ class _PlanningEditorPalette {
   static const Color textMid = Color(0xFF6B4F30);
   static const Color textMuted = Color(0xFFA8896A);
   static const Color border = Color(0x1FB98750);
-  static const Color green = Color(0xFF16A34A);
-  static const Color greenLight = Color(0xFFEAF7EE);
-  static const Color greenBorder = Color(0xFFB7E4C7);
+  static const Color warmAccent = Color(0xFF9A5A1E);
+  static const Color warmLight = Color(0xFFFFFBF6);
   static const Color blue = Color(0xFF2563EB);
   static const Color blueLight = Color(0xFFEFF6FF);
   static const Color purple = Color(0xFF8B5CF6);

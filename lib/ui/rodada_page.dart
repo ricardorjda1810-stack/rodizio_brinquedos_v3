@@ -2102,14 +2102,15 @@ class _RoundMomentCard extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: UiTokens.secondarySoft,
+              color: UiTokens.actionOrangeSoft,
               borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+              border: Border.all(color: UiTokens.actionOrangeBorder),
             ),
             alignment: Alignment.center,
             child: const Icon(
               Icons.local_activity_outlined,
               size: 19,
-              color: UiTokens.primaryStrong,
+              color: UiTokens.actionOrange,
             ),
           );
           final copy = Column(
@@ -2182,7 +2183,7 @@ class _RoundMomentCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: UiTokens.primarySoft,
+                color: UiTokens.actionOrangeSoft,
                 borderRadius: BorderRadius.circular(UiTokens.radiusLg),
               ),
               alignment: Alignment.center,
@@ -2515,14 +2516,16 @@ class _RoundToyGridItem extends StatelessWidget {
             color: colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isCollected ? UiTokens.primaryStrong : Colors.transparent,
+              color: isCollected
+                  ? UiTokens.primaryStrong
+                  : const Color(0xFFF3E2D0),
               width: isCollected ? 1.4 : 1,
             ),
             boxShadow: const [
               BoxShadow(
-                color: UiTokens.shadow,
-                blurRadius: 10,
-                offset: Offset(0, 3),
+                color: Color(0x10AA6E32),
+                blurRadius: 12,
+                offset: Offset(0, 4),
               ),
             ],
           ),
@@ -2603,8 +2606,16 @@ class _GridToyPhoto extends StatelessWidget {
             ),
     );
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9F0E6),
+        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+      ),
+      foregroundDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+        border: Border.all(color: const Color(0xFFE9DED2)),
+      ),
       child: isCollected
           ? Stack(
               fit: StackFit.expand,
@@ -2674,12 +2685,12 @@ class _GridToyPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: UiTokens.primarySoft,
+      color: const Color(0xFFF9F0E6),
       alignment: Alignment.center,
       child: const Icon(
         Icons.image_outlined,
         size: 22,
-        color: UiTokens.textSecondary,
+        color: Color(0xFFA8896A),
       ),
     );
   }

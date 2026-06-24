@@ -1206,13 +1206,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 AppSurfaceCard(
                                   padding:
                                       const EdgeInsets.all(UiTokens.spacingMd),
-                                  color: UiTokens.primarySoft,
+                                  color: UiTokens.actionOrangeSoft,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Cadastrar com calma',
+                                        'Novo brinquedo',
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium,
@@ -1220,7 +1220,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                       const SizedBox(
                                           height: UiTokens.spacingXs),
                                       Text(
-                                        'Escolha a foto, marque a categoria principal e indique onde o brinquedo fica guardado.',
+                                        'Foto, categoria e lugar de guardar. O essencial em poucos passos.',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium

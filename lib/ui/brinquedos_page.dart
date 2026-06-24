@@ -994,7 +994,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     children: [
                       AppSurfaceCard(
                         padding: const EdgeInsets.all(UiTokens.spacingMd),
-                        color: const Color(0xFFFFF5E8),
+                        color: UiTokens.actionOrangeSoft,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1004,7 +1004,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                             ),
                             const SizedBox(height: UiTokens.spacingXs),
                             Text(
-                              'Veja tudo de forma clara, filtre com leveza e monte a rodada quando quiser.',
+                              'Cadastre, encontre e organize os brinquedos sem perder tempo.',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -1024,6 +1024,16 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                       ? double.infinity
                                       : 240,
                                   child: FilledButton.icon(
+                                    onPressed: () => _openToyCreate(context),
+                                    icon: const Icon(Icons.add_rounded),
+                                    label: const Text('Novo brinquedo'),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.sizeOf(context).width < 560
+                                      ? double.infinity
+                                      : 176,
+                                  child: OutlinedButton.icon(
                                     onPressed:
                                         _startingRound ? null : _startRound,
                                     icon: _startingRound
@@ -1034,24 +1044,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                               strokeWidth: 2,
                                             ),
                                           )
-                                        : const Icon(Icons.play_arrow),
+                                        : const Icon(Icons.shuffle_rounded),
                                     label: Text(
                                       _startingRound
-                                          ? 'Iniciando...'
-                                          : 'Iniciar rod\u00edzio',
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: MediaQuery.sizeOf(context).width < 560
-                                      ? double.infinity
-                                      : 132,
-                                  child: Tooltip(
-                                    message: 'Novo brinquedo',
-                                    child: FilledButton.tonalIcon(
-                                      onPressed: () => _openToyCreate(context),
-                                      icon: const Icon(Icons.add),
-                                      label: const Text('Novo'),
+                                          ? 'Montando...'
+                                          : 'Montar rodada',
                                     ),
                                   ),
                                 ),

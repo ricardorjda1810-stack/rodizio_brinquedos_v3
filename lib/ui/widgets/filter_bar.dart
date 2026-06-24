@@ -72,18 +72,34 @@ class FilterBar extends StatelessWidget {
           const gap = UiTokens.s;
           final compact = maxWidth < 560;
           final dropdownWidth = compact ? (maxWidth - gap) / 2 : 196.0;
+          final searchLabel = compact ? 'Busca' : 'Buscar';
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Filtros do cat\u00e1logo',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: UiTokens.spacingXs),
-              Text(
-                'Organize por categoria, caixa e local sem poluir a tela.',
-                style: Theme.of(context).textTheme.bodySmall,
+              Row(
+                children: [
+                  Icon(
+                    Icons.tune_rounded,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: UiTokens.spacingXs),
+                  Expanded(
+                    child: Text(
+                      'Filtros',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  if (showClear)
+                    TextButton.icon(
+                      onPressed: onClear,
+                      icon: const Icon(Icons.close_rounded, size: 17),
+                      label: const Text('Limpar'),
+                    ),
+                ],
               ),
               const SizedBox(height: UiTokens.spacingSm),
               Wrap(
@@ -120,17 +136,17 @@ class FilterBar extends StatelessWidget {
                     ),
                   SizedBox(
                     width: compact ? dropdownWidth : 120,
-                    height: 48,
-                    child: FilledButton.tonalIcon(
+                    height: 46,
+                    child: FilledButton.icon(
                       onPressed: onSearchTap,
                       icon: const Icon(Icons.search),
-                      label: const Text('Buscar'),
+                      label: Text(searchLabel),
                     ),
                   ),
-                  if (showClear)
+                  if (showClear && !compact)
                     SizedBox(
-                      width: compact ? dropdownWidth : 120,
-                      height: 48,
+                      width: 120,
+                      height: 46,
                       child: OutlinedButton.icon(
                         onPressed: onClear,
                         icon: const Icon(Icons.close),
@@ -164,7 +180,8 @@ class _ProDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final safeValue = items.any((e) => e.id == valueId) ? valueId : items.first.id;
+    final safeValue =
+        items.any((e) => e.id == valueId) ? valueId : items.first.id;
 
     final titleStyle = theme.textTheme.labelSmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -176,7 +193,7 @@ class _ProDropdown extends StatelessWidget {
     );
 
     return Container(
-      height: 48,
+      height: 46,
       padding: const EdgeInsets.symmetric(horizontal: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
