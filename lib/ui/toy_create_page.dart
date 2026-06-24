@@ -936,64 +936,89 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             subtitle: 'Escolha onde o brinquedo fica guardado.',
           ),
           const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: DropdownButtonFormField<String?>(
-                  initialValue: _selectedBoxSelection,
-                  decoration: InputDecoration(
-                    labelText: 'Caixa',
-                    prefixIcon: const Icon(Icons.inventory_2_outlined),
-                    helperText: 'Escolha uma caixa ou marque "Sem caixa".',
-                    errorText: _boxSelectionTouched && !_hasExplicitBoxSelection
-                        ? _locationRequiredMessage
-                        : null,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              const spacing = 12.0;
+              const inlineButtonWidth = 166.0;
+              final canInline =
+                  constraints.maxWidth >= inlineButtonWidth + spacing + 280;
+              final buttonWidth =
+                  canInline ? inlineButtonWidth : constraints.maxWidth;
+              final fieldWidth = canInline
+                  ? constraints.maxWidth - inlineButtonWidth - spacing
+                  : constraints.maxWidth;
+
+              return Wrap(
+                spacing: spacing,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                children: [
+                  SizedBox(
+                    width: fieldWidth,
+                    child: DropdownButtonFormField<String?>(
+                      initialValue: _selectedBoxSelection,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: 'Caixa',
+                        prefixIcon: const Icon(Icons.inventory_2_outlined),
+                        helperText: 'Escolha uma caixa ou marque "Sem caixa".',
+                        errorText:
+                            _boxSelectionTouched && !_hasExplicitBoxSelection
+                                ? _locationRequiredMessage
+                                : null,
+                      ),
+                      items: <DropdownMenuItem<String?>>[
+                        const DropdownMenuItem<String?>(
+                          value: null,
+                          child: Text(
+                            'Selecione uma caixa',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const DropdownMenuItem<String?>(
+                          value: _noBoxOptionValue,
+                          child: Text('Sem caixa'),
+                        ),
+                        ...boxes.map(
+                          (box) => DropdownMenuItem<String?>(
+                            value: box.id,
+                            child: Text(
+                              'Caixa ${box.number} - ${box.local}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: _saving
+                          ? null
+                          : (value) => setState(() {
+                                _selectedBoxSelection = value;
+                                _boxSelectionTouched = true;
+                                if (!_isWithoutBoxSelected) {
+                                  _selectedLooseLocation = null;
+                                }
+                              }),
+                    ),
                   ),
-                  items: <DropdownMenuItem<String?>>[
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('Selecione uma caixa'),
-                    ),
-                    const DropdownMenuItem<String?>(
-                      value: _noBoxOptionValue,
-                      child: Text('Sem caixa'),
-                    ),
-                    ...boxes.map(
-                      (box) => DropdownMenuItem<String?>(
-                        value: box.id,
-                        child: Text('Caixa ${box.number} - ${box.local}'),
+                  SizedBox(
+                    width: buttonWidth,
+                    height: 56,
+                    child: FilledButton.tonalIcon(
+                      onPressed: _saving ? null : _createBox,
+                      icon: const Icon(Icons.add_box_outlined),
+                      label: const Text('Nova caixa'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: _ToyCreateIpadPalette.orangeLight,
+                        foregroundColor: const Color(0xFFC2410C),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                     ),
-                  ],
-                  onChanged: _saving
-                      ? null
-                      : (value) => setState(() {
-                            _selectedBoxSelection = value;
-                            _boxSelectionTouched = true;
-                            if (!_isWithoutBoxSelected) {
-                              _selectedLooseLocation = null;
-                            }
-                          }),
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                height: 56,
-                child: FilledButton.tonalIcon(
-                  onPressed: _saving ? null : _createBox,
-                  icon: const Icon(Icons.add_box_outlined),
-                  label: const Text('Nova caixa'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: _ToyCreateIpadPalette.orangeLight,
-                    foregroundColor: const Color(0xFFC2410C),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            },
           ),
           AnimatedSize(
             duration: _localFieldAnimationDuration,
@@ -1417,6 +1442,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                     String?>(
                                                   initialValue:
                                                       _selectedBoxSelection,
+                                                  isExpanded: true,
                                                   decoration: InputDecoration(
                                                     labelText: 'Caixa',
                                                     helperText:
@@ -1433,6 +1459,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                       value: null,
                                                       child: Text(
                                                         'Selecione uma caixa',
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                     ),
                                                     const DropdownMenuItem<
@@ -1446,6 +1474,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                         value: b.id,
                                                         child: Text(
                                                           'Caixa ${b.number} - ${b.local}',
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                         ),
                                                       ),
                                                     ),
