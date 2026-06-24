@@ -2551,38 +2551,69 @@ class _CategoryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            category.categoryName,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-        ),
-        const SizedBox(width: UiTokens.spacingSm),
-        _QuantityStepper(
-          value: category.safeQuota,
-          enabled: category.isIncluded,
-          onChanged: (value) => onChanged(
-            weekday: weekday,
-            categoryId: category.categoryId,
-            isIncluded: category.isIncluded,
-            quota: value,
-          ),
-        ),
-        const SizedBox(width: UiTokens.spacingSm),
-        Switch(
-          value: category.isIncluded,
-          onChanged: (value) => onChanged(
-            weekday: weekday,
-            categoryId: category.categoryId,
-            isIncluded: value,
-            quota: category.safeQuota,
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final useStackedLayout = constraints.maxWidth < 520;
+        final name = Text(
+          category.categoryName,
+          maxLines: useStackedLayout ? 2 : 1,
+          overflow:
+              useStackedLayout ? TextOverflow.visible : TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                height: 1.18,
+              ),
+        );
+        final controls = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _QuantityStepper(
+              value: category.safeQuota,
+              enabled: category.isIncluded,
+              onChanged: (value) => onChanged(
+                weekday: weekday,
+                categoryId: category.categoryId,
+                isIncluded: category.isIncluded,
+                quota: value,
+              ),
+            ),
+            const SizedBox(width: UiTokens.spacingSm),
+            Switch(
+              value: category.isIncluded,
+              onChanged: (value) => onChanged(
+                weekday: weekday,
+                categoryId: category.categoryId,
+                isIncluded: value,
+                quota: category.safeQuota,
+              ),
+            ),
+          ],
+        );
+
+        if (useStackedLayout) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: double.infinity, child: name),
+              const SizedBox(height: UiTokens.spacingSm),
+              Row(
+                children: [
+                  controls,
+                  const Spacer(),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(child: name),
+            const SizedBox(width: UiTokens.spacingSm),
+            controls,
+          ],
+        );
+      },
     );
   }
 }
