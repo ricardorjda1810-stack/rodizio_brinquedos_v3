@@ -274,6 +274,48 @@ void main() {
     settingsRepository.dispose();
   });
 
+  test('suggestWeeklyPlanningForWeek distribui brinquedos antes de repetir',
+      () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'livros': 2,
+      'construcao': 2,
+      'faz_de_conta': 2,
+      'movimento': 2,
+      'coordenacao': 2,
+    });
+    await _insertWeeklyPlanningToys(db, countPerCategory: 10);
+
+    final week = await roundRepository.suggestWeeklyPlanningForWeek(
+      DateTime(2026, 1, 5),
+    );
+
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      expect(week[weekday], hasLength(10), reason: 'weekday $weekday');
+    }
+
+    final mondayIds = week[DateTime.monday]!.map((toy) => toy.id).toSet();
+    final tuesdayIds = week[DateTime.tuesday]!.map((toy) => toy.id).toSet();
+    expect(mondayIds.intersection(tuesdayIds), isEmpty);
+
+    final firstFiveDaysIds = <String>{};
+    for (var weekday = DateTime.monday; weekday <= DateTime.friday; weekday++) {
+      firstFiveDaysIds.addAll(week[weekday]!.map((toy) => toy.id));
+    }
+    expect(firstFiveDaysIds, hasLength(50));
+
+    for (var weekday = DateTime.tuesday;
+        weekday <= DateTime.sunday;
+        weekday++) {
+      final previousIds = week[weekday - 1]!.map((toy) => toy.id).toSet();
+      final currentIds = week[weekday]!.map((toy) => toy.id).toSet();
+      expect(
+        previousIds.intersection(currentIds),
+        isEmpty,
+        reason: 'weekday $weekday should avoid consecutive repeats',
+      );
+    }
+  });
+
   test('startRound usa cotas efetivas de cada data por idade', () async {
     final settingsRepository = SettingsRepository(db);
     await settingsRepository.load();
@@ -426,6 +468,31 @@ Future<void> _insertOfficialToys(
       await _insertToy(
         db,
         id: 'official_${categoryId}_$index',
+        categoryId: categoryId,
+        createdAt: createdAt,
+      );
+      createdAt++;
+    }
+  }
+}
+
+Future<void> _insertWeeklyPlanningToys(
+  AppDatabase db, {
+  required int countPerCategory,
+}) async {
+  const categoryIds = <String>[
+    'livros',
+    'construcao',
+    'faz_de_conta',
+    'movimento',
+    'coordenacao',
+  ];
+  var createdAt = 20000;
+  for (final categoryId in categoryIds) {
+    for (var index = 0; index < countPerCategory; index++) {
+      await _insertToy(
+        db,
+        id: 'planning_${categoryId}_$index',
         categoryId: categoryId,
         createdAt: createdAt,
       );

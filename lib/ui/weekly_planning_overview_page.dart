@@ -69,6 +69,8 @@ class _WeeklyPlanningOverviewPageState
     final activeRoundItems = await _loadActiveRoundToys();
     final activeRoundToys =
         activeRoundItems.map((item) => item.toy).toList(growable: false);
+    final weeklySuggestions =
+        await widget.roundRepository.suggestWeeklyPlanningForWeek(weekStart);
 
     final days = <WeeklyPlanningOverviewDayInput>[];
     List<WeeklyPlanningOverviewToyInput>? todayVisualToys;
@@ -79,7 +81,7 @@ class _WeeklyPlanningOverviewPageState
           await widget.weeklyPlanningRepository.resolveCategoryConfigForDate(
         date,
       );
-      final toys = await widget.roundRepository.suggestRoundForDate(date);
+      final toys = weeklySuggestions[weekday] ?? const <Toy>[];
       final isToday = _isSameDate(date, DateTime.now());
       final visualToys =
           isToday && activeRoundToys.isNotEmpty ? activeRoundToys : toys;

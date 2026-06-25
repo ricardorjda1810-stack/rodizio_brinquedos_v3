@@ -197,6 +197,13 @@ class _ToyCandidate {
   });
 }
 
+class _WeeklyPlanningToyPool {
+  final List<Toy> toys;
+  int cursor;
+
+  _WeeklyPlanningToyPool(this.toys) : cursor = 0;
+}
+
 class RoundRepository {
   final AppDatabase? db;
   final WeeklyPlanningRepository? _weeklyPlanningRepository;
@@ -591,6 +598,83 @@ class RoundRepository {
     return suggestRoundForDate(DateTime.now());
   }
 
+  Future<Map<int, List<Toy>>> suggestWeeklyPlanningForWeek(
+    DateTime weekStart,
+  ) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('RoundRepository.db is null. Use um Fake no teste.');
+    }
+
+    final normalizedWeekStart = _startOfWeek(weekStart);
+    final lastRoundToyIds = await _loadMostRecentRoundToyIds(d);
+    final poolByKey = <String, _WeeklyPlanningToyPool>{};
+    final usageByToyId = <String, int>{};
+    final lastUsedDayByToyId = <String, int>{};
+    final result = <int, List<Toy>>{};
+
+    SettingsRepository? settingsRepository;
+
+    for (var dayIndex = 0; dayIndex < 7; dayIndex++) {
+      final date = normalizedWeekStart.add(Duration(days: dayIndex));
+      final categoryConfigs =
+          await _resolveRoundCategoryConfigsForDate(date, d);
+      final selected = <Toy>[];
+      final selectedIds = <String>{};
+
+      if (categoryConfigs.isEmpty) {
+        settingsRepository ??= SettingsRepository(d);
+        await settingsRepository.load();
+        final pool = await _weeklyPlanningPoolForKey(
+          d,
+          poolByKey: poolByKey,
+          key: '__all__',
+          categoryId: null,
+          lastRoundToyIds: lastRoundToyIds,
+        );
+        selected.addAll(
+          _selectWeeklyPlanningToys(
+            pool: pool,
+            count: settingsRepository.roundSize,
+            dayIndex: dayIndex,
+            selectedIds: selectedIds,
+            usageByToyId: usageByToyId,
+            lastUsedDayByToyId: lastUsedDayByToyId,
+          ),
+        );
+        result[date.weekday] = selected;
+        continue;
+      }
+
+      final includedConfigs = categoryConfigs
+          .where((config) => config.isIncluded && config.safeQuota > 0)
+          .toList(growable: false);
+      for (final config in includedConfigs) {
+        final pool = await _weeklyPlanningPoolForKey(
+          d,
+          poolByKey: poolByKey,
+          key: 'category:${config.categoryId}',
+          categoryId: config.categoryId,
+          lastRoundToyIds: lastRoundToyIds,
+        );
+        selected.addAll(
+          _selectWeeklyPlanningToys(
+            pool: pool,
+            count: config.safeQuota,
+            dayIndex: dayIndex,
+            selectedIds: selectedIds,
+            usageByToyId: usageByToyId,
+            lastUsedDayByToyId: lastUsedDayByToyId,
+          ),
+        );
+      }
+
+      result[date.weekday] = selected;
+    }
+
+    return result;
+  }
+
   Future<List<Toy>> suggestRoundForDate(DateTime date) async {
     final d = db;
     if (d == null) {
@@ -703,6 +787,127 @@ class RoundRepository {
       ...toys.where((toy) => !lastRoundToyIds.contains(toy.id)),
       ...toys.where((toy) => lastRoundToyIds.contains(toy.id)),
     ];
+  }
+
+  Future<_WeeklyPlanningToyPool> _weeklyPlanningPoolForKey(
+    AppDatabase d, {
+    required Map<String, _WeeklyPlanningToyPool> poolByKey,
+    required String key,
+    required String? categoryId,
+    required Set<String> lastRoundToyIds,
+  }) async {
+    final cached = poolByKey[key];
+    if (cached != null) return cached;
+
+    final toys = categoryId == null
+        ? await _loadEligibleToys(d)
+        : await _loadEligibleToysForCategory(d, categoryId: categoryId);
+    final pool = _WeeklyPlanningToyPool(
+      _prioritizeToysOutsideLastRound(toys, lastRoundToyIds),
+    );
+    poolByKey[key] = pool;
+    return pool;
+  }
+
+  List<Toy> _selectWeeklyPlanningToys({
+    required _WeeklyPlanningToyPool pool,
+    required int count,
+    required int dayIndex,
+    required Set<String> selectedIds,
+    required Map<String, int> usageByToyId,
+    required Map<String, int> lastUsedDayByToyId,
+  }) {
+    if (count <= 0 || pool.toys.isEmpty) return const <Toy>[];
+
+    final availableCount = pool.toys.where((toy) {
+      return !selectedIds.contains(toy.id);
+    }).length;
+    final targetCount = count < availableCount ? count : availableCount;
+    if (targetCount <= 0) return const <Toy>[];
+
+    final selected = <Toy>[];
+    while (selected.length < targetCount) {
+      final candidates = pool.toys.where((toy) {
+        return !selectedIds.contains(toy.id);
+      }).toList(growable: false);
+      if (candidates.isEmpty) break;
+
+      final remainingCount = targetCount - selected.length;
+      final nonConsecutiveCandidates = candidates.where((toy) {
+        return lastUsedDayByToyId[toy.id] != dayIndex - 1;
+      }).toList(growable: false);
+      final effectiveCandidates =
+          nonConsecutiveCandidates.length >= remainingCount
+              ? nonConsecutiveCandidates
+              : candidates;
+
+      final orderedCandidates = effectiveCandidates.toList(growable: false)
+        ..sort(
+          (a, b) => _compareWeeklyPlanningCandidates(
+            a,
+            b,
+            pool: pool,
+            dayIndex: dayIndex,
+            usageByToyId: usageByToyId,
+            lastUsedDayByToyId: lastUsedDayByToyId,
+          ),
+        );
+      final toy = orderedCandidates.first;
+      selected.add(toy);
+      selectedIds.add(toy.id);
+      usageByToyId[toy.id] = (usageByToyId[toy.id] ?? 0) + 1;
+      lastUsedDayByToyId[toy.id] = dayIndex;
+      pool.cursor = (_toyPoolIndex(pool, toy) + 1) % pool.toys.length;
+    }
+
+    return selected;
+  }
+
+  int _compareWeeklyPlanningCandidates(
+    Toy a,
+    Toy b, {
+    required _WeeklyPlanningToyPool pool,
+    required int dayIndex,
+    required Map<String, int> usageByToyId,
+    required Map<String, int> lastUsedDayByToyId,
+  }) {
+    final byUsage = (usageByToyId[a.id] ?? 0).compareTo(
+      usageByToyId[b.id] ?? 0,
+    );
+    if (byUsage != 0) return byUsage;
+
+    final aWasUsedYesterday = lastUsedDayByToyId[a.id] == dayIndex - 1;
+    final bWasUsedYesterday = lastUsedDayByToyId[b.id] == dayIndex - 1;
+    if (aWasUsedYesterday != bWasUsedYesterday) {
+      return aWasUsedYesterday ? 1 : -1;
+    }
+
+    final byCursorDistance = _toyPoolDistanceFromCursor(pool, a).compareTo(
+      _toyPoolDistanceFromCursor(pool, b),
+    );
+    if (byCursorDistance != 0) return byCursorDistance;
+
+    final byCreatedAt = a.createdAt.compareTo(b.createdAt);
+    if (byCreatedAt != 0) return byCreatedAt;
+    return a.id.compareTo(b.id);
+  }
+
+  int _toyPoolDistanceFromCursor(_WeeklyPlanningToyPool pool, Toy toy) {
+    final index = _toyPoolIndex(pool, toy);
+    if (index < 0) return pool.toys.length;
+    return (index - pool.cursor) % pool.toys.length;
+  }
+
+  int _toyPoolIndex(_WeeklyPlanningToyPool pool, Toy toy) {
+    for (var index = 0; index < pool.toys.length; index++) {
+      if (pool.toys[index].id == toy.id) return index;
+    }
+    return -1;
+  }
+
+  DateTime _startOfWeek(DateTime date) {
+    final localDate = DateTime(date.year, date.month, date.day);
+    return localDate.subtract(Duration(days: localDate.weekday - 1));
   }
 
   Future<void> endActiveRound() async {
