@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 
 import 'brinquedos_catalog_state.dart';
 
@@ -28,14 +29,19 @@ class BrinquedosCatalogController {
 
   static const List<CategoryFilterOption> _defaultCategories =
       <CategoryFilterOption>[
-    CategoryFilterOption(id: 'coordenacao', label: 'Coordenação'),
-    CategoryFilterOption(id: 'construcao', label: 'Construção'),
-    CategoryFilterOption(id: 'faz_de_conta', label: 'Faz de conta'),
-    CategoryFilterOption(id: 'livros', label: 'Livros'),
-    CategoryFilterOption(id: 'movimento', label: 'Movimento'),
-    CategoryFilterOption(id: 'musica', label: 'Música'),
-    CategoryFilterOption(id: 'artes', label: 'Artes'),
+    CategoryFilterOption(id: 'corpo', label: 'Corpo e Respiração'),
+    CategoryFilterOption(id: 'exploracao', label: 'Sentidos e Exploração'),
+    CategoryFilterOption(id: 'maos', label: 'Mãos e Construção'),
+    CategoryFilterOption(id: 'imaginacao', label: 'Imaginação e Criatividade'),
+    CategoryFilterOption(id: 'comunicacao', label: 'Comunicação e Histórias'),
   ];
+  static const Map<String, int> _officialCategoryOrder = <String, int>{
+    'corpo': 1,
+    'exploracao': 2,
+    'maos': 3,
+    'imaginacao': 4,
+    'comunicacao': 5,
+  };
 
   void init() {
     _emit();
@@ -129,6 +135,7 @@ class BrinquedosCatalogController {
     };
 
     for (final c in _latestCategories) {
+      if (!AgePresetCatalog.isOfficialCategoryId(c.id)) continue;
       final label = c.name.trim();
       if (label.isNotEmpty) {
         byId[c.id] = label;
@@ -138,8 +145,14 @@ class BrinquedosCatalogController {
     final options = byId.entries
         .map((e) => CategoryFilterOption(id: e.key, label: e.value))
         .toList();
-    options
-        .sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
+    options.sort((a, b) {
+      final aOrder = _officialCategoryOrder[a.id];
+      final bOrder = _officialCategoryOrder[b.id];
+      if (aOrder != null || bOrder != null) {
+        return (aOrder ?? 1000).compareTo(bOrder ?? 1000);
+      }
+      return a.label.toLowerCase().compareTo(b.label.toLowerCase());
+    });
     return options;
   }
 

@@ -191,23 +191,19 @@ class AgePresetService {
 
   Future<Map<String, String>> _ensureOfficialCategories() async {
     final categories = await db.select(db.categoryDefinitions).get();
-    final existingIds = categories.map((category) => category.id).toSet();
-    final byNormalizedName = <String, CategoryDefinition>{
-      for (final category in categories)
-        _normalizeCategoryName(category.name): category,
+    final byId = <String, CategoryDefinition>{
+      for (final category in categories) category.id: category,
     };
     final result = <String, String>{};
 
     for (final official in AgePresetCatalog.officialCategories) {
-      final existing = byNormalizedName[_normalizeCategoryName(official.name)];
+      final existing = byId[official.id];
       if (existing == null) {
-        final categoryId = _uniqueId(official.id, existingIds);
-        existingIds.add(categoryId);
-        result[official.id] = categoryId;
+        result[official.id] = official.id;
 
         await db.into(db.categoryDefinitions).insert(
               CategoryDefinitionsCompanion.insert(
-                id: categoryId,
+                id: official.id,
                 name: official.name,
                 description: const Value(null),
                 examples: Value(official.examples),
@@ -219,14 +215,14 @@ class AgePresetService {
             );
         await db.into(db.categoryCounters).insert(
               CategoryCountersCompanion.insert(
-                categoryId: categoryId,
+                categoryId: official.id,
                 nextNumber: const Value(1),
               ),
               mode: InsertMode.insertOrIgnore,
             );
         await db.into(db.roundCategorySettings).insert(
               RoundCategorySettingsCompanion.insert(
-                categoryId: categoryId,
+                categoryId: official.id,
                 isIncluded: const Value(false),
                 quota: const Value(0),
               ),
@@ -240,6 +236,7 @@ class AgePresetService {
             ..where((category) => category.id.equals(existing.id)))
           .write(
         CategoryDefinitionsCompanion(
+          name: Value(official.name),
           examples: _isBlank(existing.examples)
               ? Value(official.examples)
               : const Value.absent(),
@@ -268,6 +265,8 @@ class AgePresetService {
           );
     }
 
+    await _normalizeLegacyCategories();
+
     return result;
   }
 
@@ -293,53 +292,51 @@ class AgePresetService {
     }
   }
 
-  String _uniqueId(String baseId, Set<String> existingIds) {
-    final normalized = baseId.trim().isEmpty ? 'categoria' : baseId.trim();
-    if (!existingIds.contains(normalized)) return normalized;
-
-    var index = 2;
-    while (existingIds.contains('${normalized}_$index')) {
-      index++;
-    }
-    return '${normalized}_$index';
-  }
-
   bool _isBlank(String? value) => value == null || value.trim().isEmpty;
 
   int _safeQuota(int value) => value < 0 ? 0 : value;
 
-  String _normalizeCategoryName(String value) {
-    var normalized = value.trim().toLowerCase();
-    const replacements = <String, String>{
-      'á': 'a',
-      'à': 'a',
-      'â': 'a',
-      'ã': 'a',
-      'ä': 'a',
-      'é': 'e',
-      'ê': 'e',
-      'è': 'e',
-      'ë': 'e',
-      'í': 'i',
-      'ì': 'i',
-      'î': 'i',
-      'ï': 'i',
-      'ó': 'o',
-      'ò': 'o',
-      'ô': 'o',
-      'õ': 'o',
-      'ö': 'o',
-      'ú': 'u',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
-    };
+  Future<void> _normalizeLegacyCategories() async {
+    final categories = await db.select(db.categoryDefinitions).get();
 
-    for (final entry in replacements.entries) {
-      normalized = normalized.replaceAll(entry.key, entry.value);
+    for (final category in categories) {
+      final categoryId = category.id.trim();
+      if (AgePresetCatalog.isOfficialCategoryId(categoryId)) continue;
+
+      final targetCategoryId =
+          AgePresetCatalog.officialCategoryIdForLegacyKey(category.id) ??
+              AgePresetCatalog.officialCategoryIdForLegacyKey(category.name);
+      if (targetCategoryId == null || targetCategoryId == category.id) {
+        continue;
+      }
+
+      await (db.update(db.toys)
+            ..where((toy) => toy.categoryId.equals(category.id)))
+          .write(ToysCompanion(categoryId: Value(targetCategoryId)));
+      await db.into(db.roundCategorySettings).insertOnConflictUpdate(
+            RoundCategorySettingsCompanion.insert(
+              categoryId: category.id,
+              isIncluded: const Value(false),
+              quota: const Value(0),
+            ),
+          );
+      await (db.update(db.weeklyPlanningCategorySettings)
+            ..where((row) => row.categoryId.equals(category.id)))
+          .write(
+        const WeeklyPlanningCategorySettingsCompanion(
+          isIncluded: Value(false),
+          quota: Value(0),
+        ),
+      );
+      await (db.update(db.categoryDefinitions)
+            ..where((row) => row.id.equals(category.id)))
+          .write(
+        CategoryDefinitionsCompanion(
+          isDefault: const Value(false),
+          isActive: const Value(false),
+          sortOrder: Value(1000 + category.sortOrder),
+        ),
+      );
     }
-
-    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 }

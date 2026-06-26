@@ -24,6 +24,18 @@ void main() {
       name: 'Categoria personalizada',
       examples: 'exemplo interno',
     );
+    await db.into(db.categoryDefinitions).insert(
+          CategoryDefinitionsCompanion.insert(
+            id: 'movimento',
+            name: 'Movimento',
+            description: const Value(null),
+            examples: const Value(null),
+            developmentAspect: const Value(null),
+            sortOrder: const Value(999),
+            isDefault: const Value(false),
+            isActive: const Value(true),
+          ),
+        );
     await db.into(db.toys).insert(
           ToysCompanion.insert(
             id: 'toy_antigo',
@@ -39,7 +51,10 @@ void main() {
     await repository.ensureOfficialToyFormCategories();
 
     final categories = await db.select(db.categoryDefinitions).get();
-    expect(categories.map((category) => category.name), contains('Movimento'));
+    final legacyMovement =
+        categories.where((category) => category.id == 'movimento').single;
+    expect(legacyMovement.name, 'Movimento');
+    expect(legacyMovement.isActive, isFalse);
     expect(
       categories.map((category) => category.name),
       contains('Categoria personalizada'),
@@ -47,20 +62,20 @@ void main() {
 
     final pickerCategories = officialToyFormCategories(categories);
     expect(pickerCategories.map(toyFormCategoryName), [
-      'Corpo',
-      'Mãos',
-      'Imaginação',
-      'Comunicação',
-      'Exploração',
+      'Corpo e Respiração',
+      'Sentidos e Exploração',
+      'Mãos e Construção',
+      'Imaginação e Criatividade',
+      'Comunicação e Histórias',
     ]);
     expect(
       pickerCategories.map(toyFormCategoryExamples),
       containsAll([
-        'bola • túnel • cavalinho • empurrar',
-        'blocos • encaixes • quebra-cabeça • argolas',
-        'bonecos • cozinha • carrinhos • ferramentas',
-        'livros • fantoches • animais • jogos simples',
-        'massinha • chocalho • água • areia • tecidos',
+        'movimento • equilíbrio • sopro • pausa corporal',
+        'texturas • sons • cores • água • areia • descoberta',
+        'encaixar • empilhar • montar • resolver problemas',
+        'faz de conta • arte • criação • expressão',
+        'livros • fala • escuta • narrativa • conversa',
       ]),
     );
     expect(
@@ -75,6 +90,6 @@ void main() {
     final oldToy = await (db.select(db.toys)
           ..where((toy) => toy.id.equals('toy_antigo')))
         .getSingle();
-    expect(oldToy.categoryId, 'movimento');
+    expect(oldToy.categoryId, 'corpo');
   });
 }

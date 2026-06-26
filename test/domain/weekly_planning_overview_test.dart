@@ -13,20 +13,20 @@ void main() {
           weekdayLabel: weeklyPlanningWeekdayLabel(weekday),
           categories: const [
             WeeklyPlanningOverviewCategoryInput(
-              categoryId: 'faz_de_conta',
-              categoryName: 'Faz de Conta',
+              categoryId: 'imaginacao',
+              categoryName: 'Imaginação e Criatividade',
               isIncluded: true,
               quota: 1,
             ),
             WeeklyPlanningOverviewCategoryInput(
-              categoryId: 'movimento',
-              categoryName: 'Movimento',
+              categoryId: 'corpo',
+              categoryName: 'Corpo e Respiração',
               isIncluded: true,
               quota: 2,
             ),
             WeeklyPlanningOverviewCategoryInput(
-              categoryId: 'livros',
-              categoryName: 'Historias',
+              categoryId: 'comunicacao',
+              categoryName: 'Comunicação e Histórias',
               isIncluded: false,
               quota: 4,
             ),
@@ -35,13 +35,13 @@ void main() {
             WeeklyPlanningOverviewToyInput(
               id: 'toy_$weekday-a',
               name: 'Toy A',
-              categoryId: 'faz_de_conta',
+              categoryId: 'imaginacao',
               boxId: 'box_a',
             ),
             WeeklyPlanningOverviewToyInput(
               id: 'toy_$weekday-b',
               name: 'Toy B',
-              categoryId: 'movimento',
+              categoryId: 'corpo',
               boxId: weekday.isEven ? 'box_b' : 'box_a',
             ),
           ],
@@ -55,9 +55,9 @@ void main() {
     expect(overview.averagePerDay, 3);
     expect(overview.boxesInUse, 2);
     expect(overview.categoryDistribution, hasLength(2));
-    expect(overview.categoryDistribution[0].categoryId, 'faz_de_conta');
+    expect(overview.categoryDistribution[0].categoryId, 'imaginacao');
     expect(overview.categoryDistribution[0].total, 7);
-    expect(overview.categoryDistribution[1].categoryId, 'movimento');
+    expect(overview.categoryDistribution[1].categoryId, 'corpo');
     expect(overview.categoryDistribution[1].total, 14);
   });
 
@@ -95,12 +95,12 @@ void main() {
             WeeklyPlanningOverviewToyInput(
               id: 'toy_1',
               name: 'Toy 1',
-              categoryId: 'movimento',
+              categoryId: 'corpo',
             ),
             WeeklyPlanningOverviewToyInput(
               id: 'toy_2',
               name: 'Toy 2',
-              categoryId: 'movimento',
+              categoryId: 'corpo',
             ),
           ],
         ),
@@ -128,8 +128,8 @@ WeeklyPlanningOverviewDayInput _day({
     weekdayLabel: weeklyPlanningWeekdayLabel(weekday),
     categories: [
       WeeklyPlanningOverviewCategoryInput(
-        categoryId: 'movimento',
-        categoryName: 'Movimento',
+        categoryId: 'corpo',
+        categoryName: 'Corpo e Respiração',
         isIncluded: true,
         quota: quota,
       ),

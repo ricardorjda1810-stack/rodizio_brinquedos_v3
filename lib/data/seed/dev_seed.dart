@@ -44,11 +44,11 @@ class DevSeed {
     if (boxesWithPhoto.isEmpty) return;
 
     const categoryIds = <String>[
-      'livros',
-      'construcao',
-      'faz_de_conta',
-      'movimento',
-      'coordenacao',
+      'corpo',
+      'exploracao',
+      'maos',
+      'imaginacao',
+      'comunicacao',
     ];
 
     const locations = <String>[

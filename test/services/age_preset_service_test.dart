@@ -5,7 +5,6 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
-import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
 import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
@@ -39,11 +38,11 @@ void main() {
     expect(
       names,
       containsAll(<String>[
-        'Corpo',
-        'Mãos',
-        'Imaginação',
-        'Comunicação',
-        'Exploração',
+        'Corpo e Respiração',
+        'Sentidos e Exploração',
+        'Mãos e Construção',
+        'Imaginação e Criatividade',
+        'Comunicação e Histórias',
       ]),
     );
   });
@@ -54,15 +53,24 @@ void main() {
     await service.applyAgePreset(ChildAgeRange.months6To12);
 
     final categories = await db.select(db.categoryDefinitions).get();
-    final corpoCategories = categories
-        .where((category) => _normalize(category.name) == 'corpo')
+    final activeCorpoCategories = categories
+        .where((category) =>
+            category.isActive &&
+            _normalize(category.name) == 'corpo e respiracao')
         .toList();
-    final setting = await _roundSetting(db, 'categoria_corpo_existente');
+    final legacy = categories
+        .where((category) => category.id == 'categoria_corpo_existente')
+        .single;
+    final setting = await _roundSetting(db, 'corpo');
+    final legacySetting = await _roundSetting(db, 'categoria_corpo_existente');
 
-    expect(corpoCategories, hasLength(1));
-    expect(corpoCategories.single.id, 'categoria_corpo_existente');
+    expect(activeCorpoCategories, hasLength(1));
+    expect(activeCorpoCategories.single.id, 'corpo');
+    expect(legacy.isActive, isFalse);
     expect(setting?.quota, 1);
     expect(setting?.isIncluded, isTrue);
+    expect(legacySetting?.quota, 0);
+    expect(legacySetting?.isIncluded, isFalse);
   });
 
   test('applyAgePreset nao apaga categorias personalizadas', () async {
@@ -87,11 +95,11 @@ void main() {
 
     final quotasByName = await _roundQuotasByCategoryName(db);
 
-    expect(quotasByName['corpo'], 1);
-    expect(quotasByName['maos'], 2);
-    expect(quotasByName['imaginacao'], 3);
-    expect(quotasByName['comunicacao'], 2);
-    expect(quotasByName['exploracao'], 2);
+    expect(quotasByName['corpo e respiracao'], 1);
+    expect(quotasByName['maos e construcao'], 2);
+    expect(quotasByName['imaginacao e criatividade'], 3);
+    expect(quotasByName['comunicacao e historias'], 2);
+    expect(quotasByName['sentidos e exploracao'], 2);
     expect(
       quotasByName.values.fold<int>(0, (sum, quota) => sum + quota),
       10,
@@ -132,12 +140,12 @@ void main() {
     expect(settingsRepository.weeklyPlanningEnabled, isTrue);
     expect(saturday.useDefault, isFalse);
     expect(saturday.total, 9);
-    expect(saturdayQuotas['corpo'], 3);
-    expect(saturdayQuotas['imaginacao'], 2);
+    expect(saturdayQuotas['corpo e respiracao'], 3);
+    expect(saturdayQuotas['imaginacao e criatividade'], 2);
     expect(sunday.useDefault, isFalse);
     expect(sunday.total, 9);
-    expect(sundayQuotas['corpo'], 2);
-    expect(sundayQuotas['imaginacao'], 3);
+    expect(sundayQuotas['corpo e respiracao'], 2);
+    expect(sundayQuotas['imaginacao e criatividade'], 3);
     for (final entry in expectedTotals.entries) {
       expect(_summaryTotal(summary, entry.key), entry.value);
     }
@@ -165,10 +173,10 @@ void main() {
 
     expect(saturday.useDefault, isFalse);
     expect(saturday.total, 11);
-    expect(saturdayQuotas['imaginacao'], 4);
+    expect(saturdayQuotas['imaginacao e criatividade'], 4);
     expect(sunday.useDefault, isFalse);
     expect(sunday.total, 11);
-    expect(sundayQuotas['comunicacao'], 3);
+    expect(sundayQuotas['comunicacao e historias'], 3);
   });
 
   test('nao agora salva faixa etaria sem alterar quotas nem planejamento',
@@ -186,7 +194,7 @@ void main() {
     );
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.saturday,
-      categoryId: 'livros',
+      categoryId: 'comunicacao',
       isIncluded: true,
       quota: 4,
     );
@@ -237,7 +245,7 @@ void main() {
     }
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.saturday,
-      categoryId: 'livros',
+      categoryId: 'comunicacao',
       isIncluded: true,
       quota: 2,
     );
@@ -258,7 +266,7 @@ void main() {
     }
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.sunday,
-      categoryId: 'livros',
+      categoryId: 'comunicacao',
       isIncluded: true,
       quota: 4,
     );
@@ -276,19 +284,19 @@ void main() {
     expect(before!.total, 2);
     expect(after!.useDefault, isFalse);
     expect(after.total, 2);
-    final livro = after.categories
-        .where((category) => category.categoryId == 'livros')
+    final comunicacao = after.categories
+        .where((category) => category.categoryId == 'comunicacao')
         .single;
-    expect(livro.isIncluded, isTrue);
-    expect(livro.safeQuota, 2);
+    expect(comunicacao.isIncluded, isTrue);
+    expect(comunicacao.safeQuota, 2);
     expect(sundayBefore!.total, 4);
     expect(sundayAfter!.useDefault, isFalse);
     expect(sundayAfter.total, 4);
-    final sundayLivro = sundayAfter.categories
-        .where((category) => category.categoryId == 'livros')
+    final sundayComunicacao = sundayAfter.categories
+        .where((category) => category.categoryId == 'comunicacao')
         .single;
-    expect(sundayLivro.isIncluded, isTrue);
-    expect(sundayLivro.safeQuota, 4);
+    expect(sundayComunicacao.isIncluded, isTrue);
+    expect(sundayComunicacao.safeQuota, 4);
   });
 
   test('applyAgePreset nao sobrescreve dias personalizados', () async {
@@ -318,7 +326,7 @@ void main() {
     }
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.monday,
-      categoryId: 'livros',
+      categoryId: 'comunicacao',
       isIncluded: true,
       quota: 3,
     );
@@ -330,20 +338,16 @@ void main() {
     expect(before!.total, 3);
     expect(after!.useDefault, isFalse);
     expect(after.total, 3);
-    final livro = after.categories
-        .where((category) => category.categoryId == 'livros')
+    final comunicacao = after.categories
+        .where((category) => category.categoryId == 'comunicacao')
         .single;
-    expect(livro.isIncluded, isTrue);
-    expect(livro.safeQuota, 3);
+    expect(comunicacao.isIncluded, isTrue);
+    expect(comunicacao.safeQuota, 3);
 
-    final officialNames = AgePresetCatalog.officialCategories
-        .map((category) => _normalize(category.name))
-        .toSet();
-    final includedOfficialCategories = after.categories.where((category) {
-      return officialNames.contains(_normalize(category.categoryName)) &&
-          category.isIncluded;
-    });
-    expect(includedOfficialCategories, isEmpty);
+    final includedCategories =
+        after.categories.where((category) => category.isIncluded).toList();
+    expect(includedCategories, hasLength(1));
+    expect(includedCategories.single.categoryId, 'comunicacao');
   });
 }
 

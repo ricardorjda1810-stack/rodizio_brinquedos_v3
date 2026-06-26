@@ -35,11 +35,9 @@ String? toyFormCategoryDevelopmentAspect(CategoryDefinition category) {
 
 OfficialAgeCategory? officialToyFormCategory(CategoryDefinition category) {
   final normalizedId = _normalizeCategoryKey(category.id);
-  final normalizedName = _normalizeCategoryKey(category.name);
 
   for (final official in AgePresetCatalog.officialCategories) {
-    if (normalizedName == _normalizeCategoryKey(official.name) ||
-        normalizedId == official.id) {
+    if (normalizedId == official.id) {
       return official;
     }
   }
@@ -51,14 +49,6 @@ CategoryDefinition? _bestMatchForOfficial(
   List<CategoryDefinition> categories,
   OfficialAgeCategory official,
 ) {
-  final normalizedOfficialName = _normalizeCategoryKey(official.name);
-
-  for (final category in categories) {
-    if (_normalizeCategoryKey(category.name) == normalizedOfficialName) {
-      return category;
-    }
-  }
-
   for (final category in categories) {
     if (_normalizeCategoryKey(category.id) == official.id) {
       return category;

@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
+import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 
 class RoundToyWithBox {
   final Toy toy;
@@ -520,21 +521,11 @@ class RoundRepository {
       return const StartRoundResult.notCreated();
     }
 
-    final selected = <Toy>[];
-    final selectedIds = <String>{};
-
-    for (final config in includedConfigs) {
-      final toysForCategory = await _loadEligibleToysForCategory(
-        d,
-        categoryId: config.categoryId,
-      );
-
-      for (final toy in toysForCategory.take(config.safeQuota)) {
-        if (selectedIds.add(toy.id)) {
-          selected.add(toy);
-        }
-      }
-    }
+    final selected = await _selectToysForCategoryConfigs(
+      d,
+      includedConfigs: includedConfigs,
+      lastRoundToyIds: const <String>{},
+    );
 
     if (selected.isEmpty) {
       return const StartRoundResult.notCreated();
@@ -686,8 +677,6 @@ class RoundRepository {
         .where((config) => config.isIncluded && config.safeQuota > 0)
         .toList(growable: false);
     final lastRoundToyIds = await _loadMostRecentRoundToyIds(d);
-    final selected = <Toy>[];
-    final selectedIds = <String>{};
 
     if (categoryConfigs.isEmpty) {
       final settingsRepository = SettingsRepository(d);
@@ -698,23 +687,91 @@ class RoundRepository {
           .toList(growable: false);
     }
 
-    for (final config in includedConfigs) {
-      final toysForCategory = await _loadEligibleToysForCategory(
+    return _selectToysForCategoryConfigs(
+      d,
+      includedConfigs: includedConfigs,
+      lastRoundToyIds: lastRoundToyIds,
+    );
+  }
+
+  Future<List<Toy>> _selectToysForCategoryConfigs(
+    AppDatabase d, {
+    required List<WeeklyPlanningCategoryConfig> includedConfigs,
+    required Set<String> lastRoundToyIds,
+  }) async {
+    final requestedTotal = includedConfigs.fold<int>(
+      0,
+      (sum, config) => sum + config.safeQuota,
+    );
+    if (requestedTotal <= 0 || includedConfigs.isEmpty) {
+      return const <Toy>[];
+    }
+
+    final orderedConfigs = _sortCategoryConfigsForCoverage(includedConfigs);
+    final remainingQuotaByCategoryId = <String, int>{
+      for (final config in includedConfigs) config.categoryId: config.safeQuota,
+    };
+    final poolsByCategoryId = <String, List<Toy>>{};
+    final selected = <Toy>[];
+    final selectedIds = <String>{};
+
+    Future<List<Toy>> poolFor(WeeklyPlanningCategoryConfig config) async {
+      final cached = poolsByCategoryId[config.categoryId];
+      if (cached != null) return cached;
+
+      final toys = await _loadEligibleToysForCategory(
         d,
         categoryId: config.categoryId,
       );
-      final orderedToys = _prioritizeToysOutsideLastRound(
-        toysForCategory,
-        lastRoundToyIds,
-      );
-      final targetCount = config.safeQuota < orderedToys.length
-          ? config.safeQuota
-          : orderedToys.length;
+      final ordered = _prioritizeToysOutsideLastRound(toys, lastRoundToyIds);
+      poolsByCategoryId[config.categoryId] = ordered;
+      return ordered;
+    }
 
-      for (final toy in orderedToys.take(targetCount)) {
-        if (selectedIds.add(toy.id)) {
-          selected.add(toy);
-        }
+    bool addToy(Toy toy) {
+      if (!selectedIds.add(toy.id)) return false;
+      selected.add(toy);
+      return true;
+    }
+
+    for (final config in orderedConfigs) {
+      if (selected.length >= requestedTotal) break;
+      if (_officialOrderForConfig(config) == null) continue;
+      if ((remainingQuotaByCategoryId[config.categoryId] ?? 0) <= 0) continue;
+
+      final pool = await poolFor(config);
+      for (final toy in pool) {
+        if (!addToy(toy)) continue;
+        remainingQuotaByCategoryId[config.categoryId] =
+            (remainingQuotaByCategoryId[config.categoryId] ?? 0) - 1;
+        break;
+      }
+    }
+
+    for (final config in orderedConfigs) {
+      if (selected.length >= requestedTotal) break;
+
+      var remaining = remainingQuotaByCategoryId[config.categoryId] ?? 0;
+      if (remaining <= 0) continue;
+
+      final pool = await poolFor(config);
+      for (final toy in pool) {
+        if (remaining <= 0 || selected.length >= requestedTotal) break;
+        if (!addToy(toy)) continue;
+        remaining--;
+      }
+      remainingQuotaByCategoryId[config.categoryId] = remaining;
+    }
+
+    if (selected.length >= requestedTotal) return selected;
+
+    for (final config in orderedConfigs) {
+      if (selected.length >= requestedTotal) break;
+
+      final pool = await poolFor(config);
+      for (final toy in pool) {
+        if (selected.length >= requestedTotal) break;
+        addToy(toy);
       }
     }
 
@@ -787,6 +844,88 @@ class RoundRepository {
       ...toys.where((toy) => !lastRoundToyIds.contains(toy.id)),
       ...toys.where((toy) => lastRoundToyIds.contains(toy.id)),
     ];
+  }
+
+  List<WeeklyPlanningCategoryConfig> _sortCategoryConfigsForCoverage(
+    List<WeeklyPlanningCategoryConfig> configs,
+  ) {
+    final indexed = <({int index, WeeklyPlanningCategoryConfig config})>[
+      for (var index = 0; index < configs.length; index++)
+        (index: index, config: configs[index]),
+    ];
+
+    indexed.sort((a, b) {
+      final aOfficialOrder = _officialOrderForConfig(a.config);
+      final bOfficialOrder = _officialOrderForConfig(b.config);
+      if (aOfficialOrder != null || bOfficialOrder != null) {
+        final byOfficial = (aOfficialOrder ?? 1000).compareTo(
+          bOfficialOrder ?? 1000,
+        );
+        if (byOfficial != 0) return byOfficial;
+      }
+      return a.index.compareTo(b.index);
+    });
+
+    return indexed.map((entry) => entry.config).toList(growable: false);
+  }
+
+  int? _officialOrderForConfig(WeeklyPlanningCategoryConfig config) {
+    final normalizedId = _normalizeCategoryKey(config.categoryId);
+    final normalizedName = _normalizeCategoryKey(config.categoryName);
+
+    for (var index = 0;
+        index < AgePresetCatalog.officialCategories.length;
+        index++) {
+      final official = AgePresetCatalog.officialCategories[index];
+      if (normalizedId == official.id ||
+          _officialNameMatches(normalizedName, official)) {
+        return index;
+      }
+    }
+    return null;
+  }
+
+  bool _officialNameMatches(
+      String normalizedName, OfficialAgeCategory official) {
+    for (final candidate in AgePresetCatalog.categoryNameCandidates(official)) {
+      if (normalizedName == _normalizeCategoryKey(candidate)) return true;
+    }
+    return false;
+  }
+
+  String _normalizeCategoryKey(String value) {
+    var normalized = value.trim().toLowerCase();
+    const replacements = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'ê': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'î': 'i',
+      'ï': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ö': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+
+    for (final entry in replacements.entries) {
+      normalized = normalized.replaceAll(entry.key, entry.value);
+    }
+
+    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   Future<_WeeklyPlanningToyPool> _weeklyPlanningPoolForKey(

@@ -6,6 +6,7 @@ class OfficialAgeCategory {
   final String examples;
   final String developmentAspect;
   final int sortOrder;
+  final List<String> legacyNames;
 
   const OfficialAgeCategory({
     required this.id,
@@ -13,6 +14,7 @@ class OfficialAgeCategory {
     required this.examples,
     required this.developmentAspect,
     required this.sortOrder,
+    this.legacyNames = const <String>[],
   });
 }
 
@@ -62,41 +64,97 @@ class AgePreset {
 }
 
 class AgePresetCatalog {
+  static const officialCategoryIds = <String>[
+    'corpo',
+    'exploracao',
+    'maos',
+    'imaginacao',
+    'comunicacao',
+  ];
+
+  static const legacyCategoryTargetsByKey = <String, String>{
+    'corpo': 'corpo',
+    'movimento': 'corpo',
+    'respiracao': 'corpo',
+    'exploracao': 'exploracao',
+    'sensorio': 'exploracao',
+    'sensorial': 'exploracao',
+    'sentidos': 'exploracao',
+    'texturas': 'exploracao',
+    'maos': 'maos',
+    'construcao': 'maos',
+    'coordenacao': 'maos',
+    'imaginacao': 'imaginacao',
+    'faz de conta': 'imaginacao',
+    'faz_de_conta': 'imaginacao',
+    'criatividade': 'imaginacao',
+    'comunicacao': 'comunicacao',
+    'livros': 'comunicacao',
+    'livro': 'comunicacao',
+    'historias': 'comunicacao',
+    'historia': 'comunicacao',
+  };
+
   static const officialCategories = <OfficialAgeCategory>[
     OfficialAgeCategory(
       id: 'corpo',
-      name: 'Corpo',
-      examples: 'bola • túnel • cavalinho • empurrar',
-      developmentAspect: 'Movimento e coordenação ampla',
+      name: 'Corpo e Respiração',
+      examples: 'movimento • equilíbrio • sopro • pausa corporal',
+      developmentAspect: 'Movimento, equilíbrio, sopro e pausa corporal',
       sortOrder: 1,
-    ),
-    OfficialAgeCategory(
-      id: 'maos',
-      name: 'Mãos',
-      examples: 'blocos • encaixes • quebra-cabeça • argolas',
-      developmentAspect: 'Montar, encaixar e manipular',
-      sortOrder: 2,
-    ),
-    OfficialAgeCategory(
-      id: 'imaginacao',
-      name: 'Imaginação',
-      examples: 'bonecos • cozinha • carrinhos • ferramentas',
-      developmentAspect: 'Histórias e faz de conta',
-      sortOrder: 3,
-    ),
-    OfficialAgeCategory(
-      id: 'comunicacao',
-      name: 'Comunicação',
-      examples: 'livros • fantoches • animais • jogos simples',
-      developmentAspect: 'Linguagem e interação',
-      sortOrder: 4,
+      legacyNames: <String>[
+        'Corpo',
+        'Movimento',
+      ],
     ),
     OfficialAgeCategory(
       id: 'exploracao',
-      name: 'Exploração',
-      examples: 'massinha • chocalho • água • areia • tecidos',
-      developmentAspect: 'Texturas, sons e descobertas',
+      name: 'Sentidos e Exploração',
+      examples: 'texturas • sons • cores • água • areia • descoberta',
+      developmentAspect: 'Texturas, sons, cores, água, areia e descoberta',
+      sortOrder: 2,
+      legacyNames: <String>[
+        'Exploração',
+        'Sensorial',
+        'Sentidos',
+        'Texturas',
+      ],
+    ),
+    OfficialAgeCategory(
+      id: 'maos',
+      name: 'Mãos e Construção',
+      examples: 'encaixar • empilhar • montar • resolver problemas',
+      developmentAspect: 'Encaixar, empilhar, montar e resolver problemas',
+      sortOrder: 3,
+      legacyNames: <String>[
+        'Mãos',
+        'Montar e Raciocinar',
+        'Construção',
+        'Coordenação',
+      ],
+    ),
+    OfficialAgeCategory(
+      id: 'imaginacao',
+      name: 'Imaginação e Criatividade',
+      examples: 'faz de conta • arte • criação • expressão',
+      developmentAspect: 'Faz de conta, arte, criação e expressão',
+      sortOrder: 4,
+      legacyNames: <String>[
+        'Imaginação',
+        'Faz de Conta',
+      ],
+    ),
+    OfficialAgeCategory(
+      id: 'comunicacao',
+      name: 'Comunicação e Histórias',
+      examples: 'livros • fala • escuta • narrativa • conversa',
+      developmentAspect: 'Livros, fala, escuta, narrativa e conversa',
       sortOrder: 5,
+      legacyNames: <String>[
+        'Comunicação',
+        'Histórias e Linguagem',
+        'Livros',
+      ],
     ),
   ];
 
@@ -181,5 +239,59 @@ class AgePresetCatalog {
 
   static OfficialAgeCategory categoryById(String id) {
     return officialCategories.firstWhere((category) => category.id == id);
+  }
+
+  static List<String> categoryNameCandidates(OfficialAgeCategory category) {
+    return <String>[
+      category.name,
+      ...category.legacyNames,
+    ];
+  }
+
+  static bool isOfficialCategoryId(String? id) {
+    final normalized = normalizeCategoryKey(id);
+    return officialCategoryIds.contains(normalized);
+  }
+
+  static String? officialCategoryIdForLegacyKey(String? value) {
+    final normalized = normalizeCategoryKey(value);
+    if (normalized.isEmpty) return null;
+    if (officialCategoryIds.contains(normalized)) return normalized;
+    return legacyCategoryTargetsByKey[normalized];
+  }
+
+  static String normalizeCategoryKey(String? value) {
+    var normalized = value?.trim().toLowerCase() ?? '';
+    const replacements = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'ä': 'a',
+      'é': 'e',
+      'ê': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'î': 'i',
+      'ï': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ö': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'û': 'u',
+      'ü': 'u',
+      'ç': 'c',
+    };
+
+    for (final entry in replacements.entries) {
+      normalized = normalized.replaceAll(entry.key, entry.value);
+    }
+
+    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 }

@@ -55,6 +55,65 @@ void main() {
       sundayExtraCategoryId: 'comunicacao',
     );
   });
+
+  test('categorias oficiais finais usam os 5 nomes e ordem definidos', () {
+    const categories = AgePresetCatalog.officialCategories;
+
+    expect(categories, hasLength(5));
+    expect(categories.map((category) => category.id), <String>[
+      'corpo',
+      'exploracao',
+      'maos',
+      'imaginacao',
+      'comunicacao',
+    ]);
+    expect(categories.map((category) => category.name), <String>[
+      'Corpo e Respiração',
+      'Sentidos e Exploração',
+      'Mãos e Construção',
+      'Imaginação e Criatividade',
+      'Comunicação e Histórias',
+    ]);
+    expect(categories.map((category) => category.sortOrder), <int>[
+      1,
+      2,
+      3,
+      4,
+      5,
+    ]);
+    const names = <String>{
+      'Corpo e Respiração',
+      'Sentidos e Exploração',
+      'Mãos e Construção',
+      'Imaginação e Criatividade',
+      'Comunicação e Histórias',
+    };
+    for (final oldName in <String>[
+      'Corpo',
+      'Exploração',
+      'Mãos',
+      'Imaginação',
+      'Comunicação',
+    ]) {
+      expect(names, isNot(contains(oldName)));
+    }
+  });
+
+  test('aliases legados conhecidos apontam para categorias oficiais finais',
+      () {
+    expect(AgePresetCatalog.officialCategoryIdForLegacyKey('livros'),
+        'comunicacao');
+    expect(
+        AgePresetCatalog.officialCategoryIdForLegacyKey('construcao'), 'maos');
+    expect(
+        AgePresetCatalog.officialCategoryIdForLegacyKey('coordenação'), 'maos');
+    expect(AgePresetCatalog.officialCategoryIdForLegacyKey('faz_de_conta'),
+        'imaginacao');
+    expect(
+        AgePresetCatalog.officialCategoryIdForLegacyKey('movimento'), 'corpo');
+    expect(AgePresetCatalog.officialCategoryIdForLegacyKey('sensorial'),
+        'exploracao');
+  });
 }
 
 void expectPreset(

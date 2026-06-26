@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' show InsertMode, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
@@ -31,15 +31,15 @@ void main() {
 
   test('restaurar planejamento deixa todos os dias com 7 brinquedos', () async {
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'coordenacao',
+      categoryId: 'exploracao',
       quota: 5,
     );
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'construcao',
+      categoryId: 'maos',
       quota: 5,
     );
     await toyRepository.setCategoryQuotaInRound(
-      categoryId: 'faz_de_conta',
+      categoryId: 'imaginacao',
       quota: 5,
     );
     await weeklyPlanningRepository.setUseDefault(
@@ -48,13 +48,13 @@ void main() {
     );
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.monday,
-      categoryId: 'coordenacao',
+      categoryId: 'exploracao',
       isIncluded: true,
       quota: 3,
     );
     await weeklyPlanningRepository.updateCategoryConfig(
       weekday: DateTime.monday,
-      categoryId: 'construcao',
+      categoryId: 'maos',
       isIncluded: true,
       quota: 3,
     );
@@ -86,12 +86,12 @@ void main() {
 
   test('sugere ajuste para categoria menos presente com brinquedos', () async {
     final now = DateTime(2026, 5, 4);
-    await _insertToy(db, id: 'livro_1', categoryId: 'livros');
-    await _insertToy(db, id: 'movimento_1', categoryId: 'movimento');
+    await _insertToy(db, id: 'comunicacao_1', categoryId: 'comunicacao');
+    await _insertToy(db, id: 'corpo_1', categoryId: 'corpo');
     await _insertRoundWithToy(
       db,
       roundId: 'round_1',
-      toyId: 'livro_1',
+      toyId: 'comunicacao_1',
       startAt: now.subtract(const Duration(days: 1)),
     );
 
@@ -99,7 +99,7 @@ void main() {
         .suggestCategoryBalanceAdjustment(now: now);
 
     expect(suggestion, isNotNull);
-    expect(suggestion!.categoryId, 'movimento');
+    expect(suggestion!.categoryId, 'corpo');
     expect(suggestion.deltaQuota, 1);
     expect(suggestion.targetWeekday, DateTime.tuesday);
     expect(
@@ -110,23 +110,23 @@ void main() {
 
   test('aplica sugestao sem aumentar o total acima de 7', () async {
     const suggestion = CategoryBalanceAdjustmentSuggestion(
-      categoryId: 'movimento',
-      categoryName: 'Movimento',
-      message: 'Movimento apareceu pouco esta semana.',
+      categoryId: 'corpo',
+      categoryName: 'Corpo e Respiração',
+      message: 'Corpo e Respiração apareceu pouco esta semana.',
       targetWeekday: DateTime.tuesday,
     );
 
     await weeklyPlanningRepository.applyCategoryBalanceAdjustment(suggestion);
 
     final day = await weeklyPlanningRepository.getByWeekday(DateTime.tuesday);
-    final movement = day!.categories
-        .where((category) => category.categoryId == 'movimento')
+    final body = day!.categories
+        .where((category) => category.categoryId == 'corpo')
         .single;
 
     expect(day.useDefault, isFalse);
     expect(day.total, 7);
-    expect(movement.isIncluded, isTrue);
-    expect(movement.safeQuota, 2);
+    expect(body.isIncluded, isTrue);
+    expect(body.safeQuota, 2);
   });
 
   test('dia que vira proprio copia o preset base atual', () async {
@@ -160,8 +160,9 @@ void main() {
     expect(quotas['imaginacao'], 2);
     expect(quotas['comunicacao'], 1);
     expect(quotas['exploracao'], 1);
-    expect(included['livros'], isFalse);
-    expect(quotas['livros'], 0);
+    expect(included['comunicacao'], isTrue);
+    expect(quotas['comunicacao'], 1);
+    expect(quotas.containsKey('livros'), isFalse);
 
     settingsRepository.dispose();
   });
@@ -184,7 +185,7 @@ void main() {
     await repository.applyCategoryBalanceAdjustment(
       const CategoryBalanceAdjustmentSuggestion(
         categoryId: 'corpo',
-        categoryName: 'Corpo',
+        categoryName: 'Corpo e Respiração',
         message: 'Corpo apareceu pouco.',
         targetWeekday: DateTime.monday,
       ),
@@ -197,8 +198,9 @@ void main() {
     expect(monday.useDefault, isFalse);
     expect(monday.total, 8);
     expect(quotas['corpo'], 3);
-    expect(included['livros'], isFalse);
-    expect(quotas['livros'], 0);
+    expect(included['comunicacao'], isTrue);
+    expect(quotas['comunicacao'], 1);
+    expect(quotas.containsKey('livros'), isFalse);
 
     settingsRepository.dispose();
   });
@@ -276,7 +278,7 @@ void main() {
     final summary = await repository.watchWeekSummary().first;
 
     expect(rawMonday!.useDefault, isFalse);
-    expect(rawMonday.total, 12);
+    expect(rawMonday.total, 5);
     expect(_totalFor(rawDefault), 5);
     expect(_totalFor(mondayConfig), _totalFor(rawDefault));
     for (final day in summary) {
@@ -314,7 +316,7 @@ void main() {
     final preset = AgePresetCatalog.presetFor(ChildAgeRange.months0To6);
 
     expect(rawMonday!.useDefault, isFalse);
-    expect(rawMonday.total, 12);
+    expect(rawMonday.total, 5);
     expect(_totalFor(mondayConfig), preset.totalForWeekday(DateTime.monday));
     for (final day in summary) {
       expect(
@@ -396,6 +398,8 @@ Future<void> _overwriteRoundCategoryQuotas(
 }
 
 Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
+  await _insertLegacyCategories(db);
+
   const quotasByCategoryId = <String, int>{
     'livros': 1,
     'construcao': 2,
@@ -428,6 +432,40 @@ Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
             ),
           );
     }
+  }
+}
+
+Future<void> _insertLegacyCategories(AppDatabase db) async {
+  const categories = <({String id, String name, int sortOrder})>[
+    (id: 'livros', name: 'Livros', sortOrder: 101),
+    (id: 'construcao', name: 'Construção', sortOrder: 102),
+    (id: 'faz_de_conta', name: 'Faz de conta', sortOrder: 103),
+    (id: 'movimento', name: 'Movimento', sortOrder: 104),
+    (id: 'coordenacao', name: 'Coordenação', sortOrder: 105),
+  ];
+
+  for (final category in categories) {
+    await db.into(db.categoryDefinitions).insert(
+          CategoryDefinitionsCompanion.insert(
+            id: category.id,
+            name: category.name,
+            description: const Value(null),
+            examples: const Value(null),
+            developmentAspect: const Value(null),
+            sortOrder: Value(category.sortOrder),
+            isDefault: const Value(false),
+            isActive: const Value(true),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await db.into(db.roundCategorySettings).insert(
+          RoundCategorySettingsCompanion.insert(
+            categoryId: category.id,
+            isIncluded: const Value(false),
+            quota: const Value(0),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
   }
 }
 

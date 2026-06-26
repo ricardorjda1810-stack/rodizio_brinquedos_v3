@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show OrderingTerm, Value;
+import 'package:drift/drift.dart' show InsertMode, OrderingTerm, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
@@ -28,33 +28,35 @@ void main() {
 
   test('startRound respeita cotas por categoria ativa sem complemento geral',
       () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: true, quota: 2);
-    await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
+    await _setCategoryState(toyRepository, 'comunicacao',
+        included: true, quota: 1);
     await _setAllOthersExcluded(
-        toyRepository, const {'faz_de_conta', 'livros'});
+        toyRepository, const {'imaginacao', 'comunicacao'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
-    await _insertToy(db, id: 'b2', categoryId: 'faz_de_conta', createdAt: 200);
-    await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 150);
-    await _insertToy(db, id: 'j1', categoryId: 'construcao', createdAt: 50);
+    await _insertToy(db, id: 'b1', categoryId: 'imaginacao', createdAt: 100);
+    await _insertToy(db, id: 'b2', categoryId: 'imaginacao', createdAt: 200);
+    await _insertToy(db, id: 'l1', categoryId: 'comunicacao', createdAt: 150);
+    await _insertToy(db, id: 'j1', categoryId: 'maos', createdAt: 50);
 
     await roundRepository.startRound(size: 99);
 
     final selectedIds = await _selectedToyIdsByPosition(db);
-    expect(selectedIds, ['l1', 'b1', 'b2']);
+    expect(selectedIds, ['b1', 'l1', 'b2']);
   });
 
   test('startRound tolera falta sem buscar brinquedos fora das categorias',
       () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: true, quota: 3);
-    await _setCategoryState(toyRepository, 'livros', included: true, quota: 2);
+    await _setCategoryState(toyRepository, 'comunicacao',
+        included: true, quota: 2);
     await _setAllOthersExcluded(
-        toyRepository, const {'faz_de_conta', 'livros'});
+        toyRepository, const {'imaginacao', 'comunicacao'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
-    await _insertToy(db, id: 'j1', categoryId: 'construcao', createdAt: 50);
+    await _insertToy(db, id: 'b1', categoryId: 'imaginacao', createdAt: 100);
+    await _insertToy(db, id: 'j1', categoryId: 'maos', createdAt: 50);
 
     await roundRepository.startRound(size: 99);
 
@@ -63,14 +65,15 @@ void main() {
   });
 
   test('categoria com switch off fica fora da rodada', () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: false, quota: 3);
-    await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
+    await _setCategoryState(toyRepository, 'comunicacao',
+        included: true, quota: 1);
     await _setAllOthersExcluded(
-        toyRepository, const {'faz_de_conta', 'livros'});
+        toyRepository, const {'imaginacao', 'comunicacao'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
-    await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 100);
+    await _insertToy(db, id: 'b1', categoryId: 'imaginacao', createdAt: 100);
+    await _insertToy(db, id: 'l1', categoryId: 'comunicacao', createdAt: 100);
 
     await roundRepository.startRound(size: 99);
 
@@ -79,17 +82,18 @@ void main() {
   });
 
   test('startRound limita o total pela soma das cotas incluidas', () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: true, quota: 1);
-    await _setCategoryState(toyRepository, 'livros', included: true, quota: 1);
+    await _setCategoryState(toyRepository, 'comunicacao',
+        included: true, quota: 1);
     await _setAllOthersExcluded(
-        toyRepository, const {'faz_de_conta', 'livros'});
+        toyRepository, const {'imaginacao', 'comunicacao'});
 
-    await _insertToy(db, id: 'b1', categoryId: 'faz_de_conta', createdAt: 100);
-    await _insertToy(db, id: 'b2', categoryId: 'faz_de_conta', createdAt: 200);
-    await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 150);
-    await _insertToy(db, id: 'l2', categoryId: 'livros', createdAt: 250);
-    await _insertToy(db, id: 'l3', categoryId: 'livros', createdAt: 350);
+    await _insertToy(db, id: 'b1', categoryId: 'imaginacao', createdAt: 100);
+    await _insertToy(db, id: 'b2', categoryId: 'imaginacao', createdAt: 200);
+    await _insertToy(db, id: 'l1', categoryId: 'comunicacao', createdAt: 150);
+    await _insertToy(db, id: 'l2', categoryId: 'comunicacao', createdAt: 250);
+    await _insertToy(db, id: 'l3', categoryId: 'comunicacao', createdAt: 350);
 
     final result = await roundRepository.startRound();
 
@@ -97,7 +101,7 @@ void main() {
     expect(result.selectedCount, 2);
 
     final selectedIds = await _selectedToyIdsByPosition(db);
-    expect(selectedIds, ['l1', 'b1']);
+    expect(selectedIds, ['b1', 'l1']);
   });
 
   test('suggestRoundForDate usa cotas efetivas de cada dia por idade',
@@ -277,11 +281,11 @@ void main() {
   test('suggestWeeklyPlanningForWeek distribui brinquedos antes de repetir',
       () async {
     await _overwriteRoundCategoryQuotas(db, const {
-      'livros': 2,
-      'construcao': 2,
-      'faz_de_conta': 2,
-      'movimento': 2,
-      'coordenacao': 2,
+      'corpo': 2,
+      'exploracao': 2,
+      'maos': 2,
+      'imaginacao': 2,
+      'comunicacao': 2,
     });
     await _insertWeeklyPlanningToys(db, countPerCategory: 10);
 
@@ -359,11 +363,70 @@ void main() {
     settingsRepository.dispose();
   });
 
+  test('suggestRoundForDate inclui uma categoria oficial antes de extras',
+      () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 3,
+      'exploracao': 1,
+      'maos': 1,
+      'imaginacao': 1,
+      'comunicacao': 1,
+    });
+
+    await _insertToy(db, id: 'c1', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'c2', categoryId: 'corpo', createdAt: 200);
+    await _insertToy(db, id: 'c3', categoryId: 'corpo', createdAt: 300);
+    await _insertToy(db, id: 'e1', categoryId: 'exploracao', createdAt: 400);
+    await _insertToy(db, id: 'm1', categoryId: 'maos', createdAt: 500);
+    await _insertToy(db, id: 'i1', categoryId: 'imaginacao', createdAt: 600);
+    await _insertToy(db, id: 'h1', categoryId: 'comunicacao', createdAt: 700);
+
+    final suggestion =
+        await roundRepository.suggestRoundForDate(DateTime(2026, 1, 5));
+    final counts = _categoryCountsForToys(suggestion);
+
+    expect(suggestion, hasLength(7));
+    expect(counts['corpo'], 3);
+    expect(counts['exploracao'], 1);
+    expect(counts['maos'], 1);
+    expect(counts['imaginacao'], 1);
+    expect(counts['comunicacao'], 1);
+  });
+
+  test('suggestRoundForDate completa total quando categoria oficial esta vazia',
+      () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 2,
+      'exploracao': 1,
+      'maos': 1,
+      'imaginacao': 1,
+      'comunicacao': 1,
+    });
+
+    await _insertToy(db, id: 'c1', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'c2', categoryId: 'corpo', createdAt: 200);
+    await _insertToy(db, id: 'c3', categoryId: 'corpo', createdAt: 300);
+    await _insertToy(db, id: 'e1', categoryId: 'exploracao', createdAt: 400);
+    await _insertToy(db, id: 'm1', categoryId: 'maos', createdAt: 500);
+    await _insertToy(db, id: 'i1', categoryId: 'imaginacao', createdAt: 600);
+
+    final suggestion =
+        await roundRepository.suggestRoundForDate(DateTime(2026, 1, 5));
+    final counts = _categoryCountsForToys(suggestion);
+
+    expect(suggestion, hasLength(6));
+    expect(counts['corpo'], 3);
+    expect(counts['exploracao'], 1);
+    expect(counts['maos'], 1);
+    expect(counts['imaginacao'], 1);
+    expect(counts.containsKey('comunicacao'), isFalse);
+  });
+
   test('startRound nao cria rodada quando nao ha brinquedos cadastrados',
       () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: true, quota: 2);
-    await _setAllOthersExcluded(toyRepository, const {'faz_de_conta'});
+    await _setAllOthersExcluded(toyRepository, const {'imaginacao'});
 
     final result = await roundRepository.startRound(size: 99);
 
@@ -378,11 +441,11 @@ void main() {
 
   test('startRound nao cria rodada apenas com brinquedo fora das categorias',
       () async {
-    await _setCategoryState(toyRepository, 'faz_de_conta',
+    await _setCategoryState(toyRepository, 'imaginacao',
         included: true, quota: 2);
-    await _setAllOthersExcluded(toyRepository, const {'faz_de_conta'});
+    await _setAllOthersExcluded(toyRepository, const {'imaginacao'});
 
-    await _insertToy(db, id: 'l1', categoryId: 'livros', createdAt: 100);
+    await _insertToy(db, id: 'l1', categoryId: 'comunicacao', createdAt: 100);
 
     final result = await roundRepository.startRound();
 
@@ -457,10 +520,10 @@ Future<void> _insertOfficialToys(
 }) async {
   const categoryIds = <String>[
     'corpo',
+    'exploracao',
     'maos',
     'imaginacao',
     'comunicacao',
-    'exploracao',
   ];
   var createdAt = 10000;
   for (final categoryId in categoryIds) {
@@ -481,11 +544,11 @@ Future<void> _insertWeeklyPlanningToys(
   required int countPerCategory,
 }) async {
   const categoryIds = <String>[
-    'livros',
-    'construcao',
-    'faz_de_conta',
-    'movimento',
-    'coordenacao',
+    'corpo',
+    'exploracao',
+    'maos',
+    'imaginacao',
+    'comunicacao',
   ];
   var createdAt = 20000;
   for (final categoryId in categoryIds) {
@@ -517,6 +580,8 @@ Future<void> _overwriteRoundCategoryQuotas(
 }
 
 Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
+  await _insertLegacyCategories(db);
+
   const quotasByCategoryId = <String, int>{
     'livros': 1,
     'construcao': 2,
@@ -549,6 +614,40 @@ Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
             ),
           );
     }
+  }
+}
+
+Future<void> _insertLegacyCategories(AppDatabase db) async {
+  const categories = <({String id, String name, int sortOrder})>[
+    (id: 'livros', name: 'Livros', sortOrder: 101),
+    (id: 'construcao', name: 'Construção', sortOrder: 102),
+    (id: 'faz_de_conta', name: 'Faz de conta', sortOrder: 103),
+    (id: 'movimento', name: 'Movimento', sortOrder: 104),
+    (id: 'coordenacao', name: 'Coordenação', sortOrder: 105),
+  ];
+
+  for (final category in categories) {
+    await db.into(db.categoryDefinitions).insert(
+          CategoryDefinitionsCompanion.insert(
+            id: category.id,
+            name: category.name,
+            description: const Value(null),
+            examples: const Value(null),
+            developmentAspect: const Value(null),
+            sortOrder: Value(category.sortOrder),
+            isDefault: const Value(false),
+            isActive: const Value(true),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    await db.into(db.roundCategorySettings).insert(
+          RoundCategorySettingsCompanion.insert(
+            categoryId: category.id,
+            isIncluded: const Value(false),
+            quota: const Value(0),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
   }
 }
 

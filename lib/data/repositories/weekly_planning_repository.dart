@@ -198,7 +198,11 @@ class WeeklyPlanningRepository {
         reference.subtract(const Duration(days: 7)).millisecondsSinceEpoch;
 
     final categories = await (_db.select(_db.categoryDefinitions)
-          ..where((category) => category.isActive.equals(true))
+          ..where(
+            (category) =>
+                category.isActive.equals(true) &
+                category.id.isIn(AgePresetCatalog.officialCategoryIds),
+          )
           ..orderBy([
             (category) => OrderingTerm.asc(category.sortOrder),
             (category) => OrderingTerm.asc(category.name),
@@ -373,16 +377,20 @@ class WeeklyPlanningRepository {
     if (day == null || day.useDefault) return defaultConfig;
 
     final customConfig = await _loadCustomCategoryConfigs(date.weekday);
+    final rawCustomConfig = await _loadCustomCategoryConfigs(
+      date.weekday,
+      includeNonOfficial: true,
+    );
     if (!_hasValidIncludedQuota(customConfig)) return defaultConfig;
     if (_isStaleDefaultSuperset(
       defaultConfig: defaultConfig,
-      customConfig: customConfig,
+      customConfig: rawCustomConfig,
     )) {
       return defaultConfig;
     }
     if (_isAutomaticAgePresetConfig(
       weekday: date.weekday,
-      categories: customConfig,
+      categories: rawCustomConfig,
     )) {
       return defaultConfig;
     }
@@ -495,7 +503,10 @@ class WeeklyPlanningRepository {
     final query = _db.select(c).join([
       leftOuterJoin(s, s.categoryId.equalsExp(c.id)),
     ])
-      ..where(c.isActive.equals(true))
+      ..where(
+        c.isActive.equals(true) &
+            c.id.isIn(AgePresetCatalog.officialCategoryIds),
+      )
       ..orderBy([
         OrderingTerm.asc(c.sortOrder),
         OrderingTerm.asc(c.name),
@@ -533,7 +544,11 @@ class WeeklyPlanningRepository {
     if (ageRange == null) return null;
 
     final categories = await (_db.select(_db.categoryDefinitions)
-          ..where((category) => category.isActive.equals(true))
+          ..where(
+            (category) =>
+                category.isActive.equals(true) &
+                category.id.isIn(AgePresetCatalog.officialCategoryIds),
+          )
           ..orderBy([
             (category) => OrderingTerm.asc(category.sortOrder),
             (category) => OrderingTerm.asc(category.name),
@@ -567,8 +582,9 @@ class WeeklyPlanningRepository {
   }
 
   Future<List<WeeklyPlanningCategoryConfig>> _loadCustomCategoryConfigs(
-    int weekday,
-  ) async {
+    int weekday, {
+    bool includeNonOfficial = false,
+  }) async {
     await _ensureCategoryRowsForWeekday(weekday);
 
     final c = _db.categoryDefinitions;
@@ -580,7 +596,10 @@ class WeeklyPlanningRepository {
         s.categoryId.equalsExp(c.id) & s.weekday.equals(weekday),
       ),
     ])
-      ..where(c.isActive.equals(true))
+      ..where(includeNonOfficial
+          ? c.isActive.equals(true)
+          : c.isActive.equals(true) &
+              c.id.isIn(AgePresetCatalog.officialCategoryIds))
       ..orderBy([
         OrderingTerm.asc(c.sortOrder),
         OrderingTerm.asc(c.name),
@@ -648,11 +667,11 @@ class WeeklyPlanningRepository {
 
   Future<void> _restoreRoundCategoryDefaults() async {
     const defaultQuotas = <String, int>{
-      'livros': 1,
-      'construcao': 2,
-      'faz_de_conta': 1,
-      'movimento': 1,
-      'coordenacao': 2,
+      'corpo': 1,
+      'exploracao': 2,
+      'maos': 2,
+      'imaginacao': 1,
+      'comunicacao': 1,
     };
 
     final categories = await _db.select(_db.categoryDefinitions).get();
@@ -806,9 +825,9 @@ class WeeklyPlanningRepository {
     return <String, String>{
       for (final official in AgePresetCatalog.officialCategories)
         if (byId[official.id] != null ||
-            byNormalizedName[_normalizeCategoryName(official.name)] != null)
+            _categoryByOfficialName(byNormalizedName, official) != null)
           official.id: (byId[official.id] ??
-                  byNormalizedName[_normalizeCategoryName(official.name)]!)
+                  _categoryByOfficialName(byNormalizedName, official)!)
               .id,
     };
   }
@@ -826,11 +845,33 @@ class WeeklyPlanningRepository {
     return <String, String>{
       for (final official in AgePresetCatalog.officialCategories)
         if (byId[official.id] != null ||
-            byNormalizedName[_normalizeCategoryName(official.name)] != null)
+            _configByOfficialName(byNormalizedName, official) != null)
           official.id: (byId[official.id] ??
-                  byNormalizedName[_normalizeCategoryName(official.name)]!)
+                  _configByOfficialName(byNormalizedName, official)!)
               .categoryId,
     };
+  }
+
+  CategoryDefinition? _categoryByOfficialName(
+    Map<String, CategoryDefinition> byNormalizedName,
+    OfficialAgeCategory official,
+  ) {
+    for (final candidate in AgePresetCatalog.categoryNameCandidates(official)) {
+      final match = byNormalizedName[_normalizeCategoryName(candidate)];
+      if (match != null) return match;
+    }
+    return null;
+  }
+
+  WeeklyPlanningCategoryConfig? _configByOfficialName(
+    Map<String, WeeklyPlanningCategoryConfig> byNormalizedName,
+    OfficialAgeCategory official,
+  ) {
+    for (final candidate in AgePresetCatalog.categoryNameCandidates(official)) {
+      final match = byNormalizedName[_normalizeCategoryName(candidate)];
+      if (match != null) return match;
+    }
+    return null;
   }
 
   String _normalizeCategoryName(String value) {

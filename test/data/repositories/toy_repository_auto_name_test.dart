@@ -78,14 +78,23 @@ void main() {
   });
 
   test('seed padrao cria somente as 5 categorias oficiais', () async {
-    final categories = await db.select(db.categoryDefinitions).get();
+    final categories = await (db.select(db.categoryDefinitions)
+          ..orderBy([(category) => OrderingTerm.asc(category.sortOrder)]))
+        .get();
 
     expect(categories.map((category) => category.id).toSet(), {
-      'livros',
-      'construcao',
-      'faz_de_conta',
-      'movimento',
-      'coordenacao',
+      'corpo',
+      'exploracao',
+      'maos',
+      'imaginacao',
+      'comunicacao',
     });
+    expect(categories.map((category) => category.name), [
+      'Corpo e Respiração',
+      'Sentidos e Exploração',
+      'Mãos e Construção',
+      'Imaginação e Criatividade',
+      'Comunicação e Histórias',
+    ]);
   });
 }

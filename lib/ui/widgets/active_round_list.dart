@@ -73,49 +73,36 @@ class ActiveRoundList extends StatelessWidget {
     final normalized = categoryId.trim().toLowerCase();
 
     switch (normalized) {
-      case 'veiculos':
+      case 'corpo':
+      case 'movimento':
         return _CategoryVisual(
-          icon: Icons.directions_car_filled_outlined,
+          icon: Icons.directions_run_outlined,
           color: Colors.blue.shade600,
           name: categoryName,
         );
-      case 'bonecos':
-        return _CategoryVisual(
-          icon: Icons.face_3_outlined,
-          color: Colors.pink.shade500,
-          name: categoryName,
-        );
-      case 'montagem':
+      case 'maos':
+      case 'construcao':
         return _CategoryVisual(
           icon: Icons.extension_outlined,
           color: Colors.orange.shade700,
           name: categoryName,
         );
+      case 'comunicacao':
       case 'livros':
         return _CategoryVisual(
           icon: Icons.menu_book_outlined,
           color: Colors.teal.shade600,
           name: categoryName,
         );
-      case 'jogos':
-        return _CategoryVisual(
-          icon: Icons.sports_esports_outlined,
-          color: Colors.deepPurple.shade400,
-          name: categoryName,
-        );
+      case 'imaginacao':
       case 'faz_de_conta':
         return _CategoryVisual(
           icon: Icons.theater_comedy_outlined,
           color: Colors.indigo.shade400,
           name: categoryName,
         );
-      case 'artes':
-        return _CategoryVisual(
-          icon: Icons.palette_outlined,
-          color: Colors.redAccent.shade200,
-          name: categoryName,
-        );
-      case 'musica':
+      case 'exploracao':
+      case 'coordenacao':
         return _CategoryVisual(
           icon: Icons.music_note_outlined,
           color: Colors.green.shade600,
