@@ -435,29 +435,13 @@ class DemoDataLoader {
     );
 
     for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
-      final dayPlan = DemoSeed.weeklyPlans.firstWhere(
-        (plan) => plan.weekday == weekday,
-      );
-
       await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
             WeeklyPlanningSettingsCompanion.insert(
               weekday: Value(weekday),
-              useDefault: const Value(false),
+              useDefault: const Value(true),
               customSize: const Value(null),
             ),
           );
-
-      for (final category in DemoSeed.categories) {
-        final quota = dayPlan.quotas[category.id] ?? 0;
-        await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
-              WeeklyPlanningCategorySettingsCompanion.insert(
-                weekday: weekday,
-                categoryId: category.id,
-                isIncluded: Value(quota > 0),
-                quota: Value(quota),
-              ),
-            );
-      }
     }
   }
 

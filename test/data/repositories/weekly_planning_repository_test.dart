@@ -328,6 +328,77 @@ void main() {
 
     settingsRepository.dispose();
   });
+
+  test('resumo semanal ignora planejamento demo travado em 5 por idade',
+      () async {
+    await weeklyPlanningRepository.ensureSeeded();
+
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final repository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years3To5);
+    await _writeLegacyDemoFixedFiveWeeklyPlanning(db);
+
+    final rawFriday = await repository.getByWeekday(DateTime.friday);
+    final fridayConfig = await repository.resolveCategoryConfigForDate(
+      DateTime(2026, 6, 26),
+    );
+    final summary = await repository.watchWeekSummary().first;
+    final preset = AgePresetCatalog.presetFor(ChildAgeRange.years3To5);
+
+    expect(rawFriday!.useDefault, isFalse);
+    expect(rawFriday.total, 5);
+    expect(_totalFor(fridayConfig), 9);
+    for (final day in summary) {
+      expect(
+        day.totalToys,
+        preset.totalForWeekday(day.weekday),
+        reason: 'weekday ${day.weekday}',
+      );
+    }
+
+    settingsRepository.dispose();
+  });
+
+  test('resumo semanal preserva customizacao real com total diferente',
+      () async {
+    await weeklyPlanningRepository.ensureSeeded();
+
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final repository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years3To5);
+    await _writeFridayCustomQuotas(db, const {
+      'corpo': 0,
+      'exploracao': 0,
+      'maos': 3,
+      'imaginacao': 3,
+      'comunicacao': 0,
+    });
+
+    final fridayConfig = await repository.resolveCategoryConfigForDate(
+      DateTime(2026, 6, 26),
+    );
+    final quotas = _quotasByCategoryId(fridayConfig);
+
+    expect(_totalFor(fridayConfig), 6);
+    expect(quotas['maos'], 3);
+    expect(quotas['imaginacao'], 3);
+
+    settingsRepository.dispose();
+  });
 }
 
 Future<void> _insertToy(
@@ -432,6 +503,61 @@ Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
             ),
           );
     }
+  }
+}
+
+Future<void> _writeLegacyDemoFixedFiveWeeklyPlanning(AppDatabase db) async {
+  const categoryIds = <String>[
+    'corpo',
+    'exploracao',
+    'maos',
+    'imaginacao',
+    'comunicacao',
+  ];
+
+  for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+    await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
+          WeeklyPlanningSettingsCompanion.insert(
+            weekday: Value(weekday),
+            useDefault: const Value(false),
+            customSize: const Value(null),
+          ),
+        );
+
+    for (final categoryId in categoryIds) {
+      await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+            WeeklyPlanningCategorySettingsCompanion.insert(
+              weekday: weekday,
+              categoryId: categoryId,
+              isIncluded: const Value(true),
+              quota: const Value(1),
+            ),
+          );
+    }
+  }
+}
+
+Future<void> _writeFridayCustomQuotas(
+  AppDatabase db,
+  Map<String, int> quotasByCategoryId,
+) async {
+  await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
+        WeeklyPlanningSettingsCompanion.insert(
+          weekday: const Value(DateTime.friday),
+          useDefault: const Value(false),
+          customSize: const Value(null),
+        ),
+      );
+
+  for (final entry in quotasByCategoryId.entries) {
+    await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+          WeeklyPlanningCategorySettingsCompanion.insert(
+            weekday: DateTime.friday,
+            categoryId: entry.key,
+            isIncluded: Value(entry.value > 0),
+            quota: Value(entry.value),
+          ),
+        );
   }
 }
 

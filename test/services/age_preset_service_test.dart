@@ -349,6 +349,92 @@ void main() {
     expect(includedCategories, hasLength(1));
     expect(includedCategories.single.categoryId, 'comunicacao');
   });
+
+  test('applyAgePreset reconcilia planejamento demo travado em 5', () async {
+    final toyRepository = ToyRepository(db);
+    await toyRepository.ensureSeedData();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await settingsRepository.setWeeklyPlanningEnabled(true);
+    await _writeLegacyDemoFixedFiveWeeklyPlanning(db);
+    await _insertActiveRound(db, 'demo_active_round');
+
+    await service.applyAgePreset(ChildAgeRange.years3To5);
+
+    final friday = await weeklyPlanningRepository.getByWeekday(DateTime.friday);
+    final fridayConfig =
+        await weeklyPlanningRepository.resolveCategoryConfigForDate(
+      DateTime(2026, 6, 26),
+    );
+    final saturday =
+        await weeklyPlanningRepository.getByWeekday(DateTime.saturday);
+    final demoRound = await _roundById(db, 'demo_active_round');
+
+    expect(friday!.useDefault, isTrue);
+    expect(friday.total, 9);
+    expect(_totalForConfig(fridayConfig), 9);
+    expect(saturday!.useDefault, isFalse);
+    expect(saturday.total, 10);
+    expect(demoRound, isNotNull);
+    expect(demoRound!.endAt, isNotNull);
+  });
+
+  test('applyAgePreset preserva customizacao real com total diferente',
+      () async {
+    final toyRepository = ToyRepository(db);
+    await toyRepository.ensureSeedData();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+
+    await settingsRepository.setWeeklyPlanningEnabled(true);
+    await weeklyPlanningRepository.setUseDefault(
+      weekday: DateTime.friday,
+      useDefault: false,
+    );
+    final categories =
+        await weeklyPlanningRepository.getCategoriesForWeekday(DateTime.friday);
+    for (final category in categories) {
+      await weeklyPlanningRepository.updateCategoryConfig(
+        weekday: DateTime.friday,
+        categoryId: category.categoryId,
+        isIncluded: false,
+        quota: 0,
+      );
+    }
+    await weeklyPlanningRepository.updateCategoryConfig(
+      weekday: DateTime.friday,
+      categoryId: 'maos',
+      isIncluded: true,
+      quota: 3,
+    );
+    await weeklyPlanningRepository.updateCategoryConfig(
+      weekday: DateTime.friday,
+      categoryId: 'imaginacao',
+      isIncluded: true,
+      quota: 3,
+    );
+    await _insertActiveRound(db, 'real_round');
+
+    await service.applyAgePreset(ChildAgeRange.years5To7);
+
+    final friday = await weeklyPlanningRepository.getByWeekday(DateTime.friday);
+    final realRound = await _roundById(db, 'real_round');
+
+    expect(friday!.useDefault, isFalse);
+    expect(friday.total, 6);
+    expect(_quotasByCategoryName(friday.categories)['maos e construcao'], 3);
+    expect(
+      _quotasByCategoryName(friday.categories)['imaginacao e criatividade'],
+      3,
+    );
+    expect(realRound, isNotNull);
+    expect(realRound!.endAt, isNull);
+  });
 }
 
 Future<void> _insertCategory(
@@ -408,6 +494,60 @@ Map<String, int> _quotasByCategoryName(
 
 int _summaryTotal(List<WeekDaySummary> summary, int weekday) {
   return summary.where((day) => day.weekday == weekday).single.totalToys;
+}
+
+Future<void> _writeLegacyDemoFixedFiveWeeklyPlanning(AppDatabase db) async {
+  const categoryIds = <String>[
+    'corpo',
+    'exploracao',
+    'maos',
+    'imaginacao',
+    'comunicacao',
+  ];
+
+  for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+    await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
+          WeeklyPlanningSettingsCompanion.insert(
+            weekday: Value(weekday),
+            useDefault: const Value(false),
+            customSize: const Value(null),
+          ),
+        );
+
+    for (final categoryId in categoryIds) {
+      await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+            WeeklyPlanningCategorySettingsCompanion.insert(
+              weekday: weekday,
+              categoryId: categoryId,
+              isIncluded: const Value(true),
+              quota: const Value(1),
+            ),
+          );
+    }
+  }
+}
+
+Future<void> _insertActiveRound(AppDatabase db, String id) {
+  return db.into(db.rounds).insert(
+        RoundsCompanion.insert(
+          id: id,
+          startAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+        ),
+      );
+}
+
+Future<Round?> _roundById(AppDatabase db, String id) {
+  return (db.select(db.rounds)..where((round) => round.id.equals(id)))
+      .getSingleOrNull();
+}
+
+int _totalForConfig(List<WeeklyPlanningCategoryConfig> categories) {
+  var total = 0;
+  for (final category in categories) {
+    if (!category.isIncluded) continue;
+    total += category.safeQuota;
+  }
+  return total;
 }
 
 String _normalize(String value) {

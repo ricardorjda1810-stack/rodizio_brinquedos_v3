@@ -388,6 +388,9 @@ class WeeklyPlanningRepository {
     )) {
       return defaultConfig;
     }
+    if (_isLegacyFixedFiveOfficialConfig(rawCustomConfig)) {
+      return defaultConfig;
+    }
     if (_isAutomaticAgePresetConfig(
       weekday: date.weekday,
       categories: rawCustomConfig,
@@ -715,6 +718,30 @@ class WeeklyPlanningRepository {
       }
     }
     return false;
+  }
+
+  bool _isLegacyFixedFiveOfficialConfig(
+    List<WeeklyPlanningCategoryConfig> categories,
+  ) {
+    final categoryIdsByOfficialId = _configCategoryIdsByOfficialId(categories);
+    if (categoryIdsByOfficialId.length !=
+        AgePresetCatalog.officialCategoryIds.length) {
+      return false;
+    }
+
+    final officialCategoryIds = categoryIdsByOfficialId.values.toSet();
+    var includedCount = 0;
+    var includedTotal = 0;
+    for (final category in categories) {
+      if (!category.isIncluded || category.safeQuota <= 0) continue;
+      if (!officialCategoryIds.contains(category.categoryId)) return false;
+      if (category.safeQuota != 1) return false;
+      includedCount++;
+      includedTotal += category.safeQuota;
+    }
+
+    return includedCount == AgePresetCatalog.officialCategoryIds.length &&
+        includedTotal == AgePresetCatalog.officialCategoryIds.length;
   }
 
   bool _isStaleDefaultSuperset({

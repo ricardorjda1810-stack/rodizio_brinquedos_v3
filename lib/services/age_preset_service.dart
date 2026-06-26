@@ -8,6 +8,7 @@ import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 class AgePresetService {
   final AppDatabase db;
   final SettingsRepository settingsRepository;
+  static const _demoActiveRoundId = 'demo_active_round';
 
   const AgePresetService({
     required this.db,
@@ -33,6 +34,10 @@ class AgePresetService {
           categoryIdsByOfficialId,
         ),
       );
+      await _reconcileLegacyFixedFivePlanningDays(
+        categoryIdsByOfficialId.values.toSet(),
+      );
+      await _endActiveDemoRound();
       await _applyWeekendPresetIfAllowed(
         weekday: DateTime.saturday,
         preset: preset,
@@ -268,6 +273,77 @@ class AgePresetService {
     await _normalizeLegacyCategories();
 
     return result;
+  }
+
+  Future<void> _reconcileLegacyFixedFivePlanningDays(
+    Set<String> officialCategoryIds,
+  ) async {
+    if (officialCategoryIds.length !=
+        AgePresetCatalog.officialCategoryIds.length) {
+      return;
+    }
+
+    final customDays = await (db.select(db.weeklyPlanningSettings)
+          ..where((day) => day.useDefault.equals(false)))
+        .get();
+
+    for (final day in customDays) {
+      if (!await _isLegacyFixedFiveWeeklyConfig(
+        weekday: day.weekday,
+        officialCategoryIds: officialCategoryIds,
+      )) {
+        continue;
+      }
+
+      await (db.update(db.weeklyPlanningSettings)
+            ..where((row) => row.weekday.equals(day.weekday)))
+          .write(
+        const WeeklyPlanningSettingsCompanion(
+          useDefault: Value(true),
+          customSize: Value(null),
+        ),
+      );
+    }
+  }
+
+  Future<bool> _isLegacyFixedFiveWeeklyConfig({
+    required int weekday,
+    required Set<String> officialCategoryIds,
+  }) async {
+    final rows = await (db.select(db.weeklyPlanningCategorySettings)
+          ..where((row) => row.weekday.equals(weekday)))
+        .get();
+    if (rows.isEmpty) return false;
+
+    var includedCount = 0;
+    var includedTotal = 0;
+    final seenOfficialIds = <String>{};
+    for (final row in rows) {
+      final safeQuota = _safeQuota(row.quota);
+      if (!row.isIncluded || safeQuota <= 0) continue;
+      if (!officialCategoryIds.contains(row.categoryId)) return false;
+      if (safeQuota != 1) return false;
+      seenOfficialIds.add(row.categoryId);
+      includedCount++;
+      includedTotal += safeQuota;
+    }
+
+    return includedCount == officialCategoryIds.length &&
+        seenOfficialIds.length == officialCategoryIds.length &&
+        includedTotal == officialCategoryIds.length;
+  }
+
+  Future<void> _endActiveDemoRound() async {
+    await (db.update(db.rounds)
+          ..where(
+            (round) =>
+                round.id.equals(_demoActiveRoundId) & round.endAt.isNull(),
+          ))
+        .write(
+      RoundsCompanion(
+        endAt: Value(DateTime.now().millisecondsSinceEpoch),
+      ),
+    );
   }
 
   Future<void> _preserveCustomWeekdays(Set<String> officialCategoryIds) async {

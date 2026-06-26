@@ -56,13 +56,16 @@ void main() {
     final categories = await db.select(db.categoryDefinitions).get();
     final boxes = await db.select(db.boxes).get();
     final weeklyRows = await db.select(db.weeklyPlanningCategorySettings).get();
+    final weeklyDays = await db.select(db.weeklyPlanningSettings).get();
     final roundRows = await db.select(db.roundToys).get();
 
     expect(toys, hasLength(50));
     expect(
         categories.map((category) => category.id).toSet(), officialCategoryIds);
     expect(boxes, hasLength(5));
-    expect(weeklyRows, hasLength(35));
+    expect(weeklyRows, isEmpty);
+    expect(weeklyDays, hasLength(7));
+    expect(weeklyDays.every((day) => day.useDefault), isTrue);
     expect(roundRows, hasLength(5));
 
     final counts = <String, int>{};
@@ -209,8 +212,7 @@ void main() {
     expect(await db.select(db.boxes).get(), hasLength(9));
     expect(await db.select(db.locationDefinitions).get(), hasLength(11));
     expect(await db.select(db.roundToys).get(), hasLength(5));
-    expect(await db.select(db.weeklyPlanningCategorySettings).get(),
-        hasLength(35));
+    expect(await db.select(db.weeklyPlanningCategorySettings).get(), isEmpty);
 
     await DemoDataLoader.removeExamples(db);
 

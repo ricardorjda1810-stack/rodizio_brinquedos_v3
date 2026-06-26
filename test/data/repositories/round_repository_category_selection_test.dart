@@ -278,6 +278,113 @@ void main() {
     settingsRepository.dispose();
   });
 
+  test('suggestRoundForDate ignora planejamento demo travado em 5 para 3 a 5',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years3To5);
+    await _insertOfficialToys(db);
+    await _writeLegacyDemoFixedFiveWeeklyPlanning(db);
+
+    final suggestion =
+        await roundRepository.suggestRoundForDate(DateTime(2026, 6, 26));
+    final counts = _categoryCountsForToys(suggestion);
+
+    expect(suggestion, hasLength(9));
+    expect(counts['corpo'], 1);
+    expect(counts['exploracao'], 2);
+    expect(counts['maos'], 2);
+    expect(counts['imaginacao'], 2);
+    expect(counts['comunicacao'], 2);
+
+    await roundRepository.setActiveRoundFromToyIds(
+      suggestion.map((toy) => toy.id).toList(growable: false),
+    );
+    expect(await _selectedToyIdsByPosition(db), hasLength(9));
+
+    settingsRepository.dispose();
+  });
+
+  test('suggestRoundForDate ignora planejamento demo travado em 5 para 5 a 7',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years5To7);
+    await _insertOfficialToys(db);
+    await _writeLegacyDemoFixedFiveWeeklyPlanning(db);
+
+    final suggestion =
+        await roundRepository.suggestRoundForDate(DateTime(2026, 6, 26));
+    final counts = _categoryCountsForToys(suggestion);
+
+    expect(suggestion, hasLength(10));
+    expect(counts['corpo'], 1);
+    expect(counts['exploracao'], 2);
+    expect(counts['maos'], 2);
+    expect(counts['imaginacao'], 3);
+    expect(counts['comunicacao'], 2);
+
+    await roundRepository.setActiveRoundFromToyIds(
+      suggestion.map((toy) => toy.id).toList(growable: false),
+    );
+    expect(await _selectedToyIdsByPosition(db), hasLength(10));
+
+    settingsRepository.dispose();
+  });
+
+  test('suggestRoundForDate completa total da idade com categoria vazia',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    final weeklyPlanningRepository = WeeklyPlanningRepository(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final roundRepository = RoundRepository(db, weeklyPlanningRepository);
+    await AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    ).applyAgePreset(ChildAgeRange.years5To7);
+    await _insertOfficialToysForCategories(
+      db,
+      const ['corpo', 'exploracao', 'maos', 'imaginacao'],
+    );
+    await _writeLegacyDemoFixedFiveWeeklyPlanning(db);
+
+    final suggestion =
+        await roundRepository.suggestRoundForDate(DateTime(2026, 6, 26));
+    final counts = _categoryCountsForToys(suggestion);
+
+    expect(suggestion, hasLength(10));
+    expect(counts.containsKey('comunicacao'), isFalse);
+    expect(
+        counts.keys,
+        containsAll(<String>[
+          'corpo',
+          'exploracao',
+          'maos',
+          'imaginacao',
+        ]));
+
+    settingsRepository.dispose();
+  });
+
   test('suggestWeeklyPlanningForWeek distribui brinquedos antes de repetir',
       () async {
     await _overwriteRoundCategoryQuotas(db, const {
@@ -518,13 +625,18 @@ Future<void> _insertOfficialToys(
   AppDatabase db, {
   int countPerCategory = 20,
 }) async {
-  const categoryIds = <String>[
-    'corpo',
-    'exploracao',
-    'maos',
-    'imaginacao',
-    'comunicacao',
-  ];
+  return _insertOfficialToysForCategories(
+    db,
+    const ['corpo', 'exploracao', 'maos', 'imaginacao', 'comunicacao'],
+    countPerCategory: countPerCategory,
+  );
+}
+
+Future<void> _insertOfficialToysForCategories(
+  AppDatabase db,
+  List<String> categoryIds, {
+  int countPerCategory = 20,
+}) async {
   var createdAt = 10000;
   for (final categoryId in categoryIds) {
     for (var index = 0; index < countPerCategory; index++) {
@@ -611,6 +723,37 @@ Future<void> _writeStaleWeeklyCustomQuotas(AppDatabase db) async {
               categoryId: entry.key,
               isIncluded: Value(entry.value > 0),
               quota: Value(entry.value),
+            ),
+          );
+    }
+  }
+}
+
+Future<void> _writeLegacyDemoFixedFiveWeeklyPlanning(AppDatabase db) async {
+  const categoryIds = <String>[
+    'corpo',
+    'exploracao',
+    'maos',
+    'imaginacao',
+    'comunicacao',
+  ];
+
+  for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+    await db.into(db.weeklyPlanningSettings).insertOnConflictUpdate(
+          WeeklyPlanningSettingsCompanion.insert(
+            weekday: Value(weekday),
+            useDefault: const Value(false),
+            customSize: const Value(null),
+          ),
+        );
+
+    for (final categoryId in categoryIds) {
+      await db.into(db.weeklyPlanningCategorySettings).insertOnConflictUpdate(
+            WeeklyPlanningCategorySettingsCompanion.insert(
+              weekday: weekday,
+              categoryId: categoryId,
+              isIncluded: const Value(true),
+              quota: const Value(1),
             ),
           );
     }
