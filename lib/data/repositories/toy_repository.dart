@@ -75,61 +75,63 @@ class ToyRepository {
   ToyRepository(this.db);
 
   static const Map<String, String> defaultCategoryExamplesById = {
-    'livros': 'livros, fantoches, cartões e brinquedos com palavras',
-    'construcao': 'blocos, encaixes, quebra-cabeças e torres',
-    'faz_de_conta': 'cozinha, mÃ©dico, mercado, ferramentas',
-    'movimento': 'bola, carrinho, rampa, circuito',
-    'coordenacao': 'massinha, chocalhos, texturas e instrumentos',
+    'corpo': 'movimento, equil\u00EDbrio, sopro e pausa corporal',
+    'exploracao': 'texturas, sons, cores, \u00E1gua, areia e descoberta',
+    'maos': 'encaixar, empilhar, montar e resolver problemas',
+    'imaginacao': 'faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
+    'comunicacao': 'livros, fala, escuta, narrativa e conversa',
   };
 
   static const List<CategorySeed> defaultCategories = [
     CategorySeed(
-      id: 'livros',
-      name: 'HistÃ³rias e Linguagem',
-      examples: 'livros, fantoches, cartÃµes e brinquedos com palavras',
-      description: 'Para brincar com histÃ³rias, sons e conversas.',
-      developmentAspect: 'Linguagem, escuta e narrativa',
+      id: 'corpo',
+      name: 'Corpo e Respira\u00E7\u00E3o',
+      examples: 'movimento, equil\u00EDbrio, sopro e pausa corporal',
+      description:
+          'Para mover o corpo, respirar, equilibrar e fazer pausas corporais.',
+      developmentAspect: 'Movimento, equil\u00EDbrio, sopro e pausa corporal',
       sortOrder: 1,
       quota: 1,
     ),
     CategorySeed(
-      id: 'construcao',
-      name: 'Montar e Raciocinar',
-      examples: 'blocos, encaixes, quebra-cabeÃ§as e torres',
-      description: 'Para montar, resolver e observar com calma.',
-      developmentAspect:
-          'RaciocÃ­nio, concentraÃ§Ã£o e coordenaÃ§Ã£o olho-mÃ£o',
+      id: 'exploracao',
+      name: 'Sentidos e Explora\u00E7\u00E3o',
+      examples: 'texturas, sons, cores, \u00E1gua, areia e descoberta',
+      description:
+          'Para descobrir materiais, sons, cores e sensa\u00E7\u00F5es.',
+      developmentAspect: 'Texturas, sons, cores, \u00E1gua, areia e descoberta',
       sortOrder: 2,
       quota: 2,
     ),
     CategorySeed(
-      id: 'faz_de_conta',
-      name: 'Faz de Conta',
-      examples: 'bonecas, carrinhos, panelinhas e animais',
-      description: 'Para imaginar cenas do dia a dia e criar histÃ³rias.',
-      developmentAspect: 'ImaginaÃ§Ã£o, imitaÃ§Ã£o e vida prÃ¡tica',
+      id: 'maos',
+      name: 'M\u00E3os e Constru\u00E7\u00E3o',
+      examples: 'encaixar, empilhar, montar e resolver problemas',
+      description:
+          'Para montar, encaixar, empilhar e resolver com as m\u00E3os.',
+      developmentAspect: 'Encaixar, empilhar, montar e resolver problemas',
       sortOrder: 3,
-      quota: 1,
+      quota: 2,
     ),
     CategorySeed(
-      id: 'movimento',
-      name: 'Movimento',
-      examples: 'bolas, brinquedos de empurrar, tÃºnel e argolas',
-      description: 'Para mover o corpo e explorar o espaÃ§o.',
+      id: 'imaginacao',
+      name: 'Imagina\u00E7\u00E3o e Criatividade',
+      examples: 'faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
+      description: 'Para criar cenas, inventar, desenhar e se expressar.',
       developmentAspect:
-          'CoordenaÃ§Ã£o ampla, equilÃ­brio e exploraÃ§Ã£o do espaÃ§o',
+          'Faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
       sortOrder: 4,
       quota: 1,
     ),
     CategorySeed(
-      id: 'coordenacao',
-      name: 'Sensorial e CoordenaÃ§Ã£o',
-      examples: 'massinha, chocalhos, texturas e instrumentos',
-      description: 'Para experimentar sons, texturas e movimentos pequenos.',
-      developmentAspect:
-          'Tato, audiÃ§Ã£o, coordenaÃ§Ã£o fina e exploraÃ§Ã£o sensorial',
+      id: 'comunicacao',
+      name: 'Comunica\u00E7\u00E3o e Hist\u00F3rias',
+      examples: 'livros, fala, escuta, narrativa e conversa',
+      description:
+          'Para contar, ouvir, conversar e brincar com hist\u00F3rias.',
+      developmentAspect: 'Livros, fala, escuta, narrativa e conversa',
       sortOrder: 5,
-      quota: 2,
+      quota: 1,
     ),
   ];
 
@@ -145,62 +147,63 @@ class ToyRepository {
   ];
 
   static const Map<String, String> correctedDefaultCategoryExamplesById = {
-    'livros': 'Livros, fantoches, cart\u00F5es e brinquedos com palavras',
-    'construcao': 'Blocos, encaixes, quebra-cabe\u00E7as e torres',
-    'faz_de_conta': 'cozinha, m\u00E9dico, mercado, ferramentas',
-    'movimento': 'bola, carrinho, rampa, circuito',
-    'coordenacao': 'Massinha, chocalhos, texturas e instrumentos',
+    'corpo': 'Movimento, equil\u00EDbrio, sopro e pausa corporal',
+    'exploracao': 'Texturas, sons, cores, \u00E1gua, areia e descoberta',
+    'maos': 'Encaixar, empilhar, montar e resolver problemas',
+    'imaginacao': 'Faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
+    'comunicacao': 'Livros, fala, escuta, narrativa e conversa',
   };
 
   static const List<CategorySeed> correctedDefaultCategories = [
     CategorySeed(
-      id: 'livros',
-      name: 'Hist\u00F3rias e Linguagem',
-      examples: 'Livros, fantoches, cart\u00F5es e brinquedos com palavras',
-      description: 'Para brincar com hist\u00F3rias, sons e conversas.',
-      developmentAspect: 'Linguagem, escuta e narrativa',
+      id: 'corpo',
+      name: 'Corpo e Respira\u00E7\u00E3o',
+      examples: 'Movimento, equil\u00EDbrio, sopro e pausa corporal',
+      description:
+          'Para mover o corpo, respirar, equilibrar e fazer pausas corporais.',
+      developmentAspect: 'Movimento, equil\u00EDbrio, sopro e pausa corporal',
       sortOrder: 1,
       quota: 1,
     ),
     CategorySeed(
-      id: 'construcao',
-      name: 'Montar e Raciocinar',
-      examples: 'Blocos, encaixes, quebra-cabe\u00E7as e torres',
-      description: 'Para montar, resolver e observar com calma.',
-      developmentAspect:
-          'Racioc\u00EDnio, concentra\u00E7\u00E3o e coordena\u00E7\u00E3o olho-m\u00E3o',
+      id: 'exploracao',
+      name: 'Sentidos e Explora\u00E7\u00E3o',
+      examples: 'Texturas, sons, cores, \u00E1gua, areia e descoberta',
+      description:
+          'Para descobrir materiais, sons, cores e sensa\u00E7\u00F5es.',
+      developmentAspect: 'Texturas, sons, cores, \u00E1gua, areia e descoberta',
       sortOrder: 2,
       quota: 2,
     ),
     CategorySeed(
-      id: 'faz_de_conta',
-      name: 'Faz de Conta',
-      examples: 'Bonecas, carrinhos, panelinhas e animais',
-      description: 'Para imaginar cenas do dia a dia e criar hist\u00F3rias.',
-      developmentAspect:
-          'Imagina\u00E7\u00E3o, imita\u00E7\u00E3o e vida pr\u00E1tica',
+      id: 'maos',
+      name: 'M\u00E3os e Constru\u00E7\u00E3o',
+      examples: 'Encaixar, empilhar, montar e resolver problemas',
+      description:
+          'Para montar, encaixar, empilhar e resolver com as m\u00E3os.',
+      developmentAspect: 'Encaixar, empilhar, montar e resolver problemas',
       sortOrder: 3,
-      quota: 1,
+      quota: 2,
     ),
     CategorySeed(
-      id: 'movimento',
-      name: 'Movimento',
-      examples: 'Bolas, brinquedos de empurrar, t\u00FAnel e argolas',
-      description: 'Para mover o corpo e explorar o espa\u00E7o.',
+      id: 'imaginacao',
+      name: 'Imagina\u00E7\u00E3o e Criatividade',
+      examples: 'Faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
+      description: 'Para criar cenas, inventar, desenhar e se expressar.',
       developmentAspect:
-          'Coordena\u00E7\u00E3o ampla, equil\u00EDbrio e explora\u00E7\u00E3o do espa\u00E7o',
+          'Faz de conta, arte, cria\u00E7\u00E3o e express\u00E3o',
       sortOrder: 4,
       quota: 1,
     ),
     CategorySeed(
-      id: 'coordenacao',
-      name: 'Sensorial e Coordena\u00E7\u00E3o',
-      examples: 'Massinha, chocalhos, texturas e instrumentos',
-      description: 'Para experimentar sons, texturas e movimentos pequenos.',
-      developmentAspect:
-          'Tato, audi\u00E7\u00E3o, coordena\u00E7\u00E3o fina e explora\u00E7\u00E3o sensorial',
+      id: 'comunicacao',
+      name: 'Comunica\u00E7\u00E3o e Hist\u00F3rias',
+      examples: 'Livros, fala, escuta, narrativa e conversa',
+      description:
+          'Para contar, ouvir, conversar e brincar com hist\u00F3rias.',
+      developmentAspect: 'Livros, fala, escuta, narrativa e conversa',
       sortOrder: 5,
-      quota: 2,
+      quota: 1,
     ),
   ];
 
@@ -215,7 +218,7 @@ class ToyRepository {
     LocationSeed('corredor', 'Corredor'),
   ];
 
-  Future<void> ensureSeedData() async {
+  Future<void> ensureSeedData({bool includeStarterStorage = true}) async {
     final d = db;
     if (d == null) return;
 
@@ -254,11 +257,13 @@ class ToyRepository {
             );
       }
 
-      for (final loc in correctedDefaultLocations) {
-        await d.into(d.locationDefinitions).insert(
-              LocationDefinitionsCompanion.insert(id: loc.id, name: loc.name),
-              mode: InsertMode.insertOrIgnore,
-            );
+      if (includeStarterStorage) {
+        for (final loc in correctedDefaultLocations) {
+          await d.into(d.locationDefinitions).insert(
+                LocationDefinitionsCompanion.insert(id: loc.id, name: loc.name),
+                mode: InsertMode.insertOrIgnore,
+              );
+        }
       }
 
       final categories = await d.select(d.categoryDefinitions).get();
@@ -299,41 +304,47 @@ class ToyRepository {
             );
       }
 
-      final locations = await d.select(d.locationDefinitions).get();
-      for (final location in locations) {
-        final seededLocation = correctedDefaultLocations
-            .where((seed) => seed.id == location.id)
-            .firstOrNull;
-        if (seededLocation != null && _looksMisencodedSafely(location.name)) {
-          await (d.update(d.locationDefinitions)
-                ..where((row) => row.id.equals(location.id)))
-              .write(
-            LocationDefinitionsCompanion(
-              name: Value(seededLocation.name),
-            ),
-          );
+      await _normalizeLegacyCategories(d);
+
+      if (includeStarterStorage) {
+        final locations = await d.select(d.locationDefinitions).get();
+        for (final location in locations) {
+          final seededLocation = correctedDefaultLocations
+              .where((seed) => seed.id == location.id)
+              .firstOrNull;
+          if (seededLocation != null && _looksMisencodedSafely(location.name)) {
+            await (d.update(d.locationDefinitions)
+                  ..where((row) => row.id.equals(location.id)))
+                .write(
+              LocationDefinitionsCompanion(
+                name: Value(seededLocation.name),
+              ),
+            );
+          }
         }
       }
 
-      final existingBoxes = await d.select(d.boxes).get();
-      if (existingBoxes.length < 4) {
-        final existingByNumber = <int>{
-          for (final box in existingBoxes) box.number,
-        };
-        var createdAt = DateTime.now().millisecondsSinceEpoch;
+      if (includeStarterStorage) {
+        final existingBoxes = await d.select(d.boxes).get();
+        if (existingBoxes.length < 4) {
+          final existingByNumber = <int>{
+            for (final box in existingBoxes) box.number,
+          };
+          var createdAt = DateTime.now().millisecondsSinceEpoch;
 
-        for (var i = 1; i <= 4; i++) {
-          if (existingByNumber.contains(i)) continue;
+          for (var i = 1; i <= 4; i++) {
+            if (existingByNumber.contains(i)) continue;
 
-          await d.into(d.boxes).insert(
-                BoxesCompanion.insert(
-                  id: const Uuid().v4(),
-                  number: Value(i),
-                  local: const Value(''),
-                  name: Value('Caixa $i'),
-                  createdAt: createdAt++,
-                ),
-              );
+            await d.into(d.boxes).insert(
+                  BoxesCompanion.insert(
+                    id: const Uuid().v4(),
+                    number: Value(i),
+                    local: const Value(''),
+                    name: Value('Caixa $i'),
+                    createdAt: createdAt++,
+                  ),
+                );
+          }
         }
       }
     });
@@ -480,25 +491,16 @@ class ToyRepository {
 
     await d.transaction(() async {
       final categories = await d.select(d.categoryDefinitions).get();
-      final existingIds = categories.map((category) => category.id).toSet();
-      final byNormalizedName = <String, CategoryDefinition>{
-        for (final category in categories)
-          _normalizeCategoryKey(category.name): category,
+      final byId = <String, CategoryDefinition>{
+        for (final category in categories) category.id: category,
       };
 
       for (final official in AgePresetCatalog.officialCategories) {
-        final existing = byNormalizedName[_normalizeCategoryKey(official.name)];
+        final existing = byId[official.id];
         if (existing == null) {
-          final categoryId = _generateUniqueId(
-            official.id,
-            existingIds,
-            prefix: 'cat',
-          );
-          existingIds.add(categoryId);
-
           await d.into(d.categoryDefinitions).insert(
                 CategoryDefinitionsCompanion.insert(
-                  id: categoryId,
+                  id: official.id,
                   name: official.name,
                   description: const Value(null),
                   examples: Value(official.examples),
@@ -510,14 +512,14 @@ class ToyRepository {
               );
           await d.into(d.categoryCounters).insert(
                 CategoryCountersCompanion.insert(
-                  categoryId: categoryId,
+                  categoryId: official.id,
                   nextNumber: const Value(1),
                 ),
                 mode: InsertMode.insertOrIgnore,
               );
           await d.into(d.roundCategorySettings).insert(
                 RoundCategorySettingsCompanion.insert(
-                  categoryId: categoryId,
+                  categoryId: official.id,
                   isIncluded: const Value(false),
                   quota: const Value(0),
                 ),
@@ -530,6 +532,7 @@ class ToyRepository {
               ..where((category) => category.id.equals(existing.id)))
             .write(
           CategoryDefinitionsCompanion(
+            name: Value(official.name),
             examples: _normalizeNullable(existing.examples) == null
                 ? Value(official.examples)
                 : const Value.absent(),
@@ -558,6 +561,8 @@ class ToyRepository {
               mode: InsertMode.insertOrIgnore,
             );
       }
+
+      await _normalizeLegacyCategories(d);
     });
   }
 
@@ -574,7 +579,10 @@ class ToyRepository {
         s.categoryId.equalsExp(c.id) & s.isIncluded.equals(true),
       ),
     ])
-      ..where(c.isActive.equals(true))
+      ..where(
+        c.isActive.equals(true) &
+            c.id.isIn(AgePresetCatalog.officialCategoryIds),
+      )
       ..orderBy([
         OrderingTerm.asc(c.sortOrder),
         OrderingTerm.asc(c.name),
@@ -599,6 +607,10 @@ class ToyRepository {
     final query = d.select(c).join([
       leftOuterJoin(s, s.categoryId.equalsExp(c.id)),
     ])
+      ..where(
+        c.isActive.equals(true) &
+            c.id.isIn(AgePresetCatalog.officialCategoryIds),
+      )
       ..orderBy([
         OrderingTerm.asc(c.sortOrder),
         OrderingTerm.asc(c.name),
@@ -644,7 +656,7 @@ class ToyRepository {
       await d.into(d.toys).insert(
             ToysCompanion.insert(
               id: id,
-              categoryId: const Value('coordenacao'),
+              categoryId: const Value('exploracao'),
               name: resolvedName,
               createdAt: now,
               boxId: Value(normalizedBoxId),
@@ -678,7 +690,7 @@ class ToyRepository {
     await d.into(d.toys).insert(
           ToysCompanion.insert(
             id: id,
-            categoryId: const Value('coordenacao'),
+            categoryId: const Value('exploracao'),
             name: trimmedName,
             createdAt: now,
             boxId: Value(normalizedBoxId),
@@ -1146,11 +1158,11 @@ class ToyRepository {
     }
 
     const defaultQuotas = <String, int>{
-      'livros': 1,
-      'construcao': 2,
-      'faz_de_conta': 1,
-      'movimento': 1,
-      'coordenacao': 2,
+      'corpo': 1,
+      'exploracao': 2,
+      'maos': 2,
+      'imaginacao': 1,
+      'comunicacao': 1,
     };
 
     final categories = await d.select(d.categoryDefinitions).get();
@@ -1474,39 +1486,49 @@ class ToyRepository {
     }
   }
 
-  String _normalizeCategoryKey(String value) {
-    var normalized = _repairTextSafely(value).trim().toLowerCase();
-    const replacements = <String, String>{
-      'á': 'a',
-      'à': 'a',
-      'â': 'a',
-      'ã': 'a',
-      'ä': 'a',
-      'é': 'e',
-      'ê': 'e',
-      'è': 'e',
-      'ë': 'e',
-      'í': 'i',
-      'ì': 'i',
-      'î': 'i',
-      'ï': 'i',
-      'ó': 'o',
-      'ò': 'o',
-      'ô': 'o',
-      'õ': 'o',
-      'ö': 'o',
-      'ú': 'u',
-      'ù': 'u',
-      'û': 'u',
-      'ü': 'u',
-      'ç': 'c',
-    };
+  Future<void> _normalizeLegacyCategories(AppDatabase d) async {
+    final categories = await d.select(d.categoryDefinitions).get();
 
-    for (final entry in replacements.entries) {
-      normalized = normalized.replaceAll(entry.key, entry.value);
+    for (final category in categories) {
+      final categoryId = category.id.trim();
+      if (AgePresetCatalog.isOfficialCategoryId(categoryId)) continue;
+
+      final targetCategoryId =
+          AgePresetCatalog.officialCategoryIdForLegacyKey(category.id) ??
+              AgePresetCatalog.officialCategoryIdForLegacyKey(category.name);
+      if (targetCategoryId == null || targetCategoryId == category.id) {
+        continue;
+      }
+
+      await (d.update(d.toys)
+            ..where((toy) => toy.categoryId.equals(category.id)))
+          .write(ToysCompanion(categoryId: Value(targetCategoryId)));
+
+      await d.into(d.roundCategorySettings).insertOnConflictUpdate(
+            RoundCategorySettingsCompanion.insert(
+              categoryId: category.id,
+              isIncluded: const Value(false),
+              quota: const Value(0),
+            ),
+          );
+      await (d.update(d.weeklyPlanningCategorySettings)
+            ..where((row) => row.categoryId.equals(category.id)))
+          .write(
+        const WeeklyPlanningCategorySettingsCompanion(
+          isIncluded: Value(false),
+          quota: Value(0),
+        ),
+      );
+      await (d.update(d.categoryDefinitions)
+            ..where((row) => row.id.equals(category.id)))
+          .write(
+        CategoryDefinitionsCompanion(
+          isDefault: const Value(false),
+          isActive: const Value(false),
+          sortOrder: Value(1000 + category.sortOrder),
+        ),
+      );
     }
-
-    return normalized.replaceAll(RegExp(r'\s+'), ' ');
   }
 
   String _slugify(String value) {

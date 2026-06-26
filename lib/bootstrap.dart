@@ -93,7 +93,10 @@ class _BootstrapState extends State<Bootstrap> {
   }
 
   Future<void> _runInitialization() async {
-    await _toyRepository.ensureSeedData();
+    final examplesRemoved = await DemoDataLoader.examplesRemoved();
+    await _toyRepository.ensureSeedData(
+      includeStarterStorage: !examplesRemoved,
+    );
     await DemoDataLoader.load(_db);
     await _settingsRepository.load();
     _purchaseService = await PurchaseService.create();

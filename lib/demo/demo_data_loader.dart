@@ -13,8 +13,31 @@ class DemoDataLoader {
   static const _isMarketingDemo = bool.fromEnvironment('MARKETING_DEMO');
   static const _demoToyPhotosDirName = 'demo_toy_photos';
   static const _initialSeedAppliedKey = 'demo_initial_seed_applied_v1';
+  static const examplesRemovedPreferenceKey = 'demoExamplesRemoved';
+  static const demoToyIdPrefix = 'demo_toy_';
+  static const demoBoxIdPrefix = 'demo_box_';
+  static const _demoActiveRoundId = 'demo_active_round';
+  static const _starterLocationIds = <String>{
+    'sala',
+    'quarto_da_crianca',
+    'quarto',
+    'cozinha',
+    'banheiro',
+    'varanda',
+    'area_de_servico',
+    'corredor',
+  };
 
   static bool get controlsEnabled => _isDemo || _isMarketingDemo;
+
+  static bool isDemoToyId(String toyId) => toyId.startsWith(demoToyIdPrefix);
+
+  static bool isDemoBoxId(String boxId) => boxId.startsWith(demoBoxIdPrefix);
+
+  static Future<bool> examplesRemoved() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(examplesRemovedPreferenceKey) ?? false;
+  }
 
   static Future<void> load(AppDatabase db) async {
     if (!_isDemo) {
@@ -36,18 +59,29 @@ class DemoDataLoader {
 
   static Future<void> _populateInitialIfNeeded(AppDatabase db) async {
     final prefs = await SharedPreferences.getInstance();
-    final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
-    if (alreadyHandled) return;
-
-    final toysCount =
-        await db.select(db.toys).get().then((toys) => toys.length);
-    if (toysCount > 0) {
+    final examplesRemoved = await DemoDataLoader.examplesRemoved();
+    if (examplesRemoved) {
+      await _clearEmptyExampleScaffolding(db);
       await prefs.setBool(_initialSeedAppliedKey, true);
       return;
     }
 
-    await populate(db);
-    await prefs.setBool(_initialSeedAppliedKey, true);
+    final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
+    if (alreadyHandled) return;
+
+    final toys = await db.select(db.toys).get();
+    final hasRealToys = toys.any((toy) => !isDemoToyId(toy.id));
+    if (hasRealToys) {
+      await prefs.setBool(_initialSeedAppliedKey, true);
+      return;
+    }
+
+    await restoreExamples(
+      db,
+      includePlanning: true,
+      includeActiveRound: true,
+      includeRoundSettings: true,
+    );
   }
 
   static Future<void> populate(AppDatabase db) async {
@@ -55,13 +89,96 @@ class DemoDataLoader {
 
     await db.transaction(() async {
       await _clearDemoState(db);
-      await _insertCategories(db);
+      await _insertCategories(db, includeRoundSettings: true);
       await _insertLocations(db);
       await _insertBoxes(db, now);
       await _insertToys(db, now);
       await _insertWeeklyPlanning(db);
       await _insertActiveRound(db, now);
     });
+  }
+
+  static Future<void> restoreExamples(
+    AppDatabase db, {
+    bool includePlanning = false,
+    bool includeActiveRound = false,
+    bool includeRoundSettings = false,
+  }) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.transaction(() async {
+      await _insertCategories(db, includeRoundSettings: includeRoundSettings);
+      await _insertLocations(db);
+      await _insertBoxes(db, now);
+      await _insertToys(db, now);
+      if (includePlanning) {
+        await _insertWeeklyPlanning(db);
+      }
+      if (includeActiveRound) {
+        await _insertActiveRound(db, now);
+      }
+    });
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(examplesRemovedPreferenceKey, false);
+    await prefs.setBool(_initialSeedAppliedKey, true);
+  }
+
+  static Future<void> removeExamples(AppDatabase db) async {
+    await db.transaction(() async {
+      final demoToys = await (db.select(db.toys)
+            ..where((toy) => toy.id.like('$demoToyIdPrefix%')))
+          .get();
+      final demoToyIds = demoToys.map((toy) => toy.id).toList();
+      final demoToyIdSet = demoToyIds.toSet();
+
+      final roundIdsToDelete = <String>{_demoActiveRoundId};
+      if (demoToyIdSet.isNotEmpty) {
+        final rounds = await db.select(db.rounds).get();
+        final roundToyRows = await db.select(db.roundToys).get();
+
+        for (final round in rounds) {
+          final toysInRound = roundToyRows.where(
+            (row) => row.roundId == round.id,
+          );
+          if (toysInRound.isEmpty) continue;
+          final onlyDemoToys = toysInRound.every(
+            (row) => demoToyIdSet.contains(row.toyId),
+          );
+          if (onlyDemoToys) {
+            roundIdsToDelete.add(round.id);
+          }
+        }
+
+        await (db.delete(db.roundToyChecklistItems)
+              ..where((row) => row.toyId.isIn(demoToyIds)))
+            .go();
+        await (db.delete(db.roundToys)
+              ..where((row) => row.toyId.isIn(demoToyIds)))
+            .go();
+        await (db.delete(db.toys)..where((row) => row.id.isIn(demoToyIds)))
+            .go();
+      }
+
+      await (db.delete(db.rounds)
+            ..where((row) => row.id.isIn(roundIdsToDelete.toList())))
+          .go();
+      await _deleteEmptyDemoBoxes(db);
+      await _clearEmptyExampleScaffolding(db);
+    });
+
+    await _clearDemoToyPhotos();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(examplesRemovedPreferenceKey, true);
+    await prefs.setBool(_initialSeedAppliedKey, true);
+  }
+
+  static Future<int> countExampleToys(AppDatabase db) async {
+    final toys = await (db.select(db.toys)
+          ..where((toy) => toy.id.like('$demoToyIdPrefix%')))
+        .get();
+    return toys.length;
   }
 
   static Future<void> clear(AppDatabase db) async {
@@ -87,7 +204,10 @@ class DemoDataLoader {
     await _clearDemoToyPhotos();
   }
 
-  static Future<void> _insertCategories(AppDatabase db) async {
+  static Future<void> _insertCategories(
+    AppDatabase db, {
+    required bool includeRoundSettings,
+  }) async {
     for (final category in DemoSeed.categories) {
       await db.into(db.categoryDefinitions).insertOnConflictUpdate(
             CategoryDefinitionsCompanion.insert(
@@ -110,13 +230,15 @@ class DemoDataLoader {
             mode: InsertMode.insertOrIgnore,
           );
 
-      await db.into(db.roundCategorySettings).insertOnConflictUpdate(
-            RoundCategorySettingsCompanion.insert(
-              categoryId: category.id,
-              isIncluded: Value(category.quota > 0),
-              quota: Value(category.quota),
-            ),
-          );
+      if (includeRoundSettings) {
+        await db.into(db.roundCategorySettings).insertOnConflictUpdate(
+              RoundCategorySettingsCompanion.insert(
+                categoryId: category.id,
+                isIncluded: Value(category.quota > 0),
+                quota: Value(category.quota),
+              ),
+            );
+      }
     }
   }
 
@@ -145,6 +267,103 @@ class DemoDataLoader {
             ),
           );
     }
+  }
+
+  static Future<void> _deleteEmptyDemoBoxes(AppDatabase db) async {
+    for (final box in DemoSeed.boxes) {
+      final linkedToy = await (db.select(db.toys)
+            ..where((toy) => toy.boxId.equals(box.id))
+            ..limit(1))
+          .getSingleOrNull();
+      if (linkedToy != null) continue;
+
+      await (db.delete(db.boxes)..where((row) => row.id.equals(box.id))).go();
+    }
+  }
+
+  static Future<void> _clearEmptyExampleScaffolding(AppDatabase db) async {
+    final realToy = await (db.select(db.toys)
+          ..where((toy) => toy.id.like('$demoToyIdPrefix%').not())
+          ..limit(1))
+        .getSingleOrNull();
+    final hasRealToys = realToy != null;
+
+    await _deleteEmptyDemoBoxes(db);
+    await _deleteUnusedSeedLocations(db);
+
+    if (hasRealToys) return;
+
+    await db.delete(db.roundToyChecklistItems).go();
+    await db.delete(db.roundToys).go();
+    await db.delete(db.rounds).go();
+    await db.delete(db.weeklyPlanningCategorySettings).go();
+    await db.delete(db.weeklyPlanningSettings).go();
+    await _deleteEmptyStarterBoxes(db);
+    await _disableWeeklyPlanning(db);
+  }
+
+  static Future<void> _deleteEmptyStarterBoxes(AppDatabase db) async {
+    final boxes = await db.select(db.boxes).get();
+    for (final box in boxes) {
+      if (!_isStarterBox(box)) continue;
+
+      final linkedToy = await (db.select(db.toys)
+            ..where((toy) => toy.boxId.equals(box.id))
+            ..limit(1))
+          .getSingleOrNull();
+      if (linkedToy != null) continue;
+
+      await (db.delete(db.boxes)..where((row) => row.id.equals(box.id))).go();
+    }
+  }
+
+  static bool _isStarterBox(Boxe box) {
+    final expectedName = 'Caixa ${box.number}';
+    return box.number >= 1 &&
+        box.number <= 4 &&
+        box.local.trim().isEmpty &&
+        box.name.trim() == expectedName &&
+        (box.notes?.trim().isEmpty ?? true) &&
+        (box.photoPath?.trim().isEmpty ?? true);
+  }
+
+  static Future<void> _deleteUnusedSeedLocations(AppDatabase db) async {
+    final seedLocationIds = <String>{
+      ..._starterLocationIds,
+      for (final name in DemoSeed.locations) _slug(name),
+    };
+    final realToys = await (db.select(db.toys)
+          ..where((toy) => toy.id.like('$demoToyIdPrefix%').not()))
+        .get();
+    final realLocationNames = realToys
+        .map((toy) => toy.locationText?.trim().toLowerCase())
+        .whereType<String>()
+        .where((name) => name.isNotEmpty)
+        .toSet();
+
+    final locations = await (db.select(db.locationDefinitions)
+          ..where((location) => location.id.isIn(seedLocationIds.toList())))
+        .get();
+    for (final location in locations) {
+      final name = location.name.trim().toLowerCase();
+      if (realLocationNames.contains(name)) continue;
+
+      await (db.delete(db.locationDefinitions)
+            ..where((row) => row.id.equals(location.id)))
+          .go();
+    }
+  }
+
+  static Future<void> _disableWeeklyPlanning(AppDatabase db) async {
+    await _ensureWeeklyPlanningColumn(db);
+    await db.customUpdate(
+      '''
+      UPDATE round_ui_settings
+      SET weekly_planning_enabled = 0
+      WHERE id = 1
+      ''',
+      updates: {db.roundUiSettings},
+    );
   }
 
   static Future<void> _insertToys(AppDatabase db, int now) async {
@@ -260,11 +479,9 @@ class DemoDataLoader {
   }
 
   static Future<void> _insertActiveRound(AppDatabase db, int now) async {
-    const roundId = 'demo_active_round';
-
     await db.into(db.rounds).insertOnConflictUpdate(
           RoundsCompanion.insert(
-            id: roundId,
+            id: _demoActiveRoundId,
             startAt: now,
             endAt: const Value(null),
           ),
@@ -273,7 +490,7 @@ class DemoDataLoader {
     for (var index = 0; index < DemoSeed.activeRoundToyIds.length; index++) {
       await db.into(db.roundToys).insert(
             RoundToysCompanion.insert(
-              roundId: roundId,
+              roundId: _demoActiveRoundId,
               toyId: DemoSeed.activeRoundToyIds[index],
               position: index,
             ),

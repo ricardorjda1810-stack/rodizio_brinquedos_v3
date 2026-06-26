@@ -6,9 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
+import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/weekly_planning_overview.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
+import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/weekly_planning_page.dart';
@@ -17,6 +19,7 @@ class WeeklyPlanningOverviewPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
   final WeeklyPlanningRepository weeklyPlanningRepository;
   final RoundRepository roundRepository;
+  final ToyRepository toyRepository;
   final VoidCallback? onOpenHomeTab;
   final VoidCallback? onOpenRoundTab;
   final VoidCallback? onOpenWeeklyPlanning;
@@ -29,6 +32,7 @@ class WeeklyPlanningOverviewPage extends StatefulWidget {
     required this.settingsRepository,
     required this.weeklyPlanningRepository,
     required this.roundRepository,
+    required this.toyRepository,
     this.onOpenHomeTab,
     this.onOpenRoundTab,
     this.onOpenWeeklyPlanning,
@@ -69,6 +73,7 @@ class _WeeklyPlanningOverviewPageState
     final activeRoundItems = await _loadActiveRoundToys();
     final activeRoundToys =
         activeRoundItems.map((item) => item.toy).toList(growable: false);
+    final hasToys = (await widget.toyRepository.getAllToysOnce()).isNotEmpty;
     final weeklySuggestions =
         await widget.roundRepository.suggestWeeklyPlanningForWeek(weekStart);
 
@@ -86,6 +91,7 @@ class _WeeklyPlanningOverviewPageState
       final visualToys =
           isToday && activeRoundToys.isNotEmpty ? activeRoundToys : toys;
       final customConfigIsEffective = planningEnabled &&
+          hasToys &&
           dayConfig != null &&
           !dayConfig.useDefault &&
           _hasIncludedQuota(dayConfig.categories);
@@ -99,16 +105,18 @@ class _WeeklyPlanningOverviewPageState
           date: date,
           weekday: weekday,
           weekdayLabel: weeklyPlanningWeekdayLabel(weekday),
-          categories: effectiveCategories
-              .map(
-                (category) => WeeklyPlanningOverviewCategoryInput(
-                  categoryId: category.categoryId,
-                  categoryName: category.categoryName,
-                  isIncluded: category.isIncluded,
-                  quota: category.safeQuota,
-                ),
-              )
-              .toList(growable: false),
+          categories: hasToys
+              ? effectiveCategories
+                  .map(
+                    (category) => WeeklyPlanningOverviewCategoryInput(
+                      categoryId: category.categoryId,
+                      categoryName: category.categoryName,
+                      isIncluded: category.isIncluded,
+                      quota: category.safeQuota,
+                    ),
+                  )
+                  .toList(growable: false)
+              : const <WeeklyPlanningOverviewCategoryInput>[],
           toys: visualToys.map(_toyToPreview).toList(growable: false),
           isDefaultConfig: !customConfigIsEffective,
           isCustomConfig: customConfigIsEffective,
@@ -149,6 +157,99 @@ class _WeeklyPlanningOverviewPageState
     _refresh();
   }
 
+  void _openToyDetail(String toyId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ToyDetailPage(
+          toyId: toyId,
+          toyRepository: widget.toyRepository,
+          topNavigationIndex: AppTopNavigation.weeklyPlanningIndex,
+          onOpenHomeTab: widget.onOpenHomeTab ?? _closeRoute,
+          onOpenRoundTab: widget.onOpenRoundTab ?? _closeRoute,
+          onOpenWeeklyPlanning: widget.onOpenWeeklyPlanning ?? () {},
+          onOpenToysTab: widget.onOpenToysTab ?? _closeRoute,
+          onOpenBoxesTab: widget.onOpenBoxesTab ?? _closeRoute,
+          onOpenSettings: widget.onOpenSettings ?? _closeRoute,
+        ),
+      ),
+    );
+  }
+
+  Future<List<_WeeklyDayToyListItem>> _loadDayToyItems(
+    WeeklyPlanningDayOverview day,
+  ) async {
+    final catalog = await widget.toyRepository.watchCatalog().first;
+    final catalogByToyId = <String, ToyCatalogItem>{
+      for (final item in catalog) item.toy.id: item,
+    };
+
+    return day.toys
+        .map((toy) => _WeeklyDayToyListItem.fromPreview(
+              toy,
+              catalogByToyId[toy.id],
+            ))
+        .toList(growable: false);
+  }
+
+  Future<void> _openDayToys(WeeklyPlanningDayOverview day) async {
+    final itemsFuture = _loadDayToyItems(day);
+    final width = MediaQuery.sizeOf(context).width;
+
+    void openToyFromOverlay(BuildContext overlayContext, String toyId) {
+      Navigator.of(overlayContext).pop();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _openToyDetail(toyId);
+      });
+    }
+
+    if (width >= 700) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return Dialog(
+            insetPadding: const EdgeInsets.all(32),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 620,
+                maxHeight: 720,
+              ),
+              child: _DayToyListPanel(
+                day: day,
+                itemsFuture: itemsFuture,
+                onOpenToy: (toyId) => openToyFromOverlay(
+                  dialogContext,
+                  toyId,
+                ),
+              ),
+            ),
+          );
+        },
+      );
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return FractionallySizedBox(
+          heightFactor: 0.82,
+          child: _DayToyListPanel(
+            day: day,
+            itemsFuture: itemsFuture,
+            onOpenToy: (toyId) => openToyFromOverlay(sheetContext, toyId),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isIpad = MediaQuery.sizeOf(context).width >= 860;
@@ -184,6 +285,8 @@ class _WeeklyPlanningOverviewPageState
                   return _OverviewContent(
                     overview: overview,
                     onOpenEditor: _openEditor,
+                    onOpenToy: _openToyDetail,
+                    onOpenDayToys: _openDayToys,
                   );
                 },
               ),
@@ -222,10 +325,14 @@ class _WeeklyPlanningOverviewPageState
 class _OverviewContent extends StatelessWidget {
   final WeeklyPlanningOverview overview;
   final VoidCallback onOpenEditor;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
   const _OverviewContent({
     required this.overview,
     required this.onOpenEditor,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -247,6 +354,8 @@ class _OverviewContent extends StatelessWidget {
                     context,
                     overview: overview,
                     onOpenEditor: onOpenEditor,
+                    onOpenToy: onOpenToy,
+                    onOpenDayToys: onOpenDayToys,
                     gridHeight: gridHeight,
                   ),
                 ),
@@ -269,6 +378,8 @@ class _OverviewContent extends StatelessWidget {
                   _CompactPlanningLayout(
                     overview: overview,
                     onOpenEditor: onOpenEditor,
+                    onOpenToy: onOpenToy,
+                    onOpenDayToys: onOpenDayToys,
                   ),
                 ],
               ),
@@ -285,6 +396,8 @@ Widget _buildIpadWeeklyPlanningFigmaLayout(
   BuildContext context, {
   required WeeklyPlanningOverview overview,
   required VoidCallback onOpenEditor,
+  required ValueChanged<String> onOpenToy,
+  required ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys,
   required double gridHeight,
 }) {
   return Column(
@@ -307,7 +420,8 @@ Widget _buildIpadWeeklyPlanningFigmaLayout(
             Expanded(
               child: _FigmaWeekPlanCard(
                 overview: overview,
-                onOpenEditor: onOpenEditor,
+                onOpenToy: onOpenToy,
+                onOpenDayToys: onOpenDayToys,
               ),
             ),
             const SizedBox(width: 18),
@@ -519,11 +633,13 @@ class _FigmaHeaderButton extends StatelessWidget {
 
 class _FigmaWeekPlanCard extends StatelessWidget {
   final WeeklyPlanningOverview overview;
-  final VoidCallback onOpenEditor;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
   const _FigmaWeekPlanCard({
     required this.overview,
-    required this.onOpenEditor,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -588,7 +704,8 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                     Expanded(
                       child: _FigmaDayPlanRow(
                         day: overview.days[index],
-                        onTap: onOpenEditor,
+                        onOpenToy: onOpenToy,
+                        onOpenDayToys: onOpenDayToys,
                       ),
                     ),
                     if (index != overview.days.length - 1)
@@ -611,11 +728,13 @@ class _FigmaWeekPlanCard extends StatelessWidget {
 
 class _FigmaDayPlanRow extends StatelessWidget {
   final WeeklyPlanningDayOverview day;
-  final VoidCallback onTap;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
   const _FigmaDayPlanRow({
     required this.day,
-    required this.onTap,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -624,118 +743,112 @@ class _FigmaDayPlanRow extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          decoration: BoxDecoration(
+      child: Ink(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        decoration: BoxDecoration(
+          color: status.today
+              ? _FigmaPlanningPalette.orangeLight
+              : _FigmaPlanningPalette.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: status.today
-                ? _FigmaPlanningPalette.orangeLight
-                : _FigmaPlanningPalette.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
+                ? _FigmaPlanningPalette.orangeBorder
+                : _FigmaPlanningPalette.border,
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
               color: status.today
-                  ? _FigmaPlanningPalette.orangeBorder
-                  : _FigmaPlanningPalette.border,
-              width: 1.5,
+                  ? const Color(0x21F97316)
+                  : const Color(0x0DAA6E32),
+              blurRadius: status.today ? 10 : 3,
+              offset: Offset(0, status.today ? 2 : 1),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: status.today
-                    ? const Color(0x21F97316)
-                    : const Color(0x0DAA6E32),
-                blurRadius: status.today ? 10 : 3,
-                offset: Offset(0, status.today ? 2 : 1),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 60,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _weekdayAbbr(day.weekday),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
-                        color: status.today
-                            ? _FigmaPlanningPalette.orange
-                            : _FigmaPlanningPalette.text,
-                        fontSize: 16.5,
-                        fontWeight: FontWeight.w900,
-                        height: 1,
-                      ),
+          ],
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 60,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _weekdayAbbr(day.weekday),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: UiTokens.textCaption.copyWith(
+                      color: status.today
+                          ? _FigmaPlanningPalette.orange
+                          : _FigmaPlanningPalette.text,
+                      fontSize: 16.5,
+                      fontWeight: FontWeight.w900,
+                      height: 1,
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${day.date.day} ${_shortMonth(day.date.month)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
-                        color: _FigmaPlanningPalette.textMuted,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${day.date.day} ${_shortMonth(day.date.month)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: UiTokens.textMicro.copyWith(
+                      color: _FigmaPlanningPalette.textMuted,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(
-                width: 160,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _FigmaStatusPill(
-                      label: status.label,
-                      foreground: status.foreground,
-                      background: status.background,
-                      border: status.border,
-                      compact: true,
+            ),
+            SizedBox(
+              width: 160,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _FigmaStatusPill(
+                    label: status.label,
+                    foreground: status.foreground,
+                    background: status.background,
+                    border: status.border,
+                    compact: true,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    day.total == 1 ? '1 brinquedo' : '${day.total} brinquedos',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: UiTokens.textMicro.copyWith(
+                      color: _FigmaPlanningPalette.textMid,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      day.total == 1
-                          ? '1 brinquedo'
-                          : '${day.total} brinquedos',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
-                        color: _FigmaPlanningPalette.textMid,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: _FigmaToyStack(day: day),
+            ),
+            Expanded(
+              child: _FigmaToyStack(
+                day: day,
+                onOpenToy: onOpenToy,
+                onOpenDayToys: onOpenDayToys,
               ),
-              const SizedBox(width: 8),
-              Text(
-                day.total == 1 ? '1 item' : '${day.total} itens',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
-                  color: _FigmaPlanningPalette.textMuted,
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: 18,
-                color: status.today
-                    ? _FigmaPlanningPalette.orange
-                    : _FigmaPlanningPalette.textMuted,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            _DayTotalTextButton(
+              day: day,
+              onPressed: () => onOpenDayToys(day),
+              figma: true,
+            ),
+            const SizedBox(width: 2),
+            _DayChevronButton(
+              day: day,
+              onPressed: () => onOpenDayToys(day),
+              color: status.today
+                  ? _FigmaPlanningPalette.orange
+                  : _FigmaPlanningPalette.textMuted,
+              figma: true,
+            ),
+          ],
         ),
       ),
     );
@@ -744,8 +857,14 @@ class _FigmaDayPlanRow extends StatelessWidget {
 
 class _FigmaToyStack extends StatelessWidget {
   final WeeklyPlanningDayOverview day;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
-  const _FigmaToyStack({required this.day});
+  const _FigmaToyStack({
+    required this.day,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -775,13 +894,19 @@ class _FigmaToyStack extends StatelessWidget {
             Positioned(
               left: index * 23,
               top: 1,
-              child: _FigmaToyAvatar(toy: visible[index]),
+              child: _FigmaToyAvatar(
+                toy: visible[index],
+                onTap: () => onOpenToy(visible[index].id),
+              ),
             ),
           if (overflow > 0)
             Positioned(
               left: visible.length * 23,
               top: 1,
-              child: _FigmaOverflowAvatar(count: overflow),
+              child: _FigmaOverflowAvatar(
+                count: overflow,
+                onTap: () => onOpenDayToys(day),
+              ),
             ),
         ],
       ),
@@ -791,38 +916,60 @@ class _FigmaToyStack extends StatelessWidget {
 
 class _FigmaToyAvatar extends StatelessWidget {
   final WeeklyPlanningOverviewToyInput toy;
+  final VoidCallback onTap;
 
-  const _FigmaToyAvatar({required this.toy});
+  const _FigmaToyAvatar({
+    required this.toy,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final path = toy.photoPath?.trim();
 
-    return Tooltip(
-      message: toy.name.trim().isEmpty ? 'Brinquedo' : toy.name.trim(),
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2.5),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x26000000),
-              blurRadius: 3,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: ClipOval(
-          child: path == null || path.isEmpty
-              ? const _FigmaToyAvatarPlaceholder()
-              : Image.file(
-                  File(path),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      const _FigmaToyAvatarPlaceholder(),
+    return Semantics(
+      button: true,
+      label: _openToySemanticLabel(toy),
+      child: Tooltip(
+        message: _openToySemanticLabel(toy),
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2.5),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x26000000),
+                        blurRadius: 3,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: path == null || path.isEmpty
+                        ? const _FigmaToyAvatarPlaceholder()
+                        : Image.file(
+                            File(path),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const _FigmaToyAvatarPlaceholder(),
+                          ),
+                  ),
                 ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -847,33 +994,54 @@ class _FigmaToyAvatarPlaceholder extends StatelessWidget {
 
 class _FigmaOverflowAvatar extends StatelessWidget {
   final int count;
+  final VoidCallback onTap;
 
-  const _FigmaOverflowAvatar({required this.count});
+  const _FigmaOverflowAvatar({
+    required this.count,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: _FigmaPlanningPalette.orangeLight,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2.5),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 3,
-            offset: Offset(0, 1),
+    return Tooltip(
+      message: 'Ver mais brinquedos',
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        child: InkWell(
+          onTap: onTap,
+          customBorder: const CircleBorder(),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Center(
+              child: Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _FigmaPlanningPalette.orangeLight,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 3,
+                      offset: Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  '+$count',
+                  style: UiTokens.textMicro.copyWith(
+                    color: _FigmaPlanningPalette.orange,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
           ),
-        ],
-      ),
-      child: Text(
-        '+$count',
-        style: UiTokens.textMicro.copyWith(
-          color: _FigmaPlanningPalette.orange,
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
         ),
       ),
     );
@@ -1519,10 +1687,14 @@ class _FigmaVisualStyle {
 class _CompactPlanningLayout extends StatelessWidget {
   final WeeklyPlanningOverview overview;
   final VoidCallback onOpenEditor;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
   const _CompactPlanningLayout({
     required this.overview,
     required this.onOpenEditor,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -1548,7 +1720,8 @@ class _CompactPlanningLayout extends StatelessWidget {
         const SizedBox(height: UiTokens.spacingMd),
         _WeekScheduleCard(
           overview: overview,
-          onOpenEditor: onOpenEditor,
+          onOpenToy: onOpenToy,
+          onOpenDayToys: onOpenDayToys,
           isIpad: false,
         ),
       ],
@@ -1995,12 +2168,14 @@ class _CategoryChip extends StatelessWidget {
 
 class _WeekScheduleCard extends StatelessWidget {
   final WeeklyPlanningOverview overview;
-  final VoidCallback onOpenEditor;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
   final bool isIpad;
 
   const _WeekScheduleCard({
     required this.overview,
-    required this.onOpenEditor,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
     required this.isIpad,
   });
 
@@ -2030,7 +2205,8 @@ class _WeekScheduleCard extends StatelessWidget {
           for (var index = 0; index < overview.days.length; index++) ...[
             _DayScheduleRow(
               day: overview.days[index],
-              onTap: onOpenEditor,
+              onOpenToy: onOpenToy,
+              onOpenDayToys: onOpenDayToys,
             ),
             if (index != overview.days.length - 1)
               const Divider(height: UiTokens.spacingLg),
@@ -2043,11 +2219,13 @@ class _WeekScheduleCard extends StatelessWidget {
 
 class _DayScheduleRow extends StatelessWidget {
   final WeeklyPlanningDayOverview day;
-  final VoidCallback onTap;
+  final ValueChanged<String> onOpenToy;
+  final ValueChanged<WeeklyPlanningDayOverview> onOpenDayToys;
 
   const _DayScheduleRow({
     required this.day,
-    required this.onTap,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -2057,54 +2235,66 @@ class _DayScheduleRow extends StatelessWidget {
         final compact = constraints.maxWidth < 430;
         final maxVisibleToys = constraints.maxWidth >= 760 ? 6 : 4;
 
-        return InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(UiTokens.radiusMd),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: UiTokens.spacingXs,
-            ),
-            child: compact
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: _DayLabelBlock(day: day)),
-                          _DayTotalBadge(day: day),
-                          const SizedBox(width: UiTokens.spacingXs),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      const SizedBox(height: UiTokens.spacingSm),
-                      _ToyThumbnailStrip(
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: UiTokens.spacingXs,
+          ),
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: _DayLabelBlock(day: day)),
+                        _DayTotalBadge(
+                          day: day,
+                          onPressed: () => onOpenDayToys(day),
+                        ),
+                        const SizedBox(width: UiTokens.spacingXs),
+                        _DayChevronButton(
+                          day: day,
+                          onPressed: () => onOpenDayToys(day),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: UiTokens.spacingSm),
+                    _ToyThumbnailStrip(
+                      toys: day.toys,
+                      total: day.total,
+                      maxVisible: maxVisibleToys,
+                      onOpenToy: onOpenToy,
+                      onOpenDayToys: () => onOpenDayToys(day),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    SizedBox(
+                      width: 124,
+                      child: _DayLabelBlock(day: day),
+                    ),
+                    const SizedBox(width: UiTokens.spacingSm),
+                    Expanded(
+                      child: _ToyThumbnailStrip(
                         toys: day.toys,
                         total: day.total,
                         maxVisible: maxVisibleToys,
+                        onOpenToy: onOpenToy,
+                        onOpenDayToys: () => onOpenDayToys(day),
                       ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      SizedBox(
-                        width: 124,
-                        child: _DayLabelBlock(day: day),
-                      ),
-                      const SizedBox(width: UiTokens.spacingSm),
-                      Expanded(
-                        child: _ToyThumbnailStrip(
-                          toys: day.toys,
-                          total: day.total,
-                          maxVisible: maxVisibleToys,
-                        ),
-                      ),
-                      const SizedBox(width: UiTokens.spacingSm),
-                      _DayTotalBadge(day: day),
-                      const SizedBox(width: UiTokens.spacingXs),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
-          ),
+                    ),
+                    const SizedBox(width: UiTokens.spacingSm),
+                    _DayTotalBadge(
+                      day: day,
+                      onPressed: () => onOpenDayToys(day),
+                    ),
+                    const SizedBox(width: UiTokens.spacingXs),
+                    _DayChevronButton(
+                      day: day,
+                      onPressed: () => onOpenDayToys(day),
+                    ),
+                  ],
+                ),
         );
       },
     );
@@ -2150,11 +2340,15 @@ class _ToyThumbnailStrip extends StatelessWidget {
   final List<WeeklyPlanningOverviewToyInput> toys;
   final int total;
   final int maxVisible;
+  final ValueChanged<String> onOpenToy;
+  final VoidCallback onOpenDayToys;
 
   const _ToyThumbnailStrip({
     required this.toys,
     required this.total,
     required this.maxVisible,
+    required this.onOpenToy,
+    required this.onOpenDayToys,
   });
 
   @override
@@ -2179,8 +2373,16 @@ class _ToyThumbnailStrip extends StatelessWidget {
       spacing: UiTokens.spacingXs,
       runSpacing: UiTokens.spacingXs,
       children: [
-        for (final toy in visible) _ToyThumbnail(toy: toy),
-        if (remaining > 0) _MoreToysBadge(count: remaining),
+        for (final toy in visible)
+          _ToyThumbnail(
+            toy: toy,
+            onTap: () => onOpenToy(toy.id),
+          ),
+        if (remaining > 0)
+          _MoreToysBadge(
+            count: remaining,
+            onTap: onOpenDayToys,
+          ),
       ],
     );
   }
@@ -2188,28 +2390,51 @@ class _ToyThumbnailStrip extends StatelessWidget {
 
 class _ToyThumbnail extends StatelessWidget {
   final WeeklyPlanningOverviewToyInput toy;
+  final VoidCallback onTap;
 
-  const _ToyThumbnail({required this.toy});
+  const _ToyThumbnail({
+    required this.toy,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final path = toy.photoPath?.trim();
 
-    return Tooltip(
-      message: toy.name.trim().isEmpty ? 'Brinquedo' : toy.name.trim(),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-        child: SizedBox(
-          width: 46,
-          height: 46,
-          child: path == null || path.isEmpty
-              ? const _ToyThumbnailPlaceholder()
-              : Image.file(
-                  File(path),
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      const _ToyThumbnailPlaceholder(),
+    return Semantics(
+      button: true,
+      label: _openToySemanticLabel(toy),
+      child: Tooltip(
+        message: _openToySemanticLabel(toy),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+          child: InkWell(
+            key: ValueKey('weekly-toy-thumbnail-${toy.id}'),
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+            child: SizedBox(
+              width: 54,
+              height: 54,
+              child: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+                  child: SizedBox(
+                    width: 46,
+                    height: 46,
+                    child: path == null || path.isEmpty
+                        ? const _ToyThumbnailPlaceholder()
+                        : Image.file(
+                            File(path),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const _ToyThumbnailPlaceholder(),
+                          ),
+                  ),
                 ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -2234,25 +2459,45 @@ class _ToyThumbnailPlaceholder extends StatelessWidget {
 
 class _MoreToysBadge extends StatelessWidget {
   final int count;
+  final VoidCallback onTap;
 
-  const _MoreToysBadge({required this.count});
+  const _MoreToysBadge({
+    required this.count,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 46,
-      height: 46,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: UiTokens.actionOrangeSoft,
+    return Tooltip(
+      message: 'Ver mais brinquedos',
+      child: Material(
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-      ),
-      child: Text(
-        '+$count',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: UiTokens.actionOrange,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+          child: Container(
+            width: 54,
+            height: 54,
+            alignment: Alignment.center,
+            child: Container(
+              width: 46,
+              height: 46,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: UiTokens.actionOrangeSoft,
+                borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+              ),
+              child: Text(
+                '+$count',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: UiTokens.actionOrange,
+                    ),
+              ),
             ),
+          ),
+        ),
       ),
     );
   }
@@ -2260,37 +2505,480 @@ class _MoreToysBadge extends StatelessWidget {
 
 class _DayTotalBadge extends StatelessWidget {
   final WeeklyPlanningDayOverview day;
+  final VoidCallback onPressed;
 
-  const _DayTotalBadge({required this.day});
+  const _DayTotalBadge({
+    required this.day,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     final label = day.total == 1 ? '1 item' : '${day.total} itens';
 
-    return Container(
-      constraints: const BoxConstraints(minWidth: 70),
-      padding: const EdgeInsets.symmetric(
-        horizontal: UiTokens.spacingSm,
-        vertical: UiTokens.spacingXs,
-      ),
-      decoration: BoxDecoration(
-        color: day.hasInsufficientToys ? UiTokens.secondarySoft : UiTokens.bg,
-        borderRadius: BorderRadius.circular(UiTokens.radiusSm),
-        border: Border.all(color: UiTokens.border),
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: day.hasInsufficientToys
-                  ? UiTokens.danger
-                  : UiTokens.textSecondary,
+    return Semantics(
+      button: true,
+      label: _openDayToysSemanticLabel(day),
+      child: Tooltip(
+        message: _openDayToysSemanticLabel(day),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+          child: InkWell(
+            key: ValueKey('weekly-day-total-${day.weekday}'),
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 70, minHeight: 44),
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiTokens.spacingSm,
+                vertical: UiTokens.spacingXs,
+              ),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: day.hasInsufficientToys
+                    ? UiTokens.secondarySoft
+                    : UiTokens.bg,
+                borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+                border: Border.all(color: UiTokens.border),
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: day.hasInsufficientToys
+                          ? UiTokens.danger
+                          : UiTokens.textSecondary,
+                    ),
+              ),
             ),
+          ),
+        ),
       ),
     );
+  }
+}
+
+class _DayTotalTextButton extends StatelessWidget {
+  final WeeklyPlanningDayOverview day;
+  final VoidCallback onPressed;
+  final bool figma;
+
+  const _DayTotalTextButton({
+    required this.day,
+    required this.onPressed,
+    this.figma = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final label = day.total == 1 ? '1 item' : '${day.total} itens';
+
+    return Semantics(
+      button: true,
+      label: _openDayToysSemanticLabel(day),
+      child: Tooltip(
+        message: _openDayToysSemanticLabel(day),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 8),
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: figma
+                    ? UiTokens.textMicro.copyWith(
+                        color: _FigmaPlanningPalette.textMuted,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                      )
+                    : Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: UiTokens.textSecondary,
+                        ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DayChevronButton extends StatelessWidget {
+  final WeeklyPlanningDayOverview day;
+  final VoidCallback onPressed;
+  final Color? color;
+  final bool figma;
+
+  const _DayChevronButton({
+    required this.day,
+    required this.onPressed,
+    this.color,
+    this.figma = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: _openDayToysSemanticLabel(day),
+      child: Tooltip(
+        message: _openDayToysSemanticLabel(day),
+        child: SizedBox(
+          width: figma ? 34 : 44,
+          height: figma ? 34 : 44,
+          child: IconButton(
+            key: ValueKey('weekly-day-chevron-${day.weekday}'),
+            onPressed: onPressed,
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+            icon: Icon(
+              figma ? Icons.chevron_right_rounded : Icons.chevron_right,
+              size: figma ? 20 : 24,
+              color: color,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DayToyListPanel extends StatelessWidget {
+  final WeeklyPlanningDayOverview day;
+  final Future<List<_WeeklyDayToyListItem>> itemsFuture;
+  final ValueChanged<String> onOpenToy;
+
+  const _DayToyListPanel({
+    required this.day,
+    required this.itemsFuture,
+    required this.onOpenToy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: _FigmaPlanningPalette.card,
+      borderRadius: BorderRadius.circular(24),
+      clipBehavior: Clip.antiAlias,
+      child: FutureBuilder<List<_WeeklyDayToyListItem>>(
+        future: itemsFuture,
+        builder: (context, snapshot) {
+          final items = snapshot.data ?? const <_WeeklyDayToyListItem>[];
+          final isLoading = !snapshot.hasData && !snapshot.hasError;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 12, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: UiTokens.border,
+                          borderRadius: BorderRadius.circular(99),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _dayListTitle(day),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: _FigmaPlanningPalette.text,
+                                    ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _scheduledToyCountLabel(day.toys.length),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: UiTokens.textSecondary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Voltar',
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  child: isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : snapshot.hasError
+                          ? _DayToyListMessage(
+                              message:
+                                  'Não foi possível carregar os brinquedos.',
+                              detail: '${snapshot.error}',
+                            )
+                          : items.isEmpty
+                              ? const _DayToyListMessage(
+                                  message: 'Nenhum brinquedo programado.',
+                                  detail:
+                                      'Ajuste a programação para incluir brinquedos neste dia.',
+                                )
+                              : ListView.separated(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    12,
+                                    16,
+                                    20,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final item = items[index];
+                                    return _DayToyListTile(
+                                      item: item,
+                                      onTap: () => onOpenToy(item.id),
+                                    );
+                                  },
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 10),
+                                  itemCount: items.length,
+                                ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DayToyListMessage extends StatelessWidget {
+  final String message;
+  final String detail;
+
+  const _DayToyListMessage({
+    required this.message,
+    required this.detail,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(UiTokens.spacingLg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: UiTokens.spacingXs),
+            Text(
+              detail,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: UiTokens.textSecondary,
+                    height: 1.35,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DayToyListTile extends StatelessWidget {
+  final _WeeklyDayToyListItem item;
+  final VoidCallback onTap;
+
+  const _DayToyListTile({
+    required this.item,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final storageLabel = item.storageLabel;
+
+    return Semantics(
+      button: true,
+      label: 'Abrir brinquedo ${item.name}',
+      child: Material(
+        color: UiTokens.bg,
+        borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+        child: InkWell(
+          key: ValueKey('weekly-day-list-toy-${item.id}'),
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+          child: Padding(
+            padding: const EdgeInsets.all(UiTokens.spacingSm),
+            child: Row(
+              children: [
+                _DayToyListPhoto(item: item),
+                const SizedBox(width: UiTokens.spacingMd),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: UiTokens.textPrimary,
+                            ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        item.categoryLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: UiTokens.actionOrange,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      if (storageLabel != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          storageLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: UiTokens.textSecondary,
+                                  ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: UiTokens.spacingSm),
+                const Icon(
+                  Icons.chevron_right,
+                  color: UiTokens.textSecondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DayToyListPhoto extends StatelessWidget {
+  final _WeeklyDayToyListItem item;
+
+  const _DayToyListPhoto({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    final path = item.photoPath?.trim();
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(UiTokens.radiusSm),
+      child: SizedBox(
+        width: 58,
+        height: 58,
+        child: path == null || path.isEmpty
+            ? const _ToyThumbnailPlaceholder()
+            : Image.file(
+                File(path),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const _ToyThumbnailPlaceholder(),
+              ),
+      ),
+    );
+  }
+}
+
+class _WeeklyDayToyListItem {
+  final String id;
+  final String name;
+  final String categoryLabel;
+  final String? boxLabel;
+  final String? locationLabel;
+  final String? photoPath;
+
+  const _WeeklyDayToyListItem({
+    required this.id,
+    required this.name,
+    required this.categoryLabel,
+    this.boxLabel,
+    this.locationLabel,
+    this.photoPath,
+  });
+
+  factory _WeeklyDayToyListItem.fromPreview(
+    WeeklyPlanningOverviewToyInput toy,
+    ToyCatalogItem? catalogItem,
+  ) {
+    final sourceToy = catalogItem?.toy;
+    final box = catalogItem?.box;
+    final category = catalogItem?.category;
+    final boxName = _boxLabel(box);
+    final location =
+        _cleanText(box?.local) ?? _cleanText(sourceToy?.locationText);
+
+    return _WeeklyDayToyListItem(
+      id: toy.id,
+      name: _cleanText(sourceToy?.name) ?? _cleanText(toy.name) ?? 'Brinquedo',
+      categoryLabel: _cleanText(category?.name) ??
+          _fallbackCategoryLabel(sourceToy?.categoryId ?? toy.categoryId),
+      boxLabel: boxName,
+      locationLabel: location,
+      photoPath: _cleanText(sourceToy?.photoPath) ?? _cleanText(toy.photoPath),
+    );
+  }
+
+  String? get storageLabel {
+    final box = _cleanText(boxLabel);
+    final location = _cleanText(locationLabel);
+    if (box != null && location != null && box != location) {
+      return '$box · $location';
+    }
+    return box ?? location;
   }
 }
 
@@ -2418,6 +3106,50 @@ WeeklyPlanningOverviewToyInput _toyToPreview(Toy toy) {
   );
 }
 
+String _openToySemanticLabel(WeeklyPlanningOverviewToyInput toy) {
+  final name = _cleanText(toy.name) ?? 'brinquedo';
+  return 'Abrir brinquedo $name';
+}
+
+String _openDayToysSemanticLabel(WeeklyPlanningDayOverview day) {
+  final countLabel = day.total == 1 ? '1 brinquedo' : '${day.total} brinquedos';
+  return 'Ver $countLabel de ${day.weekdayLabel}';
+}
+
+String _dayListTitle(WeeklyPlanningDayOverview day) {
+  return '${day.weekdayLabel}, ${DateFormat('dd/MM', 'pt_BR').format(day.date)}';
+}
+
+String _scheduledToyCountLabel(int count) {
+  return count == 1
+      ? '1 brinquedo programado'
+      : '$count brinquedos programados';
+}
+
+String? _cleanText(String? value) {
+  final trimmed = value?.trim();
+  if (trimmed == null || trimmed.isEmpty) return null;
+  return trimmed;
+}
+
+String? _boxLabel(Boxe? box) {
+  if (box == null) return null;
+  final name = _cleanText(box.name);
+  if (name != null) return name;
+  if (box.number > 0) return 'Caixa ${box.number}';
+  return null;
+}
+
+String _fallbackCategoryLabel(String categoryId) {
+  final normalized = categoryId.trim();
+  if (normalized.isEmpty) return 'Sem categoria';
+  return normalized
+      .split('_')
+      .where((part) => part.isNotEmpty)
+      .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+      .join(' ');
+}
+
 WeeklyPlanningOverview _overviewWithTodayVisualCount(
   WeeklyPlanningOverview overview, {
   required List<WeeklyPlanningOverviewToyInput> todayToys,
@@ -2470,16 +3202,21 @@ bool _hasIncludedQuota(List<WeeklyPlanningCategoryConfig> categories) {
 
 IconData _iconForCategory(String categoryId) {
   switch (categoryId) {
-    case 'livros':
-      return Icons.menu_book_outlined;
-    case 'construcao':
-      return Icons.extension_outlined;
-    case 'faz_de_conta':
-      return Icons.theater_comedy_outlined;
+    case 'corpo':
     case 'movimento':
       return Icons.directions_run_outlined;
+    case 'exploracao':
     case 'coordenacao':
       return Icons.back_hand_outlined;
+    case 'maos':
+    case 'construcao':
+      return Icons.extension_outlined;
+    case 'imaginacao':
+    case 'faz_de_conta':
+      return Icons.theater_comedy_outlined;
+    case 'comunicacao':
+    case 'livros':
+      return Icons.menu_book_outlined;
     case 'arte_musica':
       return Icons.music_note_outlined;
     default:

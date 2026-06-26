@@ -45,6 +45,7 @@ flutter:
   assets:
     - assets/icon/
     - assets/demo/toys/
+    - assets/demo_toys_v2/
     - assets/splash.png
 
 flutter_launcher_icons:

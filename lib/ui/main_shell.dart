@@ -270,6 +270,7 @@ class _MainShellState extends State<MainShell> {
           settingsRepository: widget.settingsRepository,
           weeklyPlanningRepository: weeklyPlanningRepository,
           roundRepository: widget.roundRepository,
+          toyRepository: widget.toyRepository,
           onOpenHomeTab: () => _openTopNavigationTab(0),
           onOpenRoundTab: () => _openTopNavigationTab(3),
           onOpenWeeklyPlanning: () {},
@@ -549,52 +550,68 @@ class _IphoneHomeDashboard extends StatelessWidget {
       color: _IpadHomePalette.bg,
       child: SafeArea(
         bottom: false,
-        child: StreamBuilder<List<RoundToyWithBox>>(
-          stream: roundRepository.watchActiveRoundToysWithBox(),
-          builder: (context, roundSnapshot) {
-            final activeCount =
-                (roundSnapshot.data ?? const <RoundToyWithBox>[]).length;
-            final repository = weeklyPlanningRepository;
+        child: StreamBuilder<List<Toy>>(
+          stream: toyRepository.watchAll(),
+          builder: (context, toysSnapshot) {
+            final toyCount = toysSnapshot.data?.length ?? 0;
 
-            if (repository == null) {
-              return _IphoneHomeContent(
-                toyRepository: toyRepository,
-                dateLabel: dateLabel,
-                todayCount: activeCount > 0 ? activeCount : 7,
-                weeklySummaries: const <WeekDaySummary>[],
-                weeklyLoading: false,
-                loadingSuggestion: loadingSuggestion,
-                onBuildRound: onBuildRound,
-                onOpenNewToy: onOpenNewToy,
-                onOpenWeeklyPlanning: onOpenWeeklyPlanning,
-                onSettingsTap: onOpenSettings,
-                trialStatus: trialStatus,
-              );
-            }
+            return StreamBuilder<List<RoundToyWithBox>>(
+              stream: roundRepository.watchActiveRoundToysWithBox(),
+              builder: (context, roundSnapshot) {
+                final activeCount =
+                    (roundSnapshot.data ?? const <RoundToyWithBox>[]).length;
+                final repository = weeklyPlanningRepository;
 
-            return StreamBuilder<List<WeekDaySummary>>(
-              stream: repository.watchWeekSummary(),
-              builder: (context, planningSnapshot) {
-                final summaries =
-                    planningSnapshot.data ?? const <WeekDaySummary>[];
-                final todaySummary = _todaySummary(summaries);
-                final todayCount = activeCount > 0
-                    ? activeCount
-                    : todaySummary?.totalToys ?? 7;
+                if (repository == null) {
+                  return _IphoneHomeContent(
+                    toyRepository: toyRepository,
+                    dateLabel: dateLabel,
+                    todayCount: toyCount == 0
+                        ? 0
+                        : activeCount > 0
+                            ? activeCount
+                            : 7,
+                    weeklySummaries: const <WeekDaySummary>[],
+                    weeklyLoading: false,
+                    loadingSuggestion: loadingSuggestion,
+                    onBuildRound: onBuildRound,
+                    onOpenNewToy: onOpenNewToy,
+                    onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+                    onSettingsTap: onOpenSettings,
+                    trialStatus: trialStatus,
+                  );
+                }
 
-                return _IphoneHomeContent(
-                  toyRepository: toyRepository,
-                  dateLabel: dateLabel,
-                  todayCount: todayCount,
-                  weeklySummaries: summaries,
-                  weeklyLoading: planningSnapshot.connectionState ==
-                      ConnectionState.waiting,
-                  loadingSuggestion: loadingSuggestion,
-                  onBuildRound: onBuildRound,
-                  onOpenNewToy: onOpenNewToy,
-                  onOpenWeeklyPlanning: onOpenWeeklyPlanning,
-                  onSettingsTap: onOpenSettings,
-                  trialStatus: trialStatus,
+                return StreamBuilder<List<WeekDaySummary>>(
+                  stream: repository.watchWeekSummary(),
+                  builder: (context, planningSnapshot) {
+                    final summaries =
+                        planningSnapshot.data ?? const <WeekDaySummary>[];
+                    final displaySummaries = toyCount == 0
+                        ? _zeroToySummaries(summaries)
+                        : summaries;
+                    final todaySummary = _todaySummary(displaySummaries);
+                    final todayCount = toyCount == 0
+                        ? 0
+                        : activeCount > 0
+                            ? activeCount
+                            : todaySummary?.totalToys ?? 7;
+
+                    return _IphoneHomeContent(
+                      toyRepository: toyRepository,
+                      dateLabel: dateLabel,
+                      todayCount: todayCount,
+                      weeklySummaries: displaySummaries,
+                      weeklyLoading: planningSnapshot.connectionState ==
+                          ConnectionState.waiting,
+                      loadingSuggestion: loadingSuggestion,
+                      onBuildRound: onBuildRound,
+                      onOpenNewToy: onOpenNewToy,
+                      onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+                      onSettingsTap: onOpenSettings,
+                      trialStatus: trialStatus,
+                    );
+                  },
                 );
               },
             );
@@ -1030,12 +1047,14 @@ class _IphoneOrganizationCard extends StatelessWidget {
         return StreamBuilder<List<Boxe>>(
           stream: toyRepository.watchBoxes(),
           builder: (context, boxesSnapshot) {
-            final boxCount = boxesSnapshot.data?.length ?? 0;
+            final boxCount =
+                toyCount == 0 ? 0 : boxesSnapshot.data?.length ?? 0;
 
             return StreamBuilder<List<LocationDefinition>>(
               stream: toyRepository.watchLocations(),
               builder: (context, locationsSnapshot) {
-                final locationCount = locationsSnapshot.data?.length ?? 0;
+                final locationCount =
+                    toyCount == 0 ? 0 : locationsSnapshot.data?.length ?? 0;
 
                 return Container(
                   padding: const EdgeInsets.fromLTRB(18, 17, 18, 16),
@@ -1539,52 +1558,66 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                   ],
                   SizedBox(height: gap),
                   Expanded(
-                    child: StreamBuilder<List<RoundToyWithBox>>(
-                      stream: activeRoundStream,
-                      builder: (context, activeSnapshot) {
-                        final activeItems =
-                            activeSnapshot.data ?? const <RoundToyWithBox>[];
-                        final activeCount = activeItems.length;
+                    child: StreamBuilder<List<Toy>>(
+                      stream: widget.toyRepository.watchAll(),
+                      builder: (context, toysSnapshot) {
+                        final toyCount = toysSnapshot.data?.length ?? 0;
 
-                        return FutureBuilder<List<RoundToyWithBox>>(
-                          future: suggestionFuture,
-                          builder: (context, suggestionSnapshot) {
-                            final suggestionCount =
-                                suggestionSnapshot.data?.length;
-                            final todayCount =
-                                activeCount > 0 ? activeCount : suggestionCount;
+                        return StreamBuilder<List<RoundToyWithBox>>(
+                          stream: activeRoundStream,
+                          builder: (context, activeSnapshot) {
+                            final activeItems = activeSnapshot.data ??
+                                const <RoundToyWithBox>[];
+                            final activeCount = activeItems.length;
 
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: _IpadRoundTodayCard(
-                                    activeStream: activeRoundStream,
-                                    categoriesStream: widget.toyRepository
-                                        .watchCategories(activeOnly: true),
-                                    suggestionFuture: suggestionFuture,
-                                    startingRound: _startingRound,
-                                    onStartRound: _startRound,
-                                    onOpenToy: widget.onOpenToy,
-                                  ),
-                                ),
-                                SizedBox(width: gap),
-                                SizedBox(
-                                  width: rightWidth,
-                                  child: _IpadRightColumn(
-                                    toyRepository: widget.toyRepository,
-                                    weeklyPlanningRepository:
-                                        widget.weeklyPlanningRepository,
-                                    todayCountOverride: todayCount,
-                                    onOpenWeeklyPlanning:
-                                        widget.onOpenWeeklyPlanning,
-                                    onOpenNewToy: widget.onOpenNewToy,
-                                    onOpenBoxes: widget.onOpenBoxes,
-                                    onOpenCategories: widget.onOpenCategories,
-                                    onOpenSettings: widget.onOpenSettings,
-                                  ),
-                                ),
-                              ],
+                            return FutureBuilder<List<RoundToyWithBox>>(
+                              future: suggestionFuture,
+                              builder: (context, suggestionSnapshot) {
+                                final suggestionCount = toyCount == 0
+                                    ? 0
+                                    : suggestionSnapshot.data?.length;
+                                final todayCount = toyCount == 0
+                                    ? 0
+                                    : activeCount > 0
+                                        ? activeCount
+                                        : suggestionCount;
+
+                                return Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: _IpadRoundTodayCard(
+                                        activeStream: activeRoundStream,
+                                        categoriesStream: widget.toyRepository
+                                            .watchCategories(activeOnly: true),
+                                        suggestionFuture: suggestionFuture,
+                                        hasToys: toyCount > 0,
+                                        startingRound: _startingRound,
+                                        onStartRound: _startRound,
+                                        onOpenToy: widget.onOpenToy,
+                                      ),
+                                    ),
+                                    SizedBox(width: gap),
+                                    SizedBox(
+                                      width: rightWidth,
+                                      child: _IpadRightColumn(
+                                        toyRepository: widget.toyRepository,
+                                        weeklyPlanningRepository:
+                                            widget.weeklyPlanningRepository,
+                                        todayCountOverride: todayCount,
+                                        onOpenWeeklyPlanning:
+                                            widget.onOpenWeeklyPlanning,
+                                        onOpenNewToy: widget.onOpenNewToy,
+                                        onOpenBoxes: widget.onOpenBoxes,
+                                        onOpenCategories:
+                                            widget.onOpenCategories,
+                                        onOpenSettings: widget.onOpenSettings,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                         );
@@ -1749,6 +1782,7 @@ class _IpadRoundTodayCard extends StatelessWidget {
   final Stream<List<RoundToyWithBox>> activeStream;
   final Stream<List<CategoryDefinition>> categoriesStream;
   final Future<List<RoundToyWithBox>> suggestionFuture;
+  final bool hasToys;
   final bool startingRound;
   final Future<void> Function(List<RoundToyWithBox> selection) onStartRound;
   final ValueChanged<String> onOpenToy;
@@ -1757,6 +1791,7 @@ class _IpadRoundTodayCard extends StatelessWidget {
     required this.activeStream,
     required this.categoriesStream,
     required this.suggestionFuture,
+    required this.hasToys,
     required this.startingRound,
     required this.onStartRound,
     required this.onOpenToy,
@@ -1784,6 +1819,18 @@ class _IpadRoundTodayCard extends StatelessWidget {
                 items: activeItems,
                 categoriesById: categoriesById,
                 isSuggestion: false,
+                loading: false,
+                startingRound: startingRound,
+                onStartRound: onStartRound,
+                onOpenToy: onOpenToy,
+              );
+            }
+
+            if (!hasToys) {
+              return _IpadRoundTodayContent(
+                items: const <RoundToyWithBox>[],
+                categoriesById: categoriesById,
+                isSuggestion: true,
                 loading: false,
                 startingRound: startingRound,
                 onStartRound: onStartRound,
@@ -1922,7 +1969,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                     height: gridHeight,
                     child: Center(
                       child: Text(
-                        'Cadastre brinquedos para montar a rodada de hoje.',
+                        'Agora cadastre os brinquedos da sua casa para montar a rodada de hoje.',
                         textAlign: TextAlign.center,
                         style: UiTokens.textBody.copyWith(
                           color: _IpadHomePalette.textMuted,
@@ -2391,7 +2438,10 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
         return StreamBuilder<List<WeekDaySummary>>(
           stream: repository.watchWeekSummary(),
           builder: (context, snapshot) {
-            final summaries = snapshot.data ?? const <WeekDaySummary>[];
+            final rawSummaries = snapshot.data ?? const <WeekDaySummary>[];
+            final summaries =
+                toyCount == 0 ? _zeroToySummaries(rawSummaries) : rawSummaries;
+            final todayOverride = toyCount == 0 ? 0 : todayCountOverride;
 
             return _IpadPanelSurface(
               padding: const EdgeInsets.all(22),
@@ -2433,7 +2483,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                       else
                         _IpadWeekStrip(
                           summaries: summaries,
-                          todayCountOverride: todayCountOverride,
+                          todayCountOverride: todayOverride,
                         ),
                     ],
                   ),
@@ -2586,12 +2636,14 @@ class _IpadHomeStatsPanel extends StatelessWidget {
         return StreamBuilder<List<Boxe>>(
           stream: toyRepository.watchBoxes(),
           builder: (context, boxesSnapshot) {
-            final boxCount = boxesSnapshot.data?.length ?? 0;
+            final boxCount =
+                toyCount == 0 ? 0 : boxesSnapshot.data?.length ?? 0;
 
             return StreamBuilder<List<LocationDefinition>>(
               stream: toyRepository.watchLocations(),
               builder: (context, locationsSnapshot) {
-                final locationCount = locationsSnapshot.data?.length ?? 0;
+                final locationCount =
+                    toyCount == 0 ? 0 : locationsSnapshot.data?.length ?? 0;
 
                 return _IpadPanelSurface(
                   padding: const EdgeInsets.all(22),
@@ -3024,64 +3076,74 @@ String _categoryDisplayName(String categoryId, CategoryDefinition? category) {
     final official = officialToyFormCategory(category);
     if (official != null) return official.name;
   }
-  return _legacyCategoryLabel(categoryId) ?? 'Exploração';
+  return _legacyCategoryLabel(categoryId) ?? 'Sentidos e Exploração';
 }
 
 String? _legacyCategoryLabel(String categoryId) {
   switch (categoryId.trim().toLowerCase()) {
     case 'corpo':
     case 'movimento':
-      return 'Corpo';
-    case 'maos':
-    case 'mãos':
-    case 'construcao':
-      return 'Mãos';
-    case 'imaginacao':
-    case 'imaginação':
-    case 'faz_de_conta':
-      return 'Imaginação';
-    case 'comunicacao':
-    case 'comunicação':
-    case 'livros':
-      return 'Comunicação';
+      return 'Corpo e Respiração';
     case 'exploracao':
     case 'exploração':
     case 'coordenacao':
-      return 'Exploração';
+      return 'Sentidos e Exploração';
+    case 'maos':
+    case 'mãos':
+    case 'construcao':
+      return 'Mãos e Construção';
+    case 'imaginacao':
+    case 'imaginação':
+    case 'faz_de_conta':
+      return 'Imaginação e Criatividade';
+    case 'comunicacao':
+    case 'comunicação':
+    case 'livros':
+      return 'Comunicação e Histórias';
   }
   return null;
 }
 
 _CategoryVisualStyle _styleForCategory(String categoryLabel) {
   switch (categoryLabel.trim().toLowerCase()) {
+    case 'corpo e respiração':
+    case 'corpo e respiracao':
     case 'corpo':
       return const _CategoryVisualStyle(
         background: Color(0xFFFFF1F2),
         foreground: Color(0xFFBE123C),
       );
+    case 'sentidos e exploração':
+    case 'sentidos e exploracao':
+    case 'exploração':
+    case 'exploracao':
+      return const _CategoryVisualStyle(
+        background: Color(0xFFFFF7ED),
+        foreground: Color(0xFFC2410C),
+      );
+    case 'mãos e construção':
+    case 'maos e construcao':
     case 'mãos':
     case 'maos':
       return const _CategoryVisualStyle(
         background: Color(0xFFFFFBEB),
         foreground: Color(0xFF92400E),
       );
+    case 'imaginação e criatividade':
+    case 'imaginacao e criatividade':
     case 'imaginação':
     case 'imaginacao':
       return const _CategoryVisualStyle(
         background: Color(0xFFF5F3FF),
         foreground: Color(0xFF5B21B6),
       );
+    case 'comunicação e histórias':
+    case 'comunicacao e historias':
     case 'comunicação':
     case 'comunicacao':
       return const _CategoryVisualStyle(
         background: Color(0xFFEFF6FF),
         foreground: Color(0xFF1D4ED8),
-      );
-    case 'exploração':
-    case 'exploracao':
-      return const _CategoryVisualStyle(
-        background: Color(0xFFFFF7ED),
-        foreground: Color(0xFFC2410C),
       );
   }
   return const _CategoryVisualStyle(
@@ -3101,6 +3163,21 @@ WeekDaySummary? _todaySummary(List<WeekDaySummary> summaries) {
   }
 
   return null;
+}
+
+List<WeekDaySummary> _zeroToySummaries(List<WeekDaySummary> summaries) {
+  return summaries
+      .map(
+        (summary) => WeekDaySummary(
+          weekday: summary.weekday,
+          shortLabel: summary.shortLabel,
+          fullLabel: summary.fullLabel,
+          totalToys: 0,
+          usesDefault: summary.usesDefault,
+          isToday: summary.isToday,
+        ),
+      )
+      .toList(growable: false);
 }
 
 List<WeekDaySummary> _upcomingSummaries(
