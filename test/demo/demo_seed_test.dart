@@ -41,11 +41,22 @@ void main() {
     expect(toyIds, hasLength(50));
     expect(toyNames, hasLength(50));
     expect(photoAssetPaths, hasLength(50));
+    final demoAssetFiles = Directory('assets/demo_toys_v2')
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.png'))
+        .toList();
+    expect(demoAssetFiles, hasLength(50));
+
     for (final toy in DemoSeed.toys) {
       expect(toy.name.trim(), isNotEmpty);
       expect(officialCategoryIds, contains(toy.categoryId));
       expect(toy.photoAssetPath, startsWith('assets/demo_toys_v2/'));
       expect(toy.photoAssetPath, endsWith('.png'));
+      expect(toy.photoAssetPath.startsWith('/'), isFalse);
+      expect(toy.photoAssetPath.contains('/Users/'), isFalse);
+      expect(toy.photoAssetPath.contains('/var/'), isFalse);
+      expect(toy.photoAssetPath.contains('/tmp/'), isFalse);
       expect(File(toy.photoAssetPath).existsSync(), isTrue);
       expect(toy.boxId != null || toy.locationText != null, isTrue);
     }

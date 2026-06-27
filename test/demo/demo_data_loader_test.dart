@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,6 +92,51 @@ void main() {
 
     await DemoDataLoader.load(db);
     expect(await db.select(db.toys).get(), isEmpty);
+  });
+
+  test('load repara fotos locais ausentes de exemplos ja aplicados', () async {
+    await DemoDataLoader.load(db);
+
+    final stalePath = '${tempDir.path}/container_antigo/foto_ausente.png';
+    await (db.update(db.toys)
+          ..where(
+            (toy) => toy.id.like('${DemoDataLoader.demoToyIdPrefix}%'),
+          ))
+        .write(ToysCompanion(photoPath: Value(stalePath)));
+    await (db.update(db.toys)
+          ..where((toy) => toy.id.equals('demo_toy_corpo_bola_macia')))
+        .write(
+      const ToysCompanion(
+        photoPath: Value('assets/demo_toys_v2/corpo_bola_macia.png'),
+      ),
+    );
+
+    await db.into(db.toys).insert(
+          ToysCompanion.insert(
+            id: 'real_toy_1',
+            categoryId: const Value('corpo'),
+            name: 'Brinquedo real',
+            createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+            photoPath: const Value('/foto/real/do/usuario.png'),
+          ),
+        );
+
+    await DemoDataLoader.load(db);
+
+    final toys = await db.select(db.toys).get();
+    final demoToys =
+        toys.where((toy) => DemoDataLoader.isDemoToyId(toy.id)).toList();
+    expect(demoToys, hasLength(50));
+    for (final toy in demoToys) {
+      expect(toy.photoPath, isNotNull);
+      expect(toy.photoPath, isNot(stalePath));
+      expect(toy.photoPath!, isNot(startsWith('assets/')));
+      expect(toy.photoPath!, startsWith(tempDir.path));
+      expect(File(toy.photoPath!).existsSync(), isTrue);
+    }
+
+    final realToy = toys.singleWhere((toy) => toy.id == 'real_toy_1');
+    expect(realToy.photoPath, '/foto/real/do/usuario.png');
   });
 
   test('removeExamples apaga apenas exemplos e preserva dados reais', () async {

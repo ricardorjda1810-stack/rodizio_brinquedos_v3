@@ -67,11 +67,15 @@ class DemoDataLoader {
     }
 
     final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
-    if (alreadyHandled) return;
+    if (alreadyHandled) {
+      await _repairExistingDemoToyPhotos(db);
+      return;
+    }
 
     final toys = await db.select(db.toys).get();
     final hasRealToys = toys.any((toy) => !isDemoToyId(toy.id));
     if (hasRealToys) {
+      await _repairExistingDemoToyPhotos(db);
       await prefs.setBool(_initialSeedAppliedKey, true);
       return;
     }
@@ -382,6 +386,35 @@ class DemoDataLoader {
               photoPath: Value(photoPath),
             ),
           );
+    }
+  }
+
+  static Future<void> _repairExistingDemoToyPhotos(AppDatabase db) async {
+    final seedById = {for (final toy in DemoSeed.toys) toy.id: toy};
+    final seedToyIds = seedById.keys.toList(growable: false);
+    if (seedToyIds.isEmpty) return;
+
+    final demoToys = await (db.select(db.toys)
+          ..where((toy) => toy.id.isIn(seedToyIds)))
+        .get();
+
+    for (final demoToy in demoToys) {
+      final seed = seedById[demoToy.id];
+      if (seed == null) continue;
+
+      final photoPath = demoToy.photoPath?.trim();
+      final pointsToBundledAsset =
+          photoPath != null && photoPath.startsWith('assets/');
+      if (photoPath != null &&
+          photoPath.isNotEmpty &&
+          !pointsToBundledAsset &&
+          await File(photoPath).exists()) {
+        continue;
+      }
+
+      final repairedPath = await _copyDemoToyPhoto(seed);
+      await (db.update(db.toys)..where((toy) => toy.id.equals(demoToy.id)))
+          .write(ToysCompanion(photoPath: Value(repairedPath)));
     }
   }
 
