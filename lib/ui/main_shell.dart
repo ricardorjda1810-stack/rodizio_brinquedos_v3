@@ -58,6 +58,7 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
+  int _roundSuggestionRefreshToken = 0;
   WeeklyPlanningRepository? _weeklyPlanningRepository;
   bool _mobileLoadingSuggestion = false;
   bool _trialIntroDialogScheduled = false;
@@ -135,8 +136,18 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _goTo(int index) {
-    if (_currentIndex == index) return;
+    if (_currentIndex == index) {
+      if (index == 3) {
+        setState(() {
+          _roundSuggestionRefreshToken++;
+        });
+      }
+      return;
+    }
     setState(() {
+      if (index == 3) {
+        _roundSuggestionRefreshToken++;
+      }
       _currentIndex = index;
     });
   }
@@ -407,6 +418,7 @@ class _MainShellState extends State<MainShell> {
           onOpenToysTab: () => _openTopNavigationTab(1),
           onOpenBoxesTab: () => _openTopNavigationTab(2),
           fillAvailableHeight: true,
+          suggestionRefreshToken: _roundSuggestionRefreshToken,
         ),
       ),
     );
@@ -2141,6 +2153,15 @@ class _IpadToyPhoto extends StatelessWidget {
     final imagePath = path?.trim();
     if (imagePath == null || imagePath.isEmpty) {
       return const _IpadToyPhotoPlaceholder();
+    }
+
+    if (imagePath.startsWith('assets/')) {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => const _IpadToyPhotoPlaceholder(),
+      );
     }
 
     return Image.file(

@@ -477,7 +477,7 @@ class _IpadSuggestedToyGrid extends StatelessWidget {
         const gridSpacing = 14.0;
         final tileWidth =
             (constraints.maxWidth - gridSpacing * (columns - 1)) / columns;
-        final tileExtent = (tileWidth * 1.05).clamp(184.0, 204.0);
+        final tileExtent = (tileWidth * 1.22).clamp(214.0, 246.0);
         final rowCount = (toys.length / columns).ceil();
         final naturalHeight =
             rowCount * tileExtent + math.max(0, rowCount - 1) * gridSpacing;
@@ -551,7 +551,7 @@ class _IpadSuggestedToyCard extends StatelessWidget {
           Expanded(child: _SuggestionToyPhoto(imagePath: toy.photoPath)),
           const SizedBox(height: 10),
           SizedBox(
-            height: 54,
+            height: 78,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -571,7 +571,7 @@ class _IpadSuggestedToyCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   categoryLabel,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
                     color: _RoundSuggestionPalette.textMuted,
@@ -848,13 +848,23 @@ class _SuggestionToyPhoto extends StatelessWidget {
       child: SizedBox.expand(
         child: path == null || path.isEmpty
             ? const _SuggestionToyPlaceholder()
-            : Image.file(
-                File(path),
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (_, __, ___) => const _SuggestionToyPlaceholder(),
-              ),
+            : path.startsWith('assets/')
+                ? Image.asset(
+                    path,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (_, __, ___) =>
+                        const _SuggestionToyPlaceholder(),
+                  )
+                : Image.file(
+                    File(path),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (_, __, ___) =>
+                        const _SuggestionToyPlaceholder(),
+                  ),
       ),
     );
   }

@@ -30,6 +30,7 @@ class RodadaPage extends StatefulWidget {
   final VoidCallback? onOpenBoxesTab;
   final bool fillAvailableHeight;
   final String activeItemsTitle;
+  final int suggestionRefreshToken;
 
   const RodadaPage({
     super.key,
@@ -46,6 +47,7 @@ class RodadaPage extends StatefulWidget {
     this.onOpenBoxesTab,
     this.fillAvailableHeight = false,
     this.activeItemsTitle = 'Brinquedos disponíveis',
+    this.suggestionRefreshToken = 0,
   });
 
   @override
@@ -61,6 +63,14 @@ class _RodadaPageState extends State<RodadaPage> {
   bool _assemblyMode = false;
   List<RoundToyWithBox> _immediateRoundItems = const <RoundToyWithBox>[];
   Future<List<RoundToyWithBox>>? _homeSuggestionFuture;
+
+  @override
+  void didUpdateWidget(covariant RodadaPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.suggestionRefreshToken != widget.suggestionRefreshToken) {
+      _homeSuggestionFuture = null;
+    }
+  }
 
   void _openToyDetail(String toyId) {
     Navigator.of(context).push(
@@ -1397,14 +1407,23 @@ class _RodadaIpadToyThumb extends StatelessWidget {
     final imagePath = path?.trim();
     final image = imagePath == null || imagePath.isEmpty
         ? const _RodadaIpadToyPlaceholder()
-        : Image.file(
-            File(imagePath),
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            gaplessPlayback: true,
-            errorBuilder: (_, __, ___) => const _RodadaIpadToyPlaceholder(),
-          );
+        : imagePath.startsWith('assets/')
+            ? Image.asset(
+                imagePath,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                errorBuilder: (_, __, ___) => const _RodadaIpadToyPlaceholder(),
+              )
+            : Image.file(
+                File(imagePath),
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                errorBuilder: (_, __, ___) => const _RodadaIpadToyPlaceholder(),
+              );
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(17),
@@ -1676,83 +1695,98 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          if (items.isEmpty)
-            Expanded(
-              child: Center(
-                child: Text(
-                  'A organiza\u00e7\u00e3o aparece quando houver uma rodada ativa.',
-                  textAlign: TextAlign.center,
-                  style: UiTokens.textMicro.copyWith(
-                    color: _RodadaIpadPalette.textMuted,
-                    fontWeight: FontWeight.w700,
+          Expanded(
+            child: items.isEmpty
+                ? Center(
+                    child: Text(
+                      'A organiza\u00e7\u00e3o aparece quando houver uma rodada ativa.',
+                      textAlign: TextAlign.center,
+                      style: UiTokens.textMicro.copyWith(
+                        color: _RodadaIpadPalette.textMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  )
+                : Scrollbar(
+                    thumbVisibility: false,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(right: 2, bottom: 2),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const _RodadaIpadSideLabel('Caixas envolvidas'),
+                          const SizedBox(height: 8),
+                          for (final entry in boxCounts) ...[
+                            _RodadaIpadCountRow(
+                              icon: Icons.inventory_2_outlined,
+                              label: entry.key,
+                              count: entry.value,
+                              color: _RodadaIpadPalette.orange,
+                            ),
+                            const SizedBox(height: 7),
+                          ],
+                          if (allBoxCounts.length > boxCounts.length) ...[
+                            _RodadaIpadMiniPill(
+                              label:
+                                  '+${allBoxCounts.length - boxCounts.length} caixa',
+                              foreground: _RodadaIpadPalette.orange,
+                              background: _RodadaIpadPalette.orangeLight,
+                              border: _RodadaIpadPalette.orangeBorder,
+                            ),
+                            const SizedBox(height: 7),
+                          ],
+                          const SizedBox(height: 4),
+                          const Divider(
+                            height: 1,
+                            color: _RodadaIpadPalette.border,
+                          ),
+                          const SizedBox(height: 12),
+                          const _RodadaIpadSideLabel('Locais'),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final entry in locationCounts)
+                                _RodadaIpadMiniPill(
+                                  label: '${entry.key} · ${entry.value}',
+                                  foreground: _RodadaIpadPalette.green,
+                                  background: _RodadaIpadPalette.greenLight,
+                                  border: _RodadaIpadPalette.greenBorder,
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          const _RodadaIpadSideLabel('Categorias presentes'),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final entry in categoryCounts)
+                                _RodadaIpadMiniPill(
+                                  label: '${entry.key} · ${entry.value}',
+                                  foreground: _RodadaIpadPalette.blue,
+                                  background: _RodadaIpadPalette.blueLight,
+                                  border: const Color(0xFFBFDBFE),
+                                ),
+                              if (allCategoryCounts.length >
+                                  categoryCounts.length)
+                                _RodadaIpadMiniPill(
+                                  label:
+                                      '+${allCategoryCounts.length - categoryCounts.length} categoria',
+                                  foreground: _RodadaIpadPalette.blue,
+                                  background: _RodadaIpadPalette.blueLight,
+                                  border: const Color(0xFFBFDBFE),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            )
-          else ...[
-            const _RodadaIpadSideLabel('Caixas envolvidas'),
-            const SizedBox(height: 8),
-            for (final entry in boxCounts) ...[
-              _RodadaIpadCountRow(
-                icon: Icons.inventory_2_outlined,
-                label: entry.key,
-                count: entry.value,
-                color: _RodadaIpadPalette.orange,
-              ),
-              const SizedBox(height: 7),
-            ],
-            if (allBoxCounts.length > boxCounts.length) ...[
-              _RodadaIpadMiniPill(
-                label: '+${allBoxCounts.length - boxCounts.length} caixa',
-                foreground: _RodadaIpadPalette.orange,
-                background: _RodadaIpadPalette.orangeLight,
-                border: _RodadaIpadPalette.orangeBorder,
-              ),
-              const SizedBox(height: 7),
-            ],
-            const SizedBox(height: 4),
-            const Divider(height: 1, color: _RodadaIpadPalette.border),
-            const SizedBox(height: 12),
-            const _RodadaIpadSideLabel('Locais'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final entry in locationCounts)
-                  _RodadaIpadMiniPill(
-                    label: '${entry.key} · ${entry.value}',
-                    foreground: _RodadaIpadPalette.green,
-                    background: _RodadaIpadPalette.greenLight,
-                    border: _RodadaIpadPalette.greenBorder,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            const _RodadaIpadSideLabel('Categorias presentes'),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final entry in categoryCounts)
-                  _RodadaIpadMiniPill(
-                    label: '${entry.key} · ${entry.value}',
-                    foreground: _RodadaIpadPalette.blue,
-                    background: _RodadaIpadPalette.blueLight,
-                    border: const Color(0xFFBFDBFE),
-                  ),
-                if (allCategoryCounts.length > categoryCounts.length)
-                  _RodadaIpadMiniPill(
-                    label:
-                        '+${allCategoryCounts.length - categoryCounts.length} categoria',
-                    foreground: _RodadaIpadPalette.blue,
-                    background: _RodadaIpadPalette.blueLight,
-                    border: const Color(0xFFBFDBFE),
-                  ),
-              ],
-            ),
-          ],
+          ),
         ],
       ),
     );
@@ -2597,13 +2631,21 @@ class _GridToyPhoto extends StatelessWidget {
     final image = SizedBox.expand(
       child: path == null || path.isEmpty
           ? const _GridToyPlaceholder()
-          : Image.file(
-              File(path),
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
-            ),
+          : path.startsWith('assets/')
+              ? Image.asset(
+                  path,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
+                )
+              : Image.file(
+                  File(path),
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (_, __, ___) => const _GridToyPlaceholder(),
+                ),
     );
 
     return Container(

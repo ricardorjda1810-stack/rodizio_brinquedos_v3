@@ -791,13 +791,24 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               ),
             )
           else
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final category in officialCategories)
-                  _buildIpadCategoryOption(category),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final optionWidth = constraints.maxWidth >= 620
+                    ? ((constraints.maxWidth - 10) / 2).floorToDouble()
+                    : constraints.maxWidth;
+
+                return Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    for (final category in officialCategories)
+                      _buildIpadCategoryOption(
+                        category,
+                        width: optionWidth,
+                      ),
+                  ],
+                );
+              },
             ),
           if (_selectedCategoryId == null) ...[
             const SizedBox(height: 14),
@@ -821,7 +832,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     );
   }
 
-  Widget _buildIpadCategoryOption(CategoryDefinition category) {
+  Widget _buildIpadCategoryOption(
+    CategoryDefinition category, {
+    required double width,
+  }) {
     final selected = _selectedCategoryId == category.id;
 
     return Material(
@@ -836,7 +850,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         borderRadius: BorderRadius.circular(18),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          width: 210,
+          width: width,
           padding: const EdgeInsets.fromLTRB(14, 13, 14, 13),
           decoration: BoxDecoration(
             color: selected ? _ToyCreateIpadPalette.orangeLight : Colors.white,
@@ -881,11 +895,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   children: [
                     Text(
                       toyFormCategoryName(category),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textCaption.copyWith(
                         color: _ToyCreateIpadPalette.text,
                         fontWeight: FontWeight.w900,
+                        height: 1.15,
                       ),
                     ),
                     finalText(
@@ -910,11 +925,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       padding: const EdgeInsets.only(top: 3),
       child: Text(
         normalized,
-        maxLines: 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: UiTokens.textMicro.copyWith(
           color: _ToyCreateIpadPalette.textMuted,
           fontWeight: FontWeight.w700,
+          height: 1.2,
         ),
       ),
     );

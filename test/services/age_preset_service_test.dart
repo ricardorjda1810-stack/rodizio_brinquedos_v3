@@ -104,6 +104,7 @@ void main() {
       quotasByName.values.fold<int>(0, (sum, quota) => sum + quota),
       10,
     );
+    expect(settingsRepository.roundSize, 10);
   });
 
   test('applyAgePreset cria fim de semana com brinquedo extra', () async {
@@ -376,6 +377,7 @@ void main() {
     expect(friday!.useDefault, isTrue);
     expect(friday.total, 9);
     expect(_totalForConfig(fridayConfig), 9);
+    expect(settingsRepository.roundSize, 9);
     expect(saturday!.useDefault, isFalse);
     expect(saturday.total, 10);
     expect(demoRound, isNotNull);

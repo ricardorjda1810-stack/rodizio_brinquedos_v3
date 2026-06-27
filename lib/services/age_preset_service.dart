@@ -49,6 +49,7 @@ class AgePresetService {
         categoryIdsByOfficialId: categoryIdsByOfficialId,
       );
     });
+    await settingsRepository.setRoundSize(preset.total);
   }
 
   Future<void> _applyDefaultRoundPreset(
