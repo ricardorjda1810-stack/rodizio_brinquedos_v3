@@ -415,6 +415,48 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _confirmRemoveExampleToys() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Remover exemplos?'),
+          content: const Text(
+            'Isso vai apagar apenas os brinquedos de exemplo usados para demonstração. Seus brinquedos cadastrados manualmente serão preservados.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFBE123C),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Remover exemplos'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _removeExampleToys();
+    }
+  }
+
+  Future<void> _removeExampleToys() async {
+    await _runDemoAction(
+      action: () async {
+        final db = widget.toyRepository.db!;
+        await DemoDataLoader.removeExamples(db);
+      },
+      successMessage: 'Brinquedos de exemplo removidos.',
+    );
+  }
+
   Future<void> _onSwitchChanged(
     RoundCategorySettingRow row,
     bool enabled,
@@ -718,7 +760,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             children: [
                               _buildIpadPremiumCard(textTheme),
                               const SizedBox(height: 16),
-                              _buildIpadDemoDataCard(textTheme),
+                              _buildIpadExampleToysCard(textTheme),
+                              if (DemoDataLoader.controlsEnabled) ...[
+                                const SizedBox(height: 16),
+                                _buildIpadDemoDataCard(textTheme),
+                              ],
                               const SizedBox(height: 16),
                               _buildIpadAboutCard(textTheme),
                             ],
@@ -936,6 +982,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           widget.settingsRepository.roundSize;
                       return _IpadRoundSizeControl(
                         value: roundSize,
+                        effectiveTotal: totalSelected,
                         onDecrease: () => _changeRoundSize(-1),
                         onIncrease: () => _changeRoundSize(1),
                       );
@@ -1269,7 +1316,7 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _IpadSettingsSectionHeader(
             icon: Icons.auto_awesome_outlined,
-            title: 'Dados de demonstração',
+            title: 'Marketing / Demonstração',
             subtitle: controlsEnabled
                 ? 'Prepare o simulador para screenshots.'
                 : 'Disponível apenas em builds de demonstração.',
@@ -1299,6 +1346,62 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIpadExampleToysCard(TextTheme textTheme) {
+    final db = widget.toyRepository.db;
+
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(22),
+      child: FutureBuilder<int>(
+        future: db == null
+            ? Future<int>.value(0)
+            : DemoDataLoader.countExampleToys(db),
+        builder: (context, snapshot) {
+          final count = snapshot.data ?? 0;
+          final hasExamples = count > 0;
+          final disabled = _demoActionInProgress || db == null;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const _IpadSettingsSectionHeader(
+                icon: Icons.toys_outlined,
+                title: 'Dados de demonstração',
+                subtitle:
+                    'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
+              ),
+              const SizedBox(height: 14),
+              Text(
+                hasExamples
+                    ? '$count brinquedos de exemplo ativos para testar o app.'
+                    : 'Sem brinquedos de exemplo ativos.',
+                style: textTheme.bodySmall?.copyWith(
+                  color: const Color(0xFF6B4F30),
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed:
+                    disabled || !hasExamples ? null : _confirmRemoveExampleToys,
+                icon: const Icon(Icons.delete_outline_rounded),
+                label: Text(
+                  _demoActionInProgress
+                      ? 'Atualizando...'
+                      : 'Remover brinquedos de exemplo',
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFBE123C),
+                  side: const BorderSide(color: Color(0xFFFDA4AF)),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -1570,6 +1673,62 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildExampleToysCard(TextTheme textTheme) {
+    final db = widget.toyRepository.db;
+
+    return AppSurfaceCard(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      child: FutureBuilder<int>(
+        future: db == null
+            ? Future<int>.value(0)
+            : DemoDataLoader.countExampleToys(db),
+        builder: (context, snapshot) {
+          final count = snapshot.data ?? 0;
+          final hasExamples = count > 0;
+          final disabled = _demoActionInProgress || db == null;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Dados de demonstração',
+                style: textTheme.titleSmall,
+              ),
+              const SizedBox(height: UiTokens.spacingSm),
+              Text(
+                'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
+                style: textTheme.bodySmall,
+              ),
+              const SizedBox(height: UiTokens.spacingSm),
+              Text(
+                hasExamples
+                    ? '$count brinquedos de exemplo ativos.'
+                    : 'Sem brinquedos de exemplo ativos.',
+                style: textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: UiTokens.spacingMd),
+              OutlinedButton.icon(
+                onPressed:
+                    disabled || !hasExamples ? null : _confirmRemoveExampleToys,
+                icon: const Icon(Icons.delete_outline_rounded),
+                label: Text(
+                  _demoActionInProgress
+                      ? 'Atualizando...'
+                      : 'Remover brinquedos de exemplo',
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFBE123C),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildMarketingDemoCard(TextTheme textTheme) {
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -1671,6 +1830,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: UiTokens.s),
               _buildManageCard(textTheme),
+              const SizedBox(height: UiTokens.s),
+              _buildExampleToysCard(textTheme),
               const SizedBox(height: UiTokens.s),
               _buildChildAgeCard(textTheme),
               const SizedBox(height: UiTokens.s),
@@ -1914,11 +2075,13 @@ class _IpadSettingsSectionHeader extends StatelessWidget {
 
 class _IpadRoundSizeControl extends StatelessWidget {
   final int value;
+  final int effectiveTotal;
   final VoidCallback onDecrease;
   final VoidCallback onIncrease;
 
   const _IpadRoundSizeControl({
     required this.value,
+    required this.effectiveTotal,
     required this.onDecrease,
     required this.onIncrease,
   });
@@ -1926,6 +2089,11 @@ class _IpadRoundSizeControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final hasCategoryTotal = effectiveTotal > 0;
+    final isSynced = !hasCategoryTotal || effectiveTotal == value;
+    final helperText = isSynced
+        ? 'Mínimo 1 · máximo 50 brinquedos'
+        : 'Categorias ativas somam $effectiveTotal brinquedos';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1949,7 +2117,7 @@ class _IpadRoundSizeControl extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Mínimo 1 · máximo 50 brinquedos',
+                  helperText,
                   style: textTheme.bodySmall?.copyWith(
                     color: const Color(0xFF8A6B4B),
                     fontWeight: FontWeight.w600,
@@ -1984,6 +2152,26 @@ class _IpadRoundSizeControl extends StatelessWidget {
             icon: Icons.add_rounded,
             onTap: value < 50 ? onIncrease : null,
           ),
+          if (!isSynced) ...[
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F3FF),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFFC4B5FD)),
+              ),
+              child: Text(
+                'Total $effectiveTotal',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textTheme.labelMedium?.copyWith(
+                  color: const Color(0xFF7C3AED),
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
