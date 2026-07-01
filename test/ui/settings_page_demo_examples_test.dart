@@ -1,13 +1,11 @@
-// ignore_for_file: depend_on_referenced_packages, implementation_imports
-
 import 'dart:io';
 
 import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_app_purchase_android/src/messages.g.dart' as iap_android;
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -38,14 +36,12 @@ void main() {
       }
       return null;
     });
-    _mockAndroidBillingClient(messenger);
   });
 
   tearDown(() async {
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(pathProviderChannel, null);
-    _clearAndroidBillingClientMock(messenger);
     await db.close();
     if (tempDir.existsSync()) {
       tempDir.deleteSync(recursive: true);
@@ -61,9 +57,15 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       final preferences = await SharedPreferences.getInstance();
-      final purchaseService = PurchaseService.forTesting(
-        preferences: preferences,
-      );
+      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+      final PurchaseService purchaseService;
+      try {
+        purchaseService = PurchaseService.forTesting(
+          preferences: preferences,
+        );
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
       addTearDown(purchaseService.dispose);
 
       final settingsRepository = SettingsRepository(db);
@@ -148,45 +150,6 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
     },
-  );
-}
-
-void _mockAndroidBillingClient(TestDefaultBinaryMessenger messenger) {
-  messenger.setMockDecodedMessageHandler<Object?>(
-    const BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.in_app_purchase_android.InAppPurchaseApi.startConnection',
-      iap_android.InAppPurchaseApi.pigeonChannelCodec,
-    ),
-    (message) async => <Object?>[
-      iap_android.PlatformBillingResult(
-        responseCode: iap_android.PlatformBillingResponse.ok,
-        debugMessage: '',
-      ),
-    ],
-  );
-  messenger.setMockDecodedMessageHandler<Object?>(
-    const BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.in_app_purchase_android.InAppPurchaseApi.endConnection',
-      iap_android.InAppPurchaseApi.pigeonChannelCodec,
-    ),
-    (message) async => <Object?>[null],
-  );
-}
-
-void _clearAndroidBillingClientMock(TestDefaultBinaryMessenger messenger) {
-  messenger.setMockDecodedMessageHandler<Object?>(
-    const BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.in_app_purchase_android.InAppPurchaseApi.startConnection',
-      iap_android.InAppPurchaseApi.pigeonChannelCodec,
-    ),
-    null,
-  );
-  messenger.setMockDecodedMessageHandler<Object?>(
-    const BasicMessageChannel<Object?>(
-      'dev.flutter.pigeon.in_app_purchase_android.InAppPurchaseApi.endConnection',
-      iap_android.InAppPurchaseApi.pigeonChannelCodec,
-    ),
-    null,
   );
 }
 
