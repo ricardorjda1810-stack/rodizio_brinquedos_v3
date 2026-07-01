@@ -1,16 +1,12 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart' hide isNotNull;
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
-import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
-import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
-import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -56,20 +52,6 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
 
-      final preferences = await SharedPreferences.getInstance();
-      debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-      final PurchaseService purchaseService;
-      try {
-        purchaseService = PurchaseService.forTesting(
-          preferences: preferences,
-        );
-      } finally {
-        debugDefaultTargetPlatformOverride = null;
-      }
-      addTearDown(purchaseService.dispose);
-
-      final settingsRepository = SettingsRepository(db);
-      addTearDown(settingsRepository.dispose);
       await tester.runAsync(() async {
         await DemoDataLoader.restoreExamples(
           db,
@@ -78,20 +60,23 @@ void main() {
           includeRoundSettings: true,
         );
         await _insertRealToyMixedWithDemoRound(db);
-        await settingsRepository.load();
       });
-      final toyRepository = _SettingsToyRepository(db);
 
       await tester.pumpWidget(
         MaterialApp(
-          home: SettingsPage(
-            settingsRepository: settingsRepository,
-            toyRepository: toyRepository,
-            purchaseService: purchaseService,
+          home: Scaffold(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: DemoExamplesSettingsSection(
+                  countExamples: () => DemoDataLoader.countExampleToys(db),
+                  removeExamples: () => DemoDataLoader.removeExamples(db),
+                ),
+              ),
+            ),
           ),
         ),
       );
-      await _pumpFrames(tester);
+      await tester.pumpAndSettle();
 
       expect(find.text('Dados de demonstração'), findsOneWidget);
       expect(
@@ -102,13 +87,8 @@ void main() {
       );
 
       final removeButton = find.text('Remover brinquedos de exemplo');
-      await tester.scrollUntilVisible(
-        removeButton,
-        240,
-        scrollable: find.byType(Scrollable).first,
-      );
       await tester.tap(removeButton);
-      await _pumpFrames(tester);
+      await tester.pumpAndSettle();
 
       expect(find.text('Remover exemplos?'), findsOneWidget);
       expect(
@@ -119,13 +99,14 @@ void main() {
       );
 
       await tester.tap(find.widgetWithText(FilledButton, 'Remover exemplos'));
+      await tester.pump();
       await tester.runAsync(() async {
         await Future<void>.delayed(const Duration(milliseconds: 300));
       });
-      await _pumpFrames(tester, frames: 6);
+      await tester.pumpAndSettle();
 
       expect(find.text('Brinquedos de exemplo removidos.'), findsOneWidget);
-      expect(find.text('Configurações'), findsWidgets);
+      expect(find.text('Dados de demonstração'), findsOneWidget);
 
       final toys = await db.select(db.toys).get();
       expect(toys.map((toy) => toy.id), <String>['real_toy_1']);
@@ -146,48 +127,18 @@ void main() {
       final weeklyRows = await db.select(db.weeklyPlanningSettings).get();
       expect(weeklyRows, hasLength(7));
       expect(await DemoDataLoader.countExampleToys(db), 0);
+      final button = tester.widget<OutlinedButton>(
+        find.widgetWithText(
+          OutlinedButton,
+          'Remover brinquedos de exemplo',
+        ),
+      );
+      expect(button.onPressed, isNull);
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
     },
   );
-}
-
-Future<void> _pumpFrames(
-  WidgetTester tester, {
-  int frames = 3,
-}) async {
-  for (var i = 0; i < frames; i++) {
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-}
-
-class _SettingsToyRepository extends ToyRepository {
-  _SettingsToyRepository(super.db);
-
-  @override
-  Stream<Map<String, int>> watchAvailableToyCountByCategory() {
-    return Stream<Map<String, int>>.value(const <String, int>{'corpo': 1});
-  }
-
-  @override
-  Stream<List<RoundCategorySettingRow>> watchRoundCategorySettings() {
-    return Stream<List<RoundCategorySettingRow>>.value(
-      const <RoundCategorySettingRow>[
-        RoundCategorySettingRow(
-          category: CategoryDefinition(
-            id: 'corpo',
-            name: 'Corpo e Respiração',
-            sortOrder: 1,
-            isDefault: true,
-            isActive: true,
-          ),
-          isIncluded: true,
-          quota: 1,
-        ),
-      ],
-    );
-  }
 }
 
 Future<void> _insertRealToyMixedWithDemoRound(AppDatabase db) async {

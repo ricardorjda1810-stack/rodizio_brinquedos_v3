@@ -415,48 +415,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<void> _confirmRemoveExampleToys() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Remover exemplos?'),
-          content: const Text(
-            'Isso vai apagar apenas os brinquedos de exemplo usados para demonstração. Seus brinquedos cadastrados manualmente serão preservados.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFBE123C),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Remover exemplos'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed == true) {
-      await _removeExampleToys();
-    }
-  }
-
-  Future<void> _removeExampleToys() async {
-    await _runDemoAction(
-      action: () async {
-        final db = widget.toyRepository.db!;
-        await DemoDataLoader.removeExamples(db);
-      },
-      successMessage: 'Brinquedos de exemplo removidos.',
-    );
-  }
-
   Future<void> _onSwitchChanged(
     RoundCategorySettingRow row,
     bool enabled,
@@ -1353,55 +1311,30 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildIpadExampleToysCard(TextTheme textTheme) {
     final db = widget.toyRepository.db;
 
-    return AppSurfaceCard(
+    return DemoExamplesSettingsSection(
       padding: const EdgeInsets.all(22),
-      child: FutureBuilder<int>(
-        future: db == null
-            ? Future<int>.value(0)
-            : DemoDataLoader.countExampleToys(db),
-        builder: (context, snapshot) {
-          final count = snapshot.data ?? 0;
-          final hasExamples = count > 0;
-          final disabled = _demoActionInProgress || db == null;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const _IpadSettingsSectionHeader(
-                icon: Icons.toys_outlined,
-                title: 'Dados de demonstração',
-                subtitle:
-                    'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
-              ),
-              const SizedBox(height: 14),
-              Text(
-                hasExamples
-                    ? '$count brinquedos de exemplo ativos para testar o app.'
-                    : 'Sem brinquedos de exemplo ativos.',
-                style: textTheme.bodySmall?.copyWith(
-                  color: const Color(0xFF6B4F30),
-                  fontWeight: FontWeight.w600,
-                  height: 1.35,
-                ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed:
-                    disabled || !hasExamples ? null : _confirmRemoveExampleToys,
-                icon: const Icon(Icons.delete_outline_rounded),
-                label: Text(
-                  _demoActionInProgress
-                      ? 'Atualizando...'
-                      : 'Remover brinquedos de exemplo',
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFBE123C),
-                  side: const BorderSide(color: Color(0xFFFDA4AF)),
-                ),
-              ),
-            ],
-          );
-        },
+      header: const _IpadSettingsSectionHeader(
+        icon: Icons.toys_outlined,
+        title: 'Dados de demonstração',
+        subtitle:
+            'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
+      ),
+      countExamples: db == null
+          ? () async => 0
+          : () => DemoDataLoader.countExampleToys(db),
+      removeExamples: db == null
+          ? null
+          : () async {
+              await DemoDataLoader.removeExamples(db);
+            },
+      onRemoved: _refreshAfterExampleRemoval,
+      buttonSide: const BorderSide(color: Color(0xFFFDA4AF)),
+      countTextBuilder: (count) =>
+          '$count brinquedos de exemplo ativos para testar o app.',
+      countTextStyle: textTheme.bodySmall?.copyWith(
+        color: const Color(0xFF6B4F30),
+        fontWeight: FontWeight.w600,
+        height: 1.35,
       ),
     );
   }
@@ -1676,57 +1609,24 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildExampleToysCard(TextTheme textTheme) {
     final db = widget.toyRepository.db;
 
-    return AppSurfaceCard(
+    return DemoExamplesSettingsSection(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
-      child: FutureBuilder<int>(
-        future: db == null
-            ? Future<int>.value(0)
-            : DemoDataLoader.countExampleToys(db),
-        builder: (context, snapshot) {
-          final count = snapshot.data ?? 0;
-          final hasExamples = count > 0;
-          final disabled = _demoActionInProgress || db == null;
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Dados de demonstração',
-                style: textTheme.titleSmall,
-              ),
-              const SizedBox(height: UiTokens.spacingSm),
-              Text(
-                'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
-                style: textTheme.bodySmall,
-              ),
-              const SizedBox(height: UiTokens.spacingSm),
-              Text(
-                hasExamples
-                    ? '$count brinquedos de exemplo ativos.'
-                    : 'Sem brinquedos de exemplo ativos.',
-                style: textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: UiTokens.spacingMd),
-              OutlinedButton.icon(
-                onPressed:
-                    disabled || !hasExamples ? null : _confirmRemoveExampleToys,
-                icon: const Icon(Icons.delete_outline_rounded),
-                label: Text(
-                  _demoActionInProgress
-                      ? 'Atualizando...'
-                      : 'Remover brinquedos de exemplo',
-                ),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFBE123C),
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+      countExamples: db == null
+          ? () async => 0
+          : () => DemoDataLoader.countExampleToys(db),
+      removeExamples: db == null
+          ? null
+          : () async {
+              await DemoDataLoader.removeExamples(db);
+            },
+      onRemoved: _refreshAfterExampleRemoval,
     );
+  }
+
+  Future<void> _refreshAfterExampleRemoval() async {
+    await widget.settingsRepository.load();
+    if (!mounted) return;
+    setState(_resetRoundDrafts);
   }
 
   Widget _buildMarketingDemoCard(TextTheme textTheme) {
@@ -2010,6 +1910,177 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class DemoExamplesSettingsSection extends StatefulWidget {
+  final Future<int> Function() countExamples;
+  final Future<void> Function()? removeExamples;
+  final Future<void> Function()? onRemoved;
+  final EdgeInsetsGeometry padding;
+  final BorderSide? buttonSide;
+  final Widget? header;
+  final String Function(int count)? countTextBuilder;
+  final TextStyle? countTextStyle;
+
+  const DemoExamplesSettingsSection({
+    super.key,
+    required this.countExamples,
+    required this.removeExamples,
+    this.onRemoved,
+    this.padding = const EdgeInsets.all(UiTokens.spacingMd),
+    this.buttonSide,
+    this.header,
+    this.countTextBuilder,
+    this.countTextStyle,
+  });
+
+  @override
+  State<DemoExamplesSettingsSection> createState() =>
+      _DemoExamplesSettingsSectionState();
+}
+
+class _DemoExamplesSettingsSectionState
+    extends State<DemoExamplesSettingsSection> {
+  late Future<int> _countFuture;
+  bool _actionInProgress = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _countFuture = widget.countExamples();
+  }
+
+  @override
+  void didUpdateWidget(covariant DemoExamplesSettingsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.countExamples != widget.countExamples) {
+      _countFuture = widget.countExamples();
+    }
+  }
+
+  Future<void> _confirmRemoveExampleToys() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Remover exemplos?'),
+          content: const Text(
+            'Isso vai apagar apenas os brinquedos de exemplo usados para demonstração. Seus brinquedos cadastrados manualmente serão preservados.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFBE123C),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Remover exemplos'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _removeExampleToys();
+    }
+  }
+
+  Future<void> _removeExampleToys() async {
+    final removeExamples = widget.removeExamples;
+    if (_actionInProgress || removeExamples == null) return;
+
+    setState(() => _actionInProgress = true);
+
+    try {
+      await removeExamples();
+      await widget.onRemoved?.call();
+      if (!mounted) return;
+      setState(() {
+        _countFuture = widget.countExamples();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Brinquedos de exemplo removidos.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao remover exemplos: $error')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _actionInProgress = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return AppSurfaceCard(
+      padding: widget.padding,
+      child: FutureBuilder<int>(
+        future: _countFuture,
+        builder: (context, snapshot) {
+          final count = snapshot.data ?? 0;
+          final hasExamples = count > 0;
+          final disabled = _actionInProgress ||
+              widget.removeExamples == null ||
+              !hasExamples;
+          final countText = hasExamples
+              ? (widget.countTextBuilder?.call(count) ??
+                  '$count brinquedos de exemplo ativos.')
+              : 'Sem brinquedos de exemplo ativos.';
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (widget.header != null)
+                widget.header!
+              else ...[
+                Text(
+                  'Dados de demonstração',
+                  style: textTheme.titleSmall,
+                ),
+                const SizedBox(height: UiTokens.spacingSm),
+                Text(
+                  'Apaga apenas os brinquedos de demonstração. Seus brinquedos cadastrados não serão apagados.',
+                  style: textTheme.bodySmall,
+                ),
+              ],
+              const SizedBox(height: UiTokens.spacingSm),
+              Text(
+                countText,
+                style: widget.countTextStyle ??
+                    textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: UiTokens.spacingMd),
+              OutlinedButton.icon(
+                onPressed: disabled ? null : _confirmRemoveExampleToys,
+                icon: const Icon(Icons.delete_outline_rounded),
+                label: Text(
+                  _actionInProgress
+                      ? 'Atualizando...'
+                      : 'Remover brinquedos de exemplo',
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFBE123C),
+                  side: widget.buttonSide,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
