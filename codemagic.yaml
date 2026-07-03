@@ -98,6 +98,32 @@ workflows:
         auth: integration
         submit_to_testflight: true
 
+  android-release:
+    name: Android Release AAB
+    instance_type: mac_mini_m2
+
+    environment:
+      flutter: stable
+
+    scripts:
+      - name: Pub get
+        script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze --no-pub lib test
+
+      - name: Test
+        script: flutter test
+
+      - name: Build Android app bundle
+        script: flutter build appbundle --release
+
+      - name: Locate AAB
+        script: ls -lh build/app/outputs/bundle/release/app-release.aab
+
+    artifacts:
+      - build/app/outputs/bundle/release/app-release.aab
+
   production:
     name: Production
     instance_type: mac_mini_m2
