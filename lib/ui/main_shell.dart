@@ -1533,110 +1533,137 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
       child: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final horizontalPadding =
-                constraints.maxWidth >= 980 ? UiTokens.spacingLg : 18.0;
+            final width = constraints.maxWidth;
+            final isTablet = width >= 700;
+            final isWideTablet = width >= 1024;
+            final useTwoColumnLayout = isWideTablet;
+            final horizontalPadding = isWideTablet
+                ? UiTokens.spacingLg
+                : isTablet
+                    ? 24.0
+                    : 16.0;
             final verticalPadding =
                 constraints.maxHeight >= 900 ? UiTokens.spacingMd : 12.0;
-            final gap = constraints.maxWidth >= 900 ? 18.0 : 14.0;
-            final rightWidth = (constraints.maxWidth * 0.40).clamp(
-              306.0,
-              390.0,
-            );
+            final gap = isWideTablet ? 24.0 : 18.0;
+            final maxContentWidth = isWideTablet ? 1180.0 : 900.0;
 
             final activeRoundStream =
                 widget.roundRepository.watchActiveRoundToysWithBox();
             final suggestionFuture =
                 _suggestionFuture ??= _loadHomeSuggestion();
 
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                verticalPadding,
-                horizontalPadding,
-                verticalPadding,
-              ),
-              child: Column(
-                children: [
-                  _IpadHomeHeader(
-                    loadingSuggestion: _loadingSuggestion,
-                    onBuildRound: _openRoundSuggestionSheet,
-                    onOpenNewToy: widget.onOpenNewToy,
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    verticalPadding,
+                    horizontalPadding,
+                    verticalPadding,
                   ),
-                  if (widget.trialStatus.homeNotice != null) ...[
-                    SizedBox(height: gap),
-                    _TrialNoticeBanner(
-                      message: widget.trialStatus.homeNotice!,
-                    ),
-                  ],
-                  SizedBox(height: gap),
-                  Expanded(
-                    child: StreamBuilder<List<Toy>>(
-                      stream: widget.toyRepository.watchAll(),
-                      builder: (context, toysSnapshot) {
-                        final toyCount = toysSnapshot.data?.length ?? 0;
+                  child: Column(
+                    children: [
+                      _IpadHomeHeader(
+                        loadingSuggestion: _loadingSuggestion,
+                        onBuildRound: _openRoundSuggestionSheet,
+                        onOpenNewToy: widget.onOpenNewToy,
+                      ),
+                      if (widget.trialStatus.homeNotice != null) ...[
+                        SizedBox(height: gap),
+                        _TrialNoticeBanner(
+                          message: widget.trialStatus.homeNotice!,
+                        ),
+                      ],
+                      SizedBox(height: gap),
+                      Expanded(
+                        child: StreamBuilder<List<Toy>>(
+                          stream: widget.toyRepository.watchAll(),
+                          builder: (context, toysSnapshot) {
+                            final toyCount = toysSnapshot.data?.length ?? 0;
 
-                        return StreamBuilder<List<RoundToyWithBox>>(
-                          stream: activeRoundStream,
-                          builder: (context, activeSnapshot) {
-                            final activeItems = activeSnapshot.data ??
-                                const <RoundToyWithBox>[];
-                            final activeCount = activeItems.length;
+                            return StreamBuilder<List<RoundToyWithBox>>(
+                              stream: activeRoundStream,
+                              builder: (context, activeSnapshot) {
+                                final activeItems = activeSnapshot.data ??
+                                    const <RoundToyWithBox>[];
+                                final activeCount = activeItems.length;
 
-                            return FutureBuilder<List<RoundToyWithBox>>(
-                              future: suggestionFuture,
-                              builder: (context, suggestionSnapshot) {
-                                final suggestionCount = toyCount == 0
-                                    ? 0
-                                    : suggestionSnapshot.data?.length;
-                                final todayCount = toyCount == 0
-                                    ? 0
-                                    : activeCount > 0
-                                        ? activeCount
-                                        : suggestionCount;
+                                return FutureBuilder<List<RoundToyWithBox>>(
+                                  future: suggestionFuture,
+                                  builder: (context, suggestionSnapshot) {
+                                    final suggestionCount = toyCount == 0
+                                        ? 0
+                                        : suggestionSnapshot.data?.length;
+                                    final todayCount = toyCount == 0
+                                        ? 0
+                                        : activeCount > 0
+                                            ? activeCount
+                                            : suggestionCount;
+                                    final roundTodayCard = _IpadRoundTodayCard(
+                                      activeStream: activeRoundStream,
+                                      categoriesStream: widget.toyRepository
+                                          .watchCategories(activeOnly: true),
+                                      suggestionFuture: suggestionFuture,
+                                      hasToys: toyCount > 0,
+                                      startingRound: _startingRound,
+                                      onStartRound: _startRound,
+                                      onOpenToy: widget.onOpenToy,
+                                    );
+                                    final rightColumn = _IpadRightColumn(
+                                      toyRepository: widget.toyRepository,
+                                      weeklyPlanningRepository:
+                                          widget.weeklyPlanningRepository,
+                                      todayCountOverride: todayCount,
+                                      onOpenWeeklyPlanning:
+                                          widget.onOpenWeeklyPlanning,
+                                      onOpenNewToy: widget.onOpenNewToy,
+                                      onOpenBoxes: widget.onOpenBoxes,
+                                      onOpenCategories: widget.onOpenCategories,
+                                      onOpenSettings: widget.onOpenSettings,
+                                    );
 
-                                return Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      child: _IpadRoundTodayCard(
-                                        activeStream: activeRoundStream,
-                                        categoriesStream: widget.toyRepository
-                                            .watchCategories(activeOnly: true),
-                                        suggestionFuture: suggestionFuture,
-                                        hasToys: toyCount > 0,
-                                        startingRound: _startingRound,
-                                        onStartRound: _startRound,
-                                        onOpenToy: widget.onOpenToy,
-                                      ),
-                                    ),
-                                    SizedBox(width: gap),
-                                    SizedBox(
-                                      width: rightWidth,
-                                      child: _IpadRightColumn(
-                                        toyRepository: widget.toyRepository,
-                                        weeklyPlanningRepository:
-                                            widget.weeklyPlanningRepository,
-                                        todayCountOverride: todayCount,
-                                        onOpenWeeklyPlanning:
-                                            widget.onOpenWeeklyPlanning,
-                                        onOpenNewToy: widget.onOpenNewToy,
-                                        onOpenBoxes: widget.onOpenBoxes,
-                                        onOpenCategories:
-                                            widget.onOpenCategories,
-                                        onOpenSettings: widget.onOpenSettings,
-                                      ),
-                                    ),
-                                  ],
+                                    if (useTwoColumnLayout) {
+                                      return Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(
+                                            flex: 6,
+                                            child: roundTodayCard,
+                                          ),
+                                          SizedBox(width: gap),
+                                          Expanded(
+                                            flex: 4,
+                                            child: rightColumn,
+                                          ),
+                                        ],
+                                      );
+                                    }
+
+                                    return Column(
+                                      children: [
+                                        Expanded(
+                                          flex: 6,
+                                          child: roundTodayCard,
+                                        ),
+                                        SizedBox(height: gap),
+                                        Expanded(
+                                          flex: 4,
+                                          child: rightColumn,
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
                             );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             );
           },
