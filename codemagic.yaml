@@ -145,10 +145,10 @@ workflows:
 
       - name: Build Android app bundle
         script: |
-          if ! flutter build appbundle --release; then
+          if ! flutter build appbundle --release -Pandroid.newDsl=false; then
             echo "flutter build appbundle failed. Running Gradle with stacktrace for diagnostics."
             cd android
-            ./gradlew :app:bundleRelease --stacktrace --info
+            ./gradlew :app:bundleRelease -Pandroid.newDsl=false --stacktrace --info
           fi
 
       - name: Locate AAB
