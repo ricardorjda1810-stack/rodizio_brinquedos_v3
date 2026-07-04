@@ -143,6 +143,29 @@ workflows:
       - name: Test
         script: flutter test
 
+      - name: Set up Android release signing
+        script: |
+          set -e
+
+          : "${CM_KEYSTORE:?Missing CM_KEYSTORE secret with the base64-encoded Android upload keystore.}"
+          : "${CM_KEYSTORE_PASSWORD:?Missing CM_KEYSTORE_PASSWORD secret.}"
+          : "${CM_KEY_ALIAS:?Missing CM_KEY_ALIAS secret.}"
+          : "${CM_KEY_PASSWORD:?Missing CM_KEY_PASSWORD secret.}"
+
+          mkdir -p android/app
+          printf "%s" "$CM_KEYSTORE" | base64 --decode > android/app/upload-keystore.jks
+          chmod 600 android/app/upload-keystore.jks
+
+          cat > android/key.properties <<EOF
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+
+          echo "Android release signing files created for this build."
+          ls -lh android/app/upload-keystore.jks
+
       - name: Build Android app bundle
         script: |
           if ! flutter build appbundle --release --android-project-arg=-Pandroid.newDsl=false; then
@@ -155,7 +178,7 @@ workflows:
       - name: Locate AAB
         script: |
           echo "Searching for generated AAB files..."
-          find . -path "*/outputs/bundle/release/*.aab" -print -exec ls -lh {} \;
+          find . -name "*.aab" -print -exec ls -lh {} \;
 
           if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
             echo "AAB found at Flutter output path."
@@ -167,6 +190,9 @@ workflows:
             ls -lh build/app/outputs/bundle/release/app-release.aab
           else
             echo "ERROR: app-release.aab not found in expected locations."
+            if find . -path "*intermediary_bundle*" -name "*.aab" -print -quit | grep -q .; then
+              echo "Only intermediary bundle was generated. Final signed app-release.aab is missing. Check Android release signing."
+            fi
             echo "Build tree diagnostics:"
             find . -name "*.aab" -print
             exit 1
