@@ -106,13 +106,33 @@ workflows:
       flutter: '3.41.5'
 
     scripts:
-      - name: Print build tool versions
+      - name: Debug Android Gradle config
         script: |
+          pwd
+          git rev-parse HEAD
+          git log --oneline -5
           flutter --version
           java -version
           cd android
           ./gradlew --version
           cd ..
+          echo "---- android/gradle.properties ----"
+          cat android/gradle.properties
+          echo "---- android/settings.gradle.kts ----"
+          sed -n '1,220p' android/settings.gradle.kts
+          echo "---- android/build.gradle.kts ----"
+          sed -n '1,220p' android/build.gradle.kts
+          echo "---- android/app/build.gradle.kts ----"
+          sed -n '1,260p' android/app/build.gradle.kts
+          echo "---- grep android.newDsl ----"
+          grep -R "android.newDsl" -n android || true
+
+      - name: Clean Android build caches
+        script: |
+          rm -rf build
+          rm -rf .dart_tool/flutter_build
+          rm -rf ~/.gradle/caches/modules-2/files-2.1/com.android.tools.build/gradle
+          flutter clean
 
       - name: Pub get
         script: flutter pub get
@@ -124,7 +144,12 @@ workflows:
         script: flutter test
 
       - name: Build Android app bundle
-        script: flutter build appbundle --release
+        script: |
+          if ! flutter build appbundle --release; then
+            echo "flutter build appbundle failed. Running Gradle with stacktrace for diagnostics."
+            cd android
+            ./gradlew :app:bundleRelease --stacktrace --info
+          fi
 
       - name: Locate AAB
         script: ls -lh build/app/outputs/bundle/release/app-release.aab
