@@ -153,7 +153,24 @@ workflows:
           fi
 
       - name: Locate AAB
-        script: ls -lh build/app/outputs/bundle/release/app-release.aab
+        script: |
+          echo "Searching for generated AAB files..."
+          find . -path "*/outputs/bundle/release/*.aab" -print -exec ls -lh {} \;
+
+          if [ -f "build/app/outputs/bundle/release/app-release.aab" ]; then
+            echo "AAB found at Flutter output path."
+            ls -lh build/app/outputs/bundle/release/app-release.aab
+          elif [ -f "android/app/build/outputs/bundle/release/app-release.aab" ]; then
+            echo "AAB found at Android Gradle output path. Copying to Flutter artifact path."
+            mkdir -p build/app/outputs/bundle/release
+            cp android/app/build/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/app-release.aab
+            ls -lh build/app/outputs/bundle/release/app-release.aab
+          else
+            echo "ERROR: app-release.aab not found in expected locations."
+            echo "Build tree diagnostics:"
+            find . -name "*.aab" -print
+            exit 1
+          fi
 
     artifacts:
       - build/app/outputs/bundle/release/app-release.aab
