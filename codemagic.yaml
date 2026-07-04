@@ -104,6 +104,8 @@ workflows:
 
     environment:
       flutter: '3.41.5'
+      groups:
+        - android_signing
 
     scripts:
       - name: Debug Android Gradle config
