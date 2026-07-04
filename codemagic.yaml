@@ -103,9 +103,17 @@ workflows:
     instance_type: mac_mini_m2
 
     environment:
-      flutter: stable
+      flutter: '3.41.5'
 
     scripts:
+      - name: Print build tool versions
+        script: |
+          flutter --version
+          java -version
+          cd android
+          ./gradlew --version
+          cd ..
+
       - name: Pub get
         script: flutter pub get
 
