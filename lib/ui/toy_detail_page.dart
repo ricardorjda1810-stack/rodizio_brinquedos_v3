@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_viewer_page.dart';
@@ -99,6 +100,7 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _renameToy(BuildContext context, String currentName) async {
+    final l10n = context.l10n;
     final controller = TextEditingController(text: currentName.trim());
     final messenger = ScaffoldMessenger.of(context);
 
@@ -106,22 +108,22 @@ class ToyDetailPage extends StatelessWidget {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('Editar nome'),
+          title: Text(l10n.editName),
           content: TextField(
             controller: controller,
             autofocus: true,
             textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(labelText: 'Nome do brinquedo'),
+            decoration: InputDecoration(labelText: l10n.toyName),
             onSubmitted: (_) => Navigator.of(ctx).pop(controller.text.trim()),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancelar'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(controller.text.trim()),
-              child: const Text('Salvar'),
+              child: Text(l10n.save),
             ),
           ],
         );
@@ -151,6 +153,7 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String currentCategoryId,
   }) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     await toyRepository.ensureOfficialToyFormCategories();
     if (!context.mounted) return;
@@ -162,14 +165,14 @@ class ToyDetailPage extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Editar categoria'),
+              title: Text(l10n.editCategory),
               content: StreamBuilder(
                 stream: toyRepository.watchCategories(activeOnly: true),
                 builder: (context, snapshot) {
                   final allCategories = snapshot.data ?? const [];
                   final categories = officialToyFormCategories(allCategories);
                   if (categories.isEmpty) {
-                    return const Text('Nenhuma categoria oficial ativa.');
+                    return Text(l10n.noOfficialCategory);
                   }
 
                   final currentIsOfficial =
@@ -188,7 +191,7 @@ class ToyDetailPage extends StatelessWidget {
                     children: [
                       if (!currentIsOfficial && currentLabel != null) ...[
                         Text(
-                          'Categoria atual: $currentLabel',
+                          '${l10n.category}: ${l10n.value(currentLabel)}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: UiTokens.spacingSm),
@@ -198,15 +201,17 @@ class ToyDetailPage extends StatelessWidget {
                         child: DropdownButtonFormField<String>(
                           initialValue: selectedId,
                           isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Categoria oficial',
+                          decoration: InputDecoration(
+                            labelText: l10n.officialCategory,
                           ),
-                          hint: const Text('Escolha uma categoria'),
+                          hint: Text(l10n.chooseCategory),
                           items: [
                             for (final c in categories)
                               DropdownMenuItem<String>(
                                 value: c.id,
-                                child: _dropdownLabel(toyFormCategoryName(c)),
+                                child: _dropdownLabel(
+                                  l10n.categoryName(toyFormCategoryName(c)),
+                                ),
                               ),
                           ],
                           onChanged: (value) {
@@ -221,13 +226,13 @@ class ToyDetailPage extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: selectedId == null
                       ? null
                       : () => Navigator.of(ctx).pop(selectedId),
-                  child: const Text('Salvar'),
+                  child: Text(l10n.save),
                 ),
               ],
             );
@@ -275,6 +280,7 @@ class ToyDetailPage extends StatelessWidget {
     BuildContext context, {
     required String? currentBoxId,
   }) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final boxes = await toyRepository.watchBoxes().first;
     if (!context.mounted) return;
@@ -290,26 +296,28 @@ class ToyDetailPage extends StatelessWidget {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Editar caixa'),
+            title: Text(l10n.editBox),
             content: SizedBox(
               width: double.maxFinite,
               child: DropdownButtonFormField<String?>(
                 initialValue: selectedBoxSelection,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Caixa'),
+                decoration: InputDecoration(labelText: l10n.box),
                 items: <DropdownMenuItem<String?>>[
                   DropdownMenuItem<String?>(
                     value: _toyBoxNoSelectionValue,
-                    child: _dropdownLabel('Selecionar caixa'),
+                    child: _dropdownLabel(l10n.selectBox),
                   ),
                   DropdownMenuItem<String?>(
                     value: _toyBoxWithoutBoxValue,
-                    child: _dropdownLabel('Sem caixa'),
+                    child: _dropdownLabel(l10n.noBox),
                   ),
                   ...boxes.map(
                     (b) => DropdownMenuItem<String?>(
                       value: b.id,
-                      child: _dropdownLabel('Caixa ${b.number} - ${b.local}'),
+                      child: _dropdownLabel(
+                        l10n.boxLocationLabel(b.number, b.local),
+                      ),
                     ),
                   ),
                 ],
@@ -324,13 +332,19 @@ class ToyDetailPage extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancelar'),
+                child: Text(l10n.cancel),
               ),
               FilledButton(
                 onPressed: () {
                   if (selectedBoxSelection == _toyBoxNoSelectionValue) {
                     messenger.showSnackBar(
-                      const SnackBar(content: Text(_toyBoxRequiredMessage)),
+                      SnackBar(
+                        content: Text(
+                          l10n.isEn
+                              ? 'Select a box or choose "No box" to save the toy.'
+                              : _toyBoxRequiredMessage,
+                        ),
+                      ),
                     );
                     return;
                   }
@@ -342,7 +356,7 @@ class ToyDetailPage extends StatelessWidget {
                         : selectedBoxSelection,
                   );
                 },
-                child: const Text('Salvar'),
+                child: Text(l10n.save),
               ),
             ],
           );
@@ -368,15 +382,20 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Future<void> _deleteToy(BuildContext context) async {
+    final l10n = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir brinquedo?'),
-        content: const Text('Esta acao nao pode ser desfeita.'),
+        title: Text(l10n.isEn ? 'Delete toy?' : 'Excluir brinquedo?'),
+        content: Text(
+          l10n.isEn
+              ? 'This action cannot be undone.'
+              : 'Esta acao nao pode ser desfeita.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -384,7 +403,7 @@ class ToyDetailPage extends StatelessWidget {
               foregroundColor: UiTokens.surface,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Excluir'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -430,12 +449,13 @@ class ToyDetailPage extends StatelessWidget {
 
   Widget _photoOrPlaceholder(BuildContext context, String? path) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     final p = (path ?? '').trim();
     if (p.isEmpty) {
       return Container(
         color: UiTokens.primarySoft,
-        child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
+        child: Center(child: Text(l10n.noPhoto, style: textTheme.bodySmall)),
       );
     }
 
@@ -446,7 +466,7 @@ class ToyDetailPage extends StatelessWidget {
       errorBuilder: (_, __, ___) {
         return Container(
           color: UiTokens.primarySoft,
-          child: Center(child: Text('Sem foto', style: textTheme.bodySmall)),
+          child: Center(child: Text(l10n.noPhoto, style: textTheme.bodySmall)),
         );
       },
     );
@@ -469,8 +489,9 @@ class ToyDetailPage extends StatelessWidget {
   }
 
   Widget _buildPhotoMenuButton(BuildContext context) {
+    final l10n = context.l10n;
     return PopupMenuButton<String>(
-      tooltip: 'Ações da foto',
+      tooltip: l10n.photoActions,
       onSelected: (value) {
         if (value == _photoMenuCamera) {
           _pick(context, ImageSource.camera);
@@ -484,18 +505,18 @@ class ToyDetailPage extends StatelessWidget {
           _remove(context);
         }
       },
-      itemBuilder: (context) => const [
+      itemBuilder: (context) => [
         PopupMenuItem<String>(
           value: _photoMenuCamera,
-          child: Text('Tirar foto'),
+          child: Text(l10n.takePhoto),
         ),
         PopupMenuItem<String>(
           value: _photoMenuGallery,
-          child: Text('Escolher da galeria'),
+          child: Text(l10n.chooseFromGallery),
         ),
         PopupMenuItem<String>(
           value: _photoMenuRemove,
-          child: Text('Remover foto'),
+          child: Text(l10n.removePhoto),
         ),
       ],
     );
@@ -506,6 +527,7 @@ class ToyDetailPage extends StatelessWidget {
     required _ToyDetailViewData detail,
   }) {
     final data = detail.data;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
@@ -532,7 +554,7 @@ class ToyDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: UiTokens.spacingXs),
                           Text(
-                            'Foto, categoria e localização em uma visão simples.',
+                            l10n.toyDetailIntro,
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium
@@ -547,7 +569,7 @@ class ToyDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(width: UiTokens.spacingSm),
                     PopupMenuButton<String>(
-                      tooltip: 'Ações do brinquedo',
+                      tooltip: l10n.toyActions,
                       onSelected: (value) {
                         if (data == null) return;
                         if (value == _detailsMenuRename) {
@@ -572,22 +594,22 @@ class ToyDetailPage extends StatelessWidget {
                           _deleteToy(context);
                         }
                       },
-                      itemBuilder: (context) => const [
+                      itemBuilder: (context) => [
                         PopupMenuItem<String>(
                           value: _detailsMenuRename,
-                          child: Text('Editar nome'),
+                          child: Text(l10n.editName),
                         ),
                         PopupMenuItem<String>(
                           value: _detailsMenuCategory,
-                          child: Text('Editar categoria'),
+                          child: Text(l10n.editCategory),
                         ),
                         PopupMenuItem<String>(
                           value: _detailsMenuBox,
-                          child: Text('Editar caixa'),
+                          child: Text(l10n.editBox),
                         ),
                         PopupMenuItem<String>(
                           value: _detailsMenuDelete,
-                          child: Text('Excluir brinquedo'),
+                          child: Text(l10n.deleteToy),
                         ),
                       ],
                       child: Container(
@@ -613,7 +635,7 @@ class ToyDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Foto',
+                      l10n.photo,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: UiTokens.spacingMd),
@@ -653,7 +675,7 @@ class ToyDetailPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Toque na foto para abrir em destaque.',
+                            l10n.tapPhotoFullScreen,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -670,24 +692,24 @@ class ToyDetailPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Informações',
+                      l10n.information,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
                     const SizedBox(height: UiTokens.spacingMd),
-                    _InfoBlock(label: 'Nome', value: detail.title),
+                    _InfoBlock(label: l10n.name, value: detail.title),
                     const SizedBox(height: UiTokens.spacingMd),
-                    _InfoBlock(label: 'Caixa', value: detail.boxLabel),
+                    _InfoBlock(label: l10n.box, value: detail.boxLabel),
                     const SizedBox(height: UiTokens.spacingMd),
                     _InfoBlock(
-                      label: 'Categoria',
+                      label: l10n.category,
                       value: detail.categoryLabel,
                       accent: true,
                     ),
                     const SizedBox(height: UiTokens.spacingMd),
                     _InfoBlock(
                       label: detail.box != null
-                          ? 'Local da caixa'
-                          : 'Local sem caixa',
+                          ? l10n.boxLocation
+                          : l10n.unboxedLocation,
                       value: detail.effectiveLocationLabel,
                     ),
                   ],
@@ -845,6 +867,7 @@ class ToyDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return StreamBuilder<List<CategoryDefinition>>(
       stream: toyRepository.watchCategories(),
       builder: (context, categoriesSnapshot) {
@@ -857,17 +880,17 @@ class ToyDetailPage extends StatelessWidget {
             final data = snapshot.data;
 
             final title = (data == null || data.toy.name.trim().isEmpty)
-                ? 'Brinquedo'
-                : data.toy.name;
+                ? l10n.toy
+                : l10n.toyDisplayName(data.toy.name);
 
             final photoPath = data?.toy.photoPath;
             final box = data?.box;
             final boxLabel = (box == null)
-                ? 'Sem caixa'
-                : 'Caixa ${box.number} - ${box.local}';
+                ? l10n.noBox
+                : l10n.boxLocationLabel(box.number, box.local);
             final locationText = (data?.toy.locationText ?? '').trim();
             final categoryId = (data?.toy.categoryId ?? '').trim();
-            final categoryLabel = categories
+            final rawCategoryLabel = categories
                     .where((c) => c.id == categoryId)
                     .map((c) => c.name.trim())
                     .cast<String?>()
@@ -875,12 +898,17 @@ class ToyDetailPage extends StatelessWidget {
                       (c) => c != null && c.isNotEmpty,
                       orElse: () => null,
                     ) ??
-                'Sem categoria';
+                l10n.noCategory;
+            final categoryLabel = l10n.categoryName(rawCategoryLabel);
             final effectiveLocationLabel = box != null
-                ? (box.local.trim().isEmpty ? 'Sem local' : box.local.trim())
-                : (locationText.isEmpty ? 'Sem local' : locationText);
+                ? (box.local.trim().isEmpty
+                    ? l10n.noLocation
+                    : l10n.value(box.local.trim()))
+                : (locationText.isEmpty
+                    ? l10n.noLocation
+                    : l10n.value(locationText));
             final locationFieldLabel =
-                box != null ? 'Local da caixa' : 'Local fora da caixa';
+                box != null ? l10n.boxLocation : l10n.outsideBoxLocation;
             final detail = _ToyDetailViewData(
               data: data,
               title: title,
@@ -1000,6 +1028,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       child: Row(
@@ -1037,7 +1066,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'RODÍZIO DE BRINQUEDOS',
+                  l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1077,7 +1106,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onBack,
             icon: const Icon(Icons.arrow_back_rounded),
-            label: const Text('Voltar'),
+            label: Text(l10n.back),
             style: OutlinedButton.styleFrom(
               foregroundColor: _ToyDetailIpadPalette.orangeDark,
               side: const BorderSide(color: _ToyDetailIpadPalette.orangeBorder),
@@ -1088,7 +1117,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
           FilledButton.icon(
             onPressed: onEdit,
             icon: const Icon(Icons.edit_rounded),
-            label: const Text('Editar'),
+            label: Text(l10n.edit),
             style: FilledButton.styleFrom(
               backgroundColor: _ToyDetailIpadPalette.orange,
               foregroundColor: Colors.white,
@@ -1116,6 +1145,7 @@ class _ToyDetailIpadPhotoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1124,7 +1154,7 @@ class _ToyDetailIpadPhotoCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Foto do brinquedo',
+                  l10n.toyPhoto,
                   style: UiTokens.textSectionTitle.copyWith(
                     color: _ToyDetailIpadPalette.text,
                     fontWeight: FontWeight.w900,
@@ -1162,8 +1192,10 @@ class _ToyDetailIpadPhotoCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   detail.hasPhoto
-                      ? 'Toque na foto para abrir em destaque.'
-                      : 'Adicione uma foto para facilitar a identificação.',
+                      ? l10n.tapPhotoFullScreen
+                      : (l10n.isEn
+                          ? 'Add a photo to make this toy easier to identify.'
+                          : 'Adicione uma foto para facilitar a identificação.'),
                   style: UiTokens.textCaption.copyWith(
                     color: _ToyDetailIpadPalette.textMuted,
                     fontWeight: FontWeight.w600,
@@ -1185,6 +1217,7 @@ class _ToyDetailIpadPreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       padding: const EdgeInsets.all(20),
       child: Row(
@@ -1208,7 +1241,7 @@ class _ToyDetailIpadPreviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Prévia no catálogo',
+                  l10n.isEn ? 'Catalog preview' : 'Prévia no catálogo',
                   style: UiTokens.textCaption.copyWith(
                     color: _ToyDetailIpadPalette.textMuted,
                     fontWeight: FontWeight.w800,
@@ -1256,18 +1289,21 @@ class _ToyDetailIpadOrganizationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyDetailIpadSectionTitle(
+          _ToyDetailIpadSectionTitle(
             icon: Icons.inventory_2_outlined,
-            title: 'Organização',
-            subtitle: 'Onde este brinquedo fica guardado',
+            title: l10n.isEn ? 'Organization' : 'Organização',
+            subtitle: l10n.isEn
+                ? 'Where this toy is stored'
+                : 'Onde este brinquedo fica guardado',
           ),
           const SizedBox(height: 18),
           _ToyDetailIpadInfoRow(
-            label: 'Caixa',
+            label: l10n.box,
             value: detail.boxLabel,
             icon: Icons.inventory_2_outlined,
             onTap: onEditBox,
@@ -1280,7 +1316,7 @@ class _ToyDetailIpadOrganizationCard extends StatelessWidget {
           ),
           const Divider(height: 22, color: _ToyDetailIpadPalette.border),
           _ToyDetailIpadInfoRow(
-            label: 'Categoria',
+            label: l10n.category,
             value: detail.categoryLabel,
             icon: Icons.category_outlined,
             onTap: onEditCategory,
@@ -1288,10 +1324,10 @@ class _ToyDetailIpadOrganizationCard extends StatelessWidget {
           ),
           const Divider(height: 22, color: _ToyDetailIpadPalette.border),
           _ToyDetailIpadInfoRow(
-            label: 'Estado',
+            label: l10n.isEn ? 'Status' : 'Estado',
             value: detail.hasCompleteOrganization
-                ? 'Organização completa'
-                : 'Precisa revisar',
+                ? (l10n.isEn ? 'Organization complete' : 'Organização completa')
+                : (l10n.isEn ? 'Needs review' : 'Precisa revisar'),
             icon: detail.hasCompleteOrganization
                 ? Icons.check_circle_outline_rounded
                 : Icons.info_outline_rounded,
@@ -1310,14 +1346,17 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyDetailIpadSectionTitle(
+          _ToyDetailIpadSectionTitle(
             icon: Icons.autorenew_rounded,
-            title: 'No rodízio',
-            subtitle: 'Status usado pelas sugestões reais do app',
+            title: l10n.isEn ? 'In rotation' : 'No rodízio',
+            subtitle: l10n.isEn
+                ? 'Status used by real app suggestions'
+                : 'Status usado pelas sugestões reais do app',
           ),
           const SizedBox(height: 18),
           Container(
@@ -1340,7 +1379,9 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Disponível para rodadas',
+                        l10n.isEn
+                            ? 'Available for rotations'
+                            : 'Disponível para rodadas',
                         style: UiTokens.textBody.copyWith(
                           color: _ToyDetailIpadPalette.text,
                           fontWeight: FontWeight.w900,
@@ -1348,7 +1389,9 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'As sugestões usam a categoria, caixa e local cadastrados.',
+                        l10n.isEn
+                            ? 'Suggestions use the saved category, box, and location.'
+                            : 'As sugestões usam a categoria, caixa e local cadastrados.',
                         style: UiTokens.textCaption.copyWith(
                           color: _ToyDetailIpadPalette.textMid,
                           fontWeight: FontWeight.w600,
@@ -1362,7 +1405,9 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'Este cadastro não tem pausa, doação ou previsão individual nesta versão.',
+            l10n.isEn
+                ? 'This toy has no individual pause, donation, or forecast in this version.'
+                : 'Este cadastro não tem pausa, doação ou previsão individual nesta versão.',
             style: UiTokens.textCaption.copyWith(
               color: _ToyDetailIpadPalette.textMuted,
               fontWeight: FontWeight.w600,
@@ -1394,48 +1439,55 @@ class _ToyDetailIpadActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _ToyDetailIpadSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyDetailIpadSectionTitle(
+          _ToyDetailIpadSectionTitle(
             icon: Icons.touch_app_outlined,
-            title: 'Ações',
-            subtitle: 'Atalhos de edição deste brinquedo',
+            title: l10n.isEn ? 'Actions' : 'Ações',
+            subtitle: l10n.isEn
+                ? 'Editing shortcuts for this toy'
+                : 'Atalhos de edição deste brinquedo',
           ),
           const SizedBox(height: 14),
           _ToyDetailIpadActionRow(
             icon: Icons.edit_note_rounded,
-            title: 'Editar nome',
+            title: l10n.editName,
             subtitle: detail.title,
             onTap: onRename,
           ),
           const Divider(height: 16, color: _ToyDetailIpadPalette.border),
           _ToyDetailIpadActionRow(
             icon: Icons.category_outlined,
-            title: 'Editar categoria',
+            title: l10n.editCategory,
             subtitle: detail.categoryLabel,
             onTap: onEditCategory,
           ),
           const Divider(height: 16, color: _ToyDetailIpadPalette.border),
           _ToyDetailIpadActionRow(
             icon: Icons.inventory_2_outlined,
-            title: 'Editar caixa',
+            title: l10n.editBox,
             subtitle: detail.boxLabel,
             onTap: onEditBox,
           ),
           const Divider(height: 16, color: _ToyDetailIpadPalette.border),
           _ToyDetailIpadActionRow(
             icon: Icons.photo_camera_outlined,
-            title: 'Alterar foto',
-            subtitle: detail.hasPhoto ? 'Foto cadastrada' : 'Sem foto',
+            title: l10n.isEn ? 'Change photo' : 'Alterar foto',
+            subtitle: detail.hasPhoto
+                ? (l10n.isEn ? 'Photo saved' : 'Foto cadastrada')
+                : l10n.noPhoto,
             onTap: onPhoto,
           ),
           const SizedBox(height: 18),
           _ToyDetailIpadActionRow(
             icon: Icons.delete_outline_rounded,
-            title: 'Excluir brinquedo',
-            subtitle: 'Remove o brinquedo do catálogo',
+            title: l10n.deleteToy,
+            subtitle: l10n.isEn
+                ? 'Removes the toy from the catalog'
+                : 'Remove o brinquedo do catálogo',
             onTap: onDelete,
             destructive: true,
           ),

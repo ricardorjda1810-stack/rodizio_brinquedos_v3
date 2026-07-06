@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
+
 class Bootstrap extends StatelessWidget {
   const Bootstrap({super.key});
 
@@ -7,6 +9,8 @@ class Bootstrap extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Rodízio de Brinquedos'),
@@ -21,7 +25,7 @@ class Bootstrap extends StatelessWidget {
                   'Versão mobile no momento',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
-                 ),
+                ),
                 SizedBox(height: 12),
                 Text(
                   'Esta versão do app está configurada para rodar em Android/iOS apenas.',

@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/weekly_planning_overview.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
@@ -253,6 +254,7 @@ class _WeeklyPlanningOverviewPageState
   @override
   Widget build(BuildContext context) {
     final isIpad = MediaQuery.sizeOf(context).width >= 860;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: _FigmaPlanningPalette.bg,
@@ -260,7 +262,7 @@ class _WeeklyPlanningOverviewPageState
           ? null
           : AppBar(
               backgroundColor: _FigmaPlanningPalette.bg,
-              title: const Text('Planejamento semanal'),
+              title: Text(l10n.weeklyPlanning),
             ),
       body: SafeArea(
         child: Column(
@@ -450,6 +452,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _FigmaSurface(
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
       child: Row(
@@ -461,7 +464,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'RODÍZIO DE BRINQUEDOS',
+                  l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -472,7 +475,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Planejamento semanal',
+                  l10n.weeklyPlanning,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textSectionTitle.copyWith(
@@ -485,8 +488,12 @@ class _FigmaPlanningHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   overview.planningEnabled
-                      ? 'Veja a organização dos brinquedos para os próximos dias.'
-                      : 'Ative a programação para personalizar os próximos dias.',
+                      ? (l10n.isEn
+                          ? 'See toy organization for the next few days.'
+                          : 'Veja a organização dos brinquedos para os próximos dias.')
+                      : (l10n.isEn
+                          ? 'Enable the schedule to customize the next few days.'
+                          : 'Ative a programação para personalizar os próximos dias.'),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -503,14 +510,14 @@ class _FigmaPlanningHeader extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _FigmaHeaderButton(
-                label: 'Editar programação',
+                label: l10n.editSchedule,
                 icon: Icons.shuffle_rounded,
                 primary: true,
                 onTap: onOpenEditor,
               ),
               const SizedBox(width: 10),
               _FigmaHeaderButton(
-                label: 'Ajustar categorias',
+                label: l10n.adjustCategories,
                 icon: Icons.tune_rounded,
                 primary: false,
                 onTap: onOpenEditor,
@@ -1055,6 +1062,7 @@ class _FigmaWeekFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final categories = overview.categoryDistribution.length;
 
     return Container(
@@ -1069,10 +1077,10 @@ class _FigmaWeekFooter extends StatelessWidget {
           Expanded(
             child: Text.rich(
               TextSpan(
-                text: 'Total da semana: ',
+                text: l10n.isEn ? 'Week total: ' : 'Total da semana: ',
                 children: [
                   TextSpan(
-                    text: '${overview.totalToysInWeek} brinquedos na semana',
+                    text: l10n.toysForWeekCount(overview.totalToysInWeek),
                     style: const TextStyle(
                       color: _FigmaPlanningPalette.textMid,
                       fontWeight: FontWeight.w800,
@@ -1142,24 +1150,25 @@ class _FigmaSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final stats = [
       _FigmaStatData(
         value: '${overview.totalToysInWeek}',
-        label: 'brinquedos na semana',
+        label: l10n.toysThisWeek,
         foreground: _FigmaPlanningPalette.orange,
         background: _FigmaPlanningPalette.orangeLight,
         border: _FigmaPlanningPalette.orangeBorder,
       ),
       _FigmaStatData(
         value: _formatAverage(overview.averagePerDay),
-        label: 'média por dia',
+        label: l10n.averagePerDay,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
         border: const Color(0xFFDDD6FE),
       ),
       _FigmaStatData(
         value: '${overview.categoryDistribution.length}',
-        label: 'categorias equilibradas',
+        label: l10n.isEn ? 'balanced categories' : 'categorias equilibradas',
         foreground: _FigmaPlanningPalette.warmAccent,
         background: _FigmaPlanningPalette.warmLight,
         border: _FigmaPlanningPalette.warmBorder,
@@ -1171,9 +1180,11 @@ class _FigmaSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _FigmaSideCardTitle(
-            title: 'Resumo da semana',
-            subtitle: 'Visão consolidada do período',
+          _FigmaSideCardTitle(
+            title: l10n.weeklySummary,
+            subtitle: l10n.isEn
+                ? 'Consolidated view of the period'
+                : 'Visão consolidada do período',
           ),
           const SizedBox(height: 16),
           for (var index = 0; index < stats.length; index++) ...[
@@ -1260,6 +1271,7 @@ class _FigmaCategoriesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final items = overview.categoryDistribution;
     final categoryTotal =
         items.fold<int>(0, (total, item) => total + item.total);
@@ -1269,14 +1281,16 @@ class _FigmaCategoriesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _FigmaSideCardTitle(
-            title: 'Categorias da semana',
-            subtitle: 'Distribuição por tipo de brincadeira',
+          _FigmaSideCardTitle(
+            title: l10n.isEn ? 'Week categories' : 'Categorias da semana',
+            subtitle: l10n.categoryDistribution,
           ),
           const SizedBox(height: 14),
           if (items.isEmpty)
             Text(
-              'Inclua pelo menos uma categoria para ver a distribuição.',
+              l10n.isEn
+                  ? 'Include at least one category to see the distribution.'
+                  : 'Inclua pelo menos uma categoria para ver a distribuição.',
               style: UiTokens.textMicro.copyWith(
                 color: _FigmaPlanningPalette.textMuted,
                 fontWeight: FontWeight.w600,
@@ -1310,6 +1324,7 @@ class _FigmaCategoryProgressRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final percent = total <= 0 ? 0 : ((item.total / total) * 100).round();
     final widthFactor = total <= 0 ? 0.0 : (item.total / total).clamp(0.0, 1.0);
 
@@ -1328,7 +1343,7 @@ class _FigmaCategoryProgressRow extends StatelessWidget {
             const SizedBox(width: 7),
             Expanded(
               child: Text(
-                item.categoryName,
+                l10n.categoryName(item.categoryName),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: UiTokens.textMicro.copyWith(
@@ -1340,7 +1355,7 @@ class _FigmaCategoryProgressRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              '${item.total} brinq.',
+              l10n.compactToysCount(item.total),
               maxLines: 1,
               style: UiTokens.textMicro.copyWith(
                 color: _FigmaPlanningPalette.textMuted,
@@ -1392,23 +1407,24 @@ class _FigmaQuickActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final actions = [
       _FigmaActionData(
-        label: 'Editar programação',
+        label: l10n.editSchedule,
         icon: Icons.edit_calendar_outlined,
         foreground: _FigmaPlanningPalette.orange,
         background: _FigmaPlanningPalette.orangeLight,
         onTap: onOpenEditor,
       ),
       _FigmaActionData(
-        label: 'Ajustar categorias',
+        label: l10n.adjustCategories,
         icon: Icons.tune_rounded,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
         onTap: onOpenEditor,
       ),
       _FigmaActionData(
-        label: 'Revisar cotas',
+        label: l10n.isEn ? 'Review quotas' : 'Revisar cotas',
         icon: Icons.rule_rounded,
         foreground: _FigmaPlanningPalette.warmAccent,
         background: _FigmaPlanningPalette.warmLight,
@@ -1742,16 +1758,25 @@ class _PlanningHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final title = overview.planningEnabled
-        ? 'Planeje a semana sem improviso'
-        : 'Ative o planejamento semanal';
+        ? (l10n.isEn
+            ? 'Plan the week with confidence'
+            : 'Planeje a semana sem improviso')
+        : (l10n.isEn
+            ? 'Enable weekly planning'
+            : 'Ative o planejamento semanal');
     final subtitle = overview.planningEnabled
-        ? 'Veja os próximos dias e ajuste quantidades por categoria.'
-        : 'A semana usa o padrão até você ativar a programação.';
+        ? (l10n.isEn
+            ? 'See the next few days and adjust quantities by category.'
+            : 'Veja os próximos dias e ajuste quantidades por categoria.')
+        : (l10n.isEn
+            ? 'The week uses the default setup until you enable scheduling.'
+            : 'A semana usa o padrão até você ativar a programação.');
     final action = FilledButton.icon(
       onPressed: onOpenEditor,
       icon: const Icon(Icons.edit_calendar_outlined),
-      label: const Text('Editar programação'),
+      label: Text(l10n.editSchedule),
       style: FilledButton.styleFrom(
         backgroundColor: UiTokens.actionOrange,
         foregroundColor: Colors.white,
@@ -1895,6 +1920,7 @@ class _PlanningDisabledNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppSurfaceCard(
       color: UiTokens.actionOrangeSoft,
       child: Row(
@@ -1904,7 +1930,9 @@ class _PlanningDisabledNotice extends StatelessWidget {
           const SizedBox(width: UiTokens.spacingSm),
           Expanded(
             child: Text(
-              'Planejamento semanal desativado. A semana abaixo usa a configuração padrão até você ativar a programação.',
+              l10n.isEn
+                  ? 'Weekly planning is disabled. The week below uses the default setup until you enable scheduling.'
+                  : 'Planejamento semanal desativado. A semana abaixo usa a configuração padrão até você ativar a programação.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: UiTokens.textSecondary,
                     height: 1.35,
@@ -1914,7 +1942,7 @@ class _PlanningDisabledNotice extends StatelessWidget {
           const SizedBox(width: UiTokens.spacingSm),
           TextButton(
             onPressed: onOpenEditor,
-            child: const Text('Configurar'),
+            child: Text(l10n.isEn ? 'Configure' : 'Configurar'),
           ),
         ],
       ),
@@ -1934,20 +1962,21 @@ class _WeekSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final metrics = [
       _MetricData(
         icon: Icons.toys_outlined,
-        label: 'brinquedos na semana',
+        label: l10n.toysThisWeek,
         value: '${overview.totalToysInWeek}',
       ),
       _MetricData(
         icon: Icons.calendar_today_outlined,
-        label: 'média por dia',
+        label: l10n.averagePerDay,
         value: _formatAverage(overview.averagePerDay),
       ),
       _MetricData(
         icon: Icons.inventory_2_outlined,
-        label: 'caixas em uso',
+        label: l10n.boxesInUse,
         value: '${overview.boxesInUse}',
       ),
     ];
@@ -1958,7 +1987,7 @@ class _WeekSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Resumo da semana',
+            l10n.weeklySummary,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -1966,8 +1995,10 @@ class _WeekSummaryCard extends StatelessWidget {
           const SizedBox(height: UiTokens.spacingSm),
           Text(
             overview.hasConfiguredToys
-                ? 'Totais consideram a rodada de hoje e os próximos dias.'
-                : 'Nenhuma categoria com quantidade ativa nesta semana.',
+                ? l10n.weeklyTotalsSubtitle
+                : (l10n.isEn
+                    ? 'No category has an active quantity this week.'
+                    : 'Nenhuma categoria com quantidade ativa nesta semana.'),
             style: textTheme.bodySmall?.copyWith(
               color: UiTokens.textSecondary,
               height: 1.35,
@@ -2076,6 +2107,7 @@ class _CategoryDistributionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final items = overview.categoryDistribution;
 
     return AppSurfaceCard(
@@ -2084,7 +2116,7 @@ class _CategoryDistributionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Distribuição por categoria',
+            l10n.categoryDistribution,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -2092,7 +2124,9 @@ class _CategoryDistributionCard extends StatelessWidget {
           const SizedBox(height: UiTokens.spacingSm),
           if (items.isEmpty)
             Text(
-              'Inclua pelo menos uma categoria para ver a distribuição.',
+              l10n.isEn
+                  ? 'Include at least one category to see the distribution.'
+                  : 'Inclua pelo menos uma categoria para ver a distribuição.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: UiTokens.textSecondary,
                   ),
@@ -2126,6 +2160,7 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       constraints: const BoxConstraints(minWidth: 142, maxWidth: 250),
       padding: const EdgeInsets.symmetric(
@@ -2144,7 +2179,7 @@ class _CategoryChip extends StatelessWidget {
           const SizedBox(width: UiTokens.spacingSm),
           Flexible(
             child: Text(
-              item.categoryName,
+              l10n.categoryName(item.categoryName),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -2181,13 +2216,14 @@ class _WeekScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppSurfaceCard(
       padding: EdgeInsets.all(isIpad ? 26 : UiTokens.spacingLg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Programação da semana',
+            l10n.weekSchedule,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -2195,7 +2231,9 @@ class _WeekScheduleCard extends StatelessWidget {
           const SizedBox(height: UiTokens.spacingSm),
           if (!overview.hasConfiguredToys) ...[
             Text(
-              'Defina quantidades por categoria para montar a semana.',
+              l10n.isEn
+                  ? 'Set quantities by category to build the week.'
+                  : 'Defina quantidades por categoria para montar a semana.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: UiTokens.textSecondary,
                   ),
@@ -2308,14 +2346,16 @@ class _DayLabelBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateLabel = DateFormat('dd/MM', 'pt_BR').format(day.date);
-    final configLabel = day.isCustomConfig ? 'Personalizado' : 'Padrão';
+    final l10n = context.l10n;
+    final dateLabel = DateFormat.yMd(l10n.dateLocale).format(day.date);
+    final configLabel = day.isCustomConfig ? l10n.custom : l10n.standard;
+    final weekdayLabel = DateFormat.EEEE(l10n.dateLocale).format(day.date);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          day.weekdayLabel,
+          weekdayLabel,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -2353,11 +2393,10 @@ class _ToyThumbnailStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (toys.isEmpty) {
       return Text(
-        total == 0
-            ? 'Nenhum brinquedo planejado'
-            : 'Sem brinquedos suficientes',
+        total == 0 ? l10n.noPlannedToys : l10n.notEnoughToys,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -3019,6 +3058,7 @@ class _EditButtonBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.fromLTRB(
         UiTokens.spacingMd,
@@ -3039,7 +3079,7 @@ class _EditButtonBar extends StatelessWidget {
         child: FilledButton.icon(
           onPressed: onPressed,
           icon: const Icon(Icons.edit_calendar_outlined),
-          label: const Text('Editar programação'),
+          label: Text(l10n.editSchedule),
           style: FilledButton.styleFrom(
             backgroundColor: UiTokens.actionOrange,
             foregroundColor: Colors.white,

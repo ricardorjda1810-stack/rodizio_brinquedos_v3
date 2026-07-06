@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_controller.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_state.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -251,21 +252,23 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
   String _categoryLabel(
     BrinquedosCatalogItem item,
     Map<String, String> categoryById,
+    AppLocalizations l10n,
   ) {
     final id = item.toy.categoryId.trim();
-    if (id.isEmpty) return 'Sem categoria';
-    return categoryById[id] ?? id;
+    if (id.isEmpty) return l10n.noCategory;
+    return l10n.categoryName(categoryById[id] ?? id);
   }
 
-  String _boxAndLocationLabel(BrinquedosCatalogItem item) {
+  String _boxAndLocationLabel(
+      BrinquedosCatalogItem item, AppLocalizations l10n) {
     final boxName =
-        item.box != null ? 'Caixa ${item.box!.number}' : 'Sem caixa';
+        item.box != null ? l10n.boxNumber(item.box!.number) : l10n.noBox;
     final boxLocation = (item.box?.local ?? '').trim();
     final toyLocation = (item.toy.locationText ?? '').trim();
     final location = boxLocation.isNotEmpty
-        ? boxLocation
-        : (toyLocation.isNotEmpty ? toyLocation : 'Sem local');
-    return '$boxName - Local: $location';
+        ? l10n.value(boxLocation)
+        : (toyLocation.isNotEmpty ? l10n.value(toyLocation) : l10n.noLocation);
+    return l10n.boxAndLocation(boxName: boxName, location: location);
   }
 
   Future<void> _editToyCategoryFromList(
@@ -594,8 +597,8 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BrinquedosCatalogItem item, {
     required String categoryLabel,
   }) {
-    final displayName =
-        item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
+    final l10n = context.l10n;
+    final displayName = l10n.toyDisplayName(item.toy.name);
 
     return InkWell(
       borderRadius: BorderRadius.circular(UiTokens.radiusButton),
@@ -624,7 +627,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _boxAndLocationLabel(item),
+                    _boxAndLocationLabel(item, l10n),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodySmall,
@@ -700,7 +703,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
         _buildToyRow(
           context,
           item,
-          categoryLabel: _categoryLabel(item, categoryById),
+          categoryLabel: _categoryLabel(item, categoryById, context.l10n),
         ),
       );
       if (index < items.length - 1) {
@@ -719,12 +722,14 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Cat\u00e1logo de brinquedos',
+            context.l10n.catalog,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: UiTokens.spacingXs),
           Text(
-            '${items.length} itens nesta visualiza\u00e7\u00e3o',
+            context.l10n.isEn
+                ? '${items.length} items in this view'
+                : '${items.length} itens nesta visualiza\u00e7\u00e3o',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: UiTokens.spacingMd),
@@ -734,35 +739,46 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     );
   }
 
-  List<FilterOption> _boxOptions(BrinquedosCatalogState state) {
+  List<FilterOption> _boxOptions(
+    BrinquedosCatalogState state,
+    AppLocalizations l10n,
+  ) {
     return [
-      const FilterOption(
+      FilterOption(
         id: BrinquedosCatalogState.boxFilterAll,
-        label: 'Caixa: Todas',
+        label: '${l10n.box}: ${l10n.all}',
       ),
-      const FilterOption(
+      FilterOption(
         id: BrinquedosCatalogState.boxFilterNone,
-        label: 'Caixa: Sem caixa',
+        label: '${l10n.box}: ${l10n.noBox}',
       ),
       ...state.boxes.map(
         (b) => FilterOption(
           id: b.id,
-          label: 'Caixa ${b.number} - ${b.local}',
+          label: l10n.boxLocationLabel(b.number, b.local),
         ),
       ),
     ];
   }
 
-  List<FilterOption> _categoryOptions(BrinquedosCatalogState state) {
+  List<FilterOption> _categoryOptions(
+    BrinquedosCatalogState state,
+    AppLocalizations l10n,
+  ) {
     return [
-      const FilterOption(id: '', label: 'Categoria: Todas'),
-      ...state.categories
-          .map((c) => FilterOption(id: c.id, label: 'Categoria: ${c.label}')),
+      FilterOption(id: '', label: '${l10n.category}: ${l10n.all}'),
+      ...state.categories.map(
+        (c) => FilterOption(
+          id: c.id,
+          label: '${l10n.category}: ${l10n.categoryName(c.label)}',
+        ),
+      ),
     ];
   }
 
   ({List<FilterOption> locations, bool hasRealLocations}) _locationOptions(
     List<BrinquedosCatalogItem> baseItems,
+    AppLocalizations l10n,
   ) {
     final set = <String>{};
 
@@ -776,9 +792,17 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
 
     return (
       locations: [
-        const FilterOption(id: _localAll, label: 'Local: Todos'),
-        const FilterOption(id: _localNone, label: 'Local: Sem local'),
-        ...list.map((loc) => FilterOption(id: loc, label: 'Local: $loc')),
+        FilterOption(id: _localAll, label: '${l10n.location}: ${l10n.all}'),
+        FilterOption(
+          id: _localNone,
+          label: '${l10n.location}: ${l10n.noLocation}',
+        ),
+        ...list.map(
+          (loc) => FilterOption(
+            id: loc,
+            label: '${l10n.location}: ${l10n.value(loc)}',
+          ),
+        ),
       ],
       hasRealLocations: list.isNotEmpty,
     );
@@ -825,8 +849,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     required bool showClear,
   }) {
     final bottomPadding = AppBottomNavigation.reservedScrollPadding(context);
-    final boxOptions = _boxOptions(state);
-    final categoryOptions = _categoryOptions(state);
+    final l10n = context.l10n;
+    final boxOptions = _boxOptions(state, l10n);
+    final categoryOptions = _categoryOptions(state, l10n);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -906,6 +931,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -922,10 +948,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                 final selectedCategoryId = state.selectedCategoryId ?? '';
                 final baseItems = state.filteredItems;
                 final categoryById = <String, String>{
-                  for (final c in state.categories) c.id: c.label,
+                  for (final c in state.categories)
+                    c.id: l10n.categoryName(c.label),
                 };
 
-                final locInfo = _locationOptions(baseItems);
+                final locInfo = _locationOptions(baseItems, l10n);
                 if (!locInfo.locations
                     .any((e) => e.id == _selectedLocalFilter)) {
                   _selectedLocalFilter = _localAll;
@@ -959,10 +986,13 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
                     child: EmptyState(
                       icon: Icons.toys,
-                      title: 'Nenhum brinquedo cadastrado',
-                      message:
-                          'Adicione brinquedos para montar seu catálogo visual.',
-                      actionLabel: 'Novo brinquedo',
+                      title: l10n.isEn
+                          ? 'Add the toys from your home'
+                          : 'Agora cadastre os brinquedos da sua casa',
+                      message: l10n.isEn
+                          ? 'Add real toys to build your visual catalog.'
+                          : 'Adicione os brinquedos reais para montar seu cat\u00e1logo visual.',
+                      actionLabel: l10n.newToy,
                       onAction: () => _openToyCreate(context),
                     ),
                   );
@@ -973,10 +1003,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     padding: const EdgeInsets.symmetric(horizontal: UiTokens.m),
                     child: EmptyState(
                       icon: Icons.search_off,
-                      title: 'Nenhum resultado',
-                      message:
-                          'Ajuste busca e filtros para encontrar brinquedos.',
-                      actionLabel: 'Limpar',
+                      title: l10n.isEn ? 'No results' : 'Nenhum resultado',
+                      message: l10n.isEn
+                          ? 'Adjust search and filters to find toys.'
+                          : 'Ajuste busca e filtros para encontrar brinquedos.',
+                      actionLabel: l10n.isEn ? 'Clear' : 'Limpar',
                       onAction: _clearFilters,
                     ),
                   );
@@ -999,12 +1030,14 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Brinquedos da casa',
+                              l10n.isEn ? 'Toys at home' : 'Brinquedos da casa',
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: UiTokens.spacingXs),
                             Text(
-                              'Cadastre, encontre e organize os brinquedos sem perder tempo.',
+                              l10n.isEn
+                                  ? 'Add, find, and organize toys without wasting time.'
+                                  : 'Cadastre, encontre e organize os brinquedos sem perder tempo.',
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -1026,7 +1059,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                   child: FilledButton.icon(
                                     onPressed: () => _openToyCreate(context),
                                     icon: const Icon(Icons.add_rounded),
-                                    label: const Text('Novo brinquedo'),
+                                    label: Text(l10n.newToy),
                                   ),
                                 ),
                                 SizedBox(
@@ -1047,8 +1080,10 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                                         : const Icon(Icons.shuffle_rounded),
                                     label: Text(
                                       _startingRound
-                                          ? 'Montando...'
-                                          : 'Montar rodada',
+                                          ? (l10n.isEn
+                                              ? 'Building...'
+                                              : 'Montando...')
+                                          : l10n.buildRotation,
                                     ),
                                   ),
                                 ),
@@ -1059,8 +1094,8 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                       ),
                       const SizedBox(height: UiTokens.spacingMd),
                       FilterBar(
-                        boxes: _boxOptions(state),
-                        categories: _categoryOptions(state),
+                        boxes: _boxOptions(state, l10n),
+                        categories: _categoryOptions(state, l10n),
                         locations: locInfo.locations,
                         selectedBoxId: state.selectedBoxFilter,
                         selectedCategoryId: selectedCategoryId,
@@ -1109,6 +1144,7 @@ class _CatalogIpadHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _CatalogIpadSurface(
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 22),
       child: Row(
@@ -1121,7 +1157,7 @@ class _CatalogIpadHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Rodízio de Brinquedos',
+                  l10n.appName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1133,7 +1169,7 @@ class _CatalogIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Brinquedos',
+                  l10n.toys,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textTitle.copyWith(
@@ -1144,7 +1180,9 @@ class _CatalogIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Veja todos os brinquedos cadastrados e mantenha o acervo organizado.',
+                  l10n.isEn
+                      ? 'View every toy in the catalog and keep the collection organized.'
+                      : 'Veja todos os brinquedos cadastrados e mantenha o acervo organizado.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -1164,13 +1202,13 @@ class _CatalogIpadHeader extends StatelessWidget {
           const SizedBox(width: 14),
           _CatalogIpadPrimaryButton(
             icon: Icons.add_rounded,
-            label: 'Novo brinquedo',
+            label: l10n.newToy,
             onPressed: onNewToy,
           ),
           const SizedBox(width: 10),
           _CatalogIpadSecondaryButton(
             icon: Icons.tune_rounded,
-            label: filtersActive ? 'Filtros •' : 'Filtros',
+            label: filtersActive ? '${l10n.filters} •' : l10n.filters,
             active: filtersActive,
             onPressed: onFiltersPressed,
           ),
@@ -1191,6 +1229,7 @@ class _CatalogIpadHeaderStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       constraints: const BoxConstraints(minWidth: 104),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1214,7 +1253,9 @@ class _CatalogIpadHeaderStats extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            totalItems == visibleItems ? 'no acervo' : 'de $totalItems',
+            totalItems == visibleItems
+                ? l10n.inCollection
+                : (l10n.isEn ? 'of $totalItems' : 'de $totalItems'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
@@ -1282,9 +1323,14 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final subtitle = filtersActive
-        ? '${items.length} de $totalItems brinquedos · filtros ativos'
-        : '$totalItems brinquedos · acervo completo';
+        ? (l10n.isEn
+            ? '${items.length} of $totalItems toys · filters active'
+            : '${items.length} de $totalItems brinquedos · filtros ativos')
+        : (l10n.isEn
+            ? '$totalItems toys · full collection'
+            : '$totalItems brinquedos · acervo completo');
 
     return _CatalogIpadSurface(
       padding: EdgeInsets.zero,
@@ -1300,7 +1346,7 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Catálogo',
+                        l10n.catalog,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textSectionTitle.copyWith(
@@ -1312,7 +1358,9 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         totalItems == 0
-                            ? 'Nenhum brinquedo cadastrado'
+                            ? (l10n.isEn
+                                ? 'No toys added yet'
+                                : 'Nenhum brinquedo cadastrado')
                             : subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1327,8 +1375,8 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                 ),
                 if (filtersActive) ...[
                   const SizedBox(width: 12),
-                  const _CatalogIpadSmallPill(
-                    label: 'Filtros ativos',
+                  _CatalogIpadSmallPill(
+                    label: l10n.isEn ? 'Active filters' : 'Filtros ativos',
                     foreground: _CatalogIpadPalette.orange,
                     background: _CatalogIpadPalette.orangeLight,
                     border: _CatalogIpadPalette.orangeBorder,
@@ -1355,7 +1403,7 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                         return _CatalogIpadToyListItem(
                           item: item,
                           categoryLabel: categoryById[item.toy.categoryId] ??
-                              item.toy.categoryId,
+                              l10n.categoryName(item.toy.categoryId),
                           onTap: () => onToyTap(item.toy.id),
                         );
                       },
@@ -1389,6 +1437,7 @@ class _CatalogIpadEmptyCatalog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasNoToys = totalItems == 0;
+    final l10n = context.l10n;
 
     return Container(
       height: 286,
@@ -1404,8 +1453,10 @@ class _CatalogIpadEmptyCatalog extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             hasNoToys
-                ? 'Nenhum brinquedo cadastrado'
-                : 'Nenhum brinquedo encontrado',
+                ? (l10n.isEn
+                    ? 'Add the toys from your home'
+                    : 'Agora cadastre os brinquedos da sua casa')
+                : (l10n.isEn ? 'No toys found' : 'Nenhum brinquedo encontrado'),
             textAlign: TextAlign.center,
             style: UiTokens.textCaption.copyWith(
               color: _CatalogIpadPalette.textMuted,
@@ -1427,7 +1478,11 @@ class _CatalogIpadEmptyCatalog extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
             ),
-            child: Text(hasNoToys ? 'Novo brinquedo' : 'Limpar filtros'),
+            child: Text(
+              hasNoToys
+                  ? l10n.newToy
+                  : (l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
+            ),
           ),
         ],
       ),
@@ -1456,9 +1511,8 @@ class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = widget.item.toy.name.trim().isEmpty
-        ? 'Sem nome'
-        : widget.item.toy.name.trim();
+    final l10n = context.l10n;
+    final displayName = l10n.toyDisplayName(widget.item.toy.name);
     final categoryStyle = _catalogCategoryStyle(
       widget.item.toy.categoryId,
       widget.categoryLabel,
@@ -1543,14 +1597,14 @@ class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
                           children: [
                             _CatalogIpadSmallPill(
                               label: widget.categoryLabel.trim().isEmpty
-                                  ? 'Sem categoria'
-                                  : widget.categoryLabel,
+                                  ? l10n.noCategory
+                                  : l10n.categoryName(widget.categoryLabel),
                               foreground: categoryStyle.foreground,
                               background: categoryStyle.background,
                               border: categoryStyle.border,
                             ),
                             _CatalogIpadLocationPill(
-                              label: _catalogLocationLabel(widget.item),
+                              label: _catalogLocationLabel(widget.item, l10n),
                               foreground: locationColor,
                               highlighted: widget.item.box == null,
                             ),
@@ -1566,7 +1620,7 @@ class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
                     children: [
                       _CatalogIpadSmallPill(
                         label:
-                            widget.item.box == null ? 'Sem caixa' : 'Guardado',
+                            widget.item.box == null ? l10n.noBox : l10n.stored,
                         foreground: widget.item.box == null
                             ? const Color(0xFF92400E)
                             : _CatalogIpadPalette.orange,
@@ -1733,9 +1787,14 @@ class _CatalogIpadCatalogFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final text = totalItems == 0
-        ? 'Cadastre brinquedos para começar o catálogo'
-        : 'Mostrando $visibleItems de $totalItems brinquedos cadastrados';
+        ? (l10n.isEn
+            ? 'Add the toys from your home'
+            : 'Agora cadastre os brinquedos da sua casa')
+        : (l10n.isEn
+            ? 'Showing $visibleItems of $totalItems toys'
+            : 'Mostrando $visibleItems de $totalItems brinquedos cadastrados');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
@@ -1768,7 +1827,7 @@ class _CatalogIpadCatalogFooter extends StatelessWidget {
                 minimumSize: const Size(0, 32),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text('Limpar filtros'),
+              child: Text(l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
             ),
           ],
         ],
@@ -1812,6 +1871,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final categoryCount =
         categoryOptions.where((option) => option.id.isNotEmpty).length;
     final locationCount =
@@ -1823,32 +1883,32 @@ class _CatalogIpadSideColumn extends StatelessWidget {
         _CatalogIpadSearchCard(controller: searchController),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
-          title: 'Caixas',
+          title: l10n.boxes,
           options: boxOptions,
           selectedId: selectedBoxId,
           onChanged: onBoxChanged,
-          titleForValueLabel: 'Caixa',
+          titleForValueLabel: l10n.box,
           styleFor: _catalogBoxStyle,
           maxOptionsHeight: 146,
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
-          title: 'Categorias',
+          title: l10n.isEn ? 'Categories' : 'Categorias',
           options: categoryOptions,
           selectedId: selectedCategoryId,
           onChanged: onCategoryChanged,
-          titleForValueLabel: 'Categoria',
+          titleForValueLabel: l10n.category,
           styleFor: (option) => _catalogCategoryStyle(option.id, option.label),
           showCheck: true,
           maxOptionsHeight: 184,
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
-          title: 'Locais',
+          title: l10n.isEn ? 'Locations' : 'Locais',
           options: locationOptions,
           selectedId: selectedLocationId,
           onChanged: onLocationChanged,
-          titleForValueLabel: 'Local',
+          titleForValueLabel: l10n.location,
           styleFor: _catalogLocationStyle,
           maxOptionsHeight: 146,
         ),
@@ -1875,13 +1935,14 @@ class _CatalogIpadSearchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _CatalogIpadSurface(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Buscar brinquedo',
+            l10n.searchToy,
             style: UiTokens.textMicro.copyWith(
               color: _CatalogIpadPalette.textMuted,
               fontSize: 11.5,
@@ -1898,7 +1959,7 @@ class _CatalogIpadSearchCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
             decoration: InputDecoration(
-              hintText: 'Nome do brinquedo...',
+              hintText: '${l10n.toyName}...',
               hintStyle: UiTokens.textCaption.copyWith(
                 color: _CatalogIpadPalette.textMuted,
                 fontWeight: FontWeight.w500,
@@ -1911,7 +1972,7 @@ class _CatalogIpadSearchCard extends StatelessWidget {
               suffixIcon: controller.text.trim().isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Limpar busca',
+                      tooltip: l10n.isEn ? 'Clear search' : 'Limpar busca',
                       onPressed: controller.clear,
                       icon: const Icon(Icons.close_rounded, size: 18),
                     ),
@@ -2097,7 +2158,8 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final breakdown = _catalogBoxBreakdown(visibleItems);
+    final l10n = context.l10n;
+    final breakdown = _catalogBoxBreakdown(visibleItems, l10n);
 
     return _CatalogIpadSurface(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
@@ -2105,7 +2167,7 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Resumo',
+            l10n.isEn ? 'Summary' : 'Resumo',
             style: UiTokens.textCaption.copyWith(
               color: _CatalogIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -2122,28 +2184,28 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
             children: [
               _CatalogIpadStatTile(
                 value: '$totalItems',
-                label: 'Brinquedos',
+                label: l10n.toys,
                 foreground: _CatalogIpadPalette.orange,
                 background: _CatalogIpadPalette.orangeLight,
                 border: _CatalogIpadPalette.orangeBorder,
               ),
               _CatalogIpadStatTile(
                 value: '$categoryCount',
-                label: 'Categorias',
+                label: l10n.isEn ? 'Categories' : 'Categorias',
                 foreground: const Color(0xFF8B5CF6),
                 background: const Color(0xFFF5F3FF),
                 border: const Color(0xFFDDD6FE),
               ),
               _CatalogIpadStatTile(
                 value: '$boxesCount',
-                label: 'Caixas',
+                label: l10n.boxes,
                 foreground: const Color(0xFF16A34A),
                 background: const Color(0xFFDCFCE7),
                 border: const Color(0xFF86EFAC),
               ),
               _CatalogIpadStatTile(
                 value: '$locationCount',
-                label: 'Locais',
+                label: l10n.isEn ? 'Locations' : 'Locais',
                 foreground: const Color(0xFF2563EB),
                 background: const Color(0xFFEFF6FF),
                 border: const Color(0xFFBFDBFE),
@@ -2159,12 +2221,14 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
               child: Column(
                 children: [
                   if (breakdown.isEmpty)
-                    const _CatalogIpadBreakdownRow(
+                    _CatalogIpadBreakdownRow(
                       data: _CatalogBreakdownData(
-                        label: 'Sem brinquedos visíveis',
+                        label: l10n.isEn
+                            ? 'No visible toys'
+                            : 'Sem brinquedos visíveis',
                         value: 0,
                         foreground: _CatalogIpadPalette.textMuted,
-                        background: Color(0xFFF8FAFC),
+                        background: const Color(0xFFF8FAFC),
                       ),
                     )
                   else
@@ -2180,7 +2244,8 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onClearFilters,
                         icon: const Icon(Icons.close_rounded, size: 17),
-                        label: const Text('Limpar filtros'),
+                        label: Text(
+                            l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _CatalogIpadPalette.orange,
                           side: const BorderSide(
@@ -2594,26 +2659,30 @@ _CatalogChipStyle _catalogCategoryStyle(String id, String label) {
   );
 }
 
-String _catalogLocationLabel(BrinquedosCatalogItem item) {
+String _catalogLocationLabel(
+  BrinquedosCatalogItem item,
+  AppLocalizations l10n,
+) {
   final box = item.box;
   final toyLocation = (item.toy.locationText ?? '').trim();
   final boxLocation = (box?.local ?? '').trim();
   final location = boxLocation.isNotEmpty
-      ? boxLocation
-      : (toyLocation.isNotEmpty ? toyLocation : 'Sem local');
+      ? l10n.value(boxLocation)
+      : (toyLocation.isNotEmpty ? l10n.value(toyLocation) : l10n.noLocation);
 
-  if (box == null) return 'Sem caixa · $location';
-  return 'Caixa ${box.number} · $location';
+  if (box == null) return '${l10n.noBox} · $location';
+  return '${l10n.boxNumber(box.number)} · $location';
 }
 
 List<_CatalogBreakdownData> _catalogBoxBreakdown(
   List<BrinquedosCatalogItem> items,
+  AppLocalizations l10n,
 ) {
   final counts = <String, int>{};
 
   for (final item in items) {
     final box = item.box;
-    final label = box == null ? 'Sem caixa' : 'Caixa ${box.number}';
+    final label = box == null ? l10n.noBox : l10n.boxNumber(box.number);
     counts[label] = (counts[label] ?? 0) + 1;
   }
 

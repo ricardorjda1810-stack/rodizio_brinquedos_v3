@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class AppBottomNavigation extends StatelessWidget {
@@ -11,25 +12,21 @@ class AppBottomNavigation extends StatelessWidget {
       pageIndex: 0,
       icon: Icons.home_outlined,
       activeIcon: Icons.home_rounded,
-      label: 'Home',
     ),
     _BottomNavigationDestination(
       pageIndex: 1,
       icon: Icons.toys_outlined,
       activeIcon: Icons.toys_rounded,
-      label: 'Brinquedos',
     ),
     _BottomNavigationDestination(
       pageIndex: 3,
       icon: Icons.autorenew_rounded,
       activeIcon: Icons.autorenew_rounded,
-      label: 'Rod\u00edzio',
     ),
     _BottomNavigationDestination(
       pageIndex: 2,
       icon: Icons.inventory_2_outlined,
       activeIcon: Icons.inventory_2_rounded,
-      label: 'Caixas',
     ),
   ];
 
@@ -55,6 +52,7 @@ class AppBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final navigationIndex = _destinations.indexWhere(
       (destination) => destination.pageIndex == currentIndex,
     );
@@ -93,7 +91,13 @@ class AppBottomNavigation extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(destination.icon),
                 activeIcon: Icon(destination.activeIcon),
-                label: destination.label,
+                label: switch (destination.pageIndex) {
+                  0 => l10n.home,
+                  1 => l10n.toys,
+                  2 => l10n.boxes,
+                  3 => l10n.rotation,
+                  _ => '',
+                },
               ),
           ],
         ),
@@ -106,13 +110,11 @@ class _BottomNavigationDestination {
   final int pageIndex;
   final IconData icon;
   final IconData activeIcon;
-  final String label;
 
   const _BottomNavigationDestination({
     required this.pageIndex,
     required this.icon,
     required this.activeIcon,
-    required this.label,
   });
 }
 
@@ -140,44 +142,45 @@ class AppTopNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final items = <_AppTopNavigationItemData>[
       _AppTopNavigationItemData(
-        label: 'In\u00edcio',
+        label: l10n.home,
         icon: Icons.home_outlined,
         activeIcon: Icons.home_rounded,
         selected: currentIndex == 0,
         onTap: onHomeTap,
       ),
       _AppTopNavigationItemData(
-        label: 'Rodada',
+        label: l10n.rotation,
         icon: Icons.play_circle_outline_rounded,
         activeIcon: Icons.play_circle_fill_rounded,
         selected: currentIndex == 3,
         onTap: onRoundTap,
       ),
       _AppTopNavigationItemData(
-        label: 'Planejamento',
+        label: l10n.planning,
         icon: Icons.calendar_month_outlined,
         activeIcon: Icons.calendar_month_rounded,
         selected: currentIndex == weeklyPlanningIndex,
         onTap: onWeeklyPlanningTap,
       ),
       _AppTopNavigationItemData(
-        label: 'Brinquedos',
+        label: l10n.toys,
         icon: Icons.toys_outlined,
         activeIcon: Icons.toys_rounded,
         selected: currentIndex == 1,
         onTap: onToysTap,
       ),
       _AppTopNavigationItemData(
-        label: 'Caixas',
+        label: l10n.boxes,
         icon: Icons.inventory_2_outlined,
         activeIcon: Icons.inventory_2_rounded,
         selected: currentIndex == 2,
         onTap: onBoxesTap,
       ),
       _AppTopNavigationItemData(
-        label: 'Config.',
+        label: l10n.settingsShort,
         icon: Icons.settings_outlined,
         activeIcon: Icons.settings_rounded,
         selected: currentIndex == 4,

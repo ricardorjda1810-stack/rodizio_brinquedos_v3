@@ -23,7 +23,10 @@ Future<void> main() async {
       _configureGlobalErrorHandling();
       _configureCrashlyticsDebugTestHook();
       await initializeDateFormatting('pt_BR', null);
-      Intl.defaultLocale = 'pt_BR';
+      await initializeDateFormatting('en_US', null);
+      final platformLocale = PlatformDispatcher.instance.locale;
+      Intl.defaultLocale =
+          platformLocale.languageCode == 'en' ? 'en_US' : 'pt_BR';
       runApp(const Bootstrap());
     },
     (error, stackTrace) {

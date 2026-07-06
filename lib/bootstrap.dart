@@ -7,6 +7,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
@@ -54,6 +55,8 @@ class _BootstrapState extends State<Bootstrap> {
             snapshot.connectionState == ConnectionState.active) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
@@ -64,6 +67,8 @@ class _BootstrapState extends State<Bootstrap> {
             snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
@@ -117,6 +122,8 @@ class _BootstrapErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(24),

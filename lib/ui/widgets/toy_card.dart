@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class ToyCard extends StatelessWidget {
@@ -24,6 +25,7 @@ class ToyCard extends StatelessWidget {
     const gap = 12.0;
     const iconSize = 20.0;
     final trimmedPath = (imagePath ?? '').trim();
+    final displayName = context.l10n.toyDisplayName(name);
 
     return Material(
       color: UiTokens.surface,
@@ -51,7 +53,7 @@ class ToyCard extends StatelessWidget {
               const SizedBox(width: gap),
               Expanded(
                 child: Text(
-                  name,
+                  displayName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textBody.copyWith(

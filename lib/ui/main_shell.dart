@@ -13,6 +13,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/age_preset.dart';
 import 'package:rodizio_brinquedos_v3/domain/weekly_planning/week_day_summary.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/premium_gate.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -62,13 +63,6 @@ class _MainShellState extends State<MainShell> {
   WeeklyPlanningRepository? _weeklyPlanningRepository;
   bool _mobileLoadingSuggestion = false;
   bool _trialIntroDialogScheduled = false;
-  static const List<String> _titles = <String>[
-    'Home',
-    'Brinquedos',
-    'Caixas',
-    'Rod\u00edzio',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -104,29 +98,36 @@ class _MainShellState extends State<MainShell> {
   }
 
   Future<void> _showTrialIntroDialog() async {
+    final l10n = context.l10n;
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Você tem 7 dias grátis'),
-          content: const Column(
+          title: Text(
+            l10n.isEn ? 'You have 7 free days' : 'Você tem 7 dias grátis',
+          ),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Use todos os recursos do Rodízio de Brinquedos para organizar os brinquedos da casa.',
+                l10n.isEn
+                    ? 'Use all Toy Rotation features to organize toys at home.'
+                    : 'Use todos os recursos do Rodízio de Brinquedos para organizar os brinquedos da casa.',
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
-                'Depois de 7 dias, será necessário assinar para continuar usando.',
+                l10n.isEn
+                    ? 'After 7 days, a subscription is required to keep using the app.'
+                    : 'Depois de 7 dias, será necessário assinar para continuar usando.',
               ),
             ],
           ),
           actions: [
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Começar'),
+              child: Text(l10n.isEn ? 'Start' : 'Começar'),
             ),
           ],
         );
@@ -293,12 +294,14 @@ class _MainShellState extends State<MainShell> {
     );
   }
 
-  String _currentDatePtBr() {
-    return DateFormat("d 'de' MMMM 'de' y", 'pt_BR').format(DateTime.now());
+  String _currentDateLabel(BuildContext context) {
+    final l10n = context.l10n;
+    return DateFormat.yMMMMd(l10n.dateLocale).format(DateTime.now());
   }
 
   Future<void> _openMobileRoundSuggestionSheet() async {
     if (_mobileLoadingSuggestion) return;
+    final l10n = context.l10n;
 
     setState(() {
       _mobileLoadingSuggestion = true;
@@ -309,7 +312,9 @@ class _MainShellState extends State<MainShell> {
           await widget.toyRepository.watchCategories(activeOnly: true).first;
       final categoryNamesById = <String, String>{
         for (final category in categories)
-          category.id: _categoryDisplayName(category.id, category),
+          category.id: l10n.categoryName(
+            _categoryDisplayName(category.id, category),
+          ),
       };
       final suggestedToys = await widget.roundRepository.suggestRoundForToday();
       final boxes = await widget.toyRepository.watchBoxes().first;
@@ -340,13 +345,23 @@ class _MainShellState extends State<MainShell> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Rodada criada com ${selectedToys.length} brinquedos.'),
+          content: Text(
+            l10n.isEn
+                ? 'Rotation created with ${selectedToys.length} toys.'
+                : 'Rodada criada com ${selectedToys.length} brinquedos.',
+          ),
         ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Não foi possível montar a rodada: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Could not build the rotation: $e'
+                : 'Não foi possível montar a rodada: $e',
+          ),
+        ),
       );
     } finally {
       if (mounted) {
@@ -373,7 +388,7 @@ class _MainShellState extends State<MainShell> {
       roundRepository: widget.roundRepository,
       toyRepository: widget.toyRepository,
       weeklyPlanningRepository: _weeklyPlanningRepository,
-      dateLabel: _currentDatePtBr(),
+      dateLabel: _currentDateLabel(context),
       loadingSuggestion: _mobileLoadingSuggestion,
       onBuildRound: _openMobileRoundSuggestionSheet,
       onOpenNewToy: _openToyCreate,
@@ -428,11 +443,20 @@ class _MainShellState extends State<MainShell> {
     BuildContext context,
     int currentIndex,
   ) {
+    final l10n = context.l10n;
     return AppBar(
-      title: Text(_titles[currentIndex]),
+      title: Text(
+        switch (currentIndex) {
+          0 => l10n.home,
+          1 => l10n.toys,
+          2 => l10n.boxes,
+          3 => l10n.rotation,
+          _ => l10n.appName,
+        },
+      ),
       actions: [
         IconButton(
-          tooltip: 'Configura\u00e7\u00f5es',
+          tooltip: l10n.settings,
           icon: const Icon(Icons.settings_outlined),
           onPressed: _openSettings,
         ),
@@ -665,6 +689,7 @@ class _IphoneHomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomReserve =
         AppBottomNavigation.reservedScrollPadding(context) + UiTokens.spacingSm;
+    final trialNotice = context.l10n.trialHomeNotice(trialStatus);
 
     return MediaQuery.withClampedTextScaling(
       maxScaleFactor: 1.15,
@@ -682,8 +707,8 @@ class _IphoneHomeContent extends StatelessWidget {
             onSettingsTap: onSettingsTap,
           ),
           const SizedBox(height: 10),
-          if (trialStatus.homeNotice != null) ...[
-            _TrialNoticeBanner(message: trialStatus.homeNotice!),
+          if (trialNotice.isNotEmpty) ...[
+            _TrialNoticeBanner(message: trialNotice),
             const SizedBox(height: 10),
           ],
           _IphoneRoundTodayHero(
@@ -722,6 +747,7 @@ class _IphoneHomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       children: [
         Expanded(
@@ -729,7 +755,7 @@ class _IphoneHomeTopBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hora de brincar',
+                l10n.timeToPlay,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: UiTokens.textSectionTitle.copyWith(
@@ -764,7 +790,7 @@ class _IphoneHomeTopBar extends StatelessWidget {
         ),
         const SizedBox(width: UiTokens.spacingSm),
         IconButton.filledTonal(
-          tooltip: 'Configurações',
+          tooltip: l10n.settings,
           onPressed: onSettingsTap,
           icon: const Icon(Icons.settings_outlined, size: 20),
         ),
@@ -826,6 +852,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
@@ -847,7 +874,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Rodada de hoje',
+            l10n.todaysRotation,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textSectionTitle.copyWith(
@@ -875,7 +902,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    'brinquedos\npara hoje',
+                    l10n.toysForToday,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: UiTokens.textCaption.copyWith(
@@ -903,7 +930,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
                       ),
                     )
                   : const Icon(Icons.shuffle_rounded, size: 20),
-              label: const Text('Montar Rodada'),
+              label: Text(l10n.buildRotation),
               style: FilledButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: _IpadHomePalette.orange,
@@ -938,11 +965,12 @@ class _IphoneEssentialActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       children: [
         Expanded(
           child: _IphoneActionTile(
-            label: 'Novo brinquedo',
+            label: l10n.newToy,
             icon: Icons.add_rounded,
             foreground: _IpadHomePalette.orange,
             background: _IpadHomePalette.orangeLight,
@@ -953,7 +981,7 @@ class _IphoneEssentialActions extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _IphoneActionTile(
-            label: 'Planejamento\nsemanal',
+            label: l10n.isEn ? 'Weekly\nplanning' : 'Planejamento\nsemanal',
             icon: Icons.calendar_month_outlined,
             foreground: const Color(0xFF2563EB),
             background: const Color(0xFFEFF6FF),
@@ -1051,6 +1079,7 @@ class _IphoneOrganizationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return StreamBuilder<List<Toy>>(
       stream: toyRepository.watchAll(),
       builder: (context, toysSnapshot) {
@@ -1085,7 +1114,7 @@ class _IphoneOrganizationCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Organização da casa',
+                        l10n.homeOrganization,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textCaption.copyWith(
@@ -1099,21 +1128,21 @@ class _IphoneOrganizationCard extends StatelessWidget {
                           Expanded(
                             child: _IphoneDarkStat(
                               value: toyCount,
-                              label: 'brinquedos',
+                              label: l10n.toys.toLowerCase(),
                             ),
                           ),
                           const _IphoneDarkDivider(),
                           Expanded(
                             child: _IphoneDarkStat(
                               value: boxCount,
-                              label: 'caixas',
+                              label: l10n.boxes.toLowerCase(),
                             ),
                           ),
                           const _IphoneDarkDivider(),
                           Expanded(
                             child: _IphoneDarkStat(
                               value: locationCount,
-                              label: 'locais',
+                              label: l10n.locations,
                             ),
                           ),
                         ],
@@ -1200,6 +1229,7 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final upcoming = _upcomingSummaries(summaries, limit: 7);
+    final l10n = context.l10n;
 
     return Material(
       color: Colors.white,
@@ -1241,7 +1271,7 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Planejamento semanal',
+                      l10n.weeklyPlanning,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textCaption.copyWith(
@@ -1261,8 +1291,12 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
               if (upcoming.isEmpty)
                 Text(
                   loading
-                      ? 'Carregando próximos dias...'
-                      : 'Toque para ajustar os próximos dias.',
+                      ? (l10n.isEn
+                          ? 'Loading the next few days...'
+                          : 'Carregando próximos dias...')
+                      : (l10n.isEn
+                          ? 'Tap to adjust the next few days.'
+                          : 'Toque para ajustar os próximos dias.'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1311,6 +1345,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
     final isToday =
         summary.isToday || summary.weekday == DateTime.now().weekday;
     final totalToys = isToday ? todayCount : summary.totalToys;
+    final l10n = context.l10n;
     final background =
         isToday ? _IpadHomePalette.orangeLight : const Color(0xFFFFFBF6);
     final foreground =
@@ -1330,7 +1365,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            isToday ? 'HOJE' : _weekdayShortLabel(summary.weekday),
+            l10n.compactWeekdayLabel(summary.weekday, isToday: isToday),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
@@ -1343,7 +1378,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              '$totalToys brinq.',
+              l10n.compactToysCount(totalToys),
               maxLines: 1,
               style: UiTokens.textMicro.copyWith(
                 color: _IpadHomePalette.textMuted,
@@ -2471,11 +2506,14 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final repository = weeklyPlanningRepository;
     if (repository == null) {
-      return const _IpadPanelSurface(
-        padding: EdgeInsets.all(22),
-        child: Text('Planejamento indisponível.'),
+      return _IpadPanelSurface(
+        padding: const EdgeInsets.all(22),
+        child: Text(
+          l10n.isEn ? 'Planning unavailable.' : 'Planejamento indisponível.',
+        ),
       );
     }
 
@@ -2502,7 +2540,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Planejamento da semana',
+                        l10n.weeklyPlanning,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textCaption.copyWith(
@@ -2512,7 +2550,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${_monthLabel()} · $toyCount brinquedos no acervo',
+                        '${_monthLabel(l10n.dateLocale)} · ${l10n.toysCount(toyCount)} ${l10n.inCollection}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textMicro.copyWith(
@@ -2595,6 +2633,7 @@ class _IpadWeekCell extends StatelessWidget {
         summary.isToday || summary.weekday == DateTime.now().weekday;
     final totalToys =
         isToday ? todayCountOverride ?? summary.totalToys : summary.totalToys;
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -2616,7 +2655,7 @@ class _IpadWeekCell extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _weekdayShortLabel(summary.weekday),
+            l10n.compactWeekdayLabel(summary.weekday, isToday: false),
             maxLines: 1,
             style: UiTokens.textMicro.copyWith(
               fontSize: 10,
@@ -2652,7 +2691,7 @@ class _IpadWeekCell extends StatelessWidget {
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              '$totalToys itens',
+              l10n.compactToysCount(totalToys),
               maxLines: 1,
               style: UiTokens.textMicro.copyWith(
                 fontSize: 10,
@@ -3252,28 +3291,8 @@ List<WeekDaySummary> _upcomingSummaries(
   return sorted.take(limit).toList(growable: false);
 }
 
-String _weekdayShortLabel(int weekday) {
-  switch (weekday) {
-    case DateTime.monday:
-      return 'SEG';
-    case DateTime.tuesday:
-      return 'TER';
-    case DateTime.wednesday:
-      return 'QUA';
-    case DateTime.thursday:
-      return 'QUI';
-    case DateTime.friday:
-      return 'SEX';
-    case DateTime.saturday:
-      return 'SÁB';
-    case DateTime.sunday:
-      return 'DOM';
-  }
-  return '';
-}
-
-String _monthLabel() {
-  final month = DateFormat.MMMM('pt_BR').format(DateTime.now());
+String _monthLabel(String locale) {
+  final month = DateFormat.MMMM(locale).format(DateTime.now());
   if (month.isEmpty) return '';
   return '${month[0].toUpperCase()}${month.substring(1)}';
 }

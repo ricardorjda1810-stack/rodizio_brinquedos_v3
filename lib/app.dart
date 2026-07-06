@@ -5,6 +5,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/app_theme.dart';
@@ -79,7 +80,9 @@ class _AppState extends State<App> {
         return MaterialApp(
           key: ValueKey(hasFullAppAccess ? 'full_app' : 'trial_expired'),
           debugShowCheckedModeBanner: false,
-          title: 'Rodízio de Brinquedos',
+          title: 'Rodizio de Brinquedos',
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,

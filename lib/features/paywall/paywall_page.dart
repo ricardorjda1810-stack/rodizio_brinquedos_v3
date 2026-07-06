@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
-import 'package:rodizio_brinquedos_v3/features/paywall/paywall_display_prices.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -41,13 +42,44 @@ class _PaywallPageState extends State<PaywallPage> {
   bool get _isTrialExpiredPaywall =>
       widget.blocking || widget.source == 'app_trial_expired';
 
-  String get _headline => _isTrialExpiredPaywall
-      ? 'Seu teste grátis terminou'
-      : 'Planeje a semana com mais calma.';
+  String _headline(AppLocalizations l10n) => _isTrialExpiredPaywall
+      ? l10n.trialEndedTitle
+      : l10n.isEn
+          ? 'Plan the week with more calm.'
+          : 'Planeje a semana com mais calma.';
 
-  String get _subtitle => _isTrialExpiredPaywall
-      ? 'Para continuar organizando os brinquedos da casa, escolha um plano Premium.'
-      : 'Prepare o rod\u00EDzio com anteced\u00EAncia e deixe a rotina de brincadeiras mais previs\u00EDvel.';
+  String _subtitle(AppLocalizations l10n) => _isTrialExpiredPaywall
+      ? l10n.trialEndedSubtitle
+      : l10n.isEn
+          ? 'Prepare the rotation ahead of time and make play routines easier to follow.'
+          : 'Prepare o rod\u00EDzio com anteced\u00EAncia e deixe a rotina de brincadeiras mais previs\u00EDvel.';
+
+  String _planPrice(String productId, AppLocalizations l10n) {
+    final details = _purchaseService.productDetailsFor(productId);
+    if (details != null && details.price.trim().isNotEmpty) {
+      return details.price;
+    }
+
+    return productId == PurchaseService.yearlyProductId
+        ? l10n.fallbackAnnualPrice
+        : l10n.fallbackMonthlyPrice;
+  }
+
+  String _yearlyDescription(AppLocalizations l10n) {
+    final details =
+        _purchaseService.productDetailsFor(PurchaseService.yearlyProductId);
+    if (details != null && details.rawPrice > 0) {
+      final monthly = details.rawPrice / 12;
+      final formatted = NumberFormat.simpleCurrency(
+        locale: l10n.dateLocale,
+        name: details.currencyCode,
+      ).format(monthly);
+      return l10n.isEn
+          ? 'about $formatted/month'
+          : 'equivalente a $formatted/m\u00eas';
+    }
+    return l10n.fallbackAnnualEquivalent;
+  }
 
   @override
   void initState() {
@@ -76,8 +108,12 @@ class _PaywallPageState extends State<PaywallPage> {
 
     if (_purchaseService.isPremium && !_lastPremiumState) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Premium ativado com sucesso.'),
+        SnackBar(
+          content: Text(
+            context.l10n.isEn
+                ? 'Subscription activated successfully.'
+                : 'Assinatura ativada com sucesso.',
+          ),
         ),
       );
     }
@@ -105,7 +141,13 @@ class _PaywallPageState extends State<PaywallPage> {
     if (uri == null || !uri.hasScheme) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link ainda não configurado.')),
+        SnackBar(
+          content: Text(
+            context.l10n.isEn
+                ? 'Link is not configured yet.'
+                : 'Link ainda n\u00e3o configurado.',
+          ),
+        ),
       );
       return;
     }
@@ -117,7 +159,13 @@ class _PaywallPageState extends State<PaywallPage> {
 
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Não foi possível abrir o link.')),
+        SnackBar(
+          content: Text(
+            context.l10n.isEn
+                ? 'Could not open the link.'
+                : 'N\u00e3o foi poss\u00edvel abrir o link.',
+          ),
+        ),
       );
     }
   }
@@ -143,11 +191,12 @@ class _PaywallPageState extends State<PaywallPage> {
 
   Widget _buildMobileScaffold(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
       appBar: AppBar(
-        title: const Text('Premium'),
+        title: Text(l10n.subscription),
       ),
       body: SafeArea(
         child: ListView(
@@ -160,7 +209,7 @@ class _PaywallPageState extends State<PaywallPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _headline,
+                    _headline(l10n),
                     style: textTheme.headlineSmall?.copyWith(
                       color: UiTokens.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -168,7 +217,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   ),
                   const SizedBox(height: UiTokens.spacingSm),
                   Text(
-                    _subtitle,
+                    _subtitle(l10n),
                     style: textTheme.bodyLarge?.copyWith(
                       color: UiTokens.textSecondary,
                     ),
@@ -183,25 +232,43 @@ class _PaywallPageState extends State<PaywallPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (final benefit in _isTrialExpiredPaywall
-                      ? const [
-                          'App completo liberado',
-                          'Cadastro, fotos, caixas e locais',
-                          'Rodízio diário e sugestão de rodada',
-                          'Planejamento semanal completo',
-                          'Restaurar compra sempre acessível',
+                      ? [
+                          l10n.appFullAccess,
+                          l10n.isEn
+                              ? 'Toys, photos, boxes, and locations'
+                              : 'Cadastro, fotos, caixas e locais',
+                          l10n.isEn
+                              ? 'Daily rotation and suggestions'
+                              : 'Rod\u00edzio di\u00e1rio e sugest\u00e3o de rodada',
+                          l10n.weeklyPlanning,
+                          l10n.isEn
+                              ? 'Restore purchase always available'
+                              : 'Restaurar compra sempre acess\u00edvel',
                         ]
-                      : const [
-                          'Planejamento semanal completo',
-                          'Organize cada dia da semana',
-                          'Ajuste categorias por dia',
-                          'Prepare a rotina com mais previsibilidade',
-                          'Tenha mais controle sobre o rod\u00EDzio',
+                      : [
+                          l10n.weeklyPlanning,
+                          l10n.isEn
+                              ? 'Organize each day of the week'
+                              : 'Organize cada dia da semana',
+                          l10n.isEn
+                              ? 'Adjust categories by day'
+                              : 'Ajuste categorias por dia',
+                          l10n.isEn
+                              ? 'Prepare routines with more predictability'
+                              : 'Prepare a rotina com mais previsibilidade',
+                          l10n.isEn
+                              ? 'Keep more control over the rotation'
+                              : 'Tenha mais controle sobre o rod\u00edzio',
                         ]) ...[
                     _BenefitRow(label: benefit),
                     if (benefit !=
                         (_isTrialExpiredPaywall
-                            ? 'Restaurar compra sempre acessível'
-                            : 'Tenha mais controle sobre o rod\u00EDzio'))
+                            ? (l10n.isEn
+                                ? 'Restore purchase always available'
+                                : 'Restaurar compra sempre acess\u00edvel')
+                            : (l10n.isEn
+                                ? 'Keep more control over the rotation'
+                                : 'Tenha mais controle sobre o rod\u00edzio')))
                       const SizedBox(height: UiTokens.spacingSm),
                   ],
                 ],
@@ -209,18 +276,18 @@ class _PaywallPageState extends State<PaywallPage> {
             ),
             const SizedBox(height: UiTokens.spacingMd),
             _PlanCard(
-              badge: '\u{2B50} Mais popular',
-              title: 'Rod\u00EDzio Premium Anual',
-              price: paywallYearlyDisplayPrice,
-              description: paywallYearlyMonthlyEquivalent,
+              badge: '\u{2B50} ${l10n.mostPopular}',
+              title: l10n.annualPlan,
+              price: _planPrice(PurchaseService.yearlyProductId, l10n),
+              description: _yearlyDescription(l10n),
               isFeatured: true,
               isSelected: _selectedProductId == PurchaseService.yearlyProductId,
               onTap: () => _selectPlan(PurchaseService.yearlyProductId),
             ),
             const SizedBox(height: UiTokens.spacingSm),
             _PlanCard(
-              title: 'Rod\u00EDzio Premium Mensal',
-              price: paywallMonthlyDisplayPrice,
+              title: l10n.monthlyPlan,
+              price: _planPrice(PurchaseService.monthlyProductId, l10n),
               isSelected:
                   _selectedProductId == PurchaseService.monthlyProductId,
               onTap: () => _selectPlan(PurchaseService.monthlyProductId),
@@ -239,8 +306,8 @@ class _PaywallPageState extends State<PaywallPage> {
                     )
                   : Text(
                       _isTrialExpiredPaywall
-                          ? 'Assinar Premium'
-                          : 'Come\u00E7ar agora',
+                          ? l10n.continueWithSubscription
+                          : l10n.startNow,
                     ),
             ),
             const SizedBox(height: UiTokens.spacingSm),
@@ -248,7 +315,7 @@ class _PaywallPageState extends State<PaywallPage> {
               child: TextButton(
                 onPressed:
                     _purchaseService.isLoading ? null : _restorePurchases,
-                child: const Text('Restaurar compra'),
+                child: Text(l10n.restorePurchase),
               ),
             ),
             const SizedBox(height: UiTokens.spacingSm),
@@ -259,7 +326,7 @@ class _PaywallPageState extends State<PaywallPage> {
                 children: [
                   TextButton(
                     onPressed: () => _openExternalLink(_termsOfUseUrl),
-                    child: const Text('Termos de uso'),
+                    child: Text(l10n.termsOfUse),
                   ),
                   Text(
                     '|',
@@ -269,7 +336,7 @@ class _PaywallPageState extends State<PaywallPage> {
                   ),
                   TextButton(
                     onPressed: () => _openExternalLink(_privacyPolicyUrl),
-                    child: const Text('Pol\u00EDtica de privacidade'),
+                    child: Text(l10n.privacyPolicy),
                   ),
                 ],
               ),
@@ -282,6 +349,7 @@ class _PaywallPageState extends State<PaywallPage> {
 
   Widget _buildIpadScaffold(BuildContext context) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom + 32;
+    final l10n = context.l10n;
 
     return Scaffold(
       backgroundColor: _PaywallIpadPalette.bg,
@@ -299,8 +367,8 @@ class _PaywallPageState extends State<PaywallPage> {
                   children: [
                     _PaywallIpadHeader(
                       isBlocking: _isTrialExpiredPaywall,
-                      title: _headline,
-                      subtitle: _subtitle,
+                      title: _headline(l10n),
+                      subtitle: _subtitle(l10n),
                       onClose: () => Navigator.of(context).maybePop(),
                     ),
                     const SizedBox(height: 18),
@@ -312,6 +380,7 @@ class _PaywallPageState extends State<PaywallPage> {
                         );
                         final plansPanel = _PaywallIpadPlansPanel(
                           isBlocking: _isTrialExpiredPaywall,
+                          purchaseService: _purchaseService,
                           selectedProductId: _selectedProductId,
                           isLoading: _purchaseService.isLoading,
                           onSelectMonthly: () =>
@@ -385,6 +454,7 @@ class _PaywallIpadHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -416,7 +486,9 @@ class _PaywallIpadHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isBlocking ? 'ASSINATURA NECESSÁRIA' : 'RODÍZIO PREMIUM',
+                  isBlocking
+                      ? l10n.subscriptionRequired
+                      : l10n.subscription.toUpperCase(),
                   style: UiTokens.textMicro.copyWith(
                     color: _PaywallIpadPalette.orangeDark,
                     fontWeight: FontWeight.w800,
@@ -448,7 +520,7 @@ class _PaywallIpadHeader extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onClose,
               icon: const Icon(Icons.close_rounded, size: 18),
-              label: const Text('Agora não'),
+              label: Text(l10n.notNow),
               style: OutlinedButton.styleFrom(
                 foregroundColor: _PaywallIpadPalette.muted,
                 side: const BorderSide(color: _PaywallIpadPalette.border),
@@ -470,6 +542,7 @@ class _PaywallIpadValueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.all(26),
@@ -493,8 +566,10 @@ class _PaywallIpadValueCard extends StatelessWidget {
             ),
             child: Text(
               isTrialExpired
-                  ? 'Premium libera o app completo'
-                  : 'Premium desbloqueia Planejamento Semanal',
+                  ? l10n.appFullAccess
+                  : l10n.isEn
+                      ? 'Subscription unlocks weekly planning'
+                      : 'Assinatura libera o planejamento semanal',
               style: UiTokens.textCaption.copyWith(
                 color: _PaywallIpadPalette.orangeDark,
                 fontWeight: FontWeight.w800,
@@ -504,7 +579,9 @@ class _PaywallIpadValueCard extends StatelessWidget {
           const SizedBox(height: 22),
           Text(
             isTrialExpired
-                ? 'Continue usando todos os recursos que organizaram sua rotina.'
+                ? (l10n.isEn
+                    ? 'Keep using the features that organized your routine.'
+                    : 'Continue usando todos os recursos que organizaram sua rotina.')
                 : 'Uma semana organizada antes da rotina começar.',
             style: textTheme.headlineSmall?.copyWith(
               color: _PaywallIpadPalette.ink,
@@ -516,36 +593,49 @@ class _PaywallIpadValueCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             isTrialExpired
-                ? 'Assine para manter Home, brinquedos, caixas, rodízio, sugestão de rodada e planejamento semanal liberados.'
-                : 'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.',
+                ? l10n.appFullAccessDescription
+                : (l10n.isEn
+                    ? 'Plan ahead, distribute categories, and view the toy routine more clearly.'
+                    : 'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.'),
             style: UiTokens.textBody.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.45,
             ),
           ),
           const SizedBox(height: 24),
-          const _PaywallIpadBenefit(
+          _PaywallIpadBenefit(
             icon: Icons.calendar_month_outlined,
-            title: 'Planejamento da semana',
-            text: 'Prepare os dias com antecedência e reduza decisões na hora.',
+            title: l10n.weeklyPlanning,
+            text: l10n.isEn
+                ? 'Prepare days ahead of time and reduce last-minute decisions.'
+                : 'Prepare os dias com antecedência e reduza decisões na hora.',
           ),
           const SizedBox(height: 14),
-          const _PaywallIpadBenefit(
+          _PaywallIpadBenefit(
             icon: Icons.category_outlined,
-            title: 'Categorias equilibradas',
-            text: 'Ajuste a variedade das brincadeiras ao longo da semana.',
+            title:
+                l10n.isEn ? 'Balanced categories' : 'Categorias equilibradas',
+            text: l10n.isEn
+                ? 'Adjust play variety throughout the week.'
+                : 'Ajuste a variedade das brincadeiras ao longo da semana.',
           ),
           const SizedBox(height: 14),
-          const _PaywallIpadBenefit(
+          _PaywallIpadBenefit(
             icon: Icons.lightbulb_outline,
-            title: 'Menos improviso no dia a dia',
-            text: 'Tenha uma rotina mais previsível sem perder flexibilidade.',
+            title: l10n.isEn
+                ? 'Less daily improvising'
+                : 'Menos improviso no dia a dia',
+            text: l10n.isEn
+                ? 'Keep a more predictable routine without losing flexibility.'
+                : 'Tenha uma rotina mais previsível sem perder flexibilidade.',
           ),
           const SizedBox(height: 14),
-          const _PaywallIpadBenefit(
+          _PaywallIpadBenefit(
             icon: Icons.view_week_outlined,
-            title: 'Visão clara da rotina',
-            text: 'Acompanhe dias, quantidades e distribuição dos brinquedos.',
+            title: l10n.isEn ? 'Clear routine view' : 'Visão clara da rotina',
+            text: l10n.isEn
+                ? 'Track days, quantities, and toy distribution.'
+                : 'Acompanhe dias, quantidades e distribuição dos brinquedos.',
           ),
         ],
       ),
@@ -608,6 +698,7 @@ class _PaywallIpadBenefit extends StatelessWidget {
 
 class _PaywallIpadPlansPanel extends StatelessWidget {
   final bool isBlocking;
+  final PurchaseService purchaseService;
   final String selectedProductId;
   final bool isLoading;
   final VoidCallback onSelectMonthly;
@@ -620,6 +711,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
 
   const _PaywallIpadPlansPanel({
     required this.isBlocking,
+    required this.purchaseService,
     required this.selectedProductId,
     required this.isLoading,
     required this.onSelectMonthly,
@@ -633,6 +725,34 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    String planPrice(String productId) {
+      final details = purchaseService.productDetailsFor(productId);
+      if (details != null && details.price.trim().isNotEmpty) {
+        return details.price;
+      }
+      return productId == PurchaseService.yearlyProductId
+          ? l10n.fallbackAnnualPrice
+          : l10n.fallbackMonthlyPrice;
+    }
+
+    String yearlyDescription() {
+      final details = purchaseService.productDetailsFor(
+        PurchaseService.yearlyProductId,
+      );
+      if (details != null && details.rawPrice > 0) {
+        final monthly = details.rawPrice / 12;
+        final formatted = NumberFormat.simpleCurrency(
+          locale: l10n.dateLocale,
+          name: details.currencyCode,
+        ).format(monthly);
+        return l10n.isEn
+            ? 'about $formatted/month'
+            : 'equivalente a $formatted/m\u00eas';
+      }
+      return l10n.fallbackAnnualEquivalent;
+    }
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -645,7 +765,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Escolha seu plano',
+            l10n.choosePlan,
             style: UiTokens.textSectionTitle.copyWith(
               color: _PaywallIpadPalette.ink,
               fontWeight: FontWeight.w800,
@@ -654,8 +774,10 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             isBlocking
-                ? 'Assine para continuar usando o Rodízio de Brinquedos.'
-                : 'Assine para liberar o Planejamento Semanal.',
+                ? l10n.selectAPlanSubtitle
+                : (l10n.isEn
+                    ? 'Subscribe to unlock weekly planning.'
+                    : 'Assine para liberar o planejamento semanal.'),
             style: UiTokens.textCaption.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.35,
@@ -663,18 +785,18 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           _PlanCard(
-            badge: 'Plano anual',
-            title: 'Rodízio Premium Anual',
-            price: paywallYearlyDisplayPrice,
-            description: paywallYearlyMonthlyEquivalent,
+            badge: l10n.annualPlan,
+            title: l10n.annualPlan,
+            price: planPrice(PurchaseService.yearlyProductId),
+            description: yearlyDescription(),
             isFeatured: true,
             isSelected: selectedProductId == PurchaseService.yearlyProductId,
             onTap: onSelectYearly,
           ),
           const SizedBox(height: 12),
           _PlanCard(
-            title: 'Rodízio Premium Mensal',
-            price: paywallMonthlyDisplayPrice,
+            title: l10n.monthlyPlan,
+            price: planPrice(PurchaseService.monthlyProductId),
             isSelected: selectedProductId == PurchaseService.monthlyProductId,
             onTap: onSelectMonthly,
           ),
@@ -688,7 +810,9 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.workspace_premium_outlined),
-            label: Text(isLoading ? 'Processando...' : 'Assinar Premium'),
+            label: Text(
+              isLoading ? l10n.processing : l10n.continueWithSubscription,
+            ),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(54),
               backgroundColor: _PaywallIpadPalette.orange,
@@ -699,7 +823,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: isLoading ? null : onRestore,
             icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Restaurar compras'),
+            label: Text(l10n.restorePurchases),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               foregroundColor: _PaywallIpadPalette.orangeDark,
@@ -712,7 +836,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
           if (!isBlocking) ...[
             TextButton(
               onPressed: isLoading ? null : onClose,
-              child: const Text('Agora não'),
+              child: Text(l10n.notNow),
             ),
             const SizedBox(height: 10),
           ],
@@ -722,7 +846,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: onTerms,
-                child: const Text('Termos de uso'),
+                child: Text(l10n.termsOfUse),
               ),
               Text(
                 '|',
@@ -732,7 +856,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
               ),
               TextButton(
                 onPressed: onPrivacy,
-                child: const Text('Política de privacidade'),
+                child: Text(l10n.privacyPolicy),
               ),
             ],
           ),

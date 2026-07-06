@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/features/brinquedos/brinquedos_catalog_state.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/locations_manage_page.dart';
@@ -59,10 +60,10 @@ class _CaixasPageState extends State<CaixasPage> {
     return 1;
   }
 
-  String _boxTitle(Boxe box) {
+  String _boxTitle(Boxe box, AppLocalizations l10n) {
     final local = box.local.trim();
-    if (local.isEmpty) return 'Caixa ${box.number}';
-    return 'Caixa ${box.number} - $local';
+    if (local.isEmpty) return l10n.boxNumber(box.number);
+    return l10n.boxLocationLabel(box.number, local);
   }
 
   Future<void> _openAddBoxPage(BuildContext context) async {
@@ -356,7 +357,7 @@ class _CaixasPageState extends State<CaixasPage> {
                     DropdownMenuItem<String>(
                       value: box.id,
                       child: Text(
-                        _boxTitle(box),
+                        _boxTitle(box, context.l10n),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -399,6 +400,7 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Widget _buildToyList(List<ToyCatalogItem> boxItems) {
+    final l10n = context.l10n;
     if (boxItems.isEmpty) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -408,7 +410,7 @@ class _CaixasPageState extends State<CaixasPage> {
           UiTokens.s,
         ),
         child: Text(
-          'Nenhum brinquedo nesta caixa.',
+          l10n.noToysInBox,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       );
@@ -424,12 +426,11 @@ class _CaixasPageState extends State<CaixasPage> {
       child: Column(
         children: List<Widget>.generate(boxItems.length, (index) {
           final item = boxItems[index];
-          final toyName =
-              item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
+          final toyName = l10n.toyDisplayName(item.toy.name);
           final categoryName = item.category?.name.trim();
           final subtitle = (categoryName == null || categoryName.isEmpty)
-              ? 'Brinquedo da caixa'
-              : categoryName;
+              ? l10n.toyFromBox
+              : l10n.categoryName(categoryName);
 
           return Column(
             children: [
@@ -488,10 +489,11 @@ class _CaixasPageState extends State<CaixasPage> {
     required int count,
     required List<ToyCatalogItem> boxItems,
   }) {
-    final title = _boxTitle(box);
+    final l10n = context.l10n;
+    final title = _boxTitle(box, l10n);
     final hasPhoto = (box.photoPath ?? '').trim().isNotEmpty;
     final notes = (box.notes ?? '').trim();
-    final toyCountLabel = count == 1 ? '1 brinquedo' : '$count brinquedos';
+    final toyCountLabel = l10n.toysCount(count);
     final subtitle = notes.isEmpty ? toyCountLabel : '$toyCountLabel\n$notes';
     final isExpanded = _expandedBoxId == box.id;
 
@@ -555,9 +557,7 @@ class _CaixasPageState extends State<CaixasPage> {
                                 BorderRadius.circular(UiTokens.radiusButton),
                           ),
                           child: Text(
-                            isExpanded
-                                ? 'Ocultar brinquedos'
-                                : 'Ver brinquedos',
+                            isExpanded ? l10n.hideToys : l10n.showToys,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
@@ -570,7 +570,7 @@ class _CaixasPageState extends State<CaixasPage> {
                       right: UiTokens.spacingSm,
                       top: UiTokens.spacingSm,
                       child: PopupMenuButton<String>(
-                        tooltip: 'A\u00e7\u00f5es da caixa',
+                        tooltip: l10n.boxActions,
                         onSelected: (value) async {
                           if (value == 'edit_local') {
                             await _editBoxLocal(context, box);
@@ -593,27 +593,27 @@ class _CaixasPageState extends State<CaixasPage> {
                           }
                         },
                         itemBuilder: (context) => [
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'edit_local',
-                            child: Text('Editar local'),
+                            child: Text(l10n.editLocation),
                           ),
                           PopupMenuItem<String>(
                             value: 'photo',
                             child: Text(
-                              hasPhoto ? 'Trocar foto' : 'Adicionar foto',
+                              hasPhoto ? l10n.changePhoto : l10n.addPhoto,
                             ),
                           ),
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'edit_notes',
-                            child: Text('Editar informa\u00e7\u00f5es'),
+                            child: Text(l10n.editInfo),
                           ),
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'open_toys',
-                            child: Text('Abrir em Brinquedos'),
+                            child: Text(l10n.openInToys),
                           ),
-                          const PopupMenuItem<String>(
+                          PopupMenuItem<String>(
                             value: 'delete',
-                            child: Text('Excluir'),
+                            child: Text(l10n.delete),
                           ),
                         ],
                         child: Container(
@@ -672,8 +672,8 @@ class _CaixasPageState extends State<CaixasPage> {
                   _BoxMetaChip(
                     icon: Icons.location_on_outlined,
                     label: box.local.trim().isEmpty
-                        ? 'Sem local'
-                        : box.local.trim(),
+                        ? l10n.noLocation
+                        : l10n.value(box.local.trim()),
                   ),
                   _BoxMetaChip(
                     icon: Icons.toys_outlined,
@@ -857,6 +857,7 @@ class _CaixasPageState extends State<CaixasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
     if (isIpad) return _buildIpadScaffold(context);
 
@@ -880,10 +881,9 @@ class _CaixasPageState extends State<CaixasPage> {
               if (boxes.isEmpty) {
                 return EmptyState(
                   icon: Icons.inventory_2_outlined,
-                  title: 'Nenhuma caixa cadastrada',
-                  message:
-                      'Crie a primeira caixa para organizar os brinquedos da casa com mais leveza.',
-                  actionLabel: 'Criar caixa',
+                  title: l10n.noBoxesTitle,
+                  message: l10n.noBoxesMessage,
+                  actionLabel: l10n.createBox,
                   onAction: () => _openAddBoxPage(context),
                 );
               }
@@ -930,13 +930,13 @@ class _CaixasPageState extends State<CaixasPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Caixas da casa',
+                                    l10n.boxesAtHome,
                                     style:
                                         Theme.of(context).textTheme.titleMedium,
                                   ),
                                   const SizedBox(height: UiTokens.spacingXs),
                                   Text(
-                                    'Visualize onde cada grupo est\u00e1 guardado e abra os brinquedos de forma mais organizada.',
+                                    l10n.boxesIntro,
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -984,7 +984,7 @@ class _CaixasPageState extends State<CaixasPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openAddBoxPage(context),
         icon: const Icon(Icons.add),
-        label: const Text('Criar caixa'),
+        label: Text(l10n.createBox),
       ),
     );
   }
@@ -1064,6 +1064,7 @@ class _BoxesIpadHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _BoxesIpadSurface(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       child: Row(
@@ -1098,7 +1099,7 @@ class _BoxesIpadHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'RODÍZIO DE BRINQUEDOS',
+                  l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1109,7 +1110,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Caixas',
+                  l10n.boxes,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textTitle.copyWith(
@@ -1120,7 +1121,9 @@ class _BoxesIpadHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Veja onde os brinquedos ficam guardados.',
+                  l10n.isEn
+                      ? 'See where toys are stored.'
+                      : 'Veja onde os brinquedos ficam guardados.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -1142,7 +1145,7 @@ class _BoxesIpadHeader extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onNewBox,
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Nova caixa'),
+                label: Text(l10n.newBox),
                 style: FilledButton.styleFrom(
                   backgroundColor: _BoxesIpadPalette.orange,
                   foregroundColor: Colors.white,
@@ -1161,7 +1164,7 @@ class _BoxesIpadHeader extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onOpenLocations,
                 icon: const Icon(Icons.place_outlined, size: 18),
-                label: const Text('Ver locais'),
+                label: Text(l10n.viewLocations),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: _BoxesIpadPalette.orangeLight,
                   foregroundColor: _BoxesIpadPalette.orangeDark,
@@ -1194,6 +1197,7 @@ class _BoxesIpadHeaderCount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       constraints: const BoxConstraints(minWidth: 102),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
@@ -1216,7 +1220,9 @@ class _BoxesIpadHeaderCount extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           Text(
-            summary.boxCount == 1 ? 'caixa' : 'caixas',
+            summary.boxCount == 1
+                ? l10n.box.toLowerCase()
+                : l10n.boxes.toLowerCase(),
             maxLines: 1,
             style: UiTokens.textMicro.copyWith(
               color: _BoxesIpadPalette.textMid,
@@ -1250,12 +1256,14 @@ class _BoxesIpadMainPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final organized = summary.toyCount - summary.unboxedCount;
     final containerLabel = summary.boxCount == 1 ? 'container' : 'containers';
-    final toyLabel =
-        organized == 1 ? 'brinquedo organizado' : 'brinquedos organizados';
+    final toyLabel = organized == 1
+        ? (l10n.isEn ? 'organized toy' : 'brinquedo organizado')
+        : (l10n.isEn ? 'organized toys' : 'brinquedos organizados');
     final subtitle =
-        '${summary.boxCount} $containerLabel · $organized $toyLabel · ${summary.unboxedCount} sem caixa';
+        '${summary.boxCount} $containerLabel · $organized $toyLabel · ${summary.unboxedCount} ${l10n.noBox.toLowerCase()}';
 
     return _BoxesIpadSurface(
       padding: EdgeInsets.zero,
@@ -1268,7 +1276,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Minhas caixas',
+                  l10n.myBoxes,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textSectionTitle.copyWith(
@@ -1294,15 +1302,19 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                   children: [
                     _BoxesIpadPill(
                       icon: Icons.inventory_2_outlined,
-                      label:
-                          '${summary.activeBoxCount} ${summary.activeBoxCount == 1 ? 'caixa ativa' : 'caixas ativas'}',
+                      label: summary.activeBoxCount == 1
+                          ? (l10n.isEn ? '1 active box' : '1 caixa ativa')
+                          : (l10n.isEn
+                              ? '${summary.activeBoxCount} active boxes'
+                              : '${summary.activeBoxCount} caixas ativas'),
                       foreground: _BoxesIpadPalette.orange,
                       background: _BoxesIpadPalette.orangeLight,
                       border: _BoxesIpadPalette.orangeBorder,
                     ),
                     _BoxesIpadPill(
                       icon: Icons.category_outlined,
-                      label: '${summary.unboxedCount} sem caixa',
+                      label:
+                          '${summary.unboxedCount} ${l10n.noBox.toLowerCase()}',
                       foreground: const Color(0xFF2563EB),
                       background: const Color(0xFFEFF6FF),
                       border: const Color(0xFFBFDBFE),
@@ -1323,12 +1335,13 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                       children: [
                         for (final box in boxes) ...[
                           _BoxesIpadBoxRow(
-                            title: _boxTitleForDisplay(box),
+                            title: _boxTitleForDisplay(box, l10n),
                             subtitle: box.local.trim().isEmpty
-                                ? 'Sem local definido'
-                                : box.local.trim(),
+                                ? l10n.noLocationDefined
+                                : l10n.value(box.local.trim()),
                             countLabel: _toyCountLabel(
                               toysByBoxId[box.id]?.length ?? 0,
+                              l10n,
                             ),
                             icon: Icons.inventory_2_outlined,
                             toys:
@@ -1339,9 +1352,9 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                         ],
                         if (unboxed.isNotEmpty)
                           _BoxesIpadBoxRow(
-                            title: 'Sem caixa',
-                            subtitle: 'Brinquedos que precisam de organização',
-                            countLabel: _toyCountLabel(unboxed.length),
+                            title: l10n.noBox,
+                            subtitle: l10n.unboxedToys,
+                            countLabel: _toyCountLabel(unboxed.length, l10n),
                             icon: Icons.inbox_outlined,
                             toys: unboxed,
                             highlighted: true,
@@ -1364,6 +1377,7 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 28),
@@ -1381,7 +1395,7 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Nenhuma caixa cadastrada',
+            l10n.noBoxesTitle,
             style: UiTokens.textCaption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -1389,7 +1403,9 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            'Crie a primeira caixa para organizar os brinquedos da casa.',
+            l10n.isEn
+                ? 'Create the first box to organize toys at home.'
+                : 'Crie a primeira caixa para organizar os brinquedos da casa.',
             textAlign: TextAlign.center,
             style: UiTokens.textMicro.copyWith(
               color: _BoxesIpadPalette.textMuted,
@@ -1400,7 +1416,7 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
           FilledButton.icon(
             onPressed: onNewBox,
             icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('Nova caixa'),
+            label: Text(l10n.newBox),
           ),
         ],
       ),
@@ -1628,13 +1644,14 @@ class _BoxesIpadSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _BoxesIpadSurface(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Resumo',
+            l10n.isEn ? 'Summary' : 'Resumo',
             style: UiTokens.textCaption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -1646,7 +1663,7 @@ class _BoxesIpadSummaryCard extends StatelessWidget {
               Expanded(
                 child: _BoxesIpadStatTile(
                   value: summary.boxCount,
-                  label: 'Caixas',
+                  label: l10n.boxes,
                   foreground: _BoxesIpadPalette.orange,
                   background: _BoxesIpadPalette.orangeLight,
                   border: _BoxesIpadPalette.orangeBorder,
@@ -1656,7 +1673,7 @@ class _BoxesIpadSummaryCard extends StatelessWidget {
               Expanded(
                 child: _BoxesIpadStatTile(
                   value: summary.toyCount,
-                  label: 'Brinquedos',
+                  label: l10n.toys,
                   foreground: const Color(0xFF8B5CF6),
                   background: const Color(0xFFF5F3FF),
                   border: const Color(0xFFDDD6FE),
@@ -1667,7 +1684,7 @@ class _BoxesIpadSummaryCard extends StatelessWidget {
           const SizedBox(height: 8),
           _BoxesIpadStatTile(
             value: summary.locationCount,
-            label: 'Locais',
+            label: l10n.isEn ? 'Locations' : 'Locais',
             foreground: const Color(0xFF2563EB),
             background: const Color(0xFFEFF6FF),
             border: const Color(0xFFBFDBFE),
@@ -1783,6 +1800,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final visible = items.take(3).toList();
     return _BoxesIpadSurface(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
@@ -1790,7 +1808,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Sem caixa',
+            l10n.noBox,
             style: UiTokens.textCaption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -1798,7 +1816,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Brinquedos que precisam de organização',
+            l10n.unboxedToys,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
@@ -1839,7 +1857,9 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  '+${items.length - visible.length} brinquedos sem caixa · Ver todos',
+                  l10n.isEn
+                      ? '+${items.length - visible.length} unboxed toys · View all'
+                      : '+${items.length - visible.length} brinquedos sem caixa · Ver todos',
                 ),
               ),
             ),
@@ -1853,6 +1873,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
 class _BoxesIpadDoneState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
@@ -1862,7 +1883,9 @@ class _BoxesIpadDoneState extends StatelessWidget {
         border: Border.all(color: _BoxesIpadPalette.orangeBorder),
       ),
       child: Text(
-        'Tudo organizado por enquanto.',
+        l10n.isEn
+            ? 'Everything is organized for now.'
+            : 'Tudo organizado por enquanto.',
         textAlign: TextAlign.center,
         style: UiTokens.textMicro.copyWith(
           color: _BoxesIpadPalette.textMid,
@@ -1888,9 +1911,9 @@ class _BoxesIpadUnboxedToyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name =
-        item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
-    final category = _categoryLabel(item);
+    final l10n = context.l10n;
+    final name = l10n.toyDisplayName(item.toy.name);
+    final category = _categoryLabel(item, l10n);
 
     return Material(
       color: Colors.transparent,
@@ -1939,7 +1962,7 @@ class _BoxesIpadUnboxedToyRow extends StatelessWidget {
                   visualDensity: VisualDensity.compact,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                 ),
-                child: const Text('Atribuir'),
+                child: Text(l10n.isEn ? 'Assign' : 'Atribuir'),
               ),
             ],
           ),
@@ -1964,30 +1987,31 @@ class _BoxesIpadQuickActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final actions = [
       _BoxesIpadActionData(
-        label: 'Criar caixa',
+        label: l10n.createBox,
         icon: Icons.add_rounded,
         foreground: _BoxesIpadPalette.orange,
         background: _BoxesIpadPalette.orangeLight,
         onTap: onNewBox,
       ),
       _BoxesIpadActionData(
-        label: 'Reorganizar brinquedos',
+        label: l10n.isEn ? 'Reorganize toys' : 'Reorganizar brinquedos',
         icon: Icons.swap_horiz_rounded,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
         onTap: onOpenAllToys,
       ),
       _BoxesIpadActionData(
-        label: 'Ver brinquedos sem caixa',
+        label: l10n.isEn ? 'View unboxed toys' : 'Ver brinquedos sem caixa',
         icon: Icons.inbox_outlined,
         foreground: const Color(0xFF2563EB),
         background: const Color(0xFFEFF6FF),
         onTap: onOpenUnboxed,
       ),
       _BoxesIpadActionData(
-        label: 'Ver locais',
+        label: l10n.viewLocations,
         icon: Icons.place_outlined,
         foreground: _BoxesIpadPalette.orangeDark,
         background: const Color(0xFFFFF7ED),
@@ -2001,7 +2025,7 @@ class _BoxesIpadQuickActionsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ações rápidas',
+            l10n.isEn ? 'Quick actions' : 'Ações rápidas',
             style: UiTokens.textCaption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -2204,21 +2228,21 @@ class _BoxesIpadToyThumb extends StatelessWidget {
   }
 }
 
-String _boxTitleForDisplay(Boxe box) {
+String _boxTitleForDisplay(Boxe box, AppLocalizations l10n) {
   final local = box.local.trim();
-  if (local.isEmpty) return 'Caixa ${box.number}';
-  return 'Caixa ${box.number} - $local';
+  if (local.isEmpty) return l10n.boxNumber(box.number);
+  return l10n.boxLocationLabel(box.number, local);
 }
 
-String _toyCountLabel(int count) {
-  return count == 1 ? '1 brinquedo' : '$count brinquedos';
+String _toyCountLabel(int count, AppLocalizations l10n) {
+  return l10n.toysCount(count);
 }
 
-String _categoryLabel(ToyCatalogItem item) {
+String _categoryLabel(ToyCatalogItem item, AppLocalizations l10n) {
   final label = item.category?.name.trim();
-  if (label != null && label.isNotEmpty) return label;
+  if (label != null && label.isNotEmpty) return l10n.categoryName(label);
   final id = item.toy.categoryId.trim();
-  return id.isEmpty ? 'Sem categoria' : id;
+  return id.isEmpty ? l10n.noCategory : l10n.categoryName(id);
 }
 
 class _BoxMetaChip extends StatelessWidget {

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 
 class ToyRowItem extends StatelessWidget {
@@ -25,6 +26,7 @@ class ToyRowItem extends StatelessWidget {
     const gap = 12.0;
     const iconSize = 20.0;
     final trimmedPath = (imagePath ?? '').trim();
+    final displayName = context.l10n.toyDisplayName(name);
 
     return Column(
       children: [
@@ -48,7 +50,7 @@ class ToyRowItem extends StatelessWidget {
                     const SizedBox(width: gap),
                     Expanded(
                       child: Text(
-                        name,
+                        displayName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textBody.copyWith(

@@ -6,6 +6,7 @@ import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -794,7 +795,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Ajuste idade, rodízio, premium e preferências do app.',
+                  context.l10n.isEn
+                      ? 'Adjust age, rotation, subscription, and app preferences.'
+                      : 'Ajuste idade, rodízio, assinatura e preferências do app.',
                   style: textTheme.titleSmall?.copyWith(
                     color: const Color(0xFF6B4F30),
                     fontWeight: FontWeight.w600,
@@ -1222,12 +1225,19 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildIpadPremiumCard(TextTheme textTheme) {
+    final l10n = context.l10n;
     final isPremium = widget.purchaseService.isPremium;
     final subtitle = isPremium
-        ? 'Assinatura ativa neste aparelho.'
+        ? (l10n.isEn
+            ? 'Subscription active on this device.'
+            : 'Assinatura ativa neste aparelho.')
         : isPaywallEnabledForCurrentPlatform
-            ? 'Acesse recursos avançados.'
-            : 'Assinatura em breve. Recursos liberados por enquanto.';
+            ? (l10n.isEn
+                ? 'Choose a plan to keep using the app.'
+                : 'Escolha um plano para continuar usando o app.')
+            : (l10n.isEn
+                ? 'Subscription coming soon. Features are available for now.'
+                : 'Assinatura em breve. Recursos liberados por enquanto.');
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(22),
@@ -1236,22 +1246,34 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           _IpadSettingsSectionHeader(
             icon: Icons.workspace_premium_outlined,
-            title: 'Rodízio Premium',
+            title: l10n.subscription,
             subtitle: subtitle,
           ),
           const SizedBox(height: 16),
-          const _IpadBenefitRow(label: 'Planejamento semanal completo'),
+          _IpadBenefitRow(
+            label: l10n.isEn
+                ? 'Continue using the full app after the trial'
+                : 'Continue usando o app completo após o teste',
+          ),
           const SizedBox(height: 10),
-          const _IpadBenefitRow(label: 'Organize cada dia da semana'),
+          _IpadBenefitRow(
+            label: l10n.isEn
+                ? 'Organize each day of the week'
+                : 'Organize cada dia da semana',
+          ),
           const SizedBox(height: 10),
-          const _IpadBenefitRow(label: 'Ajuste categorias por dia'),
+          _IpadBenefitRow(
+            label: l10n.isEn
+                ? 'Adjust categories by day'
+                : 'Ajuste categorias por dia',
+          ),
           const SizedBox(height: 18),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               onPressed: _openPaywall,
               icon: const Icon(Icons.workspace_premium_outlined),
-              label: Text(isPremium ? 'Ver assinatura' : 'Ver Premium'),
+              label: Text(l10n.subscription),
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFFF97316),
                 foregroundColor: Colors.white,
@@ -1579,26 +1601,35 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildPremiumCard(TextTheme textTheme) {
+    final l10n = context.l10n;
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Premium',
+            l10n.subscription,
             style: textTheme.titleSmall,
           ),
           const SizedBox(height: UiTokens.spacingSm),
           _SettingsTile(
             icon: Icons.workspace_premium_outlined,
             title: isPaywallEnabledForCurrentPlatform
-                ? 'Planejamento semanal Premium'
-                : 'Premium no Android',
+                ? l10n.subscription
+                : (l10n.isEn
+                    ? 'Android subscription'
+                    : 'Assinatura no Android'),
             subtitle: widget.purchaseService.isPremium
-                ? 'Assinatura ativa neste aparelho'
+                ? (l10n.isEn
+                    ? 'Subscription active on this device'
+                    : 'Assinatura ativa neste aparelho')
                 : isPaywallEnabledForCurrentPlatform
-                    ? 'Abrir tela de assinatura'
-                    : 'Assinatura em breve. Recursos liberados por enquanto.',
+                    ? (l10n.isEn
+                        ? 'Open subscription screen'
+                        : 'Abrir tela de assinatura')
+                    : (l10n.isEn
+                        ? 'Subscription coming soon. Features are available for now.'
+                        : 'Assinatura em breve. Recursos liberados por enquanto.'),
             onTap: _openPaywall,
           ),
         ],

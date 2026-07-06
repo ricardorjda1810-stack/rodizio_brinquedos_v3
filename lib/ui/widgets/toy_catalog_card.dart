@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
+
 class ToyCatalogCard extends StatelessWidget {
   final String name;
   final String subtitle;
@@ -46,9 +48,10 @@ class ToyCatalogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = name.trim().isEmpty ? 'Sem nome' : name.trim();
+    final l10n = context.l10n;
+    final displayName = l10n.toyDisplayName(name);
     final displaySubtitle =
-        subtitle.trim().isEmpty ? 'Sem caixa' : subtitle.trim();
+        subtitle.trim().isEmpty ? l10n.noBox : l10n.value(subtitle);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -68,7 +71,7 @@ class ToyCatalogCard extends StatelessWidget {
                       right: 8,
                       top: 8,
                       child: IconButton.filledTonal(
-                        tooltip: 'Ampliar foto',
+                        tooltip: l10n.isEn ? 'Expand photo' : 'Ampliar foto',
                         onPressed: onExpandPhoto,
                         icon: const Icon(Icons.open_in_full_outlined),
                       ),

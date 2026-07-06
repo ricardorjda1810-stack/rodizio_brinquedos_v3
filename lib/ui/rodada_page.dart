@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
@@ -266,17 +267,18 @@ class _RodadaPageState extends State<RodadaPage> {
     RoundToyWithBox item,
     Map<String, String> categoryNamesById,
   ) {
+    final l10n = context.l10n;
     final categoryId = item.toy.categoryId.trim();
-    if (categoryId.isEmpty) return 'Sem categoria';
+    if (categoryId.isEmpty) return l10n.noCategory;
 
     final categoryName = categoryNamesById[categoryId]?.trim();
     if (categoryName != null && categoryName.isNotEmpty) {
-      return categoryName;
+      return l10n.categoryName(categoryName);
     }
 
     final fallback = categoryId.replaceAll('_', ' ').trim();
-    if (fallback.isEmpty) return 'Sem categoria';
-    return fallback[0].toUpperCase() + fallback.substring(1);
+    if (fallback.isEmpty) return l10n.noCategory;
+    return l10n.categoryName(fallback[0].toUpperCase() + fallback.substring(1));
   }
 
   void _toggleCollectedForToy(String toyId) {
@@ -371,11 +373,12 @@ class _RodadaPageState extends State<RodadaPage> {
               return StreamBuilder<List<CategoryDefinition>>(
                 stream: widget.toyRepository.watchCategories(),
                 builder: (context, categoriesSnapshot) {
+                  final l10n = context.l10n;
                   final categories =
                       categoriesSnapshot.data ?? const <CategoryDefinition>[];
                   final categoryNamesById = <String, String>{
                     for (final category in categories)
-                      category.id: category.name,
+                      category.id: l10n.categoryName(category.name),
                   };
                   final homeSuggestionFuture =
                       _homeSuggestionFuture ??= _loadHomeSuggestion();
@@ -395,10 +398,14 @@ class _RodadaPageState extends State<RodadaPage> {
                       );
 
                       final primaryLabel = items.isEmpty
-                          ? 'Sugerir rodada'
+                          ? l10n.suggestRound
                           : progress.isReady
-                              ? 'Rodada conclu\u00edda'
-                              : 'Concluir rodada';
+                              ? (l10n.isEn
+                                  ? 'Rotation complete'
+                                  : 'Rodada conclu\u00edda')
+                              : (l10n.isEn
+                                  ? 'Complete rotation'
+                                  : 'Concluir rodada');
                       final primaryAction = items.isEmpty
                           ? (_loadingSuggestion
                               ? null
@@ -411,8 +418,10 @@ class _RodadaPageState extends State<RodadaPage> {
                                     _setCollectedForItems(items, true),
                                   );
                       final secondaryLabel = items.isEmpty
-                          ? 'Ver brinquedos'
-                          : 'Trocar sugest\u00e3o';
+                          ? l10n.viewToys
+                          : (l10n.isEn
+                              ? 'Change suggestion'
+                              : 'Trocar sugest\u00e3o');
                       final secondaryAction = items.isEmpty
                           ? widget.onOpenBrinquedosTab
                           : (_loadingSuggestion
@@ -571,6 +580,7 @@ class _RodadaPageState extends State<RodadaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
     if (isTablet) {
       return _buildIpadLayout(context);
@@ -602,7 +612,8 @@ class _RodadaPageState extends State<RodadaPage> {
                 final categories =
                     categoriesSnapshot.data ?? const <CategoryDefinition>[];
                 final categoryNamesById = <String, String>{
-                  for (final category in categories) category.id: category.name,
+                  for (final category in categories)
+                    category.id: l10n.categoryName(category.name),
                 };
 
                 const gridSpacing = 12.0;
@@ -668,14 +679,14 @@ class _RodadaPageState extends State<RodadaPage> {
                                   final suggestionCount = snapshot.data?.length;
                                   final counterText = suggestionCount == null
                                       ? '...'
-                                      : suggestionCount == 1
-                                          ? '1 item'
-                                          : '$suggestionCount itens';
+                                      : l10n.itemsCount(suggestionCount);
 
                                   return _AvailableToysGridCard(
                                     items: items,
                                     onOpenToy: _openToyDetail,
-                                    emptyTitle: 'Sugest\u00e3o para hoje',
+                                    emptyTitle: l10n.isEn
+                                        ? 'Suggestion for today'
+                                        : 'Sugest\u00e3o para hoje',
                                     emptyCounterText: counterText,
                                     emptyState: _HomeSuggestionEmptyState(
                                       suggestionFuture: homeSuggestionFuture,
@@ -699,7 +710,9 @@ class _RodadaPageState extends State<RodadaPage> {
                                   return _AvailableToysGridCard(
                                     items: items,
                                     onOpenToy: _openToyDetail,
-                                    emptyTitle: 'Sugest\u00e3o para hoje',
+                                    emptyTitle: l10n.isEn
+                                        ? 'Suggestion for today'
+                                        : 'Sugest\u00e3o para hoje',
                                     emptyCounterText: '',
                                     emptyState: _HomeSuggestionEmptyState(
                                       suggestionFuture: homeSuggestionFuture,
@@ -823,6 +836,7 @@ class _RodadaIpadHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _RodadaIpadSurface(
       padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
       child: LayoutBuilder(
@@ -863,7 +877,7 @@ class _RodadaIpadHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ROD\u00cdZIO DE BRINQUEDOS \u00b7 ${todayLabel.toUpperCase()}',
+                      '${l10n.appNameUpper} · ${todayLabel.toUpperCase()}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textMicro.copyWith(
@@ -875,7 +889,7 @@ class _RodadaIpadHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 7),
                     Text(
-                      'Rodada de hoje',
+                      l10n.todaysRotation,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textTitle.copyWith(
@@ -887,9 +901,13 @@ class _RodadaIpadHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: 7),
                     Text(
-                      itemCount == 0
-                          ? 'Monte uma sugest\u00e3o para separar os brinquedos de hoje.'
-                          : 'Separe os brinquedos sugeridos e acompanhe o que j\u00e1 foi marcado.',
+                      l10n.isEn
+                          ? (itemCount == 0
+                              ? 'Build a suggestion to set aside today’s toys.'
+                              : 'Set aside the suggested toys and track what is marked.')
+                          : (itemCount == 0
+                              ? 'Monte uma sugest\u00e3o para separar os brinquedos de hoje.'
+                              : 'Separe os brinquedos sugeridos e acompanhe o que j\u00e1 foi marcado.'),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: UiTokens.textCaption.copyWith(
@@ -1078,9 +1096,13 @@ class _RodadaIpadChecklistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final countLabel = items.isEmpty
-        ? 'Nenhuma rodada ativa'
-        : '${progress.collectedCount} de ${progress.totalCount} brinquedos marcados';
+        ? (l10n.isEn ? 'No active rotation' : 'Nenhuma rodada ativa')
+        : l10n.toysMarkedCount(
+            progress.collectedCount,
+            progress.totalCount,
+          );
     final percent = (progress.fraction * 100).round();
 
     return _RodadaIpadSurface(
@@ -1112,8 +1134,10 @@ class _RodadaIpadChecklistCard extends StatelessWidget {
                           const SizedBox(height: 5),
                           Text(
                             items.isEmpty
-                                ? 'Escolha uma sugest\u00e3o para come\u00e7ar.'
-                                : 'Hoje \u00b7 ${items.length} brinquedos na rodada',
+                                ? (l10n.isEn
+                                    ? 'Choose a suggestion to get started.'
+                                    : 'Escolha uma sugest\u00e3o para come\u00e7ar.')
+                                : '${l10n.today} · ${l10n.toysCount(items.length)} ${l10n.isEn ? 'in rotation' : 'na rodada'}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: UiTokens.textMicro.copyWith(
@@ -1237,31 +1261,31 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
     required this.onToggle,
   });
 
-  String _boxLabel() {
+  String _boxLabel(AppLocalizations l10n) {
     final box = item.box;
-    if (box == null) return 'Sem caixa';
+    if (box == null) return l10n.noBox;
 
     final name = box.name.trim();
-    if (name.isNotEmpty) return name;
-    return 'Caixa ${box.number}';
+    if (name.isNotEmpty) return l10n.value(name);
+    return l10n.boxNumber(box.number);
   }
 
-  String _locationLabel() {
+  String _locationLabel(AppLocalizations l10n) {
     final box = item.box;
     if (box != null) {
       final local = box.local.trim();
-      return local.isEmpty ? 'Sem local definido' : local;
+      return local.isEmpty ? l10n.noLocationDefined : l10n.value(local);
     }
 
     final location = (item.toy.locationText ?? '').trim();
-    return location.isEmpty ? 'Sem local' : location;
+    return location.isEmpty ? l10n.noLocation : l10n.value(location);
   }
 
   @override
   Widget build(BuildContext context) {
-    final name =
-        item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
-    final location = '${_boxLabel()} \u00b7 ${_locationLabel()}';
+    final l10n = context.l10n;
+    final name = l10n.toyDisplayName(item.toy.name);
+    final location = '${_boxLabel(l10n)} · ${_locationLabel(l10n)}';
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 160),
@@ -1316,7 +1340,7 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           _RodadaIpadMiniPill(
-                            label: isCollected ? 'Marcado' : 'Pendente',
+                            label: isCollected ? l10n.marked : l10n.pending,
                             foreground: isCollected
                                 ? _RodadaIpadPalette.green
                                 : _RodadaIpadPalette.orange,
@@ -1354,7 +1378,7 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
                 const SizedBox(width: 12),
                 IconButton(
                   onPressed: onToggle,
-                  tooltip: isCollected ? 'Desmarcar' : 'Marcar',
+                  tooltip: isCollected ? l10n.unmark : l10n.mark,
                   style: IconButton.styleFrom(
                     backgroundColor: isCollected
                         ? _RodadaIpadPalette.green
@@ -1373,7 +1397,7 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: onOpenToy,
-                  tooltip: 'Abrir brinquedo',
+                  tooltip: l10n.openToy,
                   style: IconButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: _RodadaIpadPalette.textMuted,
@@ -1502,6 +1526,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return FutureBuilder<List<RoundToyWithBox>>(
       future: suggestionFuture,
       builder: (context, snapshot) {
@@ -1516,7 +1541,9 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Text(
-                'Cadastre brinquedos para montar uma sugest\u00e3o.',
+                l10n.isEn
+                    ? 'Add toys to build a suggestion.'
+                    : 'Cadastre brinquedos para montar uma sugest\u00e3o.',
                 textAlign: TextAlign.center,
                 style: UiTokens.textCaption.copyWith(
                   color: _RodadaIpadPalette.textMuted,
@@ -1541,9 +1568,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                 children: [
                   for (final item in preview)
                     Tooltip(
-                      message: item.toy.name.trim().isEmpty
-                          ? 'Brinquedo sugerido'
-                          : item.toy.name.trim(),
+                      message: l10n.toyDisplayName(item.toy.name),
                       child: InkWell(
                         onTap: () => onOpenToy(item.toy.id),
                         borderRadius: BorderRadius.circular(18),
@@ -1557,7 +1582,9 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                '${suggestion.length} brinquedos sugeridos para hoje',
+                l10n.isEn
+                    ? '${suggestion.length} toys suggested for today'
+                    : '${suggestion.length} brinquedos sugeridos para hoje',
                 textAlign: TextAlign.center,
                 style: UiTokens.textSectionTitle.copyWith(
                   color: _RodadaIpadPalette.text,
@@ -1567,7 +1594,9 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Use a sugest\u00e3o para transformar esta tela em checklist.',
+                l10n.isEn
+                    ? 'Use the suggestion to turn this screen into a checklist.'
+                    : 'Use a sugest\u00e3o para transformar esta tela em checklist.',
                 textAlign: TextAlign.center,
                 style: UiTokens.textCaption.copyWith(
                   color: _RodadaIpadPalette.textMid,
@@ -1589,7 +1618,8 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                         ),
                       )
                     : const Icon(Icons.check_circle_outline, size: 18),
-                label: const Text('Usar sugest\u00e3o'),
+                label:
+                    Text(l10n.isEn ? 'Use suggestion' : 'Usar sugest\u00e3o'),
                 style: FilledButton.styleFrom(
                   backgroundColor: _RodadaIpadPalette.orange,
                   foregroundColor: Colors.white,
@@ -1625,30 +1655,30 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
     required this.categoryNameFor,
   });
 
-  Map<String, int> _boxCounts() {
+  Map<String, int> _boxCounts(AppLocalizations l10n) {
     final counts = <String, int>{};
     for (final item in items) {
       final box = item.box;
       final label = box == null
-          ? 'Sem caixa'
+          ? l10n.noBox
           : box.name.trim().isNotEmpty
-              ? box.name.trim()
-              : 'Caixa ${box.number}';
+              ? l10n.value(box.name.trim())
+              : l10n.boxNumber(box.number);
       counts[label] = (counts[label] ?? 0) + 1;
     }
     return counts;
   }
 
-  Map<String, int> _locationCounts() {
+  Map<String, int> _locationCounts(AppLocalizations l10n) {
     final counts = <String, int>{};
     for (final item in items) {
       final box = item.box;
       final toyLocation = (item.toy.locationText ?? '').trim();
       final label = box != null && box.local.trim().isNotEmpty
-          ? box.local.trim()
+          ? l10n.value(box.local.trim())
           : toyLocation.isNotEmpty
-              ? toyLocation
-              : 'Sem local';
+              ? l10n.value(toyLocation)
+              : l10n.noLocation;
       counts[label] = (counts[label] ?? 0) + 1;
     }
     return counts;
@@ -1665,8 +1695,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allBoxCounts = _sortedCounts(_boxCounts());
-    final allLocationCounts = _sortedCounts(_locationCounts());
+    final l10n = context.l10n;
+    final allBoxCounts = _sortedCounts(_boxCounts(l10n));
+    final allLocationCounts = _sortedCounts(_locationCounts(l10n));
     final allCategoryCounts = _sortedCounts(_categoryCounts());
     final boxCounts = allBoxCounts.take(3).toList();
     final locationCounts = allLocationCounts.take(3).toList();
@@ -1678,7 +1709,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Organiza\u00e7\u00e3o',
+            l10n.isEn ? 'Organization' : 'Organiza\u00e7\u00e3o',
             style: UiTokens.textCaption.copyWith(
               color: _RodadaIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -1686,7 +1717,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Onde buscar cada brinquedo',
+            l10n.isEn ? 'Where to find each toy' : 'Onde buscar cada brinquedo',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
@@ -1699,7 +1730,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
             child: items.isEmpty
                 ? Center(
                     child: Text(
-                      'A organiza\u00e7\u00e3o aparece quando houver uma rodada ativa.',
+                      l10n.isEn
+                          ? 'Organization appears when there is an active rotation.'
+                          : 'A organiza\u00e7\u00e3o aparece quando houver uma rodada ativa.',
                       textAlign: TextAlign.center,
                       style: UiTokens.textMicro.copyWith(
                         color: _RodadaIpadPalette.textMuted,
@@ -1715,7 +1748,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const _RodadaIpadSideLabel('Caixas envolvidas'),
+                          _RodadaIpadSideLabel(
+                            l10n.isEn ? 'Boxes involved' : 'Caixas envolvidas',
+                          ),
                           const SizedBox(height: 8),
                           for (final entry in boxCounts) ...[
                             _RodadaIpadCountRow(
@@ -1728,8 +1763,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                           ],
                           if (allBoxCounts.length > boxCounts.length) ...[
                             _RodadaIpadMiniPill(
-                              label:
-                                  '+${allBoxCounts.length - boxCounts.length} caixa',
+                              label: l10n.isEn
+                                  ? '+${allBoxCounts.length - boxCounts.length} box'
+                                  : '+${allBoxCounts.length - boxCounts.length} caixa',
                               foreground: _RodadaIpadPalette.orange,
                               background: _RodadaIpadPalette.orangeLight,
                               border: _RodadaIpadPalette.orangeBorder,
@@ -1742,7 +1778,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                             color: _RodadaIpadPalette.border,
                           ),
                           const SizedBox(height: 12),
-                          const _RodadaIpadSideLabel('Locais'),
+                          _RodadaIpadSideLabel(
+                            l10n.isEn ? 'Locations' : 'Locais',
+                          ),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
@@ -1758,7 +1796,11 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 14),
-                          const _RodadaIpadSideLabel('Categorias presentes'),
+                          _RodadaIpadSideLabel(
+                            l10n.isEn
+                                ? 'Categories present'
+                                : 'Categorias presentes',
+                          ),
                           const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
@@ -1774,8 +1816,9 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                               if (allCategoryCounts.length >
                                   categoryCounts.length)
                                 _RodadaIpadMiniPill(
-                                  label:
-                                      '+${allCategoryCounts.length - categoryCounts.length} categoria',
+                                  label: l10n.isEn
+                                      ? '+${allCategoryCounts.length - categoryCounts.length} category'
+                                      : '+${allCategoryCounts.length - categoryCounts.length} categoria',
                                   foreground: _RodadaIpadPalette.blue,
                                   background: _RodadaIpadPalette.blueLight,
                                   border: const Color(0xFFBFDBFE),
@@ -1870,6 +1913,7 @@ class _RodadaIpadTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _RodadaIpadSurface(
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       child: Row(
@@ -1895,7 +1939,7 @@ class _RodadaIpadTipCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Dica',
+                  l10n.isEn ? 'Tip' : 'Dica',
                   style: UiTokens.textCaption.copyWith(
                     color: _RodadaIpadPalette.text,
                     fontWeight: FontWeight.w900,
@@ -1903,7 +1947,9 @@ class _RodadaIpadTipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Depois de brincar, marque os brinquedos usados para melhorar as pr\u00f3ximas sugest\u00f5es.',
+                  l10n.isEn
+                      ? 'After playtime, mark the toys used to improve future suggestions.'
+                      : 'Depois de brincar, marque os brinquedos usados para melhorar as pr\u00f3ximas sugest\u00f5es.',
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1942,10 +1988,13 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final actions = <_RodadaIpadActionData>[
       if (hasItems)
         _RodadaIpadActionData(
-          label: isReady ? 'Tudo marcado' : 'Marcar todos',
+          label: isReady
+              ? (l10n.isEn ? 'Everything marked' : 'Tudo marcado')
+              : (l10n.isEn ? 'Mark all' : 'Marcar todos'),
           icon: Icons.done_all_rounded,
           foreground: _RodadaIpadPalette.green,
           background: _RodadaIpadPalette.greenLight,
@@ -1953,7 +2002,9 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
           onTap: onMarkAll,
         ),
       _RodadaIpadActionData(
-        label: hasItems ? 'Trocar sugest\u00e3o' : 'Sugerir rodada',
+        label: hasItems
+            ? (l10n.isEn ? 'Change suggestion' : 'Trocar sugest\u00e3o')
+            : l10n.suggestRound,
         icon: Icons.swap_horiz_rounded,
         foreground: _RodadaIpadPalette.orange,
         background: _RodadaIpadPalette.orangeLight,
@@ -1961,14 +2012,14 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
         onTap: onSuggestRound,
       ),
       _RodadaIpadActionData(
-        label: 'Ver brinquedos',
+        label: l10n.viewToys,
         icon: Icons.toys_outlined,
         foreground: _RodadaIpadPalette.blue,
         background: _RodadaIpadPalette.blueLight,
         onTap: onOpenToys,
       ),
       _RodadaIpadActionData(
-        label: 'Configura\u00e7\u00f5es',
+        label: l10n.settings,
         icon: Icons.tune_rounded,
         foreground: _RodadaIpadPalette.purple,
         background: _RodadaIpadPalette.purpleLight,
@@ -1982,7 +2033,7 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'A\u00e7\u00f5es r\u00e1pidas',
+            l10n.isEn ? 'Quick actions' : 'A\u00e7\u00f5es r\u00e1pidas',
             style: UiTokens.textCaption.copyWith(
               color: _RodadaIpadPalette.text,
               fontWeight: FontWeight.w900,
@@ -1997,8 +2048,12 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
           const Spacer(),
           Text(
             hasItems
-                ? 'Use o checklist sem sair da rodada.'
-                : 'Comece por uma sugest\u00e3o ou revise o cat\u00e1logo.',
+                ? (l10n.isEn
+                    ? 'Use the checklist without leaving the rotation.'
+                    : 'Use o checklist sem sair da rodada.')
+                : (l10n.isEn
+                    ? 'Start with a suggestion or review the catalog.'
+                    : 'Comece por uma sugest\u00e3o ou revise o cat\u00e1logo.'),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textMicro.copyWith(
@@ -2119,12 +2174,13 @@ class _RoundMomentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final colorScheme = Theme.of(context).colorScheme;
     final itemCountText = itemCount == 0
-        ? 'Crie uma rodada para come\u00e7ar.'
-        : itemCount == 1
-            ? '1 item dispon\u00edvel'
-            : '$itemCount itens dispon\u00edveis';
+        ? (l10n.isEn
+            ? 'Create a rotation to get started.'
+            : 'Crie uma rodada para come\u00e7ar.')
+        : l10n.toysAvailableCount(itemCount);
 
     return AppSurfaceCard(
       padding: const EdgeInsets.all(UiTokens.spacingSm),
@@ -2151,7 +2207,7 @@ class _RoundMomentCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Brincadeira',
+                l10n.playSet,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: UiTokens.textSectionTitle.copyWith(
@@ -2186,14 +2242,14 @@ class _RoundMomentCard extends StatelessWidget {
                     height: 14,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text(
-                    'Sugerir',
+                : Text(
+                    l10n.suggest,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
           );
           final menuButton = PopupMenuButton<String>(
-            tooltip: 'Mais op\u00e7\u00f5es',
+            tooltip: l10n.moreOptions,
             onSelected: (value) {
               if (value == 'toys') {
                 onOpenBrinquedosTab();
@@ -2203,14 +2259,14 @@ class _RoundMomentCard extends StatelessWidget {
                 onOpenSettings();
               }
             },
-            itemBuilder: (context) => const [
+            itemBuilder: (context) => [
               PopupMenuItem<String>(
                 value: 'toys',
-                child: Text('Ver brinquedos'),
+                child: Text(l10n.viewToys),
               ),
               PopupMenuItem<String>(
                 value: 'settings',
-                child: Text('Configura\u00e7\u00f5es'),
+                child: Text(l10n.settings),
               ),
             ],
             child: Container(
@@ -2296,20 +2352,23 @@ class _AvailableToysGridCard extends StatelessWidget {
     this.onToggleCollected,
   });
 
-  String _categoryNameFor(RoundToyWithBox item) {
+  String _categoryNameFor(RoundToyWithBox item, AppLocalizations l10n) {
     final categoryId = item.toy.categoryId.trim();
-    if (categoryId.isEmpty) return 'Sem categoria';
+    if (categoryId.isEmpty) return l10n.noCategory;
 
     final categoryName = categoryNamesById[categoryId]?.trim();
-    if (categoryName != null && categoryName.isNotEmpty) return categoryName;
+    if (categoryName != null && categoryName.isNotEmpty) {
+      return l10n.categoryName(categoryName);
+    }
 
     final fallback = categoryId.replaceAll('_', ' ').trim();
-    if (fallback.isEmpty) return 'Sem categoria';
-    return fallback[0].toUpperCase() + fallback.substring(1);
+    if (fallback.isEmpty) return l10n.noCategory;
+    return l10n.categoryName(fallback[0].toUpperCase() + fallback.substring(1));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final progress = RoundChecklistProgress.fromToyIds(
@@ -2320,13 +2379,20 @@ class _AvailableToysGridCard extends StatelessWidget {
     final title = items.isEmpty
         ? emptyTitle
         : assemblyMode
-            ? 'Montar rodada'
-            : activeItemsTitle;
+            ? l10n.buildRotation
+            : (activeItemsTitle == 'Brinquedos disponíveis'
+                ? (l10n.isEn ? 'Available toys' : activeItemsTitle)
+                : activeItemsTitle);
     final counterText = items.isEmpty
         ? emptyCounterText
         : assemblyMode
-            ? progress.label
-            : '${items.length} itens';
+            ? (progress.isReady
+                ? (l10n.isEn ? 'Rotation ready' : 'Rodada pronta')
+                : l10n.toysMarkedCount(
+                    progress.collectedCount,
+                    progress.totalCount,
+                  ))
+            : l10n.itemsCount(items.length);
 
     Widget buildTitle() {
       return Text(
@@ -2371,7 +2437,7 @@ class _AvailableToysGridCard extends StatelessWidget {
           assemblyMode ? Icons.list_alt_rounded : Icons.checklist_rtl_rounded,
           size: 18,
         ),
-        label: Text(assemblyMode ? 'Detalhes' : 'Montar'),
+        label: Text(assemblyMode ? l10n.details : l10n.build),
         style: TextButton.styleFrom(
           visualDensity: VisualDensity.compact,
           padding: const EdgeInsets.symmetric(
@@ -2485,7 +2551,7 @@ class _AvailableToysGridCard extends StatelessWidget {
                               checklistByToyId[item.toy.id] == true;
                           return _RoundToyGridItem(
                             item: item,
-                            categoryName: _categoryNameFor(item),
+                            categoryName: _categoryNameFor(item, l10n),
                             isCollected: assemblyMode && isCollected,
                             onTap: () {
                               if (assemblyMode) {
@@ -2519,26 +2585,26 @@ class _RoundToyGridItem extends StatelessWidget {
     required this.onTap,
   });
 
-  String _locationLabel() {
+  String _locationLabel(AppLocalizations l10n) {
     final box = item.box;
     final locationText = (item.toy.locationText ?? '').trim();
 
     if (box != null) {
       final local = box.local.trim();
-      if (local.isEmpty) return 'Caixa ${box.number}';
-      return 'Caixa ${box.number} - $local';
+      if (local.isEmpty) return l10n.boxNumber(box.number);
+      return l10n.boxLocationLabel(box.number, local);
     }
 
-    if (locationText.isNotEmpty) return locationText;
-    return 'Sem caixa';
+    if (locationText.isNotEmpty) return l10n.value(locationText);
+    return l10n.noBox;
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final name =
-        item.toy.name.trim().isEmpty ? 'Sem nome' : item.toy.name.trim();
-    final locationLabel = _locationLabel();
+    final l10n = context.l10n;
+    final name = l10n.toyDisplayName(item.toy.name);
+    final locationLabel = _locationLabel(l10n);
 
     return Material(
       color: Colors.transparent,
@@ -2755,6 +2821,7 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return FutureBuilder<List<RoundToyWithBox>>(
       future: suggestionFuture,
@@ -2768,7 +2835,9 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
         if (suggestion.isEmpty) {
           return Center(
             child: Text(
-              'Cadastre brinquedos para montar uma sugest\u00e3o.',
+              l10n.isEn
+                  ? 'Add toys to build a suggestion.'
+                  : 'Cadastre brinquedos para montar uma sugest\u00e3o.',
               textAlign: TextAlign.center,
               style: UiTokens.textBody.copyWith(
                 color: colorScheme.onSurfaceVariant,
@@ -2821,7 +2890,8 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.check_circle_outline, size: 18),
-                label: const Text('Usar sugest\u00e3o'),
+                label:
+                    Text(l10n.isEn ? 'Use suggestion' : 'Usar sugest\u00e3o'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: UiTokens.spacingMd,
@@ -2853,8 +2923,8 @@ class _SuggestionToyThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name =
-        item.toy.name.trim().isEmpty ? 'Brinquedo sugerido' : item.toy.name;
+    final l10n = context.l10n;
+    final name = l10n.toyDisplayName(item.toy.name);
 
     return Tooltip(
       message: name,

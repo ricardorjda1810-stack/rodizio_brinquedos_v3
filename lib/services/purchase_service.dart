@@ -167,9 +167,8 @@ class PurchaseService extends ChangeNotifier {
 
       _setState(
         isLoading: false,
-        errorMessage: details == null
-            ? 'Assinaturas premium não encontradas na loja.'
-            : null,
+        errorMessage:
+            details == null ? 'Assinaturas não encontradas na loja.' : null,
         productDetails: details,
         productDetailsById: detailsById,
         storeAvailable: true,
@@ -213,7 +212,7 @@ class PurchaseService extends ChangeNotifier {
       _setState(
         isLoading: false,
         errorMessage:
-            _errorMessage ?? 'Não foi possível carregar a assinatura premium.',
+            _errorMessage ?? 'Não foi possível carregar a assinatura.',
       );
       return;
     }
