@@ -4,6 +4,8 @@
 *.csr
 *.cer
 *.pem
+.DS_Store
+**/.DS_Store
 android/key.properties
 *.jks
 *.keystore
