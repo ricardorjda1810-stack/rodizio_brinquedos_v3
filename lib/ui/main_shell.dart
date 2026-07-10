@@ -1079,7 +1079,6 @@ class _IphoneOrganizationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     return StreamBuilder<List<Toy>>(
       stream: toyRepository.watchAll(),
       builder: (context, toysSnapshot) {
@@ -1094,6 +1093,7 @@ class _IphoneOrganizationCard extends StatelessWidget {
             return StreamBuilder<List<LocationDefinition>>(
               stream: toyRepository.watchLocations(),
               builder: (context, locationsSnapshot) {
+                final l10n = context.l10n;
                 final locationCount =
                     toyCount == 0 ? 0 : locationsSnapshot.data?.length ?? 0;
 
@@ -1721,6 +1721,7 @@ class _IpadHomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _IpadPanelSurface(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
       child: Row(
@@ -1756,7 +1757,7 @@ class _IpadHomeHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'RODÍZIO DE BRINQUEDOS',
+                  l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1767,7 +1768,9 @@ class _IpadHomeHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  'Organize a brincadeira de hoje',
+                  l10n.isEn
+                      ? "Organize today's play time"
+                      : 'Organize a brincadeira de hoje',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textTitle.copyWith(
@@ -1778,7 +1781,9 @@ class _IpadHomeHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Monte uma rodada equilibrada e mantenha os brinquedos em movimento.',
+                  l10n.isEn
+                      ? 'Build a balanced rotation and keep toys moving.'
+                      : 'Monte uma rodada equilibrada e mantenha os brinquedos em movimento.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -1807,7 +1812,7 @@ class _IpadHomeHeader extends StatelessWidget {
                         ),
                       )
                     : const Icon(Icons.shuffle_rounded, size: 18),
-                label: const Text('Montar rodízio'),
+                label: Text(l10n.buildRotation),
                 style: FilledButton.styleFrom(
                   backgroundColor: _IpadHomePalette.orange,
                   foregroundColor: Colors.white,
@@ -1826,7 +1831,7 @@ class _IpadHomeHeader extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onOpenNewToy,
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Novo brinquedo'),
+                label: Text(l10n.newToy),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: _IpadHomePalette.orangeLight,
                   foregroundColor: const Color(0xFFC2410C),
@@ -1960,8 +1965,8 @@ class _IpadRoundTodayContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final countLabel =
-        items.length == 1 ? '1 brinquedo' : '${items.length} brinquedos';
+    final l10n = context.l10n;
+    final countLabel = l10n.toysCount(items.length);
     final ready = items.isNotEmpty && !loading;
     final visibleItems = items.take(6).toList(growable: false);
 
@@ -1984,7 +1989,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                         runSpacing: 4,
                         children: [
                           Text(
-                            'Rodada de hoje',
+                            l10n.todaysRotation,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: UiTokens.textSectionTitle.copyWith(
@@ -1993,7 +1998,9 @@ class _IpadRoundTodayContent extends StatelessWidget {
                             ),
                           ),
                           _IpadPill(
-                            label: loading ? 'carregando' : countLabel,
+                            label: loading
+                                ? (l10n.isEn ? 'loading' : 'carregando')
+                                : countLabel,
                             background: _IpadHomePalette.orangeLight,
                             foreground: const Color(0xFFEA580C),
                             border: _IpadHomePalette.orangeBorder,
@@ -2003,8 +2010,12 @@ class _IpadRoundTodayContent extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         isSuggestion
-                            ? 'Hoje · Sugestão equilibrada'
-                            : 'Hoje · Rodada pronta para brincar',
+                            ? (l10n.isEn
+                                ? 'Today · Balanced suggestion'
+                                : 'Hoje · Sugestão equilibrada')
+                            : (l10n.isEn
+                                ? 'Today · Rotation ready to play'
+                                : 'Hoje · Rodada pronta para brincar'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textCaption.copyWith(
@@ -2729,6 +2740,7 @@ class _IpadHomeStatsPanel extends StatelessWidget {
             return StreamBuilder<List<LocationDefinition>>(
               stream: toyRepository.watchLocations(),
               builder: (context, locationsSnapshot) {
+                final l10n = context.l10n;
                 final locationCount =
                     toyCount == 0 ? 0 : locationsSnapshot.data?.length ?? 0;
 
@@ -2738,7 +2750,7 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Organização da casa',
+                        l10n.homeOrganization,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textCaption.copyWith(
@@ -2748,7 +2760,9 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Visão geral do inventário',
+                        l10n.isEn
+                            ? 'Inventory overview'
+                            : 'Visão geral do inventário',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textMicro.copyWith(
@@ -2767,28 +2781,28 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                         children: [
                           _IpadStatTile(
                             value: toyCount,
-                            label: 'Brinquedos',
+                            label: l10n.toys,
                             foreground: _IpadHomePalette.orange,
                             background: _IpadHomePalette.orangeLight,
                             border: _IpadHomePalette.orangeBorder,
                           ),
                           _IpadStatTile(
                             value: boxCount,
-                            label: 'Caixas',
+                            label: l10n.boxes,
                             foreground: const Color(0xFF8B5CF6),
                             background: const Color(0xFFF5F3FF),
                             border: const Color(0xFFDDD6FE),
                           ),
                           _IpadStatTile(
                             value: locationCount,
-                            label: 'Locais',
+                            label: l10n.locationsTitle,
                             foreground: const Color(0xFF16A34A),
                             background: const Color(0xFFDCFCE7),
                             border: const Color(0xFF86EFAC),
                           ),
                           _IpadStatTile(
                             value: AgePresetCatalog.officialCategories.length,
-                            label: 'Categorias',
+                            label: l10n.categories,
                             foreground: const Color(0xFF2563EB),
                             background: const Color(0xFFEFF6FF),
                             border: const Color(0xFFBFDBFE),
@@ -2876,30 +2890,31 @@ class _IpadQuickActionsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final actions = <_IpadQuickActionData>[
       _IpadQuickActionData(
-        label: 'Novo brinquedo',
+        label: l10n.newToy,
         icon: Icons.add_rounded,
         foreground: _IpadHomePalette.orange,
         background: _IpadHomePalette.orangeLight,
         onTap: onOpenNewToy,
       ),
       _IpadQuickActionData(
-        label: 'Caixas e locais',
+        label: l10n.isEn ? 'Boxes and locations' : 'Caixas e locais',
         icon: Icons.inventory_2_outlined,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
         onTap: onOpenBoxes,
       ),
       _IpadQuickActionData(
-        label: 'Categorias',
+        label: l10n.categories,
         icon: Icons.sell_outlined,
         foreground: const Color(0xFFC2410C),
         background: const Color(0xFFFFF7ED),
         onTap: onOpenCategories,
       ),
       _IpadQuickActionData(
-        label: 'Configurações',
+        label: l10n.settings,
         icon: Icons.settings_outlined,
         foreground: const Color(0xFF78716C),
         background: const Color(0xFFF5F5F4),
@@ -2913,7 +2928,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ações rápidas',
+            l10n.isEn ? 'Quick actions' : 'Ações rápidas',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textCaption.copyWith(
@@ -2940,7 +2955,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Rodízio de Brinquedos',
+                  l10n.appName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(

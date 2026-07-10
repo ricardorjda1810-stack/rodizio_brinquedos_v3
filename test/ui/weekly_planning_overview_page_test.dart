@@ -225,7 +225,7 @@ Future<void> _insertFiveScheduledToys(
 
 String _currentMondayTitle() {
   final monday = startOfPlanningWeek(DateTime.now());
-  return 'Segunda, ${DateFormat('dd/MM', 'pt_BR').format(monday)}';
+  return '${DateFormat.EEEE('pt_BR').format(monday)}, ${DateFormat.yMd('pt_BR').format(monday)}';
 }
 
 class _OverviewTestRoundRepository extends RoundRepository {

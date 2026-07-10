@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/toy_detail_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
@@ -51,18 +52,18 @@ class ActiveRoundList extends StatelessWidget {
     );
   }
 
-  String _subtitle(RoundToyWithBox item) {
+  String _subtitle(RoundToyWithBox item, AppLocalizations l10n) {
     final box = item.box;
     final localExtra = (item.toy.locationText ?? '').trim();
 
     if (box != null) {
       final local = box.local.trim();
-      if (local.isEmpty) return 'Caixa ${box.number}';
-      return 'Caixa ${box.number} - $local';
+      if (local.isEmpty) return l10n.boxNumber(box.number);
+      return l10n.boxLocationLabel(box.number, local);
     }
 
-    if (localExtra.isNotEmpty) return localExtra;
-    return 'Sem caixa';
+    if (localExtra.isNotEmpty) return l10n.value(localExtra);
+    return l10n.noBox;
   }
 
   _CategoryVisual _categoryVisualFor(
@@ -130,9 +131,11 @@ class ActiveRoundList extends StatelessWidget {
   ) {
     final categoryId = item.toy.categoryId.trim();
     final fallbackName = categoryId.isEmpty
-        ? 'Sem categoria'
-        : 'Categoria ${item.toy.categoryId}';
-    final categoryName = categoryNamesById[categoryId] ?? fallbackName;
+        ? context.l10n.noCategory
+        : context.l10n.categoryName(item.toy.categoryId);
+    final categoryName = context.l10n.categoryName(
+      categoryNamesById[categoryId] ?? fallbackName,
+    );
     final visual = _categoryVisualFor(context, categoryId, categoryName);
     final monoTextColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -174,7 +177,7 @@ class ActiveRoundList extends StatelessWidget {
       child: SizedBox(
         width: _categoryColumnWidth,
         child: Text(
-          'Categoria',
+          context.l10n.category,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
@@ -206,6 +209,7 @@ class ActiveRoundList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return StreamBuilder<List<CategoryDefinition>>(
       stream: toyRepository.watchCategories(),
       builder: (context, categoriesSnapshot) {
@@ -242,7 +246,7 @@ class ActiveRoundList extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      title == 'Rodada ativa' ? l10n.todaysRotation : title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -252,9 +256,7 @@ class ActiveRoundList extends StatelessWidget {
                     ...List<Widget>.generate(items.length, (index) {
                       final item = items[index];
                       final isPicked = pickedToyIds.contains(item.toy.id);
-                      final name = item.toy.name.trim().isEmpty
-                          ? 'Sem nome'
-                          : item.toy.name.trim();
+                      final name = l10n.toyDisplayName(item.toy.name);
 
                       return Column(
                         children: [
@@ -293,7 +295,7 @@ class ActiveRoundList extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          _subtitle(item),
+                                          _subtitle(item, l10n),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)

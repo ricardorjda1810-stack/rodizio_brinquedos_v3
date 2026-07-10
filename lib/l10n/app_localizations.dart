@@ -47,6 +47,11 @@ class AppLocalizations {
       isEn ? 'Weekly planning' : 'Planejamento semanal';
   String get catalog => isEn ? 'Catalog' : 'Catálogo';
   String get searchToy => isEn ? 'Search toy' : 'Buscar brinquedo';
+  String get search => isEn ? 'Search' : 'Buscar';
+  String get searchShort => isEn ? 'Search' : 'Busca';
+  String get clear => isEn ? 'Clear' : 'Limpar';
+  String get clearFilters => isEn ? 'Clear filters' : 'Limpar filtros';
+  String get clearSearch => isEn ? 'Clear search' : 'Limpar busca';
   String get toyName => isEn ? 'Toy name' : 'Nome do brinquedo';
   String get filters => isEn ? 'Filters' : 'Filtros';
   String get all => isEn ? 'All' : 'Todos';
@@ -100,6 +105,9 @@ class AppLocalizations {
   String get editInfo => isEn ? 'Edit information' : 'Editar informações';
   String get openInToys => isEn ? 'Open in Toys' : 'Abrir em Brinquedos';
   String get delete => isEn ? 'Delete' : 'Excluir';
+  String get deleteUpper => isEn ? 'DELETE' : 'EXCLUIR';
+  String get cancelUpper => isEn ? 'CANCEL' : 'CANCELAR';
+  String get saveUpper => isEn ? 'SAVE' : 'SALVAR';
   String get viewLocations => isEn ? 'View locations' : 'Ver locais';
   String get myBoxes => isEn ? 'My boxes' : 'Minhas caixas';
   String get noToysInBox =>
@@ -113,7 +121,10 @@ class AppLocalizations {
   String get information => isEn ? 'Information' : 'Informações';
   String get name => isEn ? 'Name' : 'Nome';
   String get box => isEn ? 'Box' : 'Caixa';
+  String get boxUpper => isEn ? 'BOX' : 'CAIXA';
   String get category => isEn ? 'Category' : 'Categoria';
+  String get categories => isEn ? 'Categories' : 'Categorias';
+  String get locationsTitle => isEn ? 'Locations' : 'Locais';
   String get photo => isEn ? 'Photo' : 'Foto';
   String get toyPhoto => isEn ? 'Toy photo' : 'Foto do brinquedo';
   String get noPhoto => isEn ? 'No photo' : 'Sem foto';
@@ -163,6 +174,8 @@ class AppLocalizations {
   String get adjustCategories =>
       isEn ? 'Adjust categories' : 'Ajustar categorias';
   String get currentWeek => isEn ? 'Current week' : 'Semana atual';
+  String get daysPlanned => isEn ? 'days planned' : 'dias planejados';
+  String get daysReady => isEn ? 'days ready' : 'dias prontos';
   String get planned => isEn ? 'Planned' : 'Planejado';
   String get toPlan => isEn ? 'To plan' : 'A planejar';
   String get custom => isEn ? 'Custom' : 'Personalizado';
@@ -305,6 +318,13 @@ class AppLocalizations {
   String value(String? text) {
     final original = text?.trim() ?? '';
     if (original.isEmpty || !isEn) return original;
+    final boxMatch =
+        RegExp(r'^Caixa\s+(\d+)(?:\s*[-–]\s*(.+))?$').firstMatch(original);
+    if (boxMatch != null) {
+      final number = int.tryParse(boxMatch.group(1) ?? '');
+      final local = boxMatch.group(2)?.trim() ?? '';
+      if (number != null) return boxLocationLabel(number, local);
+    }
     return _enValueTranslations[original] ?? original;
   }
 

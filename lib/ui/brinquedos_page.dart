@@ -169,6 +169,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
 
   Future<void> _startRound() async {
     if (_startingRound) return;
+    final l10n = context.l10n;
 
     setState(() => _startingRound = true);
     try {
@@ -177,9 +178,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       if (!mounted) return;
       if (!result.created) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
+              l10n.isEn
+                  ? 'No toys available to start the rotation.'
+                  : 'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
             ),
           ),
         );
@@ -194,8 +197,11 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Rodada criada com ${result.selectedCount} brinquedos.'),
+          content: Text(
+            l10n.isEn
+                ? 'Rotation created with ${result.selectedCount} toys.'
+                : 'Rodada criada com ${result.selectedCount} brinquedos.',
+          ),
         ),
       );
       widget.onOpenRodizioTab();
@@ -204,7 +210,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'N\u00e3o foi poss\u00edvel iniciar o rod\u00edzio: $e',
+            l10n.isEn
+                ? 'Could not start the rotation: $e'
+                : 'N\u00e3o foi poss\u00edvel iniciar o rod\u00edzio: $e',
           ),
         ),
       );
@@ -216,22 +224,25 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
   }
 
   Future<void> _openSearchDialog(BuildContext context) async {
+    final l10n = context.l10n;
     await showDialog<void>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text('Buscar'),
+          title: Text(l10n.search),
           content: TextField(
             controller: _searchController,
             autofocus: true,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: 'Digite o nome do brinquedo...',
+              hintText: l10n.isEn
+                  ? 'Type the toy name...'
+                  : 'Digite o nome do brinquedo...',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Limpar',
+                      tooltip: l10n.clear,
                       onPressed: () => _searchController.clear(),
                       icon: const Icon(Icons.close),
                     ),
@@ -241,7 +252,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Fechar'),
+              child: Text(l10n.isEn ? 'Close' : 'Fechar'),
             ),
           ],
         );
@@ -275,6 +286,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     await widget.toyRepository.ensureOfficialToyFormCategories();
     if (!context.mounted) return;
@@ -286,14 +298,14 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Editar categoria'),
+              title: Text(l10n.editCategory),
               content: StreamBuilder(
                 stream: widget.toyRepository.watchCategories(activeOnly: true),
                 builder: (context, snapshot) {
                   final allCategories = snapshot.data ?? const [];
                   final categories = officialToyFormCategories(allCategories);
                   if (categories.isEmpty) {
-                    return const Text('Nenhuma categoria oficial ativa.');
+                    return Text(l10n.noOfficialCategory);
                   }
 
                   final currentIsOfficial =
@@ -312,7 +324,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                     children: [
                       if (!currentIsOfficial && currentLabel != null) ...[
                         Text(
-                          'Categoria atual: $currentLabel',
+                          l10n.isEn
+                              ? 'Current category: ${l10n.categoryName(currentLabel)}'
+                              : 'Categoria atual: $currentLabel',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: UiTokens.spacingSm),
@@ -322,15 +336,17 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                         child: DropdownButtonFormField<String>(
                           initialValue: selectedId,
                           isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Categoria oficial',
+                          decoration: InputDecoration(
+                            labelText: l10n.officialCategory,
                           ),
-                          hint: const Text('Escolha uma categoria'),
+                          hint: Text(l10n.chooseCategory),
                           items: [
                             for (final c in categories)
                               DropdownMenuItem<String>(
                                 value: c.id,
-                                child: _dropdownLabel(toyFormCategoryName(c)),
+                                child: _dropdownLabel(
+                                  l10n.categoryName(toyFormCategoryName(c)),
+                                ),
                               ),
                           ],
                           onChanged: (value) {
@@ -345,13 +361,13 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: selectedId == null
                       ? null
                       : () => Navigator.of(ctx).pop(selectedId),
-                  child: const Text('Salvar'),
+                  child: Text(l10n.save),
                 ),
               ],
             );
@@ -373,12 +389,22 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       );
       if (!context.mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text('Categoria atualizada.')),
+        SnackBar(
+          content: Text(
+            l10n.isEn ? 'Category updated.' : 'Categoria atualizada.',
+          ),
+        ),
       );
     } catch (e) {
       if (!context.mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar categoria: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating category: $e'
+                : 'Erro ao atualizar categoria: $e',
+          ),
+        ),
       );
     }
   }
@@ -399,11 +425,16 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     if (item.box != null) {
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Este brinquedo ja usa o local da caixa.'),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'This toy already uses the box location.'
+                : 'Este brinquedo ja usa o local da caixa.',
+          ),
         ),
       );
       return;
@@ -427,24 +458,24 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Editar local'),
+            title: Text(l10n.editLocation),
             content: SizedBox(
               width: double.maxFinite,
               child: DropdownButtonFormField<String?>(
                 initialValue: selectedLocation,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Local (sem caixa)',
+                decoration: InputDecoration(
+                  labelText: l10n.unboxedLocation,
                 ),
                 items: <DropdownMenuItem<String?>>[
                   DropdownMenuItem<String?>(
                     value: null,
-                    child: _dropdownLabel('Sem local'),
+                    child: _dropdownLabel(l10n.noLocation),
                   ),
                   ...locations.map(
                     (l) => DropdownMenuItem<String?>(
                       value: l.name,
-                      child: _dropdownLabel(l.name),
+                      child: _dropdownLabel(l10n.value(l.name)),
                     ),
                   ),
                 ],
@@ -456,14 +487,14 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancelar'),
+                child: Text(l10n.cancel),
               ),
               FilledButton(
                 onPressed: () {
                   confirmed = true;
                   Navigator.of(ctx).pop(selectedLocation);
                 },
-                child: const Text('Salvar'),
+                child: Text(l10n.save),
               ),
             ],
           );
@@ -481,12 +512,20 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       );
       if (!context.mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text('Local atualizado.')),
+        SnackBar(
+          content: Text(l10n.isEn ? 'Location updated.' : 'Local atualizado.'),
+        ),
       );
     } catch (e) {
       if (!context.mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar local: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating location: $e'
+                : 'Erro ao atualizar local: $e',
+          ),
+        ),
       );
     }
   }
@@ -495,6 +534,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     BuildContext context,
     BrinquedosCatalogItem item,
   ) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     final boxes = await widget.toyRepository.watchBoxes().first;
     if (!context.mounted) return;
@@ -510,28 +550,30 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('Editar caixa'),
+            title: Text(l10n.editBox),
             content: SizedBox(
               width: double.maxFinite,
               child: DropdownButtonFormField<String?>(
                 initialValue: selectedBoxSelection,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Caixa',
+                decoration: InputDecoration(
+                  labelText: l10n.box,
                 ),
                 items: <DropdownMenuItem<String?>>[
                   DropdownMenuItem<String?>(
                     value: _toyBoxNoSelectionValue,
-                    child: _dropdownLabel('Selecionar caixa'),
+                    child: _dropdownLabel(l10n.selectBox),
                   ),
                   DropdownMenuItem<String?>(
                     value: _toyBoxWithoutBoxValue,
-                    child: _dropdownLabel('Sem caixa'),
+                    child: _dropdownLabel(l10n.noBox),
                   ),
                   ...boxes.map(
                     (b) => DropdownMenuItem<String?>(
                       value: b.id,
-                      child: _dropdownLabel('Caixa ${b.number} - ${b.local}'),
+                      child: _dropdownLabel(
+                        l10n.boxLocationLabel(b.number, b.local),
+                      ),
                     ),
                   ),
                 ],
@@ -546,13 +588,19 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancelar'),
+                child: Text(l10n.cancel),
               ),
               FilledButton(
                 onPressed: () {
                   if (selectedBoxSelection == _toyBoxNoSelectionValue) {
                     messenger.showSnackBar(
-                      const SnackBar(content: Text(_toyBoxRequiredMessage)),
+                      SnackBar(
+                        content: Text(
+                          l10n.isEn
+                              ? 'Select a box or choose "No box" to save the toy.'
+                              : _toyBoxRequiredMessage,
+                        ),
+                      ),
                     );
                     return;
                   }
@@ -564,7 +612,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                         : selectedBoxSelection,
                   );
                 },
-                child: const Text('Salvar'),
+                child: Text(l10n.save),
               ),
             ],
           );
@@ -582,12 +630,19 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
       );
       if (!context.mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text('Caixa atualizada.')),
+        SnackBar(
+            content: Text(l10n.isEn ? 'Box updated.' : 'Caixa atualizada.')),
       );
     } catch (e) {
       if (!context.mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar caixa: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating box: $e'
+                : 'Erro ao atualizar caixa: $e',
+          ),
+        ),
       );
     }
   }
@@ -647,7 +702,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
             ),
             const SizedBox(width: UiTokens.spacingXs),
             PopupMenuButton<String>(
-              tooltip: 'Mais op\u00e7\u00f5es',
+              tooltip: l10n.moreOptions,
               onSelected: (value) {
                 if (value == _menuEditCategory) {
                   _editToyCategoryFromList(context, item);
@@ -662,18 +717,18 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: _menuEditCategory,
-                  child: Text('Editar categoria'),
+                  child: Text(l10n.editCategory),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: _menuEditBox,
-                  child: Text('Editar caixa'),
+                  child: Text(l10n.editBox),
                 ),
                 PopupMenuItem<String>(
                   value: _menuEditLocation,
                   enabled: item.box == null,
-                  child: const Text('Editar local'),
+                  child: Text(l10n.editLocation),
                 ),
               ],
               child: Container(
@@ -1007,7 +1062,7 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
                       message: l10n.isEn
                           ? 'Adjust search and filters to find toys.'
                           : 'Ajuste busca e filtros para encontrar brinquedos.',
-                      actionLabel: l10n.isEn ? 'Clear' : 'Limpar',
+                      actionLabel: l10n.clear,
                       onAction: _clearFilters,
                     ),
                   );
@@ -1479,9 +1534,7 @@ class _CatalogIpadEmptyCatalog extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
             ),
             child: Text(
-              hasNoToys
-                  ? l10n.newToy
-                  : (l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
+              hasNoToys ? l10n.newToy : l10n.clearFilters,
             ),
           ),
         ],
@@ -1827,7 +1880,7 @@ class _CatalogIpadCatalogFooter extends StatelessWidget {
                 minimumSize: const Size(0, 32),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: Text(l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
+              child: Text(l10n.clearFilters),
             ),
           ],
         ],
@@ -1893,7 +1946,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
-          title: l10n.isEn ? 'Categories' : 'Categorias',
+          title: l10n.categories,
           options: categoryOptions,
           selectedId: selectedCategoryId,
           onChanged: onCategoryChanged,
@@ -1904,7 +1957,7 @@ class _CatalogIpadSideColumn extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         _CatalogIpadFilterCard(
-          title: l10n.isEn ? 'Locations' : 'Locais',
+          title: l10n.locationsTitle,
           options: locationOptions,
           selectedId: selectedLocationId,
           onChanged: onLocationChanged,
@@ -1972,7 +2025,7 @@ class _CatalogIpadSearchCard extends StatelessWidget {
               suffixIcon: controller.text.trim().isEmpty
                   ? null
                   : IconButton(
-                      tooltip: l10n.isEn ? 'Clear search' : 'Limpar busca',
+                      tooltip: l10n.clearSearch,
                       onPressed: controller.clear,
                       icon: const Icon(Icons.close_rounded, size: 18),
                     ),
@@ -2191,7 +2244,7 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
               ),
               _CatalogIpadStatTile(
                 value: '$categoryCount',
-                label: l10n.isEn ? 'Categories' : 'Categorias',
+                label: l10n.categories,
                 foreground: const Color(0xFF8B5CF6),
                 background: const Color(0xFFF5F3FF),
                 border: const Color(0xFFDDD6FE),
@@ -2205,7 +2258,7 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
               ),
               _CatalogIpadStatTile(
                 value: '$locationCount',
-                label: l10n.isEn ? 'Locations' : 'Locais',
+                label: l10n.locationsTitle,
                 foreground: const Color(0xFF2563EB),
                 background: const Color(0xFFEFF6FF),
                 border: const Color(0xFFBFDBFE),
@@ -2244,8 +2297,7 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onClearFilters,
                         icon: const Icon(Icons.close_rounded, size: 17),
-                        label: Text(
-                            l10n.isEn ? 'Clear filters' : 'Limpar filtros'),
+                        label: Text(l10n.clearFilters),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: _CatalogIpadPalette.orange,
                           side: const BorderSide(

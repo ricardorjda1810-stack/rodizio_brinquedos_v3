@@ -109,17 +109,20 @@ class _CaixasPageState extends State<CaixasPage> {
     String boxId,
     String label,
   ) async {
+    final l10n = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Excluir caixa?'),
+        title: Text(l10n.isEn ? 'Delete box?' : 'Excluir caixa?'),
         content: Text(
-          '"$label" sera apagada e os brinquedos ficarao sem caixa.',
+          l10n.isEn
+              ? '"$label" will be deleted and its toys will have no box.'
+              : '"$label" sera apagada e os brinquedos ficarao sem caixa.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('CANCELAR'),
+            child: Text(l10n.cancelUpper),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -127,7 +130,7 @@ class _CaixasPageState extends State<CaixasPage> {
               foregroundColor: UiTokens.surface,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('EXCLUIR'),
+            child: Text(l10n.deleteUpper),
           ),
         ],
       ),
@@ -144,6 +147,7 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   Future<void> _pickBoxPhoto(BuildContext context, Boxe box) async {
+    final l10n = context.l10n;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       showDragHandle: true,
@@ -154,12 +158,12 @@ class _CaixasPageState extends State<CaixasPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Tirar foto'),
+                title: Text(l10n.takePhoto),
                 onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Escolher da galeria'),
+                title: Text(l10n.chooseFromGallery),
                 onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
               ),
             ],
@@ -188,17 +192,30 @@ class _CaixasPageState extends State<CaixasPage> {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao salvar foto da caixa: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error saving box photo: $e'
+                : 'Erro ao salvar foto da caixa: $e',
+          ),
+        ),
       );
     }
   }
 
   Future<void> _editBoxLocal(BuildContext context, Boxe box) async {
+    final l10n = context.l10n;
     final locations = await widget.toyRepository.watchLocations().first;
     if (!context.mounted) return;
     if (locations.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nenhum local configurado.')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'No locations configured.'
+                : 'Nenhum local configurado.',
+          ),
+        ),
       );
       return;
     }
@@ -212,15 +229,15 @@ class _CaixasPageState extends State<CaixasPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setLocalState) => AlertDialog(
-          title: const Text('Editar local'),
+          title: Text(l10n.editLocation),
           content: DropdownButtonFormField<String>(
             initialValue: selectedLocationId,
-            decoration: const InputDecoration(labelText: 'Local'),
+            decoration: InputDecoration(labelText: l10n.location),
             items: locations
                 .map(
                   (l) => DropdownMenuItem<String>(
                     value: l.id,
-                    child: Text(l.name),
+                    child: Text(l10n.value(l.name)),
                   ),
                 )
                 .toList(),
@@ -232,7 +249,7 @@ class _CaixasPageState extends State<CaixasPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('CANCELAR'),
+              child: Text(l10n.cancelUpper),
             ),
             FilledButton(
               onPressed: () {
@@ -241,7 +258,7 @@ class _CaixasPageState extends State<CaixasPage> {
                 );
                 Navigator.of(ctx).pop(selected.name);
               },
-              child: const Text('SALVAR'),
+              child: Text(l10n.saveUpper),
             ),
           ],
         ),
@@ -255,35 +272,44 @@ class _CaixasPageState extends State<CaixasPage> {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar local da caixa: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating box location: $e'
+                : 'Erro ao atualizar local da caixa: $e',
+          ),
+        ),
       );
     }
   }
 
   Future<void> _editBoxNotes(BuildContext context, Boxe box) async {
+    final l10n = context.l10n;
     final controller = TextEditingController(text: box.notes ?? '');
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Informacoes da caixa'),
+        title: Text(l10n.isEn ? 'Box information' : 'Informacoes da caixa'),
         content: TextField(
           controller: controller,
           minLines: 2,
           maxLines: 4,
           maxLength: 120,
           inputFormatters: [LengthLimitingTextInputFormatter(120)],
-          decoration: const InputDecoration(
-            labelText: 'Informacoes importantes (opcional)',
+          decoration: InputDecoration(
+            labelText: l10n.isEn
+                ? 'Important information (optional)'
+                : 'Informacoes importantes (opcional)',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('CANCELAR'),
+            child: Text(l10n.cancelUpper),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(controller.text),
-            child: const Text('SALVAR'),
+            child: Text(l10n.saveUpper),
           ),
         ],
       ),
@@ -297,7 +323,13 @@ class _CaixasPageState extends State<CaixasPage> {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar informacoes da caixa: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating box information: $e'
+                : 'Erro ao atualizar informacoes da caixa: $e',
+          ),
+        ),
       );
     }
   }
@@ -332,10 +364,17 @@ class _CaixasPageState extends State<CaixasPage> {
     ToyCatalogItem item,
     List<Boxe> boxes,
   ) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     if (boxes.isEmpty) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Crie uma caixa antes de atribuir.')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Create a box before assigning.'
+                : 'Crie uma caixa antes de atribuir.',
+          ),
+        ),
       );
       return;
     }
@@ -347,11 +386,11 @@ class _CaixasPageState extends State<CaixasPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Atribuir brinquedo'),
+              title: Text(l10n.isEn ? 'Assign toy' : 'Atribuir brinquedo'),
               content: DropdownButtonFormField<String>(
                 initialValue: selectedBoxId,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Caixa'),
+                decoration: InputDecoration(labelText: l10n.box),
                 items: [
                   for (final box in boxes)
                     DropdownMenuItem<String>(
@@ -371,11 +410,11 @@ class _CaixasPageState extends State<CaixasPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.of(ctx).pop(selectedBoxId),
-                  child: const Text('Atribuir'),
+                  child: Text(l10n.isEn ? 'Assign' : 'Atribuir'),
                 ),
               ],
             );
@@ -389,12 +428,18 @@ class _CaixasPageState extends State<CaixasPage> {
     try {
       await widget.toyRepository.setToyBox(toyId: item.toy.id, boxId: result);
       if (!context.mounted) return;
-      messenger
-          .showSnackBar(const SnackBar(content: Text('Caixa atualizada.')));
+      messenger.showSnackBar(SnackBar(
+          content: Text(l10n.isEn ? 'Box updated.' : 'Caixa atualizada.')));
     } catch (e) {
       if (!context.mounted) return;
       messenger.showSnackBar(
-        SnackBar(content: Text('Erro ao atualizar caixa: $e')),
+        SnackBar(
+          content: Text(
+            l10n.isEn
+                ? 'Error updating box: $e'
+                : 'Erro ao atualizar caixa: $e',
+          ),
+        ),
       );
     }
   }

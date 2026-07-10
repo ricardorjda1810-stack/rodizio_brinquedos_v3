@@ -178,6 +178,7 @@ class _WeeklyPlanningOverviewPageState
 
   Future<List<_WeeklyDayToyListItem>> _loadDayToyItems(
     WeeklyPlanningDayOverview day,
+    AppLocalizations l10n,
   ) async {
     final catalog = await widget.toyRepository.watchCatalog().first;
     final catalogByToyId = <String, ToyCatalogItem>{
@@ -188,12 +189,13 @@ class _WeeklyPlanningOverviewPageState
         .map((toy) => _WeeklyDayToyListItem.fromPreview(
               toy,
               catalogByToyId[toy.id],
+              l10n,
             ))
         .toList(growable: false);
   }
 
   Future<void> _openDayToys(WeeklyPlanningDayOverview day) async {
-    final itemsFuture = _loadDayToyItems(day);
+    final itemsFuture = _loadDayToyItems(day, context.l10n);
     final width = MediaQuery.sizeOf(context).width;
 
     void openToyFromOverlay(BuildContext overlayContext, String toyId) {
@@ -651,6 +653,7 @@ class _FigmaWeekPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final readyDays = overview.days.where((day) => day.total > 0).length;
 
     return _FigmaSurface(
@@ -666,7 +669,7 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Semana atual',
+                        l10n.currentWeek,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textSectionTitle.copyWith(
@@ -677,7 +680,7 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '${_weekRangeLabel(overview.days)} · $readyDays dias planejados',
+                        '${_weekRangeLabel(overview.days, l10n)} · $readyDays ${l10n.daysPlanned}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: UiTokens.textMicro.copyWith(
@@ -691,7 +694,9 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 _FigmaStatusPill(
-                  label: '$readyDays de ${overview.days.length} dias prontos',
+                  label: l10n.isEn
+                      ? '$readyDays of ${overview.days.length} ${l10n.daysReady}'
+                      : '$readyDays de ${overview.days.length} ${l10n.daysReady}',
                   foreground: _FigmaPlanningPalette.orange,
                   background: _FigmaPlanningPalette.orangeLight,
                   border: _FigmaPlanningPalette.orangeBorder,
@@ -746,7 +751,8 @@ class _FigmaDayPlanRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final status = _figmaStatusFor(day);
+    final l10n = context.l10n;
+    final status = _figmaStatusFor(day, l10n);
 
     return Material(
       color: Colors.transparent,
@@ -781,7 +787,7 @@ class _FigmaDayPlanRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _weekdayAbbr(day.weekday),
+                    _weekdayAbbr(day.weekday, l10n),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: UiTokens.textCaption.copyWith(
@@ -795,7 +801,7 @@ class _FigmaDayPlanRow extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '${day.date.day} ${_shortMonth(day.date.month)}',
+                    '${day.date.day} ${_shortMonth(day.date.month, l10n)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: UiTokens.textMicro.copyWith(
@@ -932,13 +938,14 @@ class _FigmaToyAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final path = toy.photoPath?.trim();
 
     return Semantics(
       button: true,
-      label: _openToySemanticLabel(toy),
+      label: _openToySemanticLabel(toy, l10n),
       child: Tooltip(
-        message: _openToySemanticLabel(toy),
+        message: _openToySemanticLabel(toy, l10n),
         child: Material(
           color: Colors.transparent,
           shape: const CircleBorder(),
@@ -1160,7 +1167,7 @@ class _FigmaSummaryCard extends StatelessWidget {
         border: _FigmaPlanningPalette.orangeBorder,
       ),
       _FigmaStatData(
-        value: _formatAverage(overview.averagePerDay),
+        value: _formatAverage(overview.averagePerDay, l10n),
         label: l10n.averagePerDay,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
@@ -1438,7 +1445,7 @@ class _FigmaQuickActionsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ações rápidas',
+            l10n.isEn ? 'Quick actions' : 'Ações rápidas',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textCaption.copyWith(
@@ -1460,7 +1467,7 @@ class _FigmaQuickActionsCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  _weekRangeLabel(overview.days),
+                  _weekRangeLabel(overview.days, l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -1472,8 +1479,9 @@ class _FigmaQuickActionsCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               _FigmaStatusPill(
-                label:
-                    '${overview.days.where((day) => day.total > 0).length} de ${overview.days.length} dias',
+                label: l10n.isEn
+                    ? '${overview.days.where((day) => day.total > 0).length} of ${overview.days.length} days'
+                    : '${overview.days.where((day) => day.total > 0).length} de ${overview.days.length} dias',
                 foreground: _FigmaPlanningPalette.orange,
                 background: _FigmaPlanningPalette.orangeLight,
                 border: _FigmaPlanningPalette.orangeLight,
@@ -1972,7 +1980,7 @@ class _WeekSummaryCard extends StatelessWidget {
       _MetricData(
         icon: Icons.calendar_today_outlined,
         label: l10n.averagePerDay,
-        value: _formatAverage(overview.averagePerDay),
+        value: _formatAverage(overview.averagePerDay, l10n),
       ),
       _MetricData(
         icon: Icons.inventory_2_outlined,
@@ -2438,13 +2446,14 @@ class _ToyThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final path = toy.photoPath?.trim();
 
     return Semantics(
       button: true,
-      label: _openToySemanticLabel(toy),
+      label: _openToySemanticLabel(toy, l10n),
       child: Tooltip(
-        message: _openToySemanticLabel(toy),
+        message: _openToySemanticLabel(toy, l10n),
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(UiTokens.radiusSm),
@@ -2553,13 +2562,14 @@ class _DayTotalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = day.total == 1 ? '1 item' : '${day.total} itens';
+    final l10n = context.l10n;
+    final label = l10n.itemsCount(day.total);
 
     return Semantics(
       button: true,
-      label: _openDayToysSemanticLabel(day),
+      label: _openDayToysSemanticLabel(day, l10n),
       child: Tooltip(
-        message: _openDayToysSemanticLabel(day),
+        message: _openDayToysSemanticLabel(day, l10n),
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(UiTokens.radiusSm),
@@ -2614,13 +2624,14 @@ class _DayTotalTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = day.total == 1 ? '1 item' : '${day.total} itens';
+    final l10n = context.l10n;
+    final label = l10n.itemsCount(day.total);
 
     return Semantics(
       button: true,
-      label: _openDayToysSemanticLabel(day),
+      label: _openDayToysSemanticLabel(day, l10n),
       child: Tooltip(
-        message: _openDayToysSemanticLabel(day),
+        message: _openDayToysSemanticLabel(day, l10n),
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(10),
@@ -2667,11 +2678,12 @@ class _DayChevronButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Semantics(
       button: true,
-      label: _openDayToysSemanticLabel(day),
+      label: _openDayToysSemanticLabel(day, l10n),
       child: Tooltip(
-        message: _openDayToysSemanticLabel(day),
+        message: _openDayToysSemanticLabel(day, l10n),
         child: SizedBox(
           width: figma ? 34 : 44,
           height: figma ? 34 : 44,
@@ -2705,6 +2717,7 @@ class _DayToyListPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Material(
       color: _FigmaPlanningPalette.card,
       borderRadius: BorderRadius.circular(24),
@@ -2742,7 +2755,7 @@ class _DayToyListPanel extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _dayListTitle(day),
+                                _dayListTitle(day, l10n),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
@@ -2755,7 +2768,7 @@ class _DayToyListPanel extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                _scheduledToyCountLabel(day.toys.length),
+                                _scheduledToyCountLabel(day.toys.length, l10n),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
@@ -2876,11 +2889,13 @@ class _DayToyListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final storageLabel = item.storageLabel;
 
     return Semantics(
       button: true,
-      label: 'Abrir brinquedo ${item.name}',
+      label:
+          l10n.isEn ? 'Open toy ${item.name}' : 'Abrir brinquedo ${item.name}',
       child: Material(
         color: UiTokens.bg,
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
@@ -2992,21 +3007,27 @@ class _WeeklyDayToyListItem {
   factory _WeeklyDayToyListItem.fromPreview(
     WeeklyPlanningOverviewToyInput toy,
     ToyCatalogItem? catalogItem,
+    AppLocalizations l10n,
   ) {
     final sourceToy = catalogItem?.toy;
     final box = catalogItem?.box;
     final category = catalogItem?.category;
-    final boxName = _boxLabel(box);
-    final location =
-        _cleanText(box?.local) ?? _cleanText(sourceToy?.locationText);
+    final boxName = _boxLabel(box, l10n);
+    final location = l10n
+        .value(_cleanText(box?.local) ?? _cleanText(sourceToy?.locationText));
 
     return _WeeklyDayToyListItem(
       id: toy.id,
-      name: _cleanText(sourceToy?.name) ?? _cleanText(toy.name) ?? 'Brinquedo',
-      categoryLabel: _cleanText(category?.name) ??
-          _fallbackCategoryLabel(sourceToy?.categoryId ?? toy.categoryId),
+      name: l10n.toyDisplayName(
+        _cleanText(sourceToy?.name) ?? _cleanText(toy.name),
+      ),
+      categoryLabel: l10n.categoryName(
+        _cleanText(category?.name) ??
+            _fallbackCategoryLabel(
+                sourceToy?.categoryId ?? toy.categoryId, l10n),
+      ),
       boxLabel: boxName,
-      locationLabel: location,
+      locationLabel: location.isEmpty ? null : location,
       photoPath: _cleanText(sourceToy?.photoPath) ?? _cleanText(toy.photoPath),
     );
   }
@@ -3146,24 +3167,31 @@ WeeklyPlanningOverviewToyInput _toyToPreview(Toy toy) {
   );
 }
 
-String _openToySemanticLabel(WeeklyPlanningOverviewToyInput toy) {
-  final name = _cleanText(toy.name) ?? 'brinquedo';
-  return 'Abrir brinquedo $name';
+String _openToySemanticLabel(
+  WeeklyPlanningOverviewToyInput toy,
+  AppLocalizations l10n,
+) {
+  final name = l10n.toyDisplayName(toy.name);
+  return l10n.isEn ? 'Open toy $name' : 'Abrir brinquedo $name';
 }
 
-String _openDayToysSemanticLabel(WeeklyPlanningDayOverview day) {
-  final countLabel = day.total == 1 ? '1 brinquedo' : '${day.total} brinquedos';
-  return 'Ver $countLabel de ${day.weekdayLabel}';
+String _openDayToysSemanticLabel(
+  WeeklyPlanningDayOverview day,
+  AppLocalizations l10n,
+) {
+  final countLabel = l10n.toysCount(day.total);
+  final weekday = DateFormat.EEEE(l10n.dateLocale).format(day.date);
+  return l10n.isEn
+      ? 'View $countLabel for $weekday'
+      : 'Ver $countLabel de $weekday';
 }
 
-String _dayListTitle(WeeklyPlanningDayOverview day) {
-  return '${day.weekdayLabel}, ${DateFormat('dd/MM', 'pt_BR').format(day.date)}';
+String _dayListTitle(WeeklyPlanningDayOverview day, AppLocalizations l10n) {
+  return '${DateFormat.EEEE(l10n.dateLocale).format(day.date)}, ${DateFormat.yMd(l10n.dateLocale).format(day.date)}';
 }
 
-String _scheduledToyCountLabel(int count) {
-  return count == 1
-      ? '1 brinquedo programado'
-      : '$count brinquedos programados';
+String _scheduledToyCountLabel(int count, AppLocalizations l10n) {
+  return l10n.plannedToyCount(count);
 }
 
 String? _cleanText(String? value) {
@@ -3172,22 +3200,23 @@ String? _cleanText(String? value) {
   return trimmed;
 }
 
-String? _boxLabel(Boxe? box) {
+String? _boxLabel(Boxe? box, AppLocalizations l10n) {
   if (box == null) return null;
+  if (box.number > 0) return l10n.boxNumber(box.number);
   final name = _cleanText(box.name);
-  if (name != null) return name;
-  if (box.number > 0) return 'Caixa ${box.number}';
+  if (name != null) return l10n.value(name);
   return null;
 }
 
-String _fallbackCategoryLabel(String categoryId) {
+String _fallbackCategoryLabel(String categoryId, AppLocalizations l10n) {
   final normalized = categoryId.trim();
-  if (normalized.isEmpty) return 'Sem categoria';
-  return normalized
+  if (normalized.isEmpty) return l10n.noCategory;
+  final fallback = normalized
       .split('_')
       .where((part) => part.isNotEmpty)
       .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
       .join(' ');
+  return l10n.categoryName(fallback);
 }
 
 WeeklyPlanningOverview _overviewWithTodayVisualCount(
@@ -3264,16 +3293,20 @@ IconData _iconForCategory(String categoryId) {
   }
 }
 
-String _formatAverage(double value) {
+String _formatAverage(double value, AppLocalizations l10n) {
   if (value == value.roundToDouble()) return '${value.round()}';
-  return value.toStringAsFixed(1).replaceAll('.', ',');
+  final formatted = value.toStringAsFixed(1);
+  return l10n.isEn ? formatted : formatted.replaceAll('.', ',');
 }
 
-_FigmaDayStatus _figmaStatusFor(WeeklyPlanningDayOverview day) {
+_FigmaDayStatus _figmaStatusFor(
+  WeeklyPlanningDayOverview day,
+  AppLocalizations l10n,
+) {
   if (_isSameDate(day.date, DateTime.now())) {
-    return const _FigmaDayStatus(
-      label: 'Hoje',
-      foreground: Color(0xFFEA580C),
+    return _FigmaDayStatus(
+      label: l10n.today,
+      foreground: const Color(0xFFEA580C),
       background: _FigmaPlanningPalette.orangeLight,
       border: _FigmaPlanningPalette.orangeBorder,
       today: true,
@@ -3281,19 +3314,19 @@ _FigmaDayStatus _figmaStatusFor(WeeklyPlanningDayOverview day) {
   }
 
   if (day.total > 0) {
-    return const _FigmaDayStatus(
-      label: 'Planejado',
-      foreground: Color(0xFF1D4ED8),
-      background: Color(0xFFEFF6FF),
-      border: Color(0xFFBFDBFE),
+    return _FigmaDayStatus(
+      label: l10n.planned,
+      foreground: const Color(0xFF1D4ED8),
+      background: const Color(0xFFEFF6FF),
+      border: const Color(0xFFBFDBFE),
     );
   }
 
-  return const _FigmaDayStatus(
-    label: 'A planejar',
-    foreground: Color(0xFF78716C),
-    background: Color(0xFFF5F5F4),
-    border: Color(0xFFE7E5E4),
+  return _FigmaDayStatus(
+    label: l10n.toPlan,
+    foreground: const Color(0xFF78716C),
+    background: const Color(0xFFF5F5F4),
+    border: const Color(0xFFE7E5E4),
   );
 }
 
@@ -3329,19 +3362,50 @@ _FigmaVisualStyle _figmaCategoryStyle(int index) {
   return styles[index % styles.length];
 }
 
-String _weekRangeLabel(List<WeeklyPlanningDayOverview> days) {
-  if (days.isEmpty) return 'Semana atual';
+String _weekRangeLabel(
+  List<WeeklyPlanningDayOverview> days,
+  AppLocalizations l10n,
+) {
+  if (days.isEmpty) return l10n.currentWeek;
   final start = days.first.date;
   final end = days.last.date;
 
   if (start.month == end.month && start.year == end.year) {
-    return '${start.day} a ${end.day} de ${_monthName(end.month)} de ${end.year}';
+    final month = _monthName(end.month, l10n);
+    return l10n.isEn
+        ? '$month ${start.day}-${end.day}, ${end.year}'
+        : '${start.day} a ${end.day} de $month de ${end.year}';
   }
 
-  return '${start.day} ${_shortMonth(start.month)} a ${end.day} ${_shortMonth(end.month)} de ${end.year}';
+  final startMonth = _shortMonth(start.month, l10n);
+  final endMonth = _shortMonth(end.month, l10n);
+  return l10n.isEn
+      ? '$startMonth ${start.day} to $endMonth ${end.day}, ${end.year}'
+      : '${start.day} $startMonth a ${end.day} $endMonth de ${end.year}';
 }
 
-String _weekdayAbbr(int weekday) {
+String _weekdayAbbr(int weekday, AppLocalizations l10n) {
+  if (l10n.isEn) {
+    switch (weekday) {
+      case DateTime.monday:
+        return 'Mon';
+      case DateTime.tuesday:
+        return 'Tue';
+      case DateTime.wednesday:
+        return 'Wed';
+      case DateTime.thursday:
+        return 'Thu';
+      case DateTime.friday:
+        return 'Fri';
+      case DateTime.saturday:
+        return 'Sat';
+      case DateTime.sunday:
+        return 'Sun';
+      default:
+        return 'Day';
+    }
+  }
+
   switch (weekday) {
     case DateTime.monday:
       return 'Seg';
@@ -3362,7 +3426,11 @@ String _weekdayAbbr(int weekday) {
   }
 }
 
-String _shortMonth(int month) {
+String _shortMonth(int month, AppLocalizations l10n) {
+  if (l10n.isEn) {
+    return DateFormat.MMM(l10n.dateLocale).format(DateTime(2026, month));
+  }
+
   switch (month) {
     case DateTime.january:
       return 'jan';
@@ -3393,7 +3461,11 @@ String _shortMonth(int month) {
   }
 }
 
-String _monthName(int month) {
+String _monthName(int month, AppLocalizations l10n) {
+  if (l10n.isEn) {
+    return DateFormat.MMMM(l10n.dateLocale).format(DateTime(2026, month));
+  }
+
   switch (month) {
     case DateTime.january:
       return 'janeiro';

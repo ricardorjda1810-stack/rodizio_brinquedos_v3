@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
@@ -134,6 +135,7 @@ class _RodadaPageState extends State<RodadaPage> {
 
   Future<void> _useHomeSuggestion(List<RoundToyWithBox> suggestion) async {
     if (_startingRound) return;
+    final l10n = context.l10n;
 
     setState(() {
       _startingRound = true;
@@ -145,9 +147,11 @@ class _RodadaPageState extends State<RodadaPage> {
           .toList(growable: false);
       if (toyIds.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
+              l10n.isEn
+                  ? 'No toys available to start the rotation.'
+                  : 'Nenhum brinquedo dispon\u00edvel para iniciar a rodada.',
             ),
           ),
         );
@@ -169,7 +173,11 @@ class _RodadaPageState extends State<RodadaPage> {
       _openAssemblyModeWith(suggestion);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Rodada criada com ${toyIds.length} brinquedos.'),
+          content: Text(
+            l10n.isEn
+                ? 'Rotation created with ${toyIds.length} toys.'
+                : 'Rodada criada com ${toyIds.length} brinquedos.',
+          ),
         ),
       );
       widget.onOpenRodizioTab();
@@ -178,7 +186,9 @@ class _RodadaPageState extends State<RodadaPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'N\u00e3o foi poss\u00edvel usar a sugest\u00e3o: $e',
+            l10n.isEn
+                ? 'Could not use the suggestion: $e'
+                : 'N\u00e3o foi poss\u00edvel usar a sugest\u00e3o: $e',
           ),
         ),
       );
@@ -195,6 +205,7 @@ class _RodadaPageState extends State<RodadaPage> {
     Map<String, String> categoryNamesById,
   ) async {
     if (_loadingSuggestion) return;
+    final l10n = context.l10n;
 
     setState(() {
       _loadingSuggestion = true;
@@ -232,7 +243,9 @@ class _RodadaPageState extends State<RodadaPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Rodada atualizada com ${selectedToys.length} brinquedos.',
+            l10n.isEn
+                ? 'Rotation updated with ${selectedToys.length} toys.'
+                : 'Rodada atualizada com ${selectedToys.length} brinquedos.',
           ),
         ),
       );
@@ -240,7 +253,11 @@ class _RodadaPageState extends State<RodadaPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('N\u00e3o foi poss\u00edvel sugerir a rodada: $e'),
+          content: Text(
+            l10n.isEn
+                ? 'Could not suggest the rotation: $e'
+                : 'N\u00e3o foi poss\u00edvel sugerir a rodada: $e',
+          ),
         ),
       );
     } finally {
@@ -294,6 +311,7 @@ class _RodadaPageState extends State<RodadaPage> {
     List<RoundToyWithBox> items,
     bool collected,
   ) async {
+    final l10n = context.l10n;
     final toyIds = <String>{
       for (final item in items)
         if (item.toy.id.trim().isNotEmpty) item.toy.id.trim(),
@@ -314,8 +332,12 @@ class _RodadaPageState extends State<RodadaPage> {
         SnackBar(
           content: Text(
             collected
-                ? 'Rodada marcada como conclu\u00edda.'
-                : 'Marca\u00e7\u00f5es da rodada removidas.',
+                ? (l10n.isEn
+                    ? 'Rotation marked as complete.'
+                    : 'Rodada marcada como conclu\u00edda.')
+                : (l10n.isEn
+                    ? 'Rotation marks removed.'
+                    : 'Marca\u00e7\u00f5es da rodada removidas.'),
           ),
         ),
       );
@@ -324,27 +346,21 @@ class _RodadaPageState extends State<RodadaPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('N\u00e3o foi poss\u00edvel atualizar a rodada: $e'),
+          content: Text(
+            l10n.isEn
+                ? 'Could not update the rotation: $e'
+                : 'N\u00e3o foi poss\u00edvel atualizar a rodada: $e',
+          ),
         ),
       );
     }
   }
 
-  String _todayLabel() {
-    const weekdays = [
-      'segunda',
-      'ter\u00e7a',
-      'quarta',
-      'quinta',
-      'sexta',
-      's\u00e1bado',
-      'domingo',
-    ];
+  String _todayLabel(AppLocalizations l10n) {
     final now = DateTime.now();
-    final weekday = weekdays[now.weekday - 1];
-    final day = now.day.toString().padLeft(2, '0');
-    final month = now.month.toString().padLeft(2, '0');
-    return '$weekday \u00b7 $day/$month';
+    final weekday = DateFormat.EEEE(l10n.dateLocale).format(now);
+    final date = DateFormat.yMd(l10n.dateLocale).format(now);
+    return '$weekday \u00b7 $date';
   }
 
   Widget _buildIpadLayout(BuildContext context) {
@@ -457,7 +473,7 @@ class _RodadaPageState extends State<RodadaPage> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   _RodadaIpadHeader(
-                                    todayLabel: _todayLabel(),
+                                    todayLabel: _todayLabel(l10n),
                                     itemCount: items.length,
                                     progress: progress,
                                     primaryLabel: primaryLabel,
@@ -1264,9 +1280,6 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
   String _boxLabel(AppLocalizations l10n) {
     final box = item.box;
     if (box == null) return l10n.noBox;
-
-    final name = box.name.trim();
-    if (name.isNotEmpty) return l10n.value(name);
     return l10n.boxNumber(box.number);
   }
 
@@ -1659,11 +1672,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
     final counts = <String, int>{};
     for (final item in items) {
       final box = item.box;
-      final label = box == null
-          ? l10n.noBox
-          : box.name.trim().isNotEmpty
-              ? l10n.value(box.name.trim())
-              : l10n.boxNumber(box.number);
+      final label = box == null ? l10n.noBox : l10n.boxNumber(box.number);
       counts[label] = (counts[label] ?? 0) + 1;
     }
     return counts;

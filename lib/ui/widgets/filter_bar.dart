@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 
@@ -60,6 +61,7 @@ class FilterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final showLocal = locations != null &&
         selectedLocationId != null &&
         onLocationChanged != null;
@@ -72,7 +74,7 @@ class FilterBar extends StatelessWidget {
           const gap = UiTokens.s;
           final compact = maxWidth < 560;
           final dropdownWidth = compact ? (maxWidth - gap) / 2 : 196.0;
-          final searchLabel = compact ? 'Busca' : 'Buscar';
+          final searchLabel = compact ? l10n.searchShort : l10n.search;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +89,7 @@ class FilterBar extends StatelessWidget {
                   const SizedBox(width: UiTokens.spacingXs),
                   Expanded(
                     child: Text(
-                      'Filtros',
+                      l10n.filters,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleSmall,
@@ -97,7 +99,7 @@ class FilterBar extends StatelessWidget {
                     TextButton.icon(
                       onPressed: onClear,
                       icon: const Icon(Icons.close_rounded, size: 17),
-                      label: const Text('Limpar'),
+                      label: Text(l10n.clear),
                     ),
                 ],
               ),
@@ -109,7 +111,7 @@ class FilterBar extends StatelessWidget {
                   SizedBox(
                     width: dropdownWidth,
                     child: _ProDropdown(
-                      title: 'Categoria',
+                      title: l10n.category,
                       valueId: selectedCategoryId,
                       items: categories,
                       onChanged: onCategoryChanged,
@@ -118,7 +120,7 @@ class FilterBar extends StatelessWidget {
                   SizedBox(
                     width: dropdownWidth,
                     child: _ProDropdown(
-                      title: 'Caixa',
+                      title: l10n.box,
                       valueId: selectedBoxId,
                       items: boxes,
                       onChanged: onBoxChanged,
@@ -128,7 +130,7 @@ class FilterBar extends StatelessWidget {
                     SizedBox(
                       width: dropdownWidth,
                       child: _ProDropdown(
-                        title: 'Local',
+                        title: l10n.location,
                         valueId: selectedLocationId!,
                         items: locations!,
                         onChanged: onLocationChanged!,
@@ -150,7 +152,7 @@ class FilterBar extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: onClear,
                         icon: const Icon(Icons.close),
-                        label: const Text('Limpar'),
+                        label: Text(l10n.clear),
                       ),
                     ),
                 ],
