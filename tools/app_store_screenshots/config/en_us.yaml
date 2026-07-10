@@ -1,0 +1,44 @@
+locale: en-US
+brand:
+  background: "#FFF7ED"
+  headline: "#263832"
+  subtitle: "#6B5A48"
+  accent: "#FF6B17"
+  accent_dark: "#D94E0B"
+  card: "#FFFFFF"
+  frame: "#1F2933"
+  screen_background: "#FDF7F0"
+devices:
+  iphone:
+    frame_width_ratio: 0.70
+    frame_top_ratio: 0.34
+    corner_radius_ratio: 0.095
+  ipad:
+    frame_width_ratio: 0.82
+    frame_top_ratio: 0.33
+    corner_radius_ratio: 0.050
+scenes:
+  - id: home
+    source: home.png
+    title: "Organize toys without the clutter"
+    subtitle: "Keep the household play routine easy to see."
+  - id: rodada
+    source: rodada.png
+    title: "Build balanced play rotations"
+    subtitle: "Pick a fresh mix of toys for today."
+  - id: planejamento
+    source: planejamento.png
+    title: "Plan the week in a few taps"
+    subtitle: "Preview the next few days with more clarity."
+  - id: brinquedos
+    source: brinquedos.png
+    title: "See what to play with today"
+    subtitle: "Find toys by name, box, or category."
+  - id: caixas
+    source: caixas.png
+    title: "Track boxes and locations"
+    subtitle: "Know where every toy is stored."
+  - id: paywall
+    source: paywall.png
+    title: "Try it free for 7 days"
+    subtitle: "Keep organizing at home with a subscription."

@@ -1,0 +1,44 @@
+locale: pt-BR
+brand:
+  background: "#FFF7ED"
+  headline: "#263832"
+  subtitle: "#6B5A48"
+  accent: "#FF6B17"
+  accent_dark: "#D94E0B"
+  card: "#FFFFFF"
+  frame: "#1F2933"
+  screen_background: "#FDF7F0"
+devices:
+  iphone:
+    frame_width_ratio: 0.70
+    frame_top_ratio: 0.34
+    corner_radius_ratio: 0.095
+  ipad:
+    frame_width_ratio: 0.82
+    frame_top_ratio: 0.33
+    corner_radius_ratio: 0.050
+scenes:
+  - id: home
+    source: home.png
+    title: "Organize os brinquedos sem bagunça"
+    subtitle: "Acompanhe a rotina da casa em uma tela simples."
+  - id: rodada
+    source: rodada.png
+    title: "Monte rodadas equilibradas"
+    subtitle: "Separe brinquedos variados para brincar hoje."
+  - id: planejamento
+    source: planejamento.png
+    title: "Planeje a semana em poucos toques"
+    subtitle: "Veja os próximos dias com mais previsibilidade."
+  - id: brinquedos
+    source: brinquedos.png
+    title: "Veja o que brincar hoje"
+    subtitle: "Encontre brinquedos por nome, caixa ou categoria."
+  - id: caixas
+    source: caixas.png
+    title: "Controle caixas e locais"
+    subtitle: "Saiba onde cada brinquedo fica guardado."
+  - id: paywall
+    source: paywall.png
+    title: "7 dias grátis para testar"
+    subtitle: "Continue organizando a casa com assinatura."

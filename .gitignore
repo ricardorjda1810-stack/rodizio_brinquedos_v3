@@ -14,3 +14,8 @@ build/
 rodizio_brinquedos_v3_clean/
 tmp_toolchain_check/
 upload-keystore-jks
+tools/app_store_screenshots/output/
+tools/app_store_screenshots/.venv/
+tools/app_store_screenshots/input/**/*.png
+tools/app_store_screenshots/input/**/*.jpg
+tools/app_store_screenshots/input/**/*.jpeg
