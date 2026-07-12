@@ -1297,7 +1297,10 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final name = l10n.toyDisplayName(item.toy.name);
+    final name = l10n.toyDisplayNameForId(
+      id: item.toy.id,
+      name: item.toy.name,
+    );
     final location = '${_boxLabel(l10n)} · ${_locationLabel(l10n)}';
 
     return AnimatedContainer(
@@ -1581,7 +1584,10 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                 children: [
                   for (final item in preview)
                     Tooltip(
-                      message: l10n.toyDisplayName(item.toy.name),
+                      message: l10n.toyDisplayNameForId(
+                        id: item.toy.id,
+                        name: item.toy.name,
+                      ),
                       child: InkWell(
                         onTap: () => onOpenToy(item.toy.id),
                         borderRadius: BorderRadius.circular(18),
@@ -2612,7 +2618,10 @@ class _RoundToyGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
-    final name = l10n.toyDisplayName(item.toy.name);
+    final name = l10n.toyDisplayNameForId(
+      id: item.toy.id,
+      name: item.toy.name,
+    );
     final locationLabel = _locationLabel(l10n);
 
     return Material(
@@ -2933,7 +2942,10 @@ class _SuggestionToyThumb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final name = l10n.toyDisplayName(item.toy.name);
+    final name = l10n.toyDisplayNameForId(
+      id: item.toy.id,
+      name: item.toy.name,
+    );
 
     return Tooltip(
       message: name,

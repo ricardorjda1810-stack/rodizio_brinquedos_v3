@@ -881,7 +881,10 @@ class ToyDetailPage extends StatelessWidget {
 
             final title = (data == null || data.toy.name.trim().isEmpty)
                 ? l10n.toy
-                : l10n.toyDisplayName(data.toy.name);
+                : l10n.toyDisplayNameForId(
+                    id: data.toy.id,
+                    name: data.toy.name,
+                  );
 
             final photoPath = data?.toy.photoPath;
             final box = data?.box;

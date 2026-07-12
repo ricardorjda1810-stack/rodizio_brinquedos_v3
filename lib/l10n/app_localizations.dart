@@ -230,9 +230,51 @@ class AppLocalizations {
           : 'Seu teste grátis termina hoje';
     }
     return isEn
-        ? 'Free trial active - ${status.remainingDays} days left'
-        : 'Teste grátis ativo - faltam ${status.remainingDays} dias';
+        ? 'Free trial active — ${status.remainingDays} days remaining'
+        : 'Teste grátis ativo — faltam ${status.remainingDays} dias';
   }
+
+  String get roundReadyToStart =>
+      isEn ? 'Ready to start' : 'Pronta para iniciar';
+  String get roundWaitingForToys =>
+      isEn ? 'Waiting for toys' : 'Aguardando brinquedos';
+  String get registerToysForToday => isEn
+      ? "Add your home's toys to build today's rotation."
+      : 'Agora cadastre os brinquedos da sua casa para montar a rodada de hoje.';
+  String get selectionReasonTitle =>
+      isEn ? 'Why this selection?' : 'Por que esta seleção?';
+  String get selectionReasonEmpty => isEn
+      ? 'The suggestion appears as soon as toys are added.'
+      : 'A sugestão aparece assim que houver brinquedos cadastrados.';
+  String get selectionReasonMixed => isEn
+      ? 'Mixes different categories and prioritizes less used toys.'
+      : 'Mistura categorias diferentes e prioriza brinquedos menos usados.';
+  String get selectionReasonAvailable => isEn
+      ? 'Prioritizes available toys to keep play varied.'
+      : 'Prioriza brinquedos disponíveis para manter a brincadeira variada.';
+  String get roundChecklist =>
+      isEn ? 'Rotation checklist' : 'Checklist da rodada';
+  String markedToysCount(int count) {
+    if (isEn) {
+      return count == 1 ? '0 of 1 toy marked' : '0 of $count toys marked';
+    }
+    return count == 1
+        ? '0 de 1 brinquedo marcado'
+        : '0 de $count brinquedos marcados';
+  }
+
+  String get startRotation => isEn ? 'Start rotation' : 'Iniciar rodada';
+  String get planningLoading =>
+      isEn ? 'Loading planning...' : 'Carregando planejamento...';
+  String get quickActions => isEn ? 'Quick actions' : 'Ações rápidas';
+  String get boxesAndLocations =>
+      isEn ? 'Boxes and locations' : 'Caixas e locais';
+  String get upToDate => isEn ? 'Up to date' : 'Em dia';
+  String get demoExamplesRemoved =>
+      isEn ? 'Demo toys removed.' : 'Brinquedos de exemplo removidos.';
+  String removeExamplesFailure(Object error) => isEn
+      ? 'Failed to remove demo toys: $error'
+      : 'Falha ao remover exemplos: $error';
 
   String toysCount(int count) {
     if (isEn) return count == 1 ? '1 toy' : '$count toys';
@@ -329,10 +371,31 @@ class AppLocalizations {
   }
 
   String categoryName(String? text) => value(text);
+  String categoryNameById(String categoryId, String? fallback) {
+    final trimmedFallback = fallback?.trim() ?? '';
+    if (!isEn) {
+      if (trimmedFallback.isNotEmpty) return trimmedFallback;
+      return _ptCategoryNamesById[categoryId.trim().toLowerCase()] ??
+          trimmedFallback;
+    }
+    return _enCategoryNamesById[categoryId.trim().toLowerCase()] ??
+        value(trimmedFallback);
+  }
+
   String toyDisplayName(String? text) {
     final original = text?.trim() ?? '';
     if (original.isEmpty) return unnamedToy;
-    return value(original);
+    return original;
+  }
+
+  String toyDisplayNameForId({
+    required String id,
+    required String? name,
+  }) {
+    final original = name?.trim() ?? '';
+    if (original.isEmpty) return unnamedToy;
+    if (!isEn) return original;
+    return _enDemoToyNamesById[id.trim()] ?? original;
   }
 
   String boxLocationLabel(int number, String? local) {
@@ -348,16 +411,16 @@ class AppLocalizations {
   }
 
   static const Map<String, String> _enValueTranslations = {
-    'Corpo e Respiração': 'Body & Breathing',
-    'Corpo e Respiracao': 'Body & Breathing',
-    'Sentidos e Exploração': 'Senses & Exploration',
-    'Sentidos e Exploracao': 'Senses & Exploration',
-    'Mãos e Construção': 'Hands & Building',
-    'Maos e Construcao': 'Hands & Building',
-    'Imaginação e Criatividade': 'Imagination & Creativity',
-    'Imaginacao e Criatividade': 'Imagination & Creativity',
-    'Comunicação e Histórias': 'Communication & Stories',
-    'Comunicacao e Historias': 'Communication & Stories',
+    'Corpo e Respiração': 'Body and Breathing',
+    'Corpo e Respiracao': 'Body and Breathing',
+    'Sentidos e Exploração': 'Senses and Exploration',
+    'Sentidos e Exploracao': 'Senses and Exploration',
+    'Mãos e Construção': 'Hands and Building',
+    'Maos e Construcao': 'Hands and Building',
+    'Imaginação e Criatividade': 'Imagination and Creativity',
+    'Imaginacao e Criatividade': 'Imagination and Creativity',
+    'Comunicação e Histórias': 'Communication and Stories',
+    'Comunicacao e Historias': 'Communication and Stories',
     'Bola macia': 'Soft ball',
     'Lupa infantil': "Kids' magnifier",
     'Torre de empilhar': 'Stacking tower',
@@ -387,6 +450,99 @@ class AppLocalizations {
     'Prateleira baixa': 'Low shelf',
     'Caixa de tecido': 'Fabric box',
     'Estante Montessori': 'Montessori shelf',
+  };
+
+  static const Map<String, String> _ptCategoryNamesById = {
+    'corpo': 'Corpo e Respiração',
+    'movimento': 'Corpo e Respiração',
+    'exploracao': 'Sentidos e Exploração',
+    'exploração': 'Sentidos e Exploração',
+    'coordenacao': 'Sentidos e Exploração',
+    'maos': 'Mãos e Construção',
+    'mãos': 'Mãos e Construção',
+    'construcao': 'Mãos e Construção',
+    'imaginacao': 'Imaginação e Criatividade',
+    'imaginação': 'Imaginação e Criatividade',
+    'faz_de_conta': 'Imaginação e Criatividade',
+    'comunicacao': 'Comunicação e Histórias',
+    'comunicação': 'Comunicação e Histórias',
+    'livros': 'Comunicação e Histórias',
+  };
+
+  static const Map<String, String> _enCategoryNamesById = {
+    'corpo': 'Body and Breathing',
+    'movimento': 'Body and Breathing',
+    'exploracao': 'Senses and Exploration',
+    'exploração': 'Senses and Exploration',
+    'coordenacao': 'Senses and Exploration',
+    'maos': 'Hands and Building',
+    'mãos': 'Hands and Building',
+    'construcao': 'Hands and Building',
+    'imaginacao': 'Imagination and Creativity',
+    'imaginação': 'Imagination and Creativity',
+    'faz_de_conta': 'Imagination and Creativity',
+    'comunicacao': 'Communication and Stories',
+    'comunicação': 'Communication and Stories',
+    'livros': 'Communication and Stories',
+  };
+
+  static const Map<String, String> _enDemoToyNamesById = {
+    'demo_toy_corpo_bola_macia': 'Soft ball',
+    'demo_toy_maos_torre_empilhar': 'Stacking tower',
+    'demo_toy_imaginacao_cozinha_brinquedo': 'Play kitchen',
+    'demo_toy_comunicacao_livro_cartonado': 'Board book',
+    'demo_toy_exploracao_lupa_infantil': "Kids' magnifier",
+    'demo_toy_corpo_tunel_infantil_dobravel': 'Foldable play tunnel',
+    'demo_toy_maos_encaixe_formas': 'Shape sorter',
+    'demo_toy_imaginacao_comidinhas_madeira': 'Wooden play food',
+    'demo_toy_comunicacao_cartoes_figuras': 'Picture cards',
+    'demo_toy_exploracao_instrumentos_musicais_simples':
+        'Simple musical instruments',
+    'demo_toy_corpo_bambole_infantil': 'Kids hula hoop',
+    'demo_toy_maos_quebra_cabeca_madeira': 'Wooden puzzle',
+    'demo_toy_imaginacao_animais_fazenda': 'Farm animals',
+    'demo_toy_comunicacao_telefone_brinquedo_simples': 'Toy phone',
+    'demo_toy_exploracao_mesa_areia_agua': 'Sand and water table',
+    'demo_toy_corpo_tapete_movimento': 'Movement mat',
+    'demo_toy_maos_blocos_grandes': 'Large blocks',
+    'demo_toy_imaginacao_bonecos_familia_simples': 'Simple family figures',
+    'demo_toy_comunicacao_fantoches_historia': 'Story puppets',
+    'demo_toy_exploracao_kit_jardinagem_infantil': 'Gardening set',
+    'demo_toy_corpo_cones_coloridos': 'Colorful cones',
+    'demo_toy_maos_cubos_montar_sem_marca': 'Building blocks',
+    'demo_toy_imaginacao_carrinhos_madeira': 'Wooden cars',
+    'demo_toy_comunicacao_jogo_memoria_imagens': 'Picture memory game',
+    'demo_toy_exploracao_animais_insetos_exploracao':
+        'Exploration animals and insects',
+    'demo_toy_corpo_prancha_equilibrio_baixa': 'Low balance board',
+    'demo_toy_maos_brinquedo_martelar': 'Hammering toy',
+    'demo_toy_imaginacao_trem_madeira': 'Wooden train',
+    'demo_toy_comunicacao_letras_grandes_madeira_espuma':
+        'Large wood or foam letters',
+    'demo_toy_exploracao_garrafas_sensoriais_seguras': 'Safe sensory bottles',
+    'demo_toy_corpo_almofadas_percurso': 'Path cushions',
+    'demo_toy_maos_parafusos_porcas_grandes': 'Large nuts and bolts',
+    'demo_toy_imaginacao_casinha_bonecos': 'Dollhouse',
+    'demo_toy_comunicacao_dados_historias': 'Story dice',
+    'demo_toy_exploracao_tubos_observacao_transparentes':
+        'Clear observation tubes',
+    'demo_toy_corpo_argolas_arremesso': 'Toss rings',
+    'demo_toy_maos_alinhavo_pecas_grandes': 'Large lacing pieces',
+    'demo_toy_imaginacao_kit_medico_infantil': "Kids' doctor kit",
+    'demo_toy_comunicacao_cartoes_emocoes': 'Emotion cards',
+    'demo_toy_exploracao_pedras_formas_sensoriais_grandes':
+        'Large sensory stones and shapes',
+    'demo_toy_corpo_cavalinho_balanco_simples': 'Simple rocking horse',
+    'demo_toy_maos_painel_fechos_busy_board': 'Latch activity board',
+    'demo_toy_imaginacao_fantasias_simples': 'Simple costumes',
+    'demo_toy_comunicacao_mini_quadro_branco': 'Mini whiteboard',
+    'demo_toy_exploracao_circuito_bolinhas_grandes': 'Large ball run',
+    'demo_toy_corpo_mini_cesta_bola': 'Mini basket with ball',
+    'demo_toy_maos_copos_medidores_empilhar': 'Stacking measuring cups',
+    'demo_toy_imaginacao_fantoches_animais': 'Animal puppets',
+    'demo_toy_comunicacao_sequencia_historias_ilustradas':
+        'Illustrated story sequence',
+    'demo_toy_exploracao_brinquedo_causa_efeito': 'Cause-and-effect toy',
   };
 }
 

@@ -2038,12 +2038,12 @@ class _DemoExamplesSettingsSectionState
         _countFuture = widget.countExamples();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Brinquedos de exemplo removidos.')),
+        SnackBar(content: Text(context.l10n.demoExamplesRemoved)),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Falha ao remover exemplos: $error')),
+        SnackBar(content: Text(context.l10n.removeExamplesFailure(error))),
       );
     } finally {
       if (mounted) {

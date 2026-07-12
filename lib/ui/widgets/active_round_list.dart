@@ -256,7 +256,10 @@ class ActiveRoundList extends StatelessWidget {
                     ...List<Widget>.generate(items.length, (index) {
                       final item = items[index];
                       final isPicked = pickedToyIds.contains(item.toy.id);
-                      final name = l10n.toyDisplayName(item.toy.name);
+                      final name = l10n.toyDisplayNameForId(
+                        id: item.toy.id,
+                        name: item.toy.name,
+                      );
 
                       return Column(
                         children: [

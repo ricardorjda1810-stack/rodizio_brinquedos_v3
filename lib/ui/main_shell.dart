@@ -312,9 +312,7 @@ class _MainShellState extends State<MainShell> {
           await widget.toyRepository.watchCategories(activeOnly: true).first;
       final categoryNamesById = <String, String>{
         for (final category in categories)
-          category.id: l10n.categoryName(
-            _categoryDisplayName(category.id, category),
-          ),
+          category.id: _categoryDisplayName(l10n, category.id, category),
       };
       final suggestedToys = await widget.roundRepository.suggestRoundForToday();
       final boxes = await widget.toyRepository.watchBoxes().first;
@@ -1444,6 +1442,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
 
   Future<void> _openRoundSuggestionSheet() async {
     if (_loadingSuggestion) return;
+    final l10n = context.l10n;
 
     setState(() {
       _loadingSuggestion = true;
@@ -1453,7 +1452,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
           await widget.toyRepository.watchCategories(activeOnly: true).first;
       final categoryNamesById = <String, String>{
         for (final category in categories)
-          category.id: _categoryDisplayName(category.id, category),
+          category.id: _categoryDisplayName(l10n, category.id, category),
       };
       final suggestedToys = await widget.roundRepository.suggestRoundForToday();
       final boxes = await widget.toyRepository.watchBoxes().first;
@@ -1607,7 +1606,9 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                       if (widget.trialStatus.homeNotice != null) ...[
                         SizedBox(height: gap),
                         _TrialNoticeBanner(
-                          message: widget.trialStatus.homeNotice!,
+                          message: context.l10n.trialHomeNotice(
+                            widget.trialStatus,
+                          ),
                         ),
                       ],
                       SizedBox(height: gap),
@@ -1650,6 +1651,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                       weeklyPlanningRepository:
                                           widget.weeklyPlanningRepository,
                                       todayCountOverride: todayCount,
+                                      fillHeight: useTwoColumnLayout,
                                       onOpenWeeklyPlanning:
                                           widget.onOpenWeeklyPlanning,
                                       onOpenNewToy: widget.onOpenNewToy,
@@ -1676,18 +1678,17 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                       );
                                     }
 
-                                    return Column(
-                                      children: [
-                                        Expanded(
-                                          flex: 6,
-                                          child: roundTodayCard,
-                                        ),
-                                        SizedBox(height: gap),
-                                        Expanded(
-                                          flex: 4,
-                                          child: rightColumn,
-                                        ),
-                                      ],
+                                    return SingleChildScrollView(
+                                      physics: const ClampingScrollPhysics(),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          roundTodayCard,
+                                          SizedBox(height: gap),
+                                          rightColumn,
+                                        ],
+                                      ),
                                     );
                                   },
                                 );
@@ -1724,9 +1725,10 @@ class _IpadHomeHeader extends StatelessWidget {
     final l10n = context.l10n;
     return _IpadPanelSurface(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
-      child: Row(
-        children: [
-          Container(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compactHeader = constraints.maxWidth < 760;
+          final icon = Container(
             width: 60,
             height: 60,
             decoration: BoxDecoration(
@@ -1749,54 +1751,50 @@ class _IpadHomeHeader extends StatelessWidget {
               color: Colors.white,
               size: 30,
             ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.appNameUpper,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
-                    color: _IpadHomePalette.textMuted,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.8,
-                  ),
+          );
+          final title = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.appNameUpper,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textMicro.copyWith(
+                  color: _IpadHomePalette.textMuted,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  l10n.isEn
-                      ? "Organize today's play time"
-                      : 'Organize a brincadeira de hoje',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
-                    color: _IpadHomePalette.text,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                  ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                l10n.isEn
+                    ? "Organize today's play time"
+                    : 'Organize a brincadeira de hoje',
+                maxLines: compactHeader ? 2 : 1,
+                overflow: TextOverflow.visible,
+                style: UiTokens.textTitle.copyWith(
+                  color: _IpadHomePalette.text,
+                  fontSize: compactHeader ? 22 : 24,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.isEn
-                      ? 'Build a balanced rotation and keep toys moving.'
-                      : 'Monte uma rodada equilibrada e mantenha os brinquedos em movimento.',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    color: _IpadHomePalette.textMuted,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l10n.isEn
+                    ? 'Build a balanced rotation and keep toys moving.'
+                    : 'Monte uma rodada equilibrada e mantenha os brinquedos em movimento.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textCaption.copyWith(
+                  color: _IpadHomePalette.textMuted,
+                  height: 1.45,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 18),
-          Wrap(
+              ),
+            ],
+          );
+          final actions = Wrap(
             spacing: 12,
             runSpacing: 8,
             children: [
@@ -1850,8 +1848,36 @@ class _IpadHomeHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ],
+          );
+
+          if (compactHeader) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    icon,
+                    const SizedBox(width: 18),
+                    Expanded(child: title),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Align(alignment: Alignment.centerRight, child: actions),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              icon,
+              const SizedBox(width: 20),
+              Expanded(child: title),
+              const SizedBox(width: 18),
+              actions,
+            ],
+          );
+        },
       ),
     );
   }
@@ -2054,7 +2080,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                     height: gridHeight,
                     child: Center(
                       child: Text(
-                        'Agora cadastre os brinquedos da sua casa para montar a rodada de hoje.',
+                        l10n.registerToysForToday,
                         textAlign: TextAlign.center,
                         style: UiTokens.textBody.copyWith(
                           color: _IpadHomePalette.textMuted,
@@ -2082,6 +2108,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                       return _IpadToyTile(
                         item: item,
                         categoryLabel: _categoryDisplayName(
+                          l10n,
                           item.toy.categoryId,
                           category,
                         ),
@@ -2093,7 +2120,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
               },
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: 18),
           Padding(
             padding: const EdgeInsets.fromLTRB(26, 0, 26, 0),
             child: _IpadSelectionReason(items: visibleItems),
@@ -2133,9 +2160,10 @@ class _IpadToyTileState extends State<_IpadToyTile> {
   @override
   Widget build(BuildContext context) {
     final style = _styleForCategory(widget.categoryLabel);
-    final name = widget.item.toy.name.trim().isEmpty
-        ? 'Sem nome'
-        : widget.item.toy.name.trim();
+    final name = context.l10n.toyDisplayNameForId(
+      id: widget.item.toy.id,
+      name: widget.item.toy.name,
+    );
 
     return MouseRegion(
       onEnter: (_) => setState(() {
@@ -2275,10 +2303,10 @@ class _IpadSelectionReason extends StatelessWidget {
         .toSet()
         .length;
     final detail = items.isEmpty
-        ? 'A sugestão aparece assim que houver brinquedos cadastrados.'
+        ? context.l10n.selectionReasonEmpty
         : categories >= 3
-            ? 'Mistura categorias diferentes e prioriza brinquedos menos usados.'
-            : 'Prioriza brinquedos disponíveis para manter a brincadeira variada.';
+            ? context.l10n.selectionReasonMixed
+            : context.l10n.selectionReasonAvailable;
 
     return Container(
       width: double.infinity,
@@ -2302,7 +2330,7 @@ class _IpadSelectionReason extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  'Por que esta seleção?',
+                  context.l10n.selectionReasonTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textMicro.copyWith(
@@ -2343,9 +2371,8 @@ class _IpadRoundChecklistBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final counter = itemCount == 1
-        ? '0 de 1 brinquedo marcado'
-        : '0 de $itemCount brinquedos marcados';
+    final l10n = context.l10n;
+    final counter = l10n.markedToysCount(itemCount);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -2362,7 +2389,7 @@ class _IpadRoundChecklistBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Checklist da rodada',
+                  l10n.roundChecklist,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: UiTokens.textCaption.copyWith(
@@ -2396,7 +2423,7 @@ class _IpadRoundChecklistBar extends StatelessWidget {
                     ),
                   )
                 : const Icon(Icons.play_arrow_rounded, size: 18),
-            label: const Text('Iniciar rodada'),
+            label: Text(l10n.startRotation),
             style: FilledButton.styleFrom(
               backgroundColor: _IpadHomePalette.orange,
               foregroundColor: Colors.white,
@@ -2442,7 +2469,9 @@ class _IpadRoundStatus extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          ready ? 'Pronta para iniciar' : 'Aguardando brinquedos',
+          ready
+              ? context.l10n.roundReadyToStart
+              : context.l10n.roundWaitingForToys,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: UiTokens.textMicro.copyWith(
@@ -2459,6 +2488,7 @@ class _IpadRightColumn extends StatelessWidget {
   final ToyRepository toyRepository;
   final WeeklyPlanningRepository? weeklyPlanningRepository;
   final int? todayCountOverride;
+  final bool fillHeight;
   final VoidCallback onOpenWeeklyPlanning;
   final VoidCallback onOpenNewToy;
   final VoidCallback onOpenBoxes;
@@ -2469,6 +2499,7 @@ class _IpadRightColumn extends StatelessWidget {
     required this.toyRepository,
     required this.weeklyPlanningRepository,
     required this.todayCountOverride,
+    required this.fillHeight,
     required this.onOpenWeeklyPlanning,
     required this.onOpenNewToy,
     required this.onOpenBoxes,
@@ -2479,6 +2510,7 @@ class _IpadRightColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
       children: [
         _IpadWeeklyPlanningPanel(
           toyRepository: toyRepository,
@@ -2489,14 +2521,24 @@ class _IpadRightColumn extends StatelessWidget {
         const SizedBox(height: 14),
         _IpadHomeStatsPanel(toyRepository: toyRepository),
         const SizedBox(height: 14),
-        Expanded(
-          child: _IpadQuickActionsPanel(
+        if (fillHeight)
+          Expanded(
+            child: _IpadQuickActionsPanel(
+              fillHeight: true,
+              onOpenNewToy: onOpenNewToy,
+              onOpenBoxes: onOpenBoxes,
+              onOpenCategories: onOpenCategories,
+              onOpenSettings: onOpenSettings,
+            ),
+          )
+        else
+          _IpadQuickActionsPanel(
+            fillHeight: false,
             onOpenNewToy: onOpenNewToy,
             onOpenBoxes: onOpenBoxes,
             onOpenCategories: onOpenCategories,
             onOpenSettings: onOpenSettings,
           ),
-        ),
       ],
     );
   }
@@ -2572,7 +2614,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                       const SizedBox(height: 16),
                       if (summaries.isEmpty)
                         Text(
-                          'Carregando planejamento...',
+                          l10n.planningLoading,
                           style: UiTokens.textCaption.copyWith(
                             color: _IpadHomePalette.textMuted,
                           ),
@@ -2876,12 +2918,14 @@ class _IpadStatTile extends StatelessWidget {
 }
 
 class _IpadQuickActionsPanel extends StatelessWidget {
+  final bool fillHeight;
   final VoidCallback onOpenNewToy;
   final VoidCallback onOpenBoxes;
   final VoidCallback onOpenCategories;
   final VoidCallback onOpenSettings;
 
   const _IpadQuickActionsPanel({
+    required this.fillHeight,
     required this.onOpenNewToy,
     required this.onOpenBoxes,
     required this.onOpenCategories,
@@ -2900,7 +2944,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
         onTap: onOpenNewToy,
       ),
       _IpadQuickActionData(
-        label: l10n.isEn ? 'Boxes and locations' : 'Caixas e locais',
+        label: l10n.boxesAndLocations,
         icon: Icons.inventory_2_outlined,
         foreground: const Color(0xFF8B5CF6),
         background: const Color(0xFFF5F3FF),
@@ -2928,7 +2972,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            l10n.isEn ? 'Quick actions' : 'Ações rápidas',
+            l10n.quickActions,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: UiTokens.textCaption.copyWith(
@@ -2937,17 +2981,28 @@ class _IpadQuickActionsPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Expanded(
-            child: Column(
+          if (fillHeight)
+            Expanded(
+              child: Column(
+                children: [
+                  for (var index = 0; index < actions.length; index++) ...[
+                    Expanded(child: _IpadQuickActionTile(data: actions[index])),
+                    if (index < actions.length - 1)
+                      const Divider(height: 1, color: _IpadHomePalette.border),
+                  ],
+                ],
+              ),
+            )
+          else
+            Column(
               children: [
                 for (var index = 0; index < actions.length; index++) ...[
-                  Expanded(child: _IpadQuickActionTile(data: actions[index])),
+                  _IpadQuickActionTile(data: actions[index]),
                   if (index < actions.length - 1)
                     const Divider(height: 1, color: _IpadHomePalette.border),
                 ],
               ],
             ),
-          ),
           const SizedBox(height: 10),
           const Divider(height: 1, color: _IpadHomePalette.border),
           const SizedBox(height: 14),
@@ -2975,7 +3030,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Em dia',
+                  l10n.upToDate,
                   maxLines: 1,
                   style: UiTokens.textMicro.copyWith(
                     color: _IpadHomePalette.orange,
@@ -3137,12 +3192,14 @@ class _IpadPill extends StatelessWidget {
       ),
       child: Text(
         label,
-        maxLines: 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
+        softWrap: true,
         style: UiTokens.textMicro.copyWith(
           color: foreground,
           fontSize: 10.5,
           fontWeight: FontWeight.w900,
+          height: 1.05,
         ),
       ),
     );
@@ -3173,12 +3230,22 @@ class _IpadHomePalette {
   static const Color border = Color(0x1FB98750);
 }
 
-String _categoryDisplayName(String categoryId, CategoryDefinition? category) {
+String _categoryDisplayName(
+  AppLocalizations l10n,
+  String categoryId,
+  CategoryDefinition? category,
+) {
   if (category != null) {
     final official = officialToyFormCategory(category);
-    if (official != null) return official.name;
+    if (official != null) {
+      return l10n.categoryNameById(categoryId, official.name);
+    }
+    return l10n.categoryNameById(categoryId, category.name);
   }
-  return _legacyCategoryLabel(categoryId) ?? 'Sentidos e Exploração';
+  return l10n.categoryNameById(
+    categoryId,
+    _legacyCategoryLabel(categoryId) ?? 'Sentidos e Exploração',
+  );
 }
 
 String? _legacyCategoryLabel(String categoryId) {
@@ -3210,6 +3277,7 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
   switch (categoryLabel.trim().toLowerCase()) {
     case 'corpo e respiração':
     case 'corpo e respiracao':
+    case 'body and breathing':
     case 'corpo':
       return const _CategoryVisualStyle(
         background: Color(0xFFFFF1F2),
@@ -3217,6 +3285,7 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
       );
     case 'sentidos e exploração':
     case 'sentidos e exploracao':
+    case 'senses and exploration':
     case 'exploração':
     case 'exploracao':
       return const _CategoryVisualStyle(
@@ -3225,6 +3294,7 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
       );
     case 'mãos e construção':
     case 'maos e construcao':
+    case 'hands and building':
     case 'mãos':
     case 'maos':
       return const _CategoryVisualStyle(
@@ -3233,6 +3303,7 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
       );
     case 'imaginação e criatividade':
     case 'imaginacao e criatividade':
+    case 'imagination and creativity':
     case 'imaginação':
     case 'imaginacao':
       return const _CategoryVisualStyle(
@@ -3241,6 +3312,7 @@ _CategoryVisualStyle _styleForCategory(String categoryLabel) {
       );
     case 'comunicação e histórias':
     case 'comunicacao e historias':
+    case 'communication and stories':
     case 'comunicação':
     case 'comunicacao':
       return const _CategoryVisualStyle(

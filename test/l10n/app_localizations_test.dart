@@ -1,0 +1,92 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
+import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
+
+void main() {
+  group('AppLocalizations', () {
+    test('localizes trial banner, round status, categories, and demo toys', () {
+      const l10n = AppLocalizations(Locale('en', 'US'));
+      final now = DateTime(2026, 1, 1, 8);
+      final status = AppTrialStatus(
+        startedAt: now,
+        endsAt: now.add(const Duration(days: 7)),
+        lastSeenAt: now,
+        effectiveNow: now,
+        trialUsed: true,
+        introPending: false,
+      );
+
+      expect(
+        l10n.trialHomeNotice(status),
+        'Free trial active — 7 days remaining',
+      );
+      expect(l10n.roundReadyToStart, 'Ready to start');
+      expect(
+        l10n.categoryNameById('corpo', 'Corpo e Respiração'),
+        'Body and Breathing',
+      );
+      expect(
+        l10n.categoryNameById('exploracao', 'Sentidos e Exploração'),
+        'Senses and Exploration',
+      );
+      expect(
+        l10n.categoryNameById('maos', 'Mãos e Construção'),
+        'Hands and Building',
+      );
+      expect(
+        l10n.categoryNameById('imaginacao', 'Imaginação e Criatividade'),
+        'Imagination and Creativity',
+      );
+      expect(
+        l10n.categoryNameById('comunicacao', 'Comunicação e Histórias'),
+        'Communication and Stories',
+      );
+      expect(
+        l10n.toyDisplayNameForId(
+          id: 'demo_toy_corpo_bola_macia',
+          name: 'Bola macia',
+        ),
+        'Soft ball',
+      );
+    });
+
+    test('preserves user-created toy names in en-US', () {
+      const l10n = AppLocalizations(Locale('en', 'US'));
+
+      expect(l10n.toyDisplayName('Bola macia'), 'Bola macia');
+      expect(
+        l10n.toyDisplayNameForId(id: 'user_toy_123', name: 'Bola macia'),
+        'Bola macia',
+      );
+    });
+
+    test('keeps pt-BR official copy unchanged', () {
+      const l10n = AppLocalizations(Locale('pt', 'BR'));
+      final now = DateTime(2026, 1, 1, 8);
+      final status = AppTrialStatus(
+        startedAt: now,
+        endsAt: now.add(const Duration(days: 7)),
+        lastSeenAt: now,
+        effectiveNow: now,
+        trialUsed: true,
+        introPending: false,
+      );
+
+      expect(
+          l10n.trialHomeNotice(status), 'Teste grátis ativo — faltam 7 dias');
+      expect(l10n.roundReadyToStart, 'Pronta para iniciar');
+      expect(
+        l10n.categoryNameById('corpo', 'Corpo e Respiração'),
+        'Corpo e Respiração',
+      );
+      expect(
+        l10n.toyDisplayNameForId(
+          id: 'demo_toy_corpo_bola_macia',
+          name: 'Bola macia',
+        ),
+        'Bola macia',
+      );
+    });
+  });
+}

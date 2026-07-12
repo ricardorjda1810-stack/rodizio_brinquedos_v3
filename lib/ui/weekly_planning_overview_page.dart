@@ -3018,8 +3018,9 @@ class _WeeklyDayToyListItem {
 
     return _WeeklyDayToyListItem(
       id: toy.id,
-      name: l10n.toyDisplayName(
-        _cleanText(sourceToy?.name) ?? _cleanText(toy.name),
+      name: l10n.toyDisplayNameForId(
+        id: sourceToy?.id ?? toy.id,
+        name: _cleanText(sourceToy?.name) ?? _cleanText(toy.name),
       ),
       categoryLabel: l10n.categoryName(
         _cleanText(category?.name) ??
@@ -3171,7 +3172,7 @@ String _openToySemanticLabel(
   WeeklyPlanningOverviewToyInput toy,
   AppLocalizations l10n,
 ) {
-  final name = l10n.toyDisplayName(toy.name);
+  final name = l10n.toyDisplayNameForId(id: toy.id, name: toy.name);
   return l10n.isEn ? 'Open toy $name' : 'Abrir brinquedo $name';
 }
 

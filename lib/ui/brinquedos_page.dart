@@ -653,7 +653,10 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     required String categoryLabel,
   }) {
     final l10n = context.l10n;
-    final displayName = l10n.toyDisplayName(item.toy.name);
+    final displayName = l10n.toyDisplayNameForId(
+      id: item.toy.id,
+      name: item.toy.name,
+    );
 
     return InkWell(
       borderRadius: BorderRadius.circular(UiTokens.radiusButton),
@@ -1565,7 +1568,10 @@ class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final displayName = l10n.toyDisplayName(widget.item.toy.name);
+    final displayName = l10n.toyDisplayNameForId(
+      id: widget.item.toy.id,
+      name: widget.item.toy.name,
+    );
     final categoryStyle = _catalogCategoryStyle(
       widget.item.toy.categoryId,
       widget.categoryLabel,

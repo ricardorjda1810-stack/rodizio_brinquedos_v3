@@ -471,7 +471,10 @@ class _CaixasPageState extends State<CaixasPage> {
       child: Column(
         children: List<Widget>.generate(boxItems.length, (index) {
           final item = boxItems[index];
-          final toyName = l10n.toyDisplayName(item.toy.name);
+          final toyName = l10n.toyDisplayNameForId(
+            id: item.toy.id,
+            name: item.toy.name,
+          );
           final categoryName = item.category?.name.trim();
           final subtitle = (categoryName == null || categoryName.isEmpty)
               ? l10n.toyFromBox
@@ -1957,7 +1960,10 @@ class _BoxesIpadUnboxedToyRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final name = l10n.toyDisplayName(item.toy.name);
+    final name = l10n.toyDisplayNameForId(
+      id: item.toy.id,
+      name: item.toy.name,
+    );
     final category = _categoryLabel(item, l10n);
 
     return Material(
