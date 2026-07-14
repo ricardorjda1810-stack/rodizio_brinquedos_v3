@@ -49,6 +49,11 @@ void main() {
         ),
         'Soft ball',
       );
+      expect(l10n.renameBox, 'Rename box');
+      expect(l10n.boxName, 'Box name');
+      expect(l10n.boxNameRequired, 'Enter a box name.');
+      expect(l10n.boxRenamed, 'Box renamed.');
+      expect(l10n.backToHome, 'Back to Home');
     });
 
     test('preserves user-created toy names in en-US', () {
@@ -87,6 +92,11 @@ void main() {
         ),
         'Bola macia',
       );
+      expect(l10n.renameBox, 'Renomear caixa');
+      expect(l10n.boxName, 'Nome da caixa');
+      expect(l10n.boxNameRequired, 'Informe o nome da caixa.');
+      expect(l10n.boxRenamed, 'Caixa renomeada.');
+      expect(l10n.backToHome, 'Voltar ao início');
     });
   });
 }

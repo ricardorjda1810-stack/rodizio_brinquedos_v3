@@ -99,6 +99,14 @@ class AppLocalizations {
       ? 'See where each group is stored and open toys in a more organized way.'
       : 'Visualize onde cada grupo está guardado e abra os brinquedos de forma mais organizada.';
   String get boxActions => isEn ? 'Box actions' : 'Ações da caixa';
+  String get renameBox => isEn ? 'Rename box' : 'Renomear caixa';
+  String get boxName => isEn ? 'Box name' : 'Nome da caixa';
+  String get boxNameRequired =>
+      isEn ? 'Enter a box name.' : 'Informe o nome da caixa.';
+  String get boxRenamed => isEn ? 'Box renamed.' : 'Caixa renomeada.';
+  String renameBoxFailure(Object error) =>
+      isEn ? 'Error renaming box: $error' : 'Erro ao renomear caixa: $error';
+  String get backToHome => isEn ? 'Back to Home' : 'Voltar ao início';
   String get editLocation => isEn ? 'Edit location' : 'Editar local';
   String get changePhoto => isEn ? 'Change photo' : 'Trocar foto';
   String get addPhoto => isEn ? 'Add photo' : 'Adicionar foto';

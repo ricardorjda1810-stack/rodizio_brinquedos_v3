@@ -61,9 +61,16 @@ class _CaixasPageState extends State<CaixasPage> {
   }
 
   String _boxTitle(Boxe box, AppLocalizations l10n) {
-    final local = box.local.trim();
-    if (local.isEmpty) return l10n.boxNumber(box.number);
-    return l10n.boxLocationLabel(box.number, local);
+    return _boxTitleForDisplay(box, l10n);
+  }
+
+  void _leaveBoxes(BuildContext context) {
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.maybePop();
+      return;
+    }
+    widget.onOpenHomeTab?.call();
   }
 
   Future<void> _openAddBoxPage(BuildContext context) async {
@@ -330,6 +337,74 @@ class _CaixasPageState extends State<CaixasPage> {
                 : 'Erro ao atualizar informacoes da caixa: $e',
           ),
         ),
+      );
+    }
+  }
+
+  Future<void> _renameBox(BuildContext context, Boxe box) async {
+    final l10n = context.l10n;
+    final currentName = _boxTitleForDisplay(box, l10n);
+    final controller = TextEditingController(text: currentName);
+    String? errorText;
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(l10n.renameBox),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            textInputAction: TextInputAction.done,
+            maxLength: 60,
+            inputFormatters: [LengthLimitingTextInputFormatter(60)],
+            decoration: InputDecoration(
+              labelText: l10n.boxName,
+              errorText: errorText,
+            ),
+            onSubmitted: (_) {
+              final value = controller.text.trim();
+              if (value.isEmpty) {
+                setDialogState(() => errorText = l10n.boxNameRequired);
+                return;
+              }
+              Navigator.of(ctx).pop(value);
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final value = controller.text.trim();
+                if (value.isEmpty) {
+                  setDialogState(() => errorText = l10n.boxNameRequired);
+                  return;
+                }
+                Navigator.of(ctx).pop(value);
+              },
+              child: Text(l10n.save),
+            ),
+          ],
+        ),
+      ),
+    );
+    controller.dispose();
+
+    if (result == null) return;
+
+    try {
+      await widget.toyRepository.renameBox(boxId: box.id, name: result);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.boxRenamed)),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.renameBoxFailure(e))),
       );
     }
   }
@@ -620,6 +695,10 @@ class _CaixasPageState extends State<CaixasPage> {
                       child: PopupMenuButton<String>(
                         tooltip: l10n.boxActions,
                         onSelected: (value) async {
+                          if (value == 'rename') {
+                            await _renameBox(context, box);
+                            return;
+                          }
                           if (value == 'edit_local') {
                             await _editBoxLocal(context, box);
                             return;
@@ -641,6 +720,10 @@ class _CaixasPageState extends State<CaixasPage> {
                           }
                         },
                         itemBuilder: (context) => [
+                          PopupMenuItem<String>(
+                            value: 'rename',
+                            child: Text(l10n.renameBox),
+                          ),
                           PopupMenuItem<String>(
                             value: 'edit_local',
                             child: Text(l10n.editLocation),
@@ -827,10 +910,38 @@ class _CaixasPageState extends State<CaixasPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final useSingleColumn = constraints.maxWidth < 900;
         final columnsHeight =
             (constraints.maxHeight - bottomPadding - 24 - 142 - 18)
                 .clamp(760.0, 880.0)
                 .toDouble();
+        final mainPanel = _BoxesIpadMainPanel(
+          boxes: sortedBoxes,
+          toysByBoxId: toysByBoxId,
+          unboxed: unboxed,
+          summary: summary,
+          onOpenBox: widget.onOpenBrinquedosForBox,
+          onOpenUnboxed: () => widget.onOpenBrinquedosForBox(
+            BrinquedosCatalogState.boxFilterNone,
+          ),
+          onNewBox: () => _openAddBoxPage(context),
+          onRenameBox: (box) => _renameBox(context, box),
+        );
+        final sideColumn = _BoxesIpadSideColumn(
+          boxes: sortedBoxes,
+          unboxed: unboxed,
+          summary: summary,
+          onAssignToy: (item) => _assignToyToBox(context, item, sortedBoxes),
+          onOpenToy: (item) => _openToyDetail(context, item.toy.id),
+          onNewBox: () => _openAddBoxPage(context),
+          onOpenAllToys: () => widget.onOpenBrinquedosForBox(
+            BrinquedosCatalogState.boxFilterAll,
+          ),
+          onOpenUnboxed: () => widget.onOpenBrinquedosForBox(
+            BrinquedosCatalogState.boxFilterNone,
+          ),
+          onOpenLocations: () => _openLocationsPage(context),
+        );
 
         return ListView(
           padding: EdgeInsets.fromLTRB(28, 24, 28, bottomPadding),
@@ -845,54 +956,28 @@ class _CaixasPageState extends State<CaixasPage> {
                       summary: summary,
                       onNewBox: () => _openAddBoxPage(context),
                       onOpenLocations: () => _openLocationsPage(context),
+                      onLeave: (widget.onOpenHomeTab != null ||
+                              Navigator.of(context).canPop())
+                          ? () => _leaveBoxes(context)
+                          : null,
                     ),
                     const SizedBox(height: 18),
-                    SizedBox(
-                      height: columnsHeight,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: _BoxesIpadMainPanel(
-                              boxes: sortedBoxes,
-                              toysByBoxId: toysByBoxId,
-                              unboxed: unboxed,
-                              summary: summary,
-                              onOpenBox: widget.onOpenBrinquedosForBox,
-                              onOpenUnboxed: () =>
-                                  widget.onOpenBrinquedosForBox(
-                                BrinquedosCatalogState.boxFilterNone,
-                              ),
-                              onNewBox: () => _openAddBoxPage(context),
-                            ),
-                          ),
-                          const SizedBox(width: 18),
-                          SizedBox(
-                            width: 332,
-                            child: _BoxesIpadSideColumn(
-                              boxes: sortedBoxes,
-                              unboxed: unboxed,
-                              summary: summary,
-                              onAssignToy: (item) =>
-                                  _assignToyToBox(context, item, sortedBoxes),
-                              onOpenToy: (item) =>
-                                  _openToyDetail(context, item.toy.id),
-                              onNewBox: () => _openAddBoxPage(context),
-                              onOpenAllToys: () =>
-                                  widget.onOpenBrinquedosForBox(
-                                BrinquedosCatalogState.boxFilterAll,
-                              ),
-                              onOpenUnboxed: () =>
-                                  widget.onOpenBrinquedosForBox(
-                                BrinquedosCatalogState.boxFilterNone,
-                              ),
-                              onOpenLocations: () =>
-                                  _openLocationsPage(context),
-                            ),
-                          ),
-                        ],
+                    if (useSingleColumn) ...[
+                      SizedBox(height: columnsHeight, child: mainPanel),
+                      const SizedBox(height: 18),
+                      SizedBox(height: 650, child: sideColumn),
+                    ] else
+                      SizedBox(
+                        height: columnsHeight,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(child: mainPanel),
+                            const SizedBox(width: 18),
+                            SizedBox(width: 332, child: sideColumn),
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -1103,11 +1188,13 @@ class _BoxesIpadHeader extends StatelessWidget {
   final _BoxesIpadSummary summary;
   final VoidCallback onNewBox;
   final VoidCallback onOpenLocations;
+  final VoidCallback? onLeave;
 
   const _BoxesIpadHeader({
     required this.summary,
     required this.onNewBox,
     required this.onOpenLocations,
+    required this.onLeave,
   });
 
   @override
@@ -1115,9 +1202,10 @@ class _BoxesIpadHeader extends StatelessWidget {
     final l10n = context.l10n;
     return _BoxesIpadSurface(
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-      child: Row(
-        children: [
-          Container(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compactActions = constraints.maxWidth < 700;
+          final icon = Container(
             width: 60,
             height: 60,
             decoration: BoxDecoration(
@@ -1140,56 +1228,94 @@ class _BoxesIpadHeader extends StatelessWidget {
               color: Colors.white,
               size: 30,
             ),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.appNameUpper,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
-                    color: _BoxesIpadPalette.textMuted,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.8,
-                  ),
+          );
+          final titleBlock = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.appNameUpper,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textMicro.copyWith(
+                  color: _BoxesIpadPalette.textMuted,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8,
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  l10n.boxes,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
-                    color: _BoxesIpadPalette.text,
-                    fontSize: 27,
-                    fontWeight: FontWeight.w900,
-                  ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                l10n.boxes,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textTitle.copyWith(
+                  color: _BoxesIpadPalette.text,
+                  fontSize: 27,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.isEn
-                      ? 'See where toys are stored.'
-                      : 'Veja onde os brinquedos ficam guardados.',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
-                    color: _BoxesIpadPalette.textMuted,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l10n.isEn
+                    ? 'See where toys are stored.'
+                    : 'Veja onde os brinquedos ficam guardados.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: UiTokens.textCaption.copyWith(
+                  color: _BoxesIpadPalette.textMuted,
+                  height: 1.45,
+                  fontWeight: FontWeight.w500,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 18),
-          _BoxesIpadHeaderCount(summary: summary),
-          const SizedBox(width: 14),
-          Wrap(
+              ),
+            ],
+          );
+          final actions = Wrap(
             spacing: 12,
             runSpacing: 8,
+            alignment: WrapAlignment.end,
             children: [
+              if (onLeave != null)
+                if (compactActions)
+                  Tooltip(
+                    message: l10n.backToHome,
+                    child: IconButton(
+                      onPressed: onLeave,
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      color: _BoxesIpadPalette.textMid,
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        minimumSize: const Size(52, 52),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          side: const BorderSide(
+                            color: _BoxesIpadPalette.border,
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed: onLeave,
+                    icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                    label: Text(l10n.backToHome),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: _BoxesIpadPalette.textMid,
+                      side: const BorderSide(
+                        color: _BoxesIpadPalette.border,
+                        width: 1.5,
+                      ),
+                      minimumSize: const Size(132, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      textStyle: UiTokens.textButton.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
               FilledButton.icon(
                 onPressed: onNewBox,
                 icon: const Icon(Icons.add_rounded, size: 18),
@@ -1231,8 +1357,37 @@ class _BoxesIpadHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ],
+          );
+
+          if (compactActions) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    icon,
+                    const SizedBox(width: 18),
+                    Expanded(child: titleBlock),
+                    const SizedBox(width: 14),
+                    _BoxesIpadHeaderCount(summary: summary),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Align(alignment: Alignment.centerRight, child: actions),
+              ],
+            );
+          }
+
+          return Row(children: [
+            icon,
+            const SizedBox(width: 20),
+            Expanded(child: titleBlock),
+            const SizedBox(width: 18),
+            _BoxesIpadHeaderCount(summary: summary),
+            const SizedBox(width: 14),
+            actions,
+          ]);
+        },
       ),
     );
   }
@@ -1291,6 +1446,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
   final ValueChanged<String> onOpenBox;
   final VoidCallback onOpenUnboxed;
   final VoidCallback onNewBox;
+  final ValueChanged<Boxe> onRenameBox;
 
   const _BoxesIpadMainPanel({
     required this.boxes,
@@ -1300,6 +1456,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
     required this.onOpenBox,
     required this.onOpenUnboxed,
     required this.onNewBox,
+    required this.onRenameBox,
   });
 
   @override
@@ -1395,6 +1552,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                             icon: Icons.inventory_2_outlined,
                             toys:
                                 toysByBoxId[box.id] ?? const <ToyCatalogItem>[],
+                            onRename: () => onRenameBox(box),
                             onTap: () => onOpenBox(box.id),
                           ),
                           const SizedBox(height: 12),
@@ -1482,6 +1640,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
   final String? photoPath;
   final List<ToyCatalogItem> toys;
   final bool highlighted;
+  final VoidCallback? onRename;
   final VoidCallback onTap;
 
   const _BoxesIpadBoxRow({
@@ -1492,6 +1651,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
     required this.photoPath,
     required this.toys,
     required this.onTap,
+    this.onRename,
     this.highlighted = false,
   });
 
@@ -1561,6 +1721,24 @@ class _BoxesIpadBoxRow extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               _BoxesIpadBadge(label: countLabel),
+              if (onRename != null) ...[
+                const SizedBox(width: 8),
+                IconButton(
+                  tooltip: context.l10n.renameBox,
+                  onPressed: onRename,
+                  icon: const Icon(Icons.edit_outlined),
+                  color: _BoxesIpadPalette.orangeDark,
+                  style: IconButton.styleFrom(
+                    backgroundColor: _BoxesIpadPalette.orangeLight,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(
+                        color: _BoxesIpadPalette.orangeBorder,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(width: 10),
               Container(
                 width: 34,
@@ -1593,8 +1771,9 @@ class _BoxesIpadMiniThumbs extends StatelessWidget {
   Widget build(BuildContext context) {
     final visible = items.take(4).toList();
     if (visible.isEmpty) {
+      final l10n = context.l10n;
       return Text(
-        'Nenhum brinquedo nesta caixa',
+        l10n.noToysInBox,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: UiTokens.textMicro.copyWith(
@@ -2321,9 +2500,21 @@ class _BoxesIpadToyThumb extends StatelessWidget {
 }
 
 String _boxTitleForDisplay(Boxe box, AppLocalizations l10n) {
+  final customName = _customBoxName(box);
+  if (customName != null) return customName;
   final local = box.local.trim();
   if (local.isEmpty) return l10n.boxNumber(box.number);
   return l10n.boxLocationLabel(box.number, local);
+}
+
+String? _customBoxName(Boxe box) {
+  final name = box.name.trim();
+  if (name.isEmpty) return null;
+  final local = box.local.trim();
+  final defaultName =
+      local.isEmpty ? 'Caixa ${box.number}' : 'Caixa ${box.number} - $local';
+  if (name == defaultName) return null;
+  return name;
 }
 
 String _toyCountLabel(int count, AppLocalizations l10n) {

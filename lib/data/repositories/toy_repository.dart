@@ -954,6 +954,18 @@ class ToyRepository {
     });
   }
 
+  String _defaultBoxName(int number, String local) {
+    final normalizedLocal = local.trim();
+    if (normalizedLocal.isEmpty) return 'Caixa $number';
+    return 'Caixa $number - $normalizedLocal';
+  }
+
+  bool _isDefaultBoxName(Boxe box) {
+    final name = box.name.trim();
+    if (name.isEmpty) return true;
+    return name == _defaultBoxName(box.number, box.local);
+  }
+
   Future<void> updateBoxLocal({
     required String boxId,
     required String local,
@@ -970,15 +982,34 @@ class ToyRepository {
     if (box == null) return;
 
     final normalizedLocal = local.trim();
-    final normalizedName = normalizedLocal.isEmpty
-        ? 'Caixa ${box.number}'
-        : 'Caixa ${box.number} - $normalizedLocal';
+    final normalizedName = _isDefaultBoxName(box)
+        ? _defaultBoxName(box.number, normalizedLocal)
+        : box.name;
 
     await (d.update(d.boxes)..where((b) => b.id.equals(boxId))).write(
       BoxesCompanion(
         local: Value(normalizedLocal),
         name: Value(normalizedName),
       ),
+    );
+  }
+
+  Future<void> renameBox({
+    required String boxId,
+    required String name,
+  }) async {
+    final d = db;
+    if (d == null) {
+      throw StateError('ToyRepository.db is null. Use um Fake no teste.');
+    }
+
+    final normalizedName = name.trim();
+    if (normalizedName.isEmpty) {
+      throw StateError('Nome da caixa é obrigatório.');
+    }
+
+    await (d.update(d.boxes)..where((b) => b.id.equals(boxId))).write(
+      BoxesCompanion(name: Value(normalizedName)),
     );
   }
 

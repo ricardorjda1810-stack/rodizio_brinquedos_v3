@@ -44,4 +44,15 @@ void main() {
     expect(source, contains('class _BoxesIpadBoxPhoto'));
     expect(source, contains('Image.file('));
   });
+
+  test('Boxes page exposes iPad exit and rename actions', () {
+    final source = File('lib/ui/caixas_page.dart').readAsStringSync();
+
+    expect(source, contains('l10n.backToHome'));
+    expect(source, contains('void _leaveBoxes'));
+    expect(source, contains('Future<void> _renameBox'));
+    expect(source, contains("value: 'rename'"));
+    expect(source, contains('onRenameBox: (box)'));
+    expect(source, contains('tooltip: context.l10n.renameBox'));
+  });
 }

@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show OrderingTerm;
+import 'package:drift/drift.dart' show OrderingTerm, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
@@ -64,6 +64,55 @@ void main() {
 
     expect(moved.name, 'Brinquedo 5.1');
     expect(moved.boxId, box2.id);
+  });
+
+  test('renomear caixa preserva foto, local e brinquedos associados', () async {
+    final box = await repository.addBoxWithAutoNumber(local: 'Sala');
+    await (db.update(db.boxes)..where((b) => b.id.equals(box.id))).write(
+      const BoxesCompanion(photoPath: Value('/foto/caixa.png')),
+    );
+    await repository.addToy(name: 'Carrinho', boxId: box.id);
+
+    await repository.renameBox(boxId: box.id, name: 'Caixa dos favoritos');
+
+    final renamed = await (db.select(db.boxes)
+          ..where((b) => b.id.equals(box.id)))
+        .getSingle();
+    final toy = await (db.select(db.toys)..where((t) => t.boxId.equals(box.id)))
+        .getSingle();
+
+    expect(renamed.name, 'Caixa dos favoritos');
+    expect(renamed.local, 'Sala');
+    expect(renamed.photoPath, '/foto/caixa.png');
+    expect(toy.name, 'Carrinho');
+    expect(toy.boxId, box.id);
+  });
+
+  test('renomear caixa rejeita nome vazio', () async {
+    final box = await repository.addBoxWithAutoNumber(local: 'Sala');
+
+    expect(
+      () => repository.renameBox(boxId: box.id, name: '   '),
+      throwsA(isA<StateError>()),
+    );
+
+    final unchanged = await (db.select(db.boxes)
+          ..where((b) => b.id.equals(box.id)))
+        .getSingle();
+    expect(unchanged.name, 'Caixa ${box.number} - Sala');
+  });
+
+  test('editar local preserva nome customizado da caixa', () async {
+    final box = await repository.addBoxWithAutoNumber(local: 'Sala');
+
+    await repository.renameBox(boxId: box.id, name: 'Caixa sensorial');
+    await repository.updateBoxLocal(boxId: box.id, local: 'Quarto');
+
+    final updated = await (db.select(db.boxes)
+          ..where((b) => b.id.equals(box.id)))
+        .getSingle();
+    expect(updated.name, 'Caixa sensorial');
+    expect(updated.local, 'Quarto');
   });
 
   test('restaurar padrao deixa total do rodizio em 7 brinquedos', () async {
