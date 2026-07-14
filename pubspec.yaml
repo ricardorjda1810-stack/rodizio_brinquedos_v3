@@ -46,6 +46,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/
+    - assets/demo_boxes/
     - assets/demo/toys/
     - assets/demo_toys_v2/
     - assets/splash.png

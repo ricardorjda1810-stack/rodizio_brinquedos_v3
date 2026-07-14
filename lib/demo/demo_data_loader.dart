@@ -12,6 +12,7 @@ class DemoDataLoader {
   static const _isDemo = bool.fromEnvironment('DEMO_MODE');
   static const _isMarketingDemo = bool.fromEnvironment('MARKETING_DEMO');
   static const _demoToyPhotosDirName = 'demo_toy_photos';
+  static const _demoBoxPhotosDirName = 'demo_box_photos';
   static const _initialSeedAppliedKey = 'demo_initial_seed_applied_v1';
   static const examplesRemovedPreferenceKey = 'demoExamplesRemoved';
   static const demoToyIdPrefix = 'demo_toy_';
@@ -69,6 +70,7 @@ class DemoDataLoader {
     final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
     if (alreadyHandled) {
       await _repairExistingDemoToyPhotos(db);
+      await _repairExistingDemoBoxPhotos(db);
       return;
     }
 
@@ -76,6 +78,7 @@ class DemoDataLoader {
     final hasRealToys = toys.any((toy) => !isDemoToyId(toy.id));
     if (hasRealToys) {
       await _repairExistingDemoToyPhotos(db);
+      await _repairExistingDemoBoxPhotos(db);
       await prefs.setBool(_initialSeedAppliedKey, true);
       return;
     }
@@ -172,6 +175,7 @@ class DemoDataLoader {
     });
 
     await _clearDemoToyPhotos();
+    await _clearDemoBoxPhotosIfNoDemoBoxes(db);
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(examplesRemovedPreferenceKey, true);
@@ -206,6 +210,7 @@ class DemoDataLoader {
     await db.delete(db.categoryDefinitions).go();
     await db.delete(db.historyEvents).go();
     await _clearDemoToyPhotos();
+    await _clearDemoBoxPhotos();
   }
 
   static Future<void> _insertCategories(
@@ -261,12 +266,14 @@ class DemoDataLoader {
   static Future<void> _insertBoxes(AppDatabase db, int now) async {
     for (final box in DemoSeed.boxes) {
       final name = 'Caixa ${box.number} - ${box.local}';
+      final photoPath = await _copyDemoBoxPhoto(box);
       await db.into(db.boxes).insertOnConflictUpdate(
             BoxesCompanion.insert(
               id: box.id,
               number: Value(box.number),
               local: Value(box.local),
               name: Value(name),
+              photoPath: Value(photoPath),
               createdAt: now + box.number,
             ),
           );
@@ -418,11 +425,58 @@ class DemoDataLoader {
     }
   }
 
+  static Future<void> _repairExistingDemoBoxPhotos(AppDatabase db) async {
+    final seedById = {for (final box in DemoSeed.boxes) box.id: box};
+    final seedBoxIds = seedById.keys.toList(growable: false);
+    if (seedBoxIds.isEmpty) return;
+
+    final demoBoxes = await (db.select(db.boxes)
+          ..where((box) => box.id.isIn(seedBoxIds)))
+        .get();
+
+    for (final demoBox in demoBoxes) {
+      final seed = seedById[demoBox.id];
+      if (seed == null) continue;
+
+      final photoPath = demoBox.photoPath?.trim();
+      final pointsToBundledAsset =
+          photoPath != null && photoPath.startsWith('assets/');
+      if (photoPath != null &&
+          photoPath.isNotEmpty &&
+          !pointsToBundledAsset &&
+          await File(photoPath).exists()) {
+        continue;
+      }
+
+      final repairedPath = await _copyDemoBoxPhoto(seed);
+      await (db.update(db.boxes)..where((box) => box.id.equals(demoBox.id)))
+          .write(BoxesCompanion(photoPath: Value(repairedPath)));
+    }
+  }
+
   static Future<void> _clearDemoToyPhotos() async {
     final base = await getApplicationDocumentsDirectory();
     final dir = Directory('${base.path}/$_demoToyPhotosDirName');
     if (dir.existsSync()) {
       await dir.delete(recursive: true);
+    }
+  }
+
+  static Future<void> _clearDemoBoxPhotos() async {
+    final base = await getApplicationDocumentsDirectory();
+    final dir = Directory('${base.path}/$_demoBoxPhotosDirName');
+    if (dir.existsSync()) {
+      await dir.delete(recursive: true);
+    }
+  }
+
+  static Future<void> _clearDemoBoxPhotosIfNoDemoBoxes(AppDatabase db) async {
+    final remainingDemoBox = await (db.select(db.boxes)
+          ..where((box) => box.id.like('$demoBoxIdPrefix%'))
+          ..limit(1))
+        .getSingleOrNull();
+    if (remainingDemoBox == null) {
+      await _clearDemoBoxPhotos();
     }
   }
 
@@ -440,6 +494,24 @@ class DemoDataLoader {
     );
     final assetFileName = toy.photoAssetPath.split('/').last;
     final file = File('${dir.path}/${toy.id}_$assetFileName');
+    await file.writeAsBytes(bytes, flush: true);
+    return file.path;
+  }
+
+  static Future<String> _copyDemoBoxPhoto(DemoBoxSeed box) async {
+    final base = await getApplicationDocumentsDirectory();
+    final dir = Directory('${base.path}/$_demoBoxPhotosDirName');
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+
+    final data = await rootBundle.load(box.photoAssetPath);
+    final bytes = data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
+    final assetFileName = box.photoAssetPath.split('/').last;
+    final file = File('${dir.path}/${box.id}_$assetFileName');
     await file.writeAsBytes(bytes, flush: true);
     return file.path;
   }

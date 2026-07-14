@@ -8,6 +8,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
+import 'package:rodizio_brinquedos_v3/demo/demo_seed.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -77,6 +78,10 @@ void main() {
     for (final categoryId in officialCategoryIds) {
       expect(counts[categoryId], 10, reason: categoryId);
     }
+    for (final box in boxes) {
+      expect(box.photoPath, isNotNull);
+      expect(File(box.photoPath!).existsSync(), isTrue);
+    }
   });
 
   test('load aplica seed inicial uma vez e respeita exemplos apagados',
@@ -98,6 +103,8 @@ void main() {
     await DemoDataLoader.load(db);
 
     final stalePath = '${tempDir.path}/container_antigo/foto_ausente.png';
+    final staleBoxPath =
+        '${tempDir.path}/container_antigo/foto_caixa_ausente.png';
     await (db.update(db.toys)
           ..where(
             (toy) => toy.id.like('${DemoDataLoader.demoToyIdPrefix}%'),
@@ -110,6 +117,17 @@ void main() {
         photoPath: Value('assets/demo_toys_v2/corpo_bola_macia.png'),
       ),
     );
+    await (db.update(db.boxes)
+          ..where(
+            (box) => box.id.like('${DemoDataLoader.demoBoxIdPrefix}%'),
+          ))
+        .write(BoxesCompanion(photoPath: Value(staleBoxPath)));
+    await (db.update(db.boxes)..where((box) => box.id.equals('demo_box_sala')))
+        .write(
+      const BoxesCompanion(
+        photoPath: Value('assets/demo_boxes/demo_box_sala.png'),
+      ),
+    );
 
     await db.into(db.toys).insert(
           ToysCompanion.insert(
@@ -120,10 +138,21 @@ void main() {
             photoPath: const Value('/foto/real/do/usuario.png'),
           ),
         );
+    await db.into(db.boxes).insert(
+          BoxesCompanion.insert(
+            id: 'real_box_1',
+            number: const Value(42),
+            local: const Value('Quarto real'),
+            name: const Value('Caixa real'),
+            photoPath: const Value('/foto/real/da/caixa.png'),
+            createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+          ),
+        );
 
     await DemoDataLoader.load(db);
 
     final toys = await db.select(db.toys).get();
+    final boxes = await db.select(db.boxes).get();
     final demoToys =
         toys.where((toy) => DemoDataLoader.isDemoToyId(toy.id)).toList();
     expect(demoToys, hasLength(50));
@@ -137,6 +166,20 @@ void main() {
 
     final realToy = toys.singleWhere((toy) => toy.id == 'real_toy_1');
     expect(realToy.photoPath, '/foto/real/do/usuario.png');
+
+    final demoBoxes =
+        boxes.where((box) => DemoDataLoader.isDemoBoxId(box.id)).toList();
+    expect(demoBoxes, hasLength(DemoSeed.boxes.length));
+    for (final box in demoBoxes) {
+      expect(box.photoPath, isNotNull);
+      expect(box.photoPath, isNot(staleBoxPath));
+      expect(box.photoPath!, isNot(startsWith('assets/')));
+      expect(box.photoPath!, startsWith(tempDir.path));
+      expect(File(box.photoPath!).existsSync(), isTrue);
+    }
+
+    final realBox = boxes.singleWhere((box) => box.id == 'real_box_1');
+    expect(realBox.photoPath, '/foto/real/da/caixa.png');
   });
 
   test('removeExamples apaga apenas exemplos e preserva dados reais', () async {
@@ -153,6 +196,7 @@ void main() {
             number: const Value(42),
             local: const Value('Quarto real'),
             name: const Value('Caixa real'),
+            photoPath: const Value('/foto/real/da/caixa.png'),
             createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
           ),
         );
@@ -229,6 +273,7 @@ void main() {
 
     final boxes = await db.select(db.boxes).get();
     expect(boxes.map((box) => box.id), <String>['real_box_1']);
+    expect(boxes.single.photoPath, '/foto/real/da/caixa.png');
 
     final locations = await db.select(db.locationDefinitions).get();
     expect(
@@ -240,6 +285,42 @@ void main() {
       prefs.getBool(DemoDataLoader.examplesRemovedPreferenceKey),
       isTrue,
     );
+  });
+
+  test('removeExamples preserva caixa demo usada por brinquedo real', () async {
+    await DemoDataLoader.restoreExamples(
+      db,
+      includePlanning: true,
+      includeActiveRound: true,
+      includeRoundSettings: true,
+    );
+
+    final demoBoxBefore = await (db.select(db.boxes)
+          ..where((box) => box.id.equals('demo_box_sala')))
+        .getSingle();
+    final demoBoxPhotoPath = demoBoxBefore.photoPath;
+    expect(demoBoxPhotoPath, isNotNull);
+    expect(File(demoBoxPhotoPath!).existsSync(), isTrue);
+
+    await db.into(db.toys).insert(
+          ToysCompanion.insert(
+            id: 'real_toy_in_demo_box',
+            categoryId: const Value('corpo'),
+            name: 'Brinquedo real na caixa demo',
+            boxId: const Value('demo_box_sala'),
+            createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+          ),
+        );
+
+    await DemoDataLoader.removeExamples(db);
+
+    final toys = await db.select(db.toys).get();
+    expect(toys.map((toy) => toy.id), <String>['real_toy_in_demo_box']);
+
+    final boxes = await db.select(db.boxes).get();
+    expect(boxes.map((box) => box.id), <String>['demo_box_sala']);
+    expect(boxes.single.photoPath, demoBoxPhotoPath);
+    expect(File(boxes.single.photoPath!).existsSync(), isTrue);
   });
 
   test('removeExamples limpa scaffolding demo quando nao ha dados reais',
@@ -311,6 +392,11 @@ void main() {
     }
     for (final categoryId in officialCategoryIds) {
       expect(counts[categoryId], 10, reason: categoryId);
+    }
+    for (final box in await db.select(db.boxes).get()) {
+      expect(DemoDataLoader.isDemoBoxId(box.id), isTrue);
+      expect(box.photoPath, isNotNull);
+      expect(File(box.photoPath!).existsSync(), isTrue);
     }
 
     final prefs = await SharedPreferences.getInstance();

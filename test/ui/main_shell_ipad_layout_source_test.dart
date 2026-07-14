@@ -27,11 +27,21 @@ void main() {
 
   test('Settings demo removal feedback is localized', () {
     final settingsSource = File('lib/ui/settings_page.dart').readAsStringSync();
-    final l10nSource = File('lib/l10n/app_localizations.dart').readAsStringSync();
+    final l10nSource =
+        File('lib/l10n/app_localizations.dart').readAsStringSync();
 
     expect(settingsSource, contains('context.l10n.demoExamplesRemoved'));
-    expect(settingsSource, contains('context.l10n.removeExamplesFailure(error)'));
+    expect(
+        settingsSource, contains('context.l10n.removeExamplesFailure(error)'));
     expect(l10nSource, contains('String get demoExamplesRemoved'));
     expect(l10nSource, contains('String removeExamplesFailure(Object error)'));
+  });
+
+  test('iPad Boxes rows render box photos when available', () {
+    final source = File('lib/ui/caixas_page.dart').readAsStringSync();
+
+    expect(source, contains('photoPath: box.photoPath'));
+    expect(source, contains('class _BoxesIpadBoxPhoto'));
+    expect(source, contains('Image.file('));
   });
 }

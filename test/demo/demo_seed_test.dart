@@ -12,7 +12,7 @@ void main() {
     'exploracao',
   };
 
-  test('demo seed tem 50 brinquedos oficiais com fotos unicas', () {
+  test('demo seed tem 50 brinquedos oficiais e 5 caixas com fotos', () {
     expect(DemoSeed.toys, hasLength(50));
     expect(DemoSeed.activeRoundToyIds, hasLength(5));
     expect(DemoSeed.categories, hasLength(5));
@@ -37,16 +37,36 @@ void main() {
     final toyNames = DemoSeed.toys.map((toy) => toy.name).toSet();
     final photoAssetPaths =
         DemoSeed.toys.map((toy) => toy.photoAssetPath).toSet();
+    final boxPhotoAssetPaths =
+        DemoSeed.boxes.map((box) => box.photoAssetPath).toSet();
 
     expect(toyIds, hasLength(50));
     expect(toyNames, hasLength(50));
     expect(photoAssetPaths, hasLength(50));
+    expect(boxPhotoAssetPaths, hasLength(5));
     final demoAssetFiles = Directory('assets/demo_toys_v2')
         .listSync()
         .whereType<File>()
         .where((file) => file.path.endsWith('.png'))
         .toList();
     expect(demoAssetFiles, hasLength(50));
+    final demoBoxAssetFiles = Directory('assets/demo_boxes')
+        .listSync()
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.png'))
+        .toList();
+    expect(demoBoxAssetFiles, hasLength(5));
+
+    for (final box in DemoSeed.boxes) {
+      expect(box.local.trim(), isNotEmpty);
+      expect(box.photoAssetPath, startsWith('assets/demo_boxes/'));
+      expect(box.photoAssetPath, endsWith('.png'));
+      expect(box.photoAssetPath.startsWith('/'), isFalse);
+      expect(box.photoAssetPath.contains('/Users/'), isFalse);
+      expect(box.photoAssetPath.contains('/var/'), isFalse);
+      expect(box.photoAssetPath.contains('/tmp/'), isFalse);
+      expect(File(box.photoAssetPath).existsSync(), isTrue);
+    }
 
     for (final toy in DemoSeed.toys) {
       expect(toy.name.trim(), isNotEmpty);

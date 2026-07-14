@@ -20,11 +20,13 @@ class DemoBoxSeed {
   final String id;
   final int number;
   final String local;
+  final String photoAssetPath;
 
   const DemoBoxSeed({
     required this.id,
     required this.number,
     required this.local,
+    required this.photoAssetPath,
   });
 }
 
@@ -113,26 +115,31 @@ class DemoSeed {
       id: 'demo_box_sala',
       number: 1,
       local: 'Sala',
+      photoAssetPath: 'assets/demo_boxes/demo_box_sala.png',
     ),
     DemoBoxSeed(
       id: 'demo_box_quarto',
       number: 2,
       local: 'Quarto',
+      photoAssetPath: 'assets/demo_boxes/demo_box_quarto.png',
     ),
     DemoBoxSeed(
       id: 'demo_box_estante_montessori',
       number: 3,
       local: 'Estante Montessori',
+      photoAssetPath: 'assets/demo_boxes/demo_box_estante_montessori.png',
     ),
     DemoBoxSeed(
       id: 'demo_box_caixa_tecido',
       number: 4,
       local: 'Caixa de tecido',
+      photoAssetPath: 'assets/demo_boxes/demo_box_caixa_tecido.png',
     ),
     DemoBoxSeed(
       id: 'demo_box_prateleira_baixa',
       number: 5,
       local: 'Prateleira baixa',
+      photoAssetPath: 'assets/demo_boxes/demo_box_prateleira_baixa.png',
     ),
   ];
 

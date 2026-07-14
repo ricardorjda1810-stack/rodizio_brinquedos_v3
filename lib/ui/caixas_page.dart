@@ -1387,6 +1387,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                             subtitle: box.local.trim().isEmpty
                                 ? l10n.noLocationDefined
                                 : l10n.value(box.local.trim()),
+                            photoPath: box.photoPath,
                             countLabel: _toyCountLabel(
                               toysByBoxId[box.id]?.length ?? 0,
                               l10n,
@@ -1404,6 +1405,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                             subtitle: l10n.unboxedToys,
                             countLabel: _toyCountLabel(unboxed.length, l10n),
                             icon: Icons.inbox_outlined,
+                            photoPath: null,
                             toys: unboxed,
                             highlighted: true,
                             onTap: onOpenUnboxed,
@@ -1477,6 +1479,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
   final String subtitle;
   final String countLabel;
   final IconData icon;
+  final String? photoPath;
   final List<ToyCatalogItem> toys;
   final bool highlighted;
   final VoidCallback onTap;
@@ -1486,6 +1489,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
     required this.subtitle,
     required this.countLabel,
     required this.icon,
+    required this.photoPath,
     required this.toys,
     required this.onTap,
     this.highlighted = false,
@@ -1520,23 +1524,10 @@ class _BoxesIpadBoxRow extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: highlighted
-                      ? const Color(0xFFFFF7ED)
-                      : _BoxesIpadPalette.photoBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _BoxesIpadPalette.border),
-                ),
-                child: Icon(
-                  icon,
-                  color: highlighted
-                      ? _BoxesIpadPalette.orange
-                      : _BoxesIpadPalette.textMuted,
-                  size: 24,
-                ),
+              _BoxesIpadBoxPhoto(
+                path: photoPath,
+                icon: icon,
+                highlighted: highlighted,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1630,6 +1621,56 @@ class _BoxesIpadMiniThumbs extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _BoxesIpadBoxPhoto extends StatelessWidget {
+  final String? path;
+  final IconData icon;
+  final bool highlighted;
+
+  const _BoxesIpadBoxPhoto({
+    required this.path,
+    required this.icon,
+    required this.highlighted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = (path ?? '').trim();
+    if (p.isEmpty) return _placeholder();
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Image.file(
+        File(p),
+        width: 52,
+        height: 52,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => _placeholder(),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color:
+            highlighted ? const Color(0xFFFFF7ED) : _BoxesIpadPalette.photoBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _BoxesIpadPalette.border),
+      ),
+      child: Icon(
+        icon,
+        color: highlighted
+            ? _BoxesIpadPalette.orange
+            : _BoxesIpadPalette.textMuted,
+        size: 24,
+      ),
     );
   }
 }

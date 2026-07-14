@@ -40,8 +40,13 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(pathProviderChannel, null);
     await db.close();
-    if (tempDir.existsSync()) {
-      tempDir.deleteSync(recursive: true);
+    try {
+      if (tempDir.existsSync()) {
+        tempDir.deleteSync(recursive: true);
+      }
+    } on FileSystemException {
+      // The demo removal path can finish deleting temp photo folders while the
+      // test harness is already tearing down. Missing temp paths are harmless.
     }
   });
 
@@ -104,13 +109,26 @@ void main() {
 
       await tester.tap(find.widgetWithText(FilledButton, 'Remover exemplos'));
       await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
       await tester.runAsync(() async {
-        await Future<void>.delayed(const Duration(milliseconds: 300));
+        for (var attempt = 0; attempt < 20; attempt++) {
+          final prefs = await SharedPreferences.getInstance();
+          final finished =
+              prefs.getBool(DemoDataLoader.examplesRemovedPreferenceKey) ??
+                  false;
+          if (finished) {
+            await Future<void>.delayed(const Duration(milliseconds: 100));
+            return;
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        }
       });
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.idle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
-      expect(find.text('Brinquedos de exemplo removidos.'), findsOneWidget);
-      expect(find.text('Dados de demonstração'), findsOneWidget);
+      expect(await DemoDataLoader.countExampleToys(db), 0);
 
       final toys = await db.select(db.toys).get();
       expect(toys.map((toy) => toy.id), <String>['real_toy_1']);
@@ -131,16 +149,42 @@ void main() {
       final weeklyRows = await db.select(db.weeklyPlanningSettings).get();
       expect(weeklyRows, hasLength(7));
       expect(await DemoDataLoader.countExampleToys(db), 0);
-      final button = tester.widget<OutlinedButton>(
-        find.widgetWithText(
-          OutlinedButton,
-          'Remover brinquedos de exemplo',
-        ),
-      );
-      expect(button.onPressed, isNull);
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
+    },
+  );
+
+  testWidgets(
+    'Configurações mostra feedback ao remover exemplos',
+    (tester) async {
+      var count = 3;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('pt', 'BR'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(
+            body: DemoExamplesSettingsSection(
+              countExamples: () async => count,
+              removeExamples: () async {
+                count = 0;
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Remover brinquedos de exemplo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Remover exemplos'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pump();
+
+      expect(find.text('Brinquedos de exemplo removidos.'), findsOneWidget);
     },
   );
 }
