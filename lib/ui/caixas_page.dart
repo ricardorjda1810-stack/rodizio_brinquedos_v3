@@ -344,54 +344,14 @@ class _CaixasPageState extends State<CaixasPage> {
   Future<void> _renameBox(BuildContext context, Boxe box) async {
     final l10n = context.l10n;
     final currentName = _boxTitleForDisplay(box, l10n);
-    final controller = TextEditingController(text: currentName);
-    String? errorText;
 
     final result = await showDialog<String>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(l10n.renameBox),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            textInputAction: TextInputAction.done,
-            maxLength: 60,
-            inputFormatters: [LengthLimitingTextInputFormatter(60)],
-            decoration: InputDecoration(
-              labelText: l10n.boxName,
-              errorText: errorText,
-            ),
-            onSubmitted: (_) {
-              final value = controller.text.trim();
-              if (value.isEmpty) {
-                setDialogState(() => errorText = l10n.boxNameRequired);
-                return;
-              }
-              Navigator.of(ctx).pop(value);
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(l10n.cancel),
-            ),
-            FilledButton(
-              onPressed: () {
-                final value = controller.text.trim();
-                if (value.isEmpty) {
-                  setDialogState(() => errorText = l10n.boxNameRequired);
-                  return;
-                }
-                Navigator.of(ctx).pop(value);
-              },
-              child: Text(l10n.save),
-            ),
-          ],
-        ),
+      builder: (ctx) => _RenameBoxDialog(
+        initialName: currentName,
+        l10n: l10n,
       ),
     );
-    controller.dispose();
 
     if (result == null) return;
 
@@ -1120,6 +1080,75 @@ class _CaixasPageState extends State<CaixasPage> {
         icon: const Icon(Icons.add),
         label: Text(l10n.createBox),
       ),
+    );
+  }
+}
+
+class _RenameBoxDialog extends StatefulWidget {
+  final String initialName;
+  final AppLocalizations l10n;
+
+  const _RenameBoxDialog({
+    required this.initialName,
+    required this.l10n,
+  });
+
+  @override
+  State<_RenameBoxDialog> createState() => _RenameBoxDialogState();
+}
+
+class _RenameBoxDialogState extends State<_RenameBoxDialog> {
+  late final TextEditingController _controller;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _controller.text.trim();
+    if (value.isEmpty) {
+      setState(() => _errorText = widget.l10n.boxNameRequired);
+      return;
+    }
+    Navigator.of(context).pop(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    return AlertDialog(
+      title: Text(l10n.renameBox),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        maxLength: 60,
+        inputFormatters: [LengthLimitingTextInputFormatter(60)],
+        decoration: InputDecoration(
+          labelText: l10n.boxName,
+          errorText: _errorText,
+        ),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(l10n.save),
+        ),
+      ],
     );
   }
 }
