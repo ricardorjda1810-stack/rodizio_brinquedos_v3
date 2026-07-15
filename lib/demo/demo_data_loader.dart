@@ -69,6 +69,7 @@ class DemoDataLoader {
 
     final alreadyHandled = prefs.getBool(_initialSeedAppliedKey) ?? false;
     if (alreadyHandled) {
+      await _reconcileExistingDemoBoxDuplicates(db);
       await _repairExistingDemoToyPhotos(db);
       await _repairExistingDemoBoxPhotos(db);
       return;
@@ -77,6 +78,7 @@ class DemoDataLoader {
     final toys = await db.select(db.toys).get();
     final hasRealToys = toys.any((toy) => !isDemoToyId(toy.id));
     if (hasRealToys) {
+      await _reconcileExistingDemoBoxDuplicates(db);
       await _repairExistingDemoToyPhotos(db);
       await _repairExistingDemoBoxPhotos(db);
       await prefs.setBool(_initialSeedAppliedKey, true);
@@ -265,19 +267,156 @@ class DemoDataLoader {
 
   static Future<void> _insertBoxes(AppDatabase db, int now) async {
     for (final box in DemoSeed.boxes) {
-      final name = 'Caixa ${box.number} - ${box.local}';
       final photoPath = await _copyDemoBoxPhoto(box);
-      await db.into(db.boxes).insertOnConflictUpdate(
+      await _upsertDemoBox(db, box, now, photoPath);
+    }
+  }
+
+  static Future<void> _upsertDemoBox(
+    AppDatabase db,
+    DemoBoxSeed seed,
+    int now,
+    String copiedPhotoPath,
+  ) async {
+    final boxes = await db.select(db.boxes).get();
+    final canonical = boxes.where((box) => box.id == seed.id).firstOrNull;
+    final duplicateCandidates = boxes
+        .where((box) => box.id != seed.id)
+        .where((box) => _isLegacyDemoBoxDuplicate(box, seed))
+        .toList();
+    final preferredBox = canonical ?? duplicateCandidates.firstOrNull;
+    final local = _preferredDemoBoxLocal(preferredBox, seed);
+    final name = _preferredDemoBoxName(preferredBox, seed, local);
+    final notes = _preferredDemoBoxNotes(preferredBox, duplicateCandidates);
+    final photoPath =
+        _usablePhotoPath(preferredBox?.photoPath) ?? copiedPhotoPath;
+    final createdAt = preferredBox?.createdAt ?? now + seed.number;
+
+    if (canonical == null) {
+      await db.into(db.boxes).insert(
             BoxesCompanion.insert(
-              id: box.id,
-              number: Value(box.number),
-              local: Value(box.local),
+              id: seed.id,
+              number: Value(seed.number),
+              local: Value(local),
               name: Value(name),
+              notes: Value(notes),
               photoPath: Value(photoPath),
-              createdAt: now + box.number,
+              createdAt: createdAt,
             ),
           );
+    } else {
+      await (db.update(db.boxes)..where((row) => row.id.equals(seed.id))).write(
+        BoxesCompanion(
+          number: Value(seed.number),
+          local: Value(local),
+          name: Value(name),
+          notes: Value(notes),
+          photoPath: Value(photoPath),
+        ),
+      );
     }
+
+    for (final duplicate in duplicateCandidates) {
+      await _mergeLegacyBoxIntoDemoBox(db, duplicate.id, seed.id);
+    }
+  }
+
+  static Future<void> _reconcileExistingDemoBoxDuplicates(
+    AppDatabase db,
+  ) async {
+    final boxes = await db.select(db.boxes).get();
+    for (final seed in DemoSeed.boxes) {
+      final canonicalExists = boxes.any((box) => box.id == seed.id);
+      if (!canonicalExists) continue;
+
+      final duplicateCandidates = boxes
+          .where((box) => box.id != seed.id)
+          .where((box) => _isLegacyDemoBoxDuplicate(box, seed))
+          .toList();
+      for (final duplicate in duplicateCandidates) {
+        await _mergeLegacyBoxIntoDemoBox(db, duplicate.id, seed.id);
+      }
+    }
+  }
+
+  static Future<void> _mergeLegacyBoxIntoDemoBox(
+    AppDatabase db,
+    String legacyBoxId,
+    String demoBoxId,
+  ) async {
+    await (db.update(db.toys)..where((toy) => toy.boxId.equals(legacyBoxId)))
+        .write(ToysCompanion(boxId: Value(demoBoxId)));
+    await (db.delete(db.boxes)..where((box) => box.id.equals(legacyBoxId)))
+        .go();
+  }
+
+  static bool _isLegacyDemoBoxDuplicate(Boxe box, DemoBoxSeed seed) {
+    if (box.number != seed.number) return false;
+    if (box.id.startsWith(demoBoxIdPrefix)) return true;
+
+    final local = box.local.trim();
+    if (local.isNotEmpty && local != seed.local) return false;
+
+    final name = box.name.trim();
+    return name == 'Caixa ${seed.number}' ||
+        name == 'Box ${seed.number}' ||
+        name == 'Caixa ${seed.number} - ${seed.local}' ||
+        name == 'Box ${seed.number} - ${seed.local}';
+  }
+
+  static String _preferredDemoBoxLocal(Boxe? existing, DemoBoxSeed seed) {
+    final local = existing?.local.trim();
+    if (local != null && local.isNotEmpty) return local;
+    return seed.local;
+  }
+
+  static String _preferredDemoBoxName(
+    Boxe? existing,
+    DemoBoxSeed seed,
+    String local,
+  ) {
+    final name = existing?.name.trim();
+    if (existing != null &&
+        name != null &&
+        name.isNotEmpty &&
+        !_isGeneratedDemoBoxName(existing, seed)) {
+      return name;
+    }
+    return 'Caixa ${seed.number} - $local';
+  }
+
+  static bool _isGeneratedDemoBoxName(Boxe box, DemoBoxSeed seed) {
+    final name = box.name.trim();
+    final local = box.local.trim();
+    return name == 'Caixa ${seed.number}' ||
+        name == 'Box ${seed.number}' ||
+        (local.isNotEmpty && name == 'Caixa ${seed.number} - $local') ||
+        (local.isNotEmpty && name == 'Box ${seed.number} - $local') ||
+        name == 'Caixa ${seed.number} - ${seed.local}' ||
+        name == 'Box ${seed.number} - ${seed.local}';
+  }
+
+  static String? _preferredDemoBoxNotes(
+    Boxe? preferred,
+    List<Boxe> duplicates,
+  ) {
+    final preferredNotes = preferred?.notes?.trim();
+    if (preferredNotes != null && preferredNotes.isNotEmpty) {
+      return preferredNotes;
+    }
+    for (final duplicate in duplicates) {
+      final notes = duplicate.notes?.trim();
+      if (notes != null && notes.isNotEmpty) return notes;
+    }
+    return null;
+  }
+
+  static String? _usablePhotoPath(String? value) {
+    final path = value?.trim();
+    if (path == null || path.isEmpty || path.startsWith('assets/')) {
+      return null;
+    }
+    return File(path).existsSync() ? path : null;
   }
 
   static Future<void> _deleteEmptyDemoBoxes(AppDatabase db) async {

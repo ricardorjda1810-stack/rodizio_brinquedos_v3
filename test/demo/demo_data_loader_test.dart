@@ -84,6 +84,80 @@ void main() {
     }
   });
 
+  test('restoreExamples reconcilia caixas starter legadas sem duplicar',
+      () async {
+    final toyRepository = ToyRepository(db);
+    await toyRepository.ensureSeedData();
+
+    final legacyBox = (await db.select(db.boxes).get())
+        .singleWhere((box) => box.name == 'Caixa 1');
+    await db.into(db.toys).insert(
+          ToysCompanion.insert(
+            id: 'real_toy_in_legacy_box',
+            categoryId: const Value('corpo'),
+            name: 'Brinquedo real na caixa antiga',
+            boxId: Value(legacyBox.id),
+            createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+          ),
+        );
+    await db.into(db.boxes).insert(
+          BoxesCompanion.insert(
+            id: 'real_box_1',
+            number: const Value(42),
+            local: const Value('Quarto real'),
+            name: const Value('Caixa real'),
+            photoPath: const Value('/foto/real/da/caixa.png'),
+            createdAt: DateTime(2026, 1, 2).millisecondsSinceEpoch,
+          ),
+        );
+
+    await DemoDataLoader.restoreExamples(db);
+    await DemoDataLoader.restoreExamples(db);
+
+    final boxes = await db.select(db.boxes).get();
+    final demoBoxes =
+        boxes.where((box) => DemoDataLoader.isDemoBoxId(box.id)).toList();
+    expect(demoBoxes, hasLength(DemoSeed.boxes.length));
+    expect(boxes.where((box) => box.number == 1), hasLength(1));
+    expect(boxes.map((box) => box.id), contains('real_box_1'));
+    expect(boxes.map((box) => box.name), isNot(contains('Caixa 1')));
+
+    final realToy = await (db.select(db.toys)
+          ..where((toy) => toy.id.equals('real_toy_in_legacy_box')))
+        .getSingle();
+    expect(realToy.boxId, 'demo_box_sala');
+  });
+
+  test('restoreExamples preserva nome customizado de caixa demo', () async {
+    await DemoDataLoader.restoreExamples(db);
+    await (db.update(db.boxes)..where((box) => box.id.equals('demo_box_sala')))
+        .write(
+      const BoxesCompanion(
+        local: Value('Sala especial'),
+        name: Value('Favoritos da familia'),
+      ),
+    );
+    await db.into(db.boxes).insert(
+          BoxesCompanion.insert(
+            id: 'legacy_box_1',
+            number: const Value(1),
+            local: const Value(''),
+            name: const Value('Caixa 1'),
+            createdAt: DateTime(2026, 1, 1).millisecondsSinceEpoch,
+          ),
+        );
+
+    await DemoDataLoader.restoreExamples(db);
+
+    final box = await (db.select(db.boxes)
+          ..where((row) => row.id.equals('demo_box_sala')))
+        .getSingle();
+    expect(box.local, 'Sala especial');
+    expect(box.name, 'Favoritos da familia');
+    expect((await db.select(db.boxes).get()).where((box) => box.number == 1),
+        hasLength(1));
+  });
+
   test('load aplica seed inicial uma vez e respeita exemplos apagados',
       () async {
     await DemoDataLoader.load(db);
@@ -335,7 +409,7 @@ void main() {
     );
 
     expect(await db.select(db.toys).get(), hasLength(50));
-    expect(await db.select(db.boxes).get(), hasLength(9));
+    expect(await db.select(db.boxes).get(), hasLength(5));
     expect(await db.select(db.locationDefinitions).get(), hasLength(11));
     expect(await db.select(db.roundToys).get(), hasLength(5));
     expect(await db.select(db.weeklyPlanningCategorySettings).get(), isEmpty);

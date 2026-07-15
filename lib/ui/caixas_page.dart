@@ -931,6 +931,7 @@ class _CaixasPageState extends State<CaixasPage> {
           boxes: sortedBoxes,
           unboxed: unboxed,
           summary: summary,
+          expandQuickActions: !useSingleColumn,
           onAssignToy: (item) => _assignToyToBox(context, item, sortedBoxes),
           onOpenToy: (item) => _openToyDetail(context, item.toy.id),
           onNewBox: () => _openAddBoxPage(context),
@@ -965,7 +966,7 @@ class _CaixasPageState extends State<CaixasPage> {
                     if (useSingleColumn) ...[
                       SizedBox(height: columnsHeight, child: mainPanel),
                       const SizedBox(height: 18),
-                      SizedBox(height: 650, child: sideColumn),
+                      sideColumn,
                     ] else
                       SizedBox(
                         height: columnsHeight,
@@ -1860,6 +1861,7 @@ class _BoxesIpadSideColumn extends StatelessWidget {
   final _BoxesIpadSummary summary;
   final ValueChanged<ToyCatalogItem> onAssignToy;
   final ValueChanged<ToyCatalogItem> onOpenToy;
+  final bool expandQuickActions;
   final VoidCallback onNewBox;
   final VoidCallback onOpenAllToys;
   final VoidCallback onOpenUnboxed;
@@ -1871,6 +1873,7 @@ class _BoxesIpadSideColumn extends StatelessWidget {
     required this.summary,
     required this.onAssignToy,
     required this.onOpenToy,
+    this.expandQuickActions = true,
     required this.onNewBox,
     required this.onOpenAllToys,
     required this.onOpenUnboxed,
@@ -1892,14 +1895,22 @@ class _BoxesIpadSideColumn extends StatelessWidget {
           onOpenUnboxed: onOpenUnboxed,
         ),
         const SizedBox(height: 14),
-        Expanded(
-          child: _BoxesIpadQuickActionsCard(
+        if (expandQuickActions)
+          Expanded(
+            child: _BoxesIpadQuickActionsCard(
+              onNewBox: onNewBox,
+              onOpenAllToys: onOpenAllToys,
+              onOpenUnboxed: onOpenUnboxed,
+              onOpenLocations: onOpenLocations,
+            ),
+          )
+        else
+          _BoxesIpadQuickActionsCard(
             onNewBox: onNewBox,
             onOpenAllToys: onOpenAllToys,
             onOpenUnboxed: onOpenUnboxed,
             onOpenLocations: onOpenLocations,
           ),
-        ),
       ],
     );
   }
