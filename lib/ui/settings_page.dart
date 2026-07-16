@@ -1362,6 +1362,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildIpadAboutCard(TextTheme textTheme) {
+    final l10n = context.l10n;
+
     return AppSurfaceCard(
       padding: const EdgeInsets.all(22),
       child: Column(
@@ -1375,13 +1377,13 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 16),
           _IpadSettingsLinkRow(
             icon: Icons.privacy_tip_outlined,
-            label: 'Política de privacidade',
+            label: l10n.privacyPolicy,
             onTap: () => _openExternalLink(_settingsPrivacyPolicyUrl),
           ),
           const SizedBox(height: 10),
           _IpadSettingsLinkRow(
             icon: Icons.description_outlined,
-            label: 'Termos de uso',
+            label: l10n.termsOfUse,
             onTap: () => _openExternalLink(_settingsTermsOfUseUrl),
           ),
           const SizedBox(height: 16),

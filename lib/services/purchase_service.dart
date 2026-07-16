@@ -30,7 +30,7 @@ class PurchaseService extends ChangeNotifier {
     }
   }
 
-  final InAppPurchase _inAppPurchase;
+  final InAppPurchase? _inAppPurchase;
   final SharedPreferences _preferences;
 
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
@@ -47,7 +47,7 @@ class PurchaseService extends ChangeNotifier {
   bool _initialized = false;
 
   PurchaseService._({
-    required InAppPurchase inAppPurchase,
+    required InAppPurchase? inAppPurchase,
     required SharedPreferences preferences,
   })  : _inAppPurchase = inAppPurchase,
         _preferences = preferences;
@@ -56,15 +56,22 @@ class PurchaseService extends ChangeNotifier {
   factory PurchaseService.forTesting({
     required SharedPreferences preferences,
     bool isPremium = false,
+    Map<String, ProductDetails> productDetailsById =
+        const <String, ProductDetails>{},
   }) {
     final service = PurchaseService._(
-      inAppPurchase: InAppPurchase.instance,
+      inAppPurchase: null,
       preferences: preferences,
     );
     service._initialized = true;
     service._isPremium = isPremium;
     service._isLoading = false;
     service._storeAvailable = true;
+    service._productDetailsById =
+        Map<String, ProductDetails>.unmodifiable(productDetailsById);
+    service._productDetails = productDetailsById[monthlyProductId] ??
+        productDetailsById[yearlyProductId] ??
+        (productDetailsById.isEmpty ? null : productDetailsById.values.first);
     return service;
   }
 
@@ -85,6 +92,7 @@ class PurchaseService extends ChangeNotifier {
   ProductDetails? get productDetails => _productDetails;
   ProductDetails? productDetailsFor(String productId) =>
       _productDetailsById[productId];
+  bool get hasLoadedSubscriptionProducts => _productDetailsById.isNotEmpty;
   String? get errorMessage => _errorMessage;
 
   Future<void> initialize() async {
@@ -103,7 +111,10 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
-    _purchaseSubscription = _inAppPurchase.purchaseStream.listen(
+    final inAppPurchase = _inAppPurchase;
+    if (inAppPurchase == null) return;
+
+    _purchaseSubscription = inAppPurchase.purchaseStream.listen(
       _handlePurchaseUpdates,
       onError: (Object error, StackTrace stackTrace) {
         _setState(
@@ -132,7 +143,19 @@ class PurchaseService extends ChangeNotifier {
     _setState(isLoading: true, errorMessage: null);
 
     try {
-      final available = await _inAppPurchase.isAvailable();
+      final inAppPurchase = _inAppPurchase;
+      if (inAppPurchase == null) {
+        _setState(
+          isLoading: false,
+          errorMessage: 'Compras no app indisponíveis neste dispositivo.',
+          productDetails: null,
+          productDetailsById: <String, ProductDetails>{},
+          storeAvailable: false,
+        );
+        return;
+      }
+
+      final available = await inAppPurchase.isAvailable();
       if (!available) {
         _setState(
           isLoading: false,
@@ -144,7 +167,7 @@ class PurchaseService extends ChangeNotifier {
         return;
       }
 
-      final response = await _inAppPurchase.queryProductDetails(productIds);
+      final response = await inAppPurchase.queryProductDetails(productIds);
       if (response.error != null) {
         _setState(
           isLoading: false,
@@ -195,6 +218,15 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
+    final inAppPurchase = _inAppPurchase;
+    if (inAppPurchase == null) {
+      _setState(
+        isLoading: false,
+        errorMessage: 'Não foi possível carregar a assinatura.',
+      );
+      return;
+    }
+
     _setState(isLoading: true, errorMessage: null);
 
     if (!_storeAvailable || !_productDetailsById.containsKey(productId)) {
@@ -223,7 +255,7 @@ class PurchaseService extends ChangeNotifier {
         plan: plan,
         source: source,
       );
-      final started = await _inAppPurchase.buyNonConsumable(
+      final started = await inAppPurchase.buyNonConsumable(
         purchaseParam: param,
       );
 
@@ -263,9 +295,19 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
+    final inAppPurchase = _inAppPurchase;
+    if (inAppPurchase == null) {
+      _setState(
+        isLoading: false,
+        errorMessage: 'Compras no app indisponíveis neste dispositivo.',
+        storeAvailable: false,
+      );
+      return;
+    }
+
     _setState(isLoading: true, errorMessage: null);
 
-    final available = _storeAvailable || await _inAppPurchase.isAvailable();
+    final available = _storeAvailable || await inAppPurchase.isAvailable();
     if (!available) {
       _setState(
         isLoading: false,
@@ -278,7 +320,7 @@ class PurchaseService extends ChangeNotifier {
     _storeAvailable = true;
     notifyListeners();
     try {
-      await _inAppPurchase.restorePurchases();
+      await inAppPurchase.restorePurchases();
       _setState(isLoading: false, errorMessage: null, storeAvailable: true);
     } catch (error) {
       await AppAnalytics.logPurchaseFailed(
@@ -350,7 +392,7 @@ class PurchaseService extends ChangeNotifier {
       }
 
       if (purchaseDetails.pendingCompletePurchase) {
-        await _inAppPurchase.completePurchase(purchaseDetails);
+        await _inAppPurchase?.completePurchase(purchaseDetails);
       }
     }
 

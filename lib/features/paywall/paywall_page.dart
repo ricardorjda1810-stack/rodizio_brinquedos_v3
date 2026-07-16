@@ -42,6 +42,13 @@ class _PaywallPageState extends State<PaywallPage> {
   bool get _isTrialExpiredPaywall =>
       widget.blocking || widget.source == 'app_trial_expired';
 
+  bool get _hasLoadedSubscriptionPlans =>
+      _purchaseService.hasLoadedSubscriptionProducts;
+
+  bool get _canStartPurchase =>
+      !_purchaseService.isLoading &&
+      _purchaseService.productDetailsFor(_selectedProductId) != null;
+
   String _headline(AppLocalizations l10n) => _isTrialExpiredPaywall
       ? l10n.trialEndedTitle
       : l10n.isEn
@@ -60,12 +67,10 @@ class _PaywallPageState extends State<PaywallPage> {
       return details.price;
     }
 
-    return productId == PurchaseService.yearlyProductId
-        ? l10n.fallbackAnnualPrice
-        : l10n.fallbackMonthlyPrice;
+    return l10n.planUnavailable;
   }
 
-  String _yearlyDescription(AppLocalizations l10n) {
+  String? _yearlyDescription(AppLocalizations l10n) {
     final details =
         _purchaseService.productDetailsFor(PurchaseService.yearlyProductId);
     if (details != null && details.rawPrice > 0) {
@@ -78,7 +83,7 @@ class _PaywallPageState extends State<PaywallPage> {
           ? 'about $formatted/month'
           : 'equivalente a $formatted/m\u00eas';
     }
-    return l10n.fallbackAnnualEquivalent;
+    return null;
   }
 
   @override
@@ -134,6 +139,11 @@ class _PaywallPageState extends State<PaywallPage> {
   Future<void> _restorePurchases() async {
     if (!isPaywallEnabledForCurrentPlatform) return;
     await _purchaseService.restorePurchases(source: 'paywall');
+  }
+
+  Future<void> _retryLoadingProducts() async {
+    if (!isPaywallEnabledForCurrentPlatform) return;
+    await _purchaseService.refreshProductDetails();
   }
 
   Future<void> _openExternalLink(String url) async {
@@ -292,9 +302,13 @@ class _PaywallPageState extends State<PaywallPage> {
                   _selectedProductId == PurchaseService.monthlyProductId,
               onTap: () => _selectPlan(PurchaseService.monthlyProductId),
             ),
+            if (!_hasLoadedSubscriptionPlans) ...[
+              const SizedBox(height: UiTokens.spacingMd),
+              _PlanLoadErrorCard(onRetry: _retryLoadingProducts),
+            ],
             const SizedBox(height: UiTokens.spacingLg),
             FilledButton(
-              onPressed: _purchaseService.isLoading ? null : _startPurchase,
+              onPressed: _canStartPurchase ? _startPurchase : null,
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
@@ -383,11 +397,14 @@ class _PaywallPageState extends State<PaywallPage> {
                           purchaseService: _purchaseService,
                           selectedProductId: _selectedProductId,
                           isLoading: _purchaseService.isLoading,
+                          hasLoadedSubscriptionPlans:
+                              _hasLoadedSubscriptionPlans,
                           onSelectMonthly: () =>
                               _selectPlan(PurchaseService.monthlyProductId),
                           onSelectYearly: () =>
                               _selectPlan(PurchaseService.yearlyProductId),
                           onPurchase: _startPurchase,
+                          onRetry: _retryLoadingProducts,
                           onRestore: _restorePurchases,
                           onClose: () => Navigator.of(context).maybePop(),
                           onTerms: () => _openExternalLink(_termsOfUseUrl),
@@ -701,9 +718,11 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
   final PurchaseService purchaseService;
   final String selectedProductId;
   final bool isLoading;
+  final bool hasLoadedSubscriptionPlans;
   final VoidCallback onSelectMonthly;
   final VoidCallback onSelectYearly;
   final VoidCallback onPurchase;
+  final VoidCallback onRetry;
   final VoidCallback onRestore;
   final VoidCallback onClose;
   final VoidCallback onTerms;
@@ -714,9 +733,11 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
     required this.purchaseService,
     required this.selectedProductId,
     required this.isLoading,
+    required this.hasLoadedSubscriptionPlans,
     required this.onSelectMonthly,
     required this.onSelectYearly,
     required this.onPurchase,
+    required this.onRetry,
     required this.onRestore,
     required this.onClose,
     required this.onTerms,
@@ -731,12 +752,10 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
       if (details != null && details.price.trim().isNotEmpty) {
         return details.price;
       }
-      return productId == PurchaseService.yearlyProductId
-          ? l10n.fallbackAnnualPrice
-          : l10n.fallbackMonthlyPrice;
+      return l10n.planUnavailable;
     }
 
-    String yearlyDescription() {
+    String? yearlyDescription() {
       final details = purchaseService.productDetailsFor(
         PurchaseService.yearlyProductId,
       );
@@ -750,8 +769,11 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
             ? 'about $formatted/month'
             : 'equivalente a $formatted/m\u00eas';
       }
-      return l10n.fallbackAnnualEquivalent;
+      return null;
     }
+
+    final canPurchase = !isLoading &&
+        purchaseService.productDetailsFor(selectedProductId) != null;
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -800,9 +822,13 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
             isSelected: selectedProductId == PurchaseService.monthlyProductId,
             onTap: onSelectMonthly,
           ),
+          if (!hasLoadedSubscriptionPlans) ...[
+            const SizedBox(height: 14),
+            _PlanLoadErrorCard(onRetry: onRetry),
+          ],
           const SizedBox(height: 20),
           FilledButton.icon(
-            onPressed: isLoading ? null : onPurchase,
+            onPressed: canPurchase ? onPurchase : null,
             icon: isLoading
                 ? const SizedBox(
                     width: 18,
@@ -859,6 +885,47 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
                 child: Text(l10n.privacyPolicy),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlanLoadErrorCard extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _PlanLoadErrorCard({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
+    return Container(
+      padding: const EdgeInsets.all(UiTokens.spacingMd),
+      decoration: BoxDecoration(
+        color: UiTokens.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(UiTokens.radiusMd),
+        border: Border.all(
+          color: UiTokens.warning.withValues(alpha: 0.28),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.subscriptionPlansUnavailable,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: UiTokens.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  height: 1.35,
+                ),
+          ),
+          const SizedBox(height: UiTokens.spacingSm),
+          OutlinedButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: Text(l10n.tryAgain),
           ),
         ],
       ),

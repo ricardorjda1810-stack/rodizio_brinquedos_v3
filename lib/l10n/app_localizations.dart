@@ -205,6 +205,12 @@ class AppLocalizations {
   String get monthlyPlan => isEn ? 'Monthly plan' : 'Plano mensal';
   String get continueWithSubscription =>
       isEn ? 'Continue with subscription' : 'Continuar com assinatura';
+  String get subscriptionPlansUnavailable => isEn
+      ? "We couldn't load the subscription plans. Check your connection and try again."
+      : 'Não foi possível carregar os planos. Verifique sua conexão e tente novamente.';
+  String get planUnavailable =>
+      isEn ? 'Plan unavailable' : 'Plano indisponível';
+  String get tryAgain => isEn ? 'Try again' : 'Tentar novamente';
   String get trialEndedTitle =>
       isEn ? 'Your free trial has ended' : 'Seu teste grátis terminou';
   String get trialEndedSubtitle => isEn
