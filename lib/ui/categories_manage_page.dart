@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -50,6 +51,7 @@ class CategoriesManagePage extends StatelessWidget {
     BuildContext context, {
     CategoryDefinition? category,
   }) async {
+    final copy = _CategoriesCopy(context.l10n.isEn);
     final nameController = TextEditingController(text: category?.name ?? '');
     final examplesController = TextEditingController(
       text: category?.examples ?? '',
@@ -58,23 +60,23 @@ class CategoriesManagePage extends StatelessWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(category == null ? 'Nova categoria' : 'Editar categoria'),
+        title: Text(category == null ? copy.newCategory : copy.editCategory),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
               autofocus: true,
-              decoration: const InputDecoration(labelText: 'Nome'),
+              decoration: InputDecoration(labelText: copy.name),
             ),
             const SizedBox(height: UiTokens.m),
             TextField(
               controller: examplesController,
               minLines: 2,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Exemplos',
-                hintText: 'Ex.: carrinho, caminh\u00e3o, trenzinho',
+              decoration: InputDecoration(
+                labelText: copy.examples,
+                hintText: copy.examplesHint,
               ),
             ),
           ],
@@ -82,11 +84,11 @@ class CategoriesManagePage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(copy.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Salvar'),
+            child: Text(copy.save),
           ),
         ],
       ),
@@ -110,18 +112,19 @@ class CategoriesManagePage extends StatelessWidget {
   }
 
   Future<void> _remove(
-      BuildContext context, CategoryDefinition category) async {
+    BuildContext context,
+    CategoryDefinition category,
+  ) async {
+    final copy = _CategoriesCopy(context.l10n.isEn);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remover categoria?'),
-        content: const Text(
-          'Se a categoria estiver em uso, ela ser\u00e1 marcada como inativa.',
-        ),
+        title: Text(copy.removeCategoryQuestion),
+        content: Text(copy.removeCategoryMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(copy.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -129,7 +132,7 @@ class CategoriesManagePage extends StatelessWidget {
               foregroundColor: UiTokens.surface,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Remover'),
+            child: Text(copy.remove),
           ),
         ],
       ),
@@ -194,6 +197,8 @@ class CategoriesManagePage extends StatelessWidget {
     BuildContext context,
     List<CategoryDefinition> categories,
   ) {
+    final l10n = context.l10n;
+    final copy = _CategoriesCopy(l10n.isEn);
     final bottomPadding = AppBottomNavigation.reservedScrollPadding(context);
     final activeCount =
         categories.where((category) => category.isActive).length;
@@ -213,74 +218,81 @@ class CategoriesManagePage extends StatelessWidget {
                 const SizedBox(height: 18),
                 _ManageIpadHeader(
                   icon: Icons.category_outlined,
-                  title: 'Gerenciar categorias',
-                  subtitle:
-                      'Organize os tipos de brinquedo usados no cat\u00e1logo e nas rodadas.',
-                  primaryLabel: 'Nova categoria',
+                  title: copy.manageCategories,
+                  subtitle: copy.manageSubtitle,
+                  primaryLabel: copy.newCategory,
                   onPrimary: () => _showCategoryDialog(context),
                   onBack: () => _closeRoute(context),
                 ),
                 const SizedBox(height: 18),
                 LayoutBuilder(
                   builder: (context, constraints) {
+                    final useSingleColumn = constraints.maxWidth < 900;
                     final gap = constraints.maxWidth >= 980 ? 22.0 : 18.0;
                     final leftWidth = (constraints.maxWidth - gap) * 0.61;
+                    final list = _ManageIpadSurface(
+                      child: _buildIpadCategoryList(context, categories),
+                    );
+                    final details = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ManageIpadSummaryCard(
+                          title: copy.summary,
+                          stats: [
+                            _ManageIpadStat(
+                              label: copy.categories,
+                              value: '${categories.length}',
+                              icon: Icons.category_outlined,
+                            ),
+                            _ManageIpadStat(
+                              label: copy.activePlural,
+                              value: '$activeCount',
+                              icon: Icons.check_circle_outline,
+                              semantic: true,
+                            ),
+                            _ManageIpadStat(
+                              label: copy.inactivePlural,
+                              value: '$inactiveCount',
+                              icon: Icons.pause_circle_outline,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _ManageIpadTipCard(
+                          title: copy.tip,
+                          message: copy.tipMessage,
+                        ),
+                        const SizedBox(height: 16),
+                        _ManageIpadActionsCard(
+                          title: copy.quickActions,
+                          primaryLabel: copy.newCategory,
+                          onPrimary: () => _showCategoryDialog(context),
+                          secondaryLabel: copy.back,
+                          onSecondary: () => _closeRoute(context),
+                        ),
+                      ],
+                    );
+
+                    if (useSingleColumn) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          list,
+                          SizedBox(height: gap),
+                          details,
+                        ],
+                      );
+                    }
 
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: leftWidth.clamp(540.0, 680.0),
-                          child: _ManageIpadSurface(
-                            child: _buildIpadCategoryList(
-                              context,
-                              categories,
-                            ),
-                          ),
+                          child: list,
                         ),
                         SizedBox(width: gap),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _ManageIpadSummaryCard(
-                                title: 'Resumo',
-                                stats: [
-                                  _ManageIpadStat(
-                                    label: 'Categorias',
-                                    value: '${categories.length}',
-                                    icon: Icons.category_outlined,
-                                  ),
-                                  _ManageIpadStat(
-                                    label: 'Ativas',
-                                    value: '$activeCount',
-                                    icon: Icons.check_circle_outline,
-                                    semantic: true,
-                                  ),
-                                  _ManageIpadStat(
-                                    label: 'Inativas',
-                                    value: '$inactiveCount',
-                                    icon: Icons.pause_circle_outline,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              const _ManageIpadTipCard(
-                                title: 'Dica',
-                                message:
-                                    'Use nomes curtos e exemplos claros. Isso ajuda a equilibrar as rodadas sem transformar o cadastro em trabalho extra.',
-                              ),
-                              const SizedBox(height: 16),
-                              _ManageIpadActionsCard(
-                                title: 'A\u00e7\u00f5es r\u00e1pidas',
-                                primaryLabel: 'Nova categoria',
-                                onPrimary: () => _showCategoryDialog(context),
-                                secondaryLabel: 'Voltar',
-                                onSecondary: () => _closeRoute(context),
-                              ),
-                            ],
-                          ),
-                        ),
+                        Expanded(child: details),
                       ],
                     );
                   },
@@ -297,13 +309,13 @@ class CategoriesManagePage extends StatelessWidget {
     BuildContext context,
     List<CategoryDefinition> categories,
   ) {
+    final copy = _CategoriesCopy(context.l10n.isEn);
     if (categories.isEmpty) {
       return _ManageIpadEmptyPanel(
         icon: Icons.category_outlined,
-        title: 'Nenhuma categoria',
-        message:
-            'Crie categorias para organizar o cat\u00e1logo com mais clareza.',
-        actionLabel: 'Nova categoria',
+        title: copy.noCategories,
+        message: copy.noCategoriesMessage,
+        actionLabel: copy.newCategory,
         onAction: () => _showCategoryDialog(context),
       );
     }
@@ -311,10 +323,10 @@ class CategoriesManagePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _ManageIpadSectionTitle(
+        _ManageIpadSectionTitle(
           icon: Icons.category_outlined,
-          title: 'Categorias do cat\u00e1logo',
-          subtitle: 'Lista real de categorias ativas e inativas.',
+          title: copy.catalogCategories,
+          subtitle: copy.listSubtitle,
         ),
         const SizedBox(height: 18),
         for (final category in categories) ...[
@@ -330,11 +342,14 @@ class CategoriesManagePage extends StatelessWidget {
     BuildContext context,
     CategoryDefinition category,
   ) {
-    final examples = _decodeDisplayText((category.examples ?? '').trim());
-    final aspect = _decodeDisplayText(
+    final copy = _CategoriesCopy(context.l10n.isEn);
+    final rawExamples = _decodeDisplayText((category.examples ?? '').trim());
+    final rawAspect = _decodeDisplayText(
       (category.developmentAspect ?? '').trim(),
     );
-    final statusLabel = category.isActive ? 'Ativa' : 'Inativa';
+    final examples = copy.categoryDetail(category.id, rawExamples);
+    final aspect = copy.categoryDetail(category.id, rawAspect);
+    final statusLabel = category.isActive ? copy.active : copy.inactive;
 
     return Material(
       color: Colors.transparent,
@@ -358,10 +373,13 @@ class CategoriesManagePage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          _decodeDisplayText(category.name),
+                          context.l10n.categoryNameById(
+                            category.id,
+                            _decodeDisplayText(category.name),
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: UiTokens.textBody.copyWith(
+                          style: context.appTypography.body.copyWith(
                             color: _ManageIpadPalette.text,
                             fontWeight: FontWeight.w900,
                           ),
@@ -376,12 +394,10 @@ class CategoriesManagePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    examples.isEmpty
-                        ? 'Ainda sem exemplos cadastrados.'
-                        : examples,
+                    examples.isEmpty ? copy.noExamples : examples,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _ManageIpadPalette.textMid,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
@@ -393,7 +409,7 @@ class CategoriesManagePage extends StatelessWidget {
                       aspect,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _ManageIpadPalette.textMuted,
                         fontWeight: FontWeight.w600,
                       ),
@@ -404,21 +420,21 @@ class CategoriesManagePage extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             _ManageIpadMiniButton(
-              tooltip: 'Editar categoria',
+              tooltip: copy.editCategory,
               icon: Icons.edit_outlined,
               onTap: () => _showCategoryDialog(context, category: category),
             ),
             if (!category.isActive) ...[
               const SizedBox(width: 8),
               _ManageIpadMiniButton(
-                tooltip: 'Reativar categoria',
+                tooltip: copy.reactivateCategory,
                 icon: Icons.refresh_rounded,
                 onTap: () => _reactivate(context, category),
               ),
             ],
             const SizedBox(width: 8),
             _ManageIpadMiniButton(
-              tooltip: 'Remover categoria',
+              tooltip: copy.removeCategory,
               icon: Icons.delete_outline_rounded,
               destructive: true,
               onTap: () => _remove(context, category),
@@ -431,18 +447,17 @@ class CategoriesManagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final copy = _CategoriesCopy(context.l10n.isEn);
+    final isIpad = context.usesTabletPresentation;
     if (isIpad) return _buildIpadScaffold(context);
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
-      appBar: AppBar(
-        title: const Text('Gerenciar categorias'),
-      ),
+      appBar: AppBar(title: Text(copy.manageCategories)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCategoryDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('Nova categoria'),
+        label: Text(copy.newCategory),
       ),
       body: Padding(
         padding: const EdgeInsets.all(UiTokens.m),
@@ -457,10 +472,9 @@ class CategoriesManagePage extends StatelessWidget {
             if (categories.isEmpty) {
               return EmptyState(
                 icon: Icons.category_outlined,
-                title: 'Nenhuma categoria',
-                message:
-                    'Crie categorias para organizar o cat\u00e1logo com mais clareza.',
-                actionLabel: 'Nova categoria',
+                title: copy.noCategories,
+                message: copy.noCategoriesMessage,
+                actionLabel: copy.newCategory,
                 onAction: () => _showCategoryDialog(context),
               );
             }
@@ -475,12 +489,12 @@ class CategoriesManagePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Categorias do cat\u00e1logo',
+                        copy.catalogCategories,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: UiTokens.spacingXs),
                       Text(
-                        'Mantenha nomes claros para escolher categoria sem pensar demais.',
+                        copy.clearNamesMessage,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
@@ -492,12 +506,15 @@ class CategoriesManagePage extends StatelessWidget {
                 ),
                 const SizedBox(height: UiTokens.spacingMd),
                 ...categories.map((c) {
-                  final examples =
-                      _decodeDisplayText((c.examples ?? '').trim());
-                  final aspect = _decodeDisplayText(
+                  final rawExamples = _decodeDisplayText(
+                    (c.examples ?? '').trim(),
+                  );
+                  final rawAspect = _decodeDisplayText(
                     (c.developmentAspect ?? '').trim(),
                   );
-                  final statusSuffix = c.isActive ? 'Ativa' : 'Inativa';
+                  final examples = copy.categoryDetail(c.id, rawExamples);
+                  final aspect = copy.categoryDetail(c.id, rawAspect);
+                  final statusSuffix = c.isActive ? copy.active : copy.inactive;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: UiTokens.spacingSm),
                     child: AppSurfaceCard(
@@ -513,10 +530,13 @@ class CategoriesManagePage extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _decodeDisplayText(c.name),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall,
+                                      context.l10n.categoryNameById(
+                                        c.id,
+                                        _decodeDisplayText(c.name),
+                                      ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleSmall,
                                     ),
                                     const SizedBox(height: UiTokens.spacingXs),
                                     Container(
@@ -551,13 +571,10 @@ class CategoriesManagePage extends StatelessWidget {
                                 ),
                               ),
                               PopupMenuButton<String>(
-                                tooltip: 'A\u00e7\u00f5es da categoria',
+                                tooltip: copy.categoryActions,
                                 onSelected: (value) {
                                   if (value == 'edit') {
-                                    _showCategoryDialog(
-                                      context,
-                                      category: c,
-                                    );
+                                    _showCategoryDialog(context, category: c);
                                     return;
                                   }
                                   if (value == 'reactivate') {
@@ -569,18 +586,18 @@ class CategoriesManagePage extends StatelessWidget {
                                   }
                                 },
                                 itemBuilder: (context) => [
-                                  const PopupMenuItem<String>(
+                                  PopupMenuItem<String>(
                                     value: 'edit',
-                                    child: Text('Editar'),
+                                    child: Text(copy.edit),
                                   ),
                                   if (!c.isActive)
-                                    const PopupMenuItem<String>(
+                                    PopupMenuItem<String>(
                                       value: 'reactivate',
-                                      child: Text('Reativar'),
+                                      child: Text(copy.reactivate),
                                     ),
-                                  const PopupMenuItem<String>(
+                                  PopupMenuItem<String>(
                                     value: 'delete',
-                                    child: Text('Remover'),
+                                    child: Text(copy.remove),
                                   ),
                                 ],
                               ),
@@ -588,20 +605,18 @@ class CategoriesManagePage extends StatelessWidget {
                           ),
                           const SizedBox(height: UiTokens.spacingMd),
                           Text(
-                            'Exemplos',
+                            copy.examples,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: UiTokens.spacingXs),
                           Text(
-                            examples.isEmpty
-                                ? 'Ainda sem exemplos cadastrados.'
-                                : examples,
+                            examples.isEmpty ? copy.noExamples : examples,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           if (aspect.isNotEmpty) ...[
                             const SizedBox(height: UiTokens.spacingSm),
                             Text(
-                              'Aspecto',
+                              copy.aspect,
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                             const SizedBox(height: UiTokens.spacingXs),
@@ -628,6 +643,95 @@ class CategoriesManagePage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CategoriesCopy {
+  final bool isEn;
+
+  const _CategoriesCopy(this.isEn);
+
+  String get newCategory => isEn ? 'New category' : 'Nova categoria';
+  String get editCategory => isEn ? 'Edit category' : 'Editar categoria';
+  String get removeCategory => isEn ? 'Remove category' : 'Remover categoria';
+  String get reactivateCategory =>
+      isEn ? 'Reactivate category' : 'Reativar categoria';
+  String get removeCategoryQuestion =>
+      isEn ? 'Remove category?' : 'Remover categoria?';
+  String get removeCategoryMessage => isEn
+      ? 'If the category is in use, it will be marked as inactive.'
+      : 'Se a categoria estiver em uso, ela ser\u00e1 marcada como inativa.';
+  String get name => isEn ? 'Name' : 'Nome';
+  String get examples => isEn ? 'Examples' : 'Exemplos';
+  String get examplesHint => isEn
+      ? 'e.g. car, truck, train'
+      : 'Ex.: carrinho, caminh\u00e3o, trenzinho';
+  String get cancel => isEn ? 'Cancel' : 'Cancelar';
+  String get save => isEn ? 'Save' : 'Salvar';
+  String get remove => isEn ? 'Remove' : 'Remover';
+  String get edit => isEn ? 'Edit' : 'Editar';
+  String get reactivate => isEn ? 'Reactivate' : 'Reativar';
+  String get back => isEn ? 'Back' : 'Voltar';
+  String get manageCategories =>
+      isEn ? 'Manage categories' : 'Gerenciar categorias';
+  String get manageSubtitle => isEn
+      ? 'Organize the toy types used in the catalog and rotations.'
+      : 'Organize os tipos de brinquedo usados no cat\u00e1logo e nas rodadas.';
+  String get summary => isEn ? 'Summary' : 'Resumo';
+  String get categories => isEn ? 'Categories' : 'Categorias';
+  String get activePlural => isEn ? 'Active' : 'Ativas';
+  String get inactivePlural => isEn ? 'Inactive' : 'Inativas';
+  String get active => isEn ? 'Active' : 'Ativa';
+  String get inactive => isEn ? 'Inactive' : 'Inativa';
+  String get tip => isEn ? 'Tip' : 'Dica';
+  String get tipMessage => isEn
+      ? 'Use short names and clear examples. This helps balance rotations without adding extra work.'
+      : 'Use nomes curtos e exemplos claros. Isso ajuda a equilibrar as rodadas sem transformar o cadastro em trabalho extra.';
+  String get quickActions =>
+      isEn ? 'Quick actions' : 'A\u00e7\u00f5es r\u00e1pidas';
+  String get noCategories => isEn ? 'No categories yet' : 'Nenhuma categoria';
+  String get noCategoriesMessage => isEn
+      ? 'Create categories to organize the catalog more clearly.'
+      : 'Crie categorias para organizar o cat\u00e1logo com mais clareza.';
+  String get catalogCategories =>
+      isEn ? 'Catalog categories' : 'Categorias do cat\u00e1logo';
+  String get listSubtitle => isEn
+      ? 'The complete list of active and inactive categories.'
+      : 'Lista real de categorias ativas e inativas.';
+  String get noExamples => isEn
+      ? 'No examples have been added yet.'
+      : 'Ainda sem exemplos cadastrados.';
+  String get clearNamesMessage => isEn
+      ? 'Use clear names so choosing a category stays effortless.'
+      : 'Mantenha nomes claros para escolher categoria sem pensar demais.';
+  String get categoryActions =>
+      isEn ? 'Category actions' : 'A\u00e7\u00f5es da categoria';
+  String get aspect => isEn ? 'Development area' : 'Aspecto';
+
+  String categoryDetail(String categoryId, String value) {
+    if (!isEn || value.isEmpty) return value;
+    final officialPortuguese = _officialPortugueseDetails[categoryId];
+    if (officialPortuguese == null ||
+        !officialPortuguese.contains(value.toLowerCase())) {
+      return value;
+    }
+    return _officialEnglishDetails[categoryId] ?? value;
+  }
+
+  static const _officialPortugueseDetails = <String, Set<String>>{
+    'corpo': {'movimento, equilíbrio, sopro e pausa corporal'},
+    'exploracao': {'texturas, sons, cores, água, areia e descoberta'},
+    'maos': {'encaixar, empilhar, montar e resolver problemas'},
+    'imaginacao': {'faz de conta, arte, criação e expressão'},
+    'comunicacao': {'livros, fala, escuta, narrativa e conversa'},
+  };
+
+  static const _officialEnglishDetails = <String, String>{
+    'corpo': 'Movement, balance, breathing, and body breaks',
+    'exploracao': 'Textures, sounds, colors, water, sand, and discovery',
+    'maos': 'Fitting, stacking, building, and problem-solving',
+    'imaginacao': 'Pretend play, art, creation, and expression',
+    'comunicacao': 'Books, speech, listening, storytelling, and conversation',
+  };
 }
 
 class _ManageIpadPalette {
@@ -699,93 +803,113 @@ class _ManageIpadHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _ManageIpadSurface(
-      padding: const EdgeInsets.fromLTRB(28, 26, 28, 26),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFFA11F), _ManageIpadPalette.orange],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x45F97316),
-                  blurRadius: 20,
-                  offset: Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 31),
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ROD\u00cdZIO DE BRINQUEDOS',
-                  style: UiTokens.textMicro.copyWith(
-                    color: _ManageIpadPalette.orange,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.7,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
-                    color: _ManageIpadPalette.text,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: UiTokens.textBody.copyWith(
-                    color: _ManageIpadPalette.textMid,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 18),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              OutlinedButton.icon(
-                onPressed: onBack,
-                icon: const Icon(Icons.arrow_back_rounded),
-                label: const Text('Voltar'),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(116, 52),
-                  foregroundColor: _ManageIpadPalette.orangeDark,
-                  side:
-                      const BorderSide(color: _ManageIpadPalette.orangeBorder),
-                ),
-              ),
-              FilledButton.icon(
-                onPressed: onPrimary,
-                icon: const Icon(Icons.add_rounded),
-                label: Text(primaryLabel),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(164, 52),
-                  backgroundColor: _ManageIpadPalette.orange,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
+    final hero = Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFA11F), _ManageIpadPalette.orange],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x45F97316),
+            blurRadius: 20,
+            offset: Offset(0, 8),
           ),
         ],
+      ),
+      child: Icon(icon, color: Colors.white, size: 31),
+    );
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.l10n.appNameUpper,
+          style: context.appTypography.micro.copyWith(
+            color: _ManageIpadPalette.orange,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.7,
+          ),
+        ),
+        const SizedBox(height: 7),
+        Text(
+          title,
+          style: context.appTypography.pageTitle.copyWith(
+            color: _ManageIpadPalette.text,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: context.appTypography.body.copyWith(
+            color: _ManageIpadPalette.textMid,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+    final actions = Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      alignment: WrapAlignment.end,
+      children: [
+        OutlinedButton.icon(
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+          label: Text(context.l10n.isEn ? 'Back' : 'Voltar'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(116, 52),
+            foregroundColor: _ManageIpadPalette.orangeDark,
+            side: const BorderSide(color: _ManageIpadPalette.orangeBorder),
+          ),
+        ),
+        FilledButton.icon(
+          onPressed: onPrimary,
+          icon: const Icon(Icons.add_rounded),
+          label: Text(primaryLabel),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(164, 52),
+            backgroundColor: _ManageIpadPalette.orange,
+            foregroundColor: Colors.white,
+          ),
+        ),
+      ],
+    );
+
+    return _ManageIpadSurface(
+      padding: const EdgeInsets.fromLTRB(28, 26, 28, 26),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 900;
+          final heading = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              hero,
+              const SizedBox(width: 20),
+              Expanded(child: copy),
+            ],
+          );
+          return compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    heading,
+                    const SizedBox(height: 18),
+                    Align(alignment: Alignment.centerRight, child: actions),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: heading),
+                    const SizedBox(width: 18),
+                    actions,
+                  ],
+                );
+        },
       ),
     );
   }
@@ -825,7 +949,7 @@ class _ManageIpadSectionTitle extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _ManageIpadPalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -835,7 +959,7 @@ class _ManageIpadSectionTitle extends StatelessWidget {
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _ManageIpadPalette.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
@@ -852,10 +976,7 @@ class _ManageIpadIconBox extends StatelessWidget {
   final IconData icon;
   final bool semantic;
 
-  const _ManageIpadIconBox({
-    required this.icon,
-    this.semantic = false,
-  });
+  const _ManageIpadIconBox({required this.icon, this.semantic = false});
 
   @override
   Widget build(BuildContext context) {
@@ -885,10 +1006,7 @@ class _ManageIpadStatusPill extends StatelessWidget {
   final String label;
   final bool active;
 
-  const _ManageIpadStatusPill({
-    required this.label,
-    required this.active,
-  });
+  const _ManageIpadStatusPill({required this.label, required this.active});
 
   @override
   Widget build(BuildContext context) {
@@ -907,7 +1025,7 @@ class _ManageIpadStatusPill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color:
               active ? _ManageIpadPalette.green : _ManageIpadPalette.orangeDark,
           fontWeight: FontWeight.w900,
@@ -985,10 +1103,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
   final String title;
   final List<_ManageIpadStat> stats;
 
-  const _ManageIpadSummaryCard({
-    required this.title,
-    required this.stats,
-  });
+  const _ManageIpadSummaryCard({required this.title, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -999,7 +1114,9 @@ class _ManageIpadSummaryCard extends StatelessWidget {
           _ManageIpadSectionTitle(
             icon: Icons.insights_outlined,
             title: title,
-            subtitle: 'Vis\u00e3o r\u00e1pida desta organiza\u00e7\u00e3o.',
+            subtitle: context.l10n.isEn
+                ? 'A quick view of this organization.'
+                : 'Vis\u00e3o r\u00e1pida desta organiza\u00e7\u00e3o.',
           ),
           const SizedBox(height: 16),
           for (final stat in stats) ...[
@@ -1010,7 +1127,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     stat.label,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _ManageIpadPalette.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1018,7 +1135,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
                 ),
                 Text(
                   stat.value,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: stat.semantic
                         ? _ManageIpadPalette.green
                         : _ManageIpadPalette.text,
@@ -1040,10 +1157,7 @@ class _ManageIpadTipCard extends StatelessWidget {
   final String title;
   final String message;
 
-  const _ManageIpadTipCard({
-    required this.title,
-    required this.message,
-  });
+  const _ManageIpadTipCard({required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -1059,7 +1173,7 @@ class _ManageIpadTipCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ManageIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1067,7 +1181,7 @@ class _ManageIpadTipCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ManageIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                     height: 1.35,
@@ -1106,7 +1220,9 @@ class _ManageIpadActionsCard extends StatelessWidget {
           _ManageIpadSectionTitle(
             icon: Icons.touch_app_outlined,
             title: title,
-            subtitle: 'A\u00e7\u00f5es reais desta tela.',
+            subtitle: context.l10n.isEn
+                ? 'Actions available on this screen.'
+                : 'A\u00e7\u00f5es reais desta tela.',
           ),
           const SizedBox(height: 18),
           FilledButton.icon(
@@ -1160,7 +1276,7 @@ class _ManageIpadEmptyPanel extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           title,
-          style: UiTokens.textSectionTitle.copyWith(
+          style: context.appTypography.sectionTitle.copyWith(
             color: _ManageIpadPalette.text,
             fontWeight: FontWeight.w900,
           ),
@@ -1169,7 +1285,7 @@ class _ManageIpadEmptyPanel extends StatelessWidget {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             color: _ManageIpadPalette.textMid,
             fontWeight: FontWeight.w600,
             height: 1.35,

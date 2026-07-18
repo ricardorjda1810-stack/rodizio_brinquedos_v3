@@ -86,6 +86,18 @@ class _AppState extends State<App> {
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
           themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          builder: (context, child) {
+            if (child == null ||
+                MediaQuery.sizeOf(context).shortestSide < 600) {
+              return child ?? const SizedBox.shrink();
+            }
+            return Theme(
+              data: isDarkMode
+                  ? AppTheme.dark(isTablet: true)
+                  : AppTheme.light(isTablet: true),
+              child: child,
+            );
+          },
           home: hasFullAppAccess
               ? MainShell(
                   toyRepository: widget.toyRepository,

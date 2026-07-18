@@ -696,39 +696,52 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 18),
                 LayoutBuilder(
                   builder: (context, constraints) {
+                    final useSingleColumn = constraints.maxWidth < 900;
                     final gap = constraints.maxWidth >= 980 ? 22.0 : 18.0;
                     final leftWidth = (constraints.maxWidth - gap) * 0.58;
+                    final primaryColumn = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildIpadChildAgeCard(textTheme),
+                        const SizedBox(height: 16),
+                        _buildIpadRoundCard(textTheme),
+                      ],
+                    );
+                    final secondaryColumn = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildIpadPremiumCard(textTheme),
+                        const SizedBox(height: 16),
+                        _buildIpadExampleToysCard(textTheme),
+                        if (DemoDataLoader.controlsEnabled) ...[
+                          const SizedBox(height: 16),
+                          _buildIpadDemoDataCard(textTheme),
+                        ],
+                        const SizedBox(height: 16),
+                        _buildIpadAboutCard(textTheme),
+                      ],
+                    );
+
+                    if (useSingleColumn) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          primaryColumn,
+                          SizedBox(height: gap),
+                          secondaryColumn,
+                        ],
+                      );
+                    }
+
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: leftWidth.clamp(520.0, 620.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildIpadChildAgeCard(textTheme),
-                              const SizedBox(height: 16),
-                              _buildIpadRoundCard(textTheme),
-                            ],
-                          ),
+                          child: primaryColumn,
                         ),
                         SizedBox(width: gap),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildIpadPremiumCard(textTheme),
-                              const SizedBox(height: 16),
-                              _buildIpadExampleToysCard(textTheme),
-                              if (DemoDataLoader.controlsEnabled) ...[
-                                const SizedBox(height: 16),
-                                _buildIpadDemoDataCard(textTheme),
-                              ],
-                              const SizedBox(height: 16),
-                              _buildIpadAboutCard(textTheme),
-                            ],
-                          ),
-                        ),
+                        Expanded(child: secondaryColumn),
                       ],
                     );
                   },
@@ -777,7 +790,7 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'RODÍZIO DE BRINQUEDOS',
+                  context.l10n.appNameUpper,
                   style: textTheme.labelMedium?.copyWith(
                     color: const Color(0xFFF97316),
                     fontWeight: FontWeight.w900,
@@ -786,7 +799,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Configurações',
+                  context.l10n.settings,
                   style: textTheme.headlineMedium?.copyWith(
                     color: const Color(0xFF25180A),
                     fontWeight: FontWeight.w900,
@@ -823,10 +836,12 @@ class _SettingsPageState extends State<SettingsPage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _IpadSettingsSectionHeader(
+              _IpadSettingsSectionHeader(
                 icon: Icons.child_care_rounded,
-                title: 'Criança e idade',
-                subtitle: 'A faixa etária ajuda o app a equilibrar estímulos.',
+                title: context.l10n.isEn ? 'Child and age' : 'Criança e idade',
+                subtitle: context.l10n.isEn
+                    ? 'The age range helps the app balance activities.'
+                    : 'A faixa etária ajuda o app a equilibrar estímulos.',
               ),
               const SizedBox(height: 20),
               Wrap(
@@ -880,8 +895,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     Expanded(
                       child: Text(
                         selected == null
-                            ? 'Escolha uma faixa etária para ativar recomendações.'
-                            : 'Configurado para ${selected.label} · Sugestões ajustadas automaticamente',
+                            ? (context.l10n.isEn
+                                ? 'Choose an age range to enable recommendations.'
+                                : 'Escolha uma faixa etária para ativar recomendações.')
+                            : (context.l10n.isEn
+                                ? 'Set for ${selected.label} · Suggestions adjust automatically'
+                                : 'Configurado para ${selected.label} · Sugestões ajustadas automaticamente'),
                         style: textTheme.bodyMedium?.copyWith(
                           color: const Color(0xFF6B4F30),
                           fontWeight: FontWeight.w700,
@@ -929,10 +948,12 @@ class _SettingsPageState extends State<SettingsPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _IpadSettingsSectionHeader(
+                  _IpadSettingsSectionHeader(
                     icon: Icons.tune_rounded,
-                    title: 'Rodízio',
-                    subtitle: 'Como as rodadas são montadas.',
+                    title: context.l10n.isEn ? 'Rotation' : 'Rodízio',
+                    subtitle: context.l10n.isEn
+                        ? 'How rotations are assembled.'
+                        : 'Como as rodadas são montadas.',
                   ),
                   const SizedBox(height: 20),
                   StreamBuilder<int>(
@@ -954,7 +975,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       Expanded(
                         child: _IpadSettingsMetric(
-                          label: 'Disponíveis',
+                          label:
+                              context.l10n.isEn ? 'Available' : 'Disponíveis',
                           value: '$availableTotal',
                           color: const Color(0xFFF97316),
                         ),
@@ -962,7 +984,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _IpadSettingsMetric(
-                          label: 'Na rodada',
+                          label:
+                              context.l10n.isEn ? 'In rotation' : 'Na rodada',
                           value: '$totalSelected',
                           color: const Color(0xFF7C3AED),
                         ),
@@ -971,7 +994,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Categorias ativas',
+                    context.l10n.isEn
+                        ? 'Active categories'
+                        : 'Categorias ativas',
                     style: textTheme.titleSmall?.copyWith(
                       color: const Color(0xFF25180A),
                       fontWeight: FontWeight.w900,
@@ -987,7 +1012,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         for (final row in activeRows)
                           _IpadSettingsPill(
-                            label: row.category.name,
+                            label: context.l10n.categoryName(row.category.name),
                             icon: Icons.check_rounded,
                           ),
                         if (activeRows.isEmpty)
@@ -1113,7 +1138,7 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  row.category.name,
+                  context.l10n.categoryName(row.category.name),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodyMedium?.copyWith(
@@ -1124,8 +1149,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 4),
                 Text(
                   !row.category.isActive
-                      ? 'Disponíveis: $available · Categoria inativa'
-                      : 'Disponíveis: $available',
+                      ? (context.l10n.isEn
+                          ? 'Available: $available · Inactive category'
+                          : 'Disponíveis: $available · Categoria inativa')
+                      : (context.l10n.isEn
+                          ? 'Available: $available'
+                          : 'Disponíveis: $available'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: textTheme.bodySmall?.copyWith(
@@ -1701,7 +1730,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
 
     if (isTablet) {
       return _buildIpadLayout(textTheme);
@@ -1856,7 +1885,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                row.category.name,
+                                                context.l10n.categoryName(
+                                                  row.category.name,
+                                                ),
                                                 style: textTheme.bodyMedium
                                                     ?.copyWith(
                                                   fontWeight: FontWeight.w700,
@@ -2193,11 +2224,16 @@ class _IpadRoundSizeControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final l10n = context.l10n;
     final hasCategoryTotal = effectiveTotal > 0;
     final isSynced = !hasCategoryTotal || effectiveTotal == value;
     final helperText = isSynced
-        ? 'Mínimo 1 · máximo 50 brinquedos'
-        : 'Categorias ativas somam $effectiveTotal brinquedos';
+        ? (l10n.isEn
+            ? 'Minimum 1 · maximum 50 toys'
+            : 'Mínimo 1 · máximo 50 brinquedos')
+        : (l10n.isEn
+            ? 'Active categories total $effectiveTotal toys'
+            : 'Categorias ativas somam $effectiveTotal brinquedos');
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -2213,7 +2249,7 @@ class _IpadRoundSizeControl extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Quantidade por dia',
+                  l10n.isEn ? 'Quantity per day' : 'Quantidade por dia',
                   style: textTheme.titleSmall?.copyWith(
                     color: const Color(0xFF25180A),
                     fontWeight: FontWeight.w900,

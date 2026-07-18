@@ -952,7 +952,7 @@ class _CaixasPageState extends State<CaixasPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isIpad = context.usesTabletPresentation;
     if (isIpad) return _buildIpadScaffold(context);
 
     final bottomNavigationReserve =
@@ -1234,7 +1234,7 @@ class _BoxesIpadHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final compactActions = constraints.maxWidth < 700;
+          final compactActions = constraints.maxWidth < 900;
           final icon = Container(
             width: 60,
             height: 60,
@@ -1266,7 +1266,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                 l10n.appNameUpper,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: _BoxesIpadPalette.textMuted,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.8,
@@ -1277,7 +1277,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                 l10n.boxes,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textTitle.copyWith(
+                style: context.appTypography.pageTitle.copyWith(
                   color: _BoxesIpadPalette.text,
                   fontSize: 27,
                   fontWeight: FontWeight.w900,
@@ -1290,7 +1290,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                     : 'Veja onde os brinquedos ficam guardados.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _BoxesIpadPalette.textMuted,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
@@ -1338,7 +1338,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                       ),
                       minimumSize: const Size(132, 52),
                       padding: const EdgeInsets.symmetric(horizontal: 18),
-                      textStyle: UiTokens.textButton.copyWith(
+                      textStyle: context.appTypography.button.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                       shape: RoundedRectangleBorder(
@@ -1355,7 +1355,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                   foregroundColor: Colors.white,
                   minimumSize: const Size(146, 52),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
-                  textStyle: UiTokens.textButton.copyWith(
+                  textStyle: context.appTypography.button.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                   elevation: 4,
@@ -1378,7 +1378,7 @@ class _BoxesIpadHeader extends StatelessWidget {
                   ),
                   minimumSize: const Size(132, 52),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  textStyle: UiTokens.textButton.copyWith(
+                  textStyle: context.appTypography.button.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                   shape: RoundedRectangleBorder(
@@ -1444,7 +1444,7 @@ class _BoxesIpadHeaderCount extends StatelessWidget {
         children: [
           Text(
             '${summary.boxCount}',
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: _BoxesIpadPalette.orange,
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -1457,7 +1457,7 @@ class _BoxesIpadHeaderCount extends StatelessWidget {
                 ? l10n.box.toLowerCase()
                 : l10n.boxes.toLowerCase(),
             maxLines: 1,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _BoxesIpadPalette.textMid,
               fontWeight: FontWeight.w900,
             ),
@@ -1514,7 +1514,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                   l10n.myBoxes,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: _BoxesIpadPalette.text,
                     fontSize: 21,
                     fontWeight: FontWeight.w900,
@@ -1525,7 +1525,7 @@ class _BoxesIpadMainPanel extends StatelessWidget {
                   subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _BoxesIpadPalette.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1634,7 +1634,7 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             l10n.noBoxesTitle,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -1645,7 +1645,7 @@ class _BoxesIpadEmptyBoxes extends StatelessWidget {
                 ? 'Create the first box to organize toys at home.'
                 : 'Crie a primeira caixa para organizar os brinquedos da casa.',
             textAlign: TextAlign.center,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _BoxesIpadPalette.textMuted,
               fontWeight: FontWeight.w600,
             ),
@@ -1728,7 +1728,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _BoxesIpadPalette.text,
                         fontSize: 17,
                         fontWeight: FontWeight.w900,
@@ -1739,7 +1739,7 @@ class _BoxesIpadBoxRow extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _BoxesIpadPalette.textMuted,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1806,7 +1806,7 @@ class _BoxesIpadMiniThumbs extends StatelessWidget {
         l10n.noToysInBox,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _BoxesIpadPalette.textMuted,
           fontWeight: FontWeight.w700,
         ),
@@ -1823,7 +1823,7 @@ class _BoxesIpadMiniThumbs extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             '+${items.length - visible.length}',
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _BoxesIpadPalette.textMuted,
               fontWeight: FontWeight.w900,
             ),
@@ -1960,7 +1960,7 @@ class _BoxesIpadSummaryCard extends StatelessWidget {
         children: [
           Text(
             l10n.isEn ? 'Summary' : 'Resumo',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2038,7 +2038,7 @@ class _BoxesIpadStatTile extends StatelessWidget {
               children: [
                 Text(
                   '$value',
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: foreground,
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -2056,7 +2056,7 @@ class _BoxesIpadStatTile extends StatelessWidget {
                 Text(
                   '$value',
                   maxLines: 1,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: foreground,
                     fontSize: 27,
                     fontWeight: FontWeight.w900,
@@ -2082,7 +2082,7 @@ class _BoxesIpadStatLabel extends StatelessWidget {
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: UiTokens.textMicro.copyWith(
+      style: context.appTypography.micro.copyWith(
         color: _BoxesIpadPalette.textMid,
         fontSize: 11.5,
         fontWeight: FontWeight.w900,
@@ -2117,7 +2117,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
         children: [
           Text(
             l10n.noBox,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2127,7 +2127,7 @@ class _BoxesIpadUnboxedCard extends StatelessWidget {
             l10n.unboxedToys,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _BoxesIpadPalette.textMuted,
               fontWeight: FontWeight.w600,
               height: 1.3,
@@ -2195,7 +2195,7 @@ class _BoxesIpadDoneState extends StatelessWidget {
             ? 'Everything is organized for now.'
             : 'Tudo organizado por enquanto.',
         textAlign: TextAlign.center,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _BoxesIpadPalette.textMid,
           fontWeight: FontWeight.w800,
         ),
@@ -2245,7 +2245,7 @@ class _BoxesIpadUnboxedToyRow extends StatelessWidget {
                       name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _BoxesIpadPalette.text,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w900,
@@ -2256,7 +2256,7 @@ class _BoxesIpadUnboxedToyRow extends StatelessWidget {
                       category,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _BoxesIpadPalette.textMuted,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -2337,7 +2337,7 @@ class _BoxesIpadQuickActionsCard extends StatelessWidget {
         children: [
           Text(
             l10n.isEn ? 'Quick actions' : 'Ações rápidas',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _BoxesIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2389,7 +2389,7 @@ class _BoxesIpadActionTile extends StatelessWidget {
                   data.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _BoxesIpadPalette.text,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w900,
@@ -2458,7 +2458,7 @@ class _BoxesIpadPill extends StatelessWidget {
           Text(
             label,
             maxLines: 1,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: foreground,
               fontWeight: FontWeight.w900,
             ),
@@ -2488,7 +2488,7 @@ class _BoxesIpadBadge extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _BoxesIpadPalette.orangeDark,
           fontWeight: FontWeight.w900,
         ),

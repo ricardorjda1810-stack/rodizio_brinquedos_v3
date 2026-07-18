@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/services/app_feedback.dart';
@@ -378,115 +379,137 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Widget _buildIpadHeader() {
-    return _ToyCreateIpadSurface(
-      padding: const EdgeInsets.all(24),
-      child: Row(
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFFFA31A), Color(0xFFF97316)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x33F97316),
-                  blurRadius: 18,
-                  offset: Offset(0, 7),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.toys_rounded,
-              color: Colors.white,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'RODÍZIO DE BRINQUEDOS',
-                  style: UiTokens.textCaption.copyWith(
-                    color: _ToyCreateIpadPalette.orange,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'Novo brinquedo',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
-                    color: _ToyCreateIpadPalette.text,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'Cadastre um brinquedo para incluir no rodízio.',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textBody.copyWith(
-                    color: _ToyCreateIpadPalette.textMid,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 18),
-          OutlinedButton.icon(
-            onPressed: _saving ? null : _cancel,
-            icon: const Icon(Icons.close_rounded, size: 19),
-            label: const Text('Cancelar'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFC2410C),
-              side: const BorderSide(
-                color: _ToyCreateIpadPalette.orangeBorder,
-                width: 1.4,
-              ),
-              minimumSize: const Size(126, 52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          FilledButton.icon(
-            onPressed: _saving ? null : _save,
-            icon: _saving
-                ? const SizedBox(
-                    width: 17,
-                    height: 17,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.save_outlined, size: 19),
-            label: Text(_saving ? 'Salvando...' : 'Salvar brinquedo'),
-            style: FilledButton.styleFrom(
-              backgroundColor: _ToyCreateIpadPalette.orange,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(166, 52),
-              elevation: 4,
-              shadowColor: const Color(0x4DF97316),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
+    final l10n = context.l10n;
+    final hero = Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFA31A), Color(0xFFF97316)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x33F97316),
+            blurRadius: 18,
+            offset: Offset(0, 7),
           ),
         ],
+      ),
+      child: const Icon(Icons.toys_rounded, color: Colors.white, size: 30),
+    );
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.appNameUpper,
+          style: context.appTypography.caption.copyWith(
+            color: _ToyCreateIpadPalette.orange,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          l10n.newToy,
+          style: context.appTypography.pageTitle.copyWith(
+            color: _ToyCreateIpadPalette.text,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          l10n.isEn
+              ? 'Add a toy to include it in the rotation.'
+              : 'Cadastre um brinquedo para incluir no rodízio.',
+          style: context.appTypography.body.copyWith(
+            color: _ToyCreateIpadPalette.textMid,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+    final cancelButton = OutlinedButton.icon(
+      onPressed: _saving ? null : _cancel,
+      icon: const Icon(Icons.close_rounded, size: 19),
+      label: Text(l10n.cancel),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFFC2410C),
+        side: const BorderSide(
+          color: _ToyCreateIpadPalette.orangeBorder,
+          width: 1.4,
+        ),
+        minimumSize: const Size(126, 52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+    final saveButton = FilledButton.icon(
+      onPressed: _saving ? null : _save,
+      icon: _saving
+          ? const SizedBox(
+              width: 17,
+              height: 17,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : const Icon(Icons.save_outlined, size: 19),
+      label: Text(
+        _saving
+            ? (l10n.isEn ? 'Saving...' : 'Salvando...')
+            : (l10n.isEn ? 'Save toy' : 'Salvar brinquedo'),
+      ),
+      style: FilledButton.styleFrom(
+        backgroundColor: _ToyCreateIpadPalette.orange,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(166, 52),
+        elevation: 4,
+        shadowColor: const Color(0x4DF97316),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+
+    return _ToyCreateIpadSurface(
+      padding: const EdgeInsets.all(24),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxWidth < 900;
+          final actions = Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            alignment: WrapAlignment.end,
+            children: [cancelButton, saveButton],
+          );
+          final heading = Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              hero,
+              const SizedBox(width: 18),
+              Expanded(child: copy),
+            ],
+          );
+
+          return compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    heading,
+                    const SizedBox(height: 18),
+                    Align(alignment: Alignment.centerRight, child: actions),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: heading),
+                    const SizedBox(width: 18),
+                    actions,
+                  ],
+                );
+        },
       ),
     );
   }
@@ -605,7 +628,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                         _previewToyName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textBody.copyWith(
+                        style: context.appTypography.body.copyWith(
                           color: _ToyCreateIpadPalette.text,
                           fontWeight: FontWeight.w900,
                           height: 1.15,
@@ -686,7 +709,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   _statusLabel(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ToyCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -698,7 +721,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                       : 'Complete os campos obrigatórios antes de salvar.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyCreateIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                   ),
@@ -736,6 +759,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               hintText: 'Ex: Blocos de montar',
               prefixIcon: Icon(Icons.toys_outlined),
               helperText: 'Opcional: vazio usa o nome automático por caixa.',
+              helperMaxLines: 2,
             ),
           ),
           const SizedBox(height: 14),
@@ -785,7 +809,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
           if (officialCategories.isEmpty)
             Text(
               'Preparando categorias oficiais...',
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _ToyCreateIpadPalette.textMuted,
                 fontWeight: FontWeight.w700,
               ),
@@ -821,7 +845,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
           const SizedBox(height: 14),
           Text(
             'A categoria equilibra as rodadas e garante variedade nas brincadeiras.',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _ToyCreateIpadPalette.textMid,
               fontWeight: FontWeight.w700,
               height: 1.3,
@@ -897,7 +921,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                       toyFormCategoryName(category),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _ToyCreateIpadPalette.text,
                         fontWeight: FontWeight.w900,
                         height: 1.15,
@@ -927,7 +951,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         normalized,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _ToyCreateIpadPalette.textMuted,
           fontWeight: FontWeight.w700,
           height: 1.2,
@@ -1110,7 +1134,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               children: [
                 Text(
                   'Ações',
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ToyCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1120,7 +1144,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   'Salve e continue cadastrando quando estiver organizando muitos brinquedos.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyCreateIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1174,7 +1198,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   Widget build(BuildContext context) {
     final showLocal = _isWithoutBoxSelected;
     final colorScheme = Theme.of(context).colorScheme;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
 
     return Scaffold(
       backgroundColor: isTablet ? _ToyCreateIpadPalette.bg : UiTokens.bg,
@@ -1744,7 +1768,7 @@ class _ToyCreateIpadSectionHeader extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textBody.copyWith(
+                style: context.appTypography.body.copyWith(
                   color: _ToyCreateIpadPalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -1754,7 +1778,7 @@ class _ToyCreateIpadSectionHeader extends StatelessWidget {
                 subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _ToyCreateIpadPalette.textMid,
                   fontWeight: FontWeight.w600,
                   height: 1.28,
@@ -1796,7 +1820,7 @@ class _ToyCreateIpadPhotoEmpty extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               'Nenhuma foto adicionada',
-              style: UiTokens.textBody.copyWith(
+              style: context.appTypography.body.copyWith(
                 color: _ToyCreateIpadPalette.text,
                 fontWeight: FontWeight.w900,
               ),
@@ -1804,7 +1828,7 @@ class _ToyCreateIpadPhotoEmpty extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               'Toque em câmera ou galeria para incluir.',
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _ToyCreateIpadPalette.textMuted,
                 fontWeight: FontWeight.w700,
               ),
@@ -1847,9 +1871,9 @@ class _ToyCreateIpadMiniPill extends StatelessWidget {
           Flexible(
             child: Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              maxLines: 2,
+              overflow: TextOverflow.visible,
+              style: context.appTypography.micro.copyWith(
                 color: foreground,
                 fontWeight: FontWeight.w900,
               ),
@@ -1903,7 +1927,7 @@ class _ToyCreateIpadInfoTile extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _ToyCreateIpadPalette.textMuted,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1913,7 +1937,7 @@ class _ToyCreateIpadInfoTile extends StatelessWidget {
                   value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1956,7 +1980,7 @@ class _ToyCreateIpadInlineNotice extends StatelessWidget {
               label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _ToyCreateIpadPalette.textMid,
                 fontWeight: FontWeight.w800,
                 height: 1.25,

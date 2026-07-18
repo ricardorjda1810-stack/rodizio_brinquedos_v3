@@ -137,8 +137,12 @@ class FilterBar extends StatelessWidget {
                       ),
                     ),
                   SizedBox(
-                    width: compact ? dropdownWidth : 120,
-                    height: 46,
+                    width: compact
+                        ? dropdownWidth
+                        : context.isTabletLayout
+                            ? 156
+                            : 120,
+                    height: context.isTabletLayout ? 52 : 46,
                     child: FilledButton.icon(
                       onPressed: onSearchTap,
                       icon: const Icon(Icons.search),

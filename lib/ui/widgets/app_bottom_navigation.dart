@@ -41,8 +41,7 @@ class AppBottomNavigation extends StatelessWidget {
 
   static double reservedScrollPadding(BuildContext context) {
     final safeBottom = MediaQuery.paddingOf(context).bottom;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
-    if (isTablet) {
+    if (context.usesTabletPresentation) {
       return safeBottom + _contentClearance;
     }
 
@@ -204,6 +203,23 @@ class AppTopNavigation extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final useGrid = constraints.maxWidth < 1200;
+          if (useGrid) {
+            final itemWidth = (constraints.maxWidth - 8) / 3;
+            return Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                for (final item in items)
+                  SizedBox(
+                    width: itemWidth,
+                    child: _AppTopNavigationItem(data: item),
+                  ),
+              ],
+            );
+          }
+
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const ClampingScrollPhysics(),
@@ -295,7 +311,7 @@ class _AppTopNavigationItem extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     softWrap: false,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.navigation.copyWith(
                       color: foreground,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                     ),

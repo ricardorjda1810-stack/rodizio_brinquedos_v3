@@ -145,3 +145,86 @@ class UiTokens {
     fontWeight: FontWeight.w600,
   );
 }
+
+@immutable
+class AppTypography {
+  final TextStyle pageTitle;
+  final TextStyle sectionTitle;
+  final TextStyle body;
+  final TextStyle caption;
+  final TextStyle micro;
+  final TextStyle button;
+  final TextStyle navigation;
+
+  const AppTypography({
+    required this.pageTitle,
+    required this.sectionTitle,
+    required this.body,
+    required this.caption,
+    required this.micro,
+    required this.button,
+    required this.navigation,
+  });
+
+  static const mobile = AppTypography(
+    pageTitle: UiTokens.textTitle,
+    sectionTitle: UiTokens.textSectionTitle,
+    body: UiTokens.textBody,
+    caption: UiTokens.textCaption,
+    micro: UiTokens.textMicro,
+    button: UiTokens.textButton,
+    navigation: UiTokens.textCaption,
+  );
+
+  static const tablet = AppTypography(
+    pageTitle: TextStyle(
+      fontSize: 30,
+      height: 1.16,
+      fontWeight: FontWeight.w700,
+    ),
+    sectionTitle: TextStyle(
+      fontSize: 22,
+      height: 1.22,
+      fontWeight: FontWeight.w700,
+    ),
+    body: TextStyle(
+      fontSize: 17,
+      height: 1.38,
+      fontWeight: FontWeight.w400,
+    ),
+    caption: TextStyle(
+      fontSize: 15,
+      height: 1.36,
+      fontWeight: FontWeight.w400,
+    ),
+    micro: TextStyle(
+      fontSize: 14,
+      height: 1.34,
+      fontWeight: FontWeight.w500,
+    ),
+    button: TextStyle(
+      fontSize: 16,
+      height: 1.25,
+      fontWeight: FontWeight.w600,
+    ),
+    navigation: TextStyle(
+      fontSize: 15,
+      height: 1.25,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+}
+
+extension AppTypographyContext on BuildContext {
+  bool get isTabletLayout => MediaQuery.sizeOf(this).shortestSide >= 600;
+
+  double get appTextScale => MediaQuery.textScalerOf(this).scale(16) / 16;
+
+  /// Dense multi-column tablet layouts become difficult to reflow once the
+  /// system text size is substantially increased. Keep tablet typography, but
+  /// prefer the app's vertical presentation so content can grow naturally.
+  bool get usesTabletPresentation => isTabletLayout && appTextScale < 1.5;
+
+  AppTypography get appTypography =>
+      isTabletLayout ? AppTypography.tablet : AppTypography.mobile;
+}

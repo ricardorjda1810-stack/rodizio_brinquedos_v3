@@ -397,7 +397,7 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget _buildHomePage(BuildContext context) {
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
     if (!isTablet) return _buildMobileHomePage();
 
     return _IpadHomeDashboard(
@@ -464,7 +464,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
     final effectiveIndex = isTablet || _currentIndex <= 3 ? _currentIndex : 0;
     final body = IndexedStack(
       index: effectiveIndex,
@@ -689,47 +689,44 @@ class _IphoneHomeContent extends StatelessWidget {
         AppBottomNavigation.reservedScrollPadding(context) + UiTokens.spacingSm;
     final trialNotice = context.l10n.trialHomeNotice(trialStatus);
 
-    return MediaQuery.withClampedTextScaling(
-      maxScaleFactor: 1.15,
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(
-          UiTokens.spacingMd,
-          UiTokens.spacingSm,
-          UiTokens.spacingMd,
-          bottomReserve,
-        ),
-        physics: const BouncingScrollPhysics(),
-        children: [
-          _IphoneHomeTopBar(
-            dateLabel: dateLabel,
-            onSettingsTap: onSettingsTap,
-          ),
-          const SizedBox(height: 10),
-          if (trialNotice.isNotEmpty) ...[
-            _TrialNoticeBanner(message: trialNotice),
-            const SizedBox(height: 10),
-          ],
-          _IphoneRoundTodayHero(
-            itemCount: todayCount,
-            loadingSuggestion: loadingSuggestion,
-            onBuildRound: onBuildRound,
-          ),
-          const SizedBox(height: 14),
-          _IphoneEssentialActions(
-            onOpenNewToy: onOpenNewToy,
-            onOpenWeeklyPlanning: onOpenWeeklyPlanning,
-          ),
-          const SizedBox(height: 14),
-          _IphoneOrganizationCard(toyRepository: toyRepository),
-          const SizedBox(height: 14),
-          _IphoneWeeklyPlanningCompactCard(
-            summaries: weeklySummaries,
-            todayCount: todayCount,
-            loading: weeklyLoading,
-            onTap: onOpenWeeklyPlanning,
-          ),
-        ],
+    return ListView(
+      padding: EdgeInsets.fromLTRB(
+        UiTokens.spacingMd,
+        UiTokens.spacingSm,
+        UiTokens.spacingMd,
+        bottomReserve,
       ),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        _IphoneHomeTopBar(
+          dateLabel: dateLabel,
+          onSettingsTap: onSettingsTap,
+        ),
+        const SizedBox(height: 10),
+        if (trialNotice.isNotEmpty) ...[
+          _TrialNoticeBanner(message: trialNotice),
+          const SizedBox(height: 10),
+        ],
+        _IphoneRoundTodayHero(
+          itemCount: todayCount,
+          loadingSuggestion: loadingSuggestion,
+          onBuildRound: onBuildRound,
+        ),
+        const SizedBox(height: 14),
+        _IphoneEssentialActions(
+          onOpenNewToy: onOpenNewToy,
+          onOpenWeeklyPlanning: onOpenWeeklyPlanning,
+        ),
+        const SizedBox(height: 14),
+        _IphoneOrganizationCard(toyRepository: toyRepository),
+        const SizedBox(height: 14),
+        _IphoneWeeklyPlanningCompactCard(
+          summaries: weeklySummaries,
+          todayCount: todayCount,
+          loading: weeklyLoading,
+          onTap: onOpenWeeklyPlanning,
+        ),
+      ],
     );
   }
 }
@@ -756,7 +753,7 @@ class _IphoneHomeTopBar extends StatelessWidget {
                 l10n.timeToPlay,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _IpadHomePalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -775,7 +772,7 @@ class _IphoneHomeTopBar extends StatelessWidget {
                       dateLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _IpadHomePalette.textMuted,
                         fontWeight: FontWeight.w700,
                       ),
@@ -824,7 +821,7 @@ class _TrialNoticeBanner extends StatelessWidget {
               message,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _IpadHomePalette.text,
                 fontWeight: FontWeight.w800,
                 height: 1.2,
@@ -875,7 +872,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
             l10n.todaysRotation,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textSectionTitle.copyWith(
+            style: context.appTypography.sectionTitle.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w900,
             ),
@@ -888,7 +885,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
                 '$itemCount',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textTitle.copyWith(
+                style: context.appTypography.pageTitle.copyWith(
                   color: Colors.white,
                   fontSize: 74,
                   fontWeight: FontWeight.w900,
@@ -903,7 +900,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
                     l10n.toysForToday,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: Colors.white.withValues(alpha: 0.86),
                       fontWeight: FontWeight.w800,
                       height: 1.15,
@@ -936,7 +933,7 @@ class _IphoneRoundTodayHero extends StatelessWidget {
                 disabledForegroundColor:
                     _IpadHomePalette.orange.withValues(alpha: 0.62),
                 minimumSize: const Size.fromHeight(54),
-                textStyle: UiTokens.textButton.copyWith(
+                textStyle: context.appTypography.button.copyWith(
                   fontWeight: FontWeight.w900,
                 ),
                 shape: RoundedRectangleBorder(
@@ -964,6 +961,30 @@ class _IphoneEssentialActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    if (context.appTextScale >= 1.5) {
+      return Column(
+        children: [
+          _IphoneActionTile(
+            label: l10n.newToy,
+            icon: Icons.add_rounded,
+            foreground: _IpadHomePalette.orange,
+            background: _IpadHomePalette.orangeLight,
+            border: _IpadHomePalette.orangeBorder,
+            onTap: onOpenNewToy,
+          ),
+          const SizedBox(height: 12),
+          _IphoneActionTile(
+            label: l10n.isEn ? 'Weekly planning' : 'Planejamento semanal',
+            icon: Icons.calendar_month_outlined,
+            foreground: const Color(0xFF2563EB),
+            background: const Color(0xFFEFF6FF),
+            border: const Color(0xFFBFDBFE),
+            onTap: onOpenWeeklyPlanning,
+          ),
+        ],
+      );
+    }
+
     return Row(
       children: [
         Expanded(
@@ -1011,6 +1032,8 @@ class _IphoneActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accessibilityLayout = context.appTextScale >= 1.5;
+
     Widget iconBox({required double size, required double iconSize}) {
       return Container(
         width: size,
@@ -1023,9 +1046,9 @@ class _IphoneActionTile extends StatelessWidget {
       );
     }
 
-    final textStyle = UiTokens.textCaption.copyWith(
+    final textStyle = context.appTypography.caption.copyWith(
       color: _IpadHomePalette.text,
-      fontSize: 12,
+      fontSize: context.isTabletLayout ? null : 12,
       fontWeight: FontWeight.w900,
       height: 1,
     );
@@ -1037,8 +1060,9 @@ class _IphoneActionTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          height: 90,
-          padding: const EdgeInsets.all(10),
+          height: accessibilityLayout ? null : 90,
+          constraints: const BoxConstraints(minHeight: 90),
+          padding: EdgeInsets.all(accessibilityLayout ? 16 : 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: border, width: 1.2),
@@ -1057,8 +1081,8 @@ class _IphoneActionTile extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                maxLines: accessibilityLayout ? null : 2,
+                overflow: accessibilityLayout ? null : TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: textStyle,
               ),
@@ -1115,7 +1139,7 @@ class _IphoneOrganizationCard extends StatelessWidget {
                         l10n.homeOrganization,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
                         ),
@@ -1175,7 +1199,7 @@ class _IphoneDarkStat extends StatelessWidget {
           '$value',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textTitle.copyWith(
+          style: context.appTypography.pageTitle.copyWith(
             color: Colors.white,
             fontSize: 28,
             fontWeight: FontWeight.w900,
@@ -1187,7 +1211,7 @@ class _IphoneDarkStat extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textMicro.copyWith(
+          style: context.appTypography.micro.copyWith(
             color: Colors.white.withValues(alpha: 0.64),
             fontWeight: FontWeight.w700,
           ),
@@ -1272,7 +1296,7 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
                       l10n.weeklyPlanning,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _IpadHomePalette.text,
                         fontWeight: FontWeight.w900,
                       ),
@@ -1297,7 +1321,7 @@ class _IphoneWeeklyPlanningCompactCard extends StatelessWidget {
                           : 'Toque para ajustar os próximos dias.'),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _IpadHomePalette.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1366,7 +1390,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
             l10n.compactWeekdayLabel(summary.weekday, isToday: isToday),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: foreground,
               fontSize: 10.5,
               fontWeight: FontWeight.w900,
@@ -1378,7 +1402,7 @@ class _IphoneWeekPreviewCell extends StatelessWidget {
             child: Text(
               l10n.compactToysCount(totalToys),
               maxLines: 1,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _IpadHomePalette.textMuted,
                 fontWeight: FontWeight.w800,
               ),
@@ -1760,7 +1784,7 @@ class _IpadHomeHeader extends StatelessWidget {
                 l10n.appNameUpper,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: _IpadHomePalette.textMuted,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.8,
@@ -1773,7 +1797,7 @@ class _IpadHomeHeader extends StatelessWidget {
                     : 'Organize a brincadeira de hoje',
                 maxLines: compactHeader ? 2 : 1,
                 overflow: TextOverflow.visible,
-                style: UiTokens.textTitle.copyWith(
+                style: context.appTypography.pageTitle.copyWith(
                   color: _IpadHomePalette.text,
                   fontSize: compactHeader ? 22 : 24,
                   fontWeight: FontWeight.w900,
@@ -1786,7 +1810,7 @@ class _IpadHomeHeader extends StatelessWidget {
                     : 'Monte uma rodada equilibrada e mantenha os brinquedos em movimento.',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _IpadHomePalette.textMuted,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
@@ -1816,7 +1840,7 @@ class _IpadHomeHeader extends StatelessWidget {
                   foregroundColor: Colors.white,
                   minimumSize: const Size(152, 52),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
-                  textStyle: UiTokens.textButton.copyWith(
+                  textStyle: context.appTypography.button.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                   elevation: 4,
@@ -1839,7 +1863,7 @@ class _IpadHomeHeader extends StatelessWidget {
                   ),
                   minimumSize: const Size(156, 52),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
-                  textStyle: UiTokens.textButton.copyWith(
+                  textStyle: context.appTypography.button.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                   shape: RoundedRectangleBorder(
@@ -2018,7 +2042,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                             l10n.todaysRotation,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: UiTokens.textSectionTitle.copyWith(
+                            style: context.appTypography.sectionTitle.copyWith(
                               color: _IpadHomePalette.text,
                               fontWeight: FontWeight.w900,
                             ),
@@ -2044,7 +2068,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                                 : 'Hoje · Rodada pronta para brincar'),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: _IpadHomePalette.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2082,7 +2106,7 @@ class _IpadRoundTodayContent extends StatelessWidget {
                       child: Text(
                         l10n.registerToysForToday,
                         textAlign: TextAlign.center,
-                        style: UiTokens.textBody.copyWith(
+                        style: context.appTypography.body.copyWith(
                           color: _IpadHomePalette.textMuted,
                         ),
                       ),
@@ -2217,11 +2241,10 @@ class _IpadToyTileState extends State<_IpadToyTile> {
                       children: [
                         Text(
                           name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: UiTokens.textMicro.copyWith(
+                          maxLines: 2,
+                          overflow: TextOverflow.visible,
+                          style: context.appTypography.micro.copyWith(
                             color: _IpadHomePalette.text,
-                            fontSize: 13,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -2333,7 +2356,7 @@ class _IpadSelectionReason extends StatelessWidget {
                   context.l10n.selectionReasonTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _IpadHomePalette.textMid,
                     fontWeight: FontWeight.w900,
                   ),
@@ -2346,7 +2369,7 @@ class _IpadSelectionReason extends StatelessWidget {
             detail,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _IpadHomePalette.textMuted,
               height: 1.45,
               fontWeight: FontWeight.w500,
@@ -2392,7 +2415,7 @@ class _IpadRoundChecklistBar extends StatelessWidget {
                   l10n.roundChecklist,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _IpadHomePalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -2402,7 +2425,7 @@ class _IpadRoundChecklistBar extends StatelessWidget {
                   counter,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _IpadHomePalette.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
@@ -2429,7 +2452,7 @@ class _IpadRoundChecklistBar extends StatelessWidget {
               foregroundColor: Colors.white,
               minimumSize: const Size(146, 48),
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              textStyle: UiTokens.textButton.copyWith(
+              textStyle: context.appTypography.button.copyWith(
                 fontWeight: FontWeight.w800,
               ),
               elevation: 3,
@@ -2474,7 +2497,7 @@ class _IpadRoundStatus extends StatelessWidget {
               : context.l10n.roundWaitingForToys,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textMicro.copyWith(
+          style: context.appTypography.micro.copyWith(
             color: color,
             fontWeight: FontWeight.w800,
           ),
@@ -2596,7 +2619,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                         l10n.weeklyPlanning,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: _IpadHomePalette.text,
                           fontWeight: FontWeight.w900,
                         ),
@@ -2606,7 +2629,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                         '${_monthLabel(l10n.dateLocale)} · ${l10n.toysCount(toyCount)} ${l10n.inCollection}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textMicro.copyWith(
+                        style: context.appTypography.micro.copyWith(
                           color: _IpadHomePalette.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2615,7 +2638,7 @@ class _IpadWeeklyPlanningPanel extends StatelessWidget {
                       if (summaries.isEmpty)
                         Text(
                           l10n.planningLoading,
-                          style: UiTokens.textCaption.copyWith(
+                          style: context.appTypography.caption.copyWith(
                             color: _IpadHomePalette.textMuted,
                           ),
                         )
@@ -2710,7 +2733,7 @@ class _IpadWeekCell extends StatelessWidget {
           Text(
             l10n.compactWeekdayLabel(summary.weekday, isToday: false),
             maxLines: 1,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               fontSize: 10,
               color: isToday
                   ? Colors.white.withValues(alpha: 0.78)
@@ -2723,7 +2746,7 @@ class _IpadWeekCell extends StatelessWidget {
           Text(
             '$dayNumber',
             maxLines: 1,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: isToday ? Colors.white : _IpadHomePalette.text,
               fontWeight: FontWeight.w900,
               height: 1,
@@ -2746,7 +2769,7 @@ class _IpadWeekCell extends StatelessWidget {
             child: Text(
               l10n.compactToysCount(totalToys),
               maxLines: 1,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 fontSize: 10,
                 color: isToday
                     ? Colors.white.withValues(alpha: 0.74)
@@ -2795,7 +2818,7 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                         l10n.homeOrganization,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: _IpadHomePalette.text,
                           fontWeight: FontWeight.w900,
                         ),
@@ -2807,7 +2830,7 @@ class _IpadHomeStatsPanel extends StatelessWidget {
                             : 'Visão geral do inventário',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textMicro.copyWith(
+                        style: context.appTypography.micro.copyWith(
                           color: _IpadHomePalette.textMuted,
                           fontWeight: FontWeight.w600,
                         ),
@@ -2894,7 +2917,7 @@ class _IpadStatTile extends StatelessWidget {
           Text(
             '$value',
             maxLines: 1,
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: foreground,
               fontSize: 30,
               fontWeight: FontWeight.w900,
@@ -2906,7 +2929,7 @@ class _IpadStatTile extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _IpadHomePalette.textMid,
               fontWeight: FontWeight.w800,
             ),
@@ -2975,7 +2998,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
             l10n.quickActions,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _IpadHomePalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -3013,7 +3036,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
                   l10n.appName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _IpadHomePalette.textMuted,
                     fontWeight: FontWeight.w700,
                   ),
@@ -3032,7 +3055,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
                 child: Text(
                   l10n.upToDate,
                   maxLines: 1,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _IpadHomePalette.orange,
                     fontWeight: FontWeight.w900,
                   ),
@@ -3102,7 +3125,7 @@ class _IpadQuickActionTileState extends State<_IpadQuickActionTile> {
                     data.label,
                     maxLines: 1,
                     overflow: TextOverflow.visible,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _IpadHomePalette.text,
                       fontWeight: FontWeight.w800,
                     ),
@@ -3195,7 +3218,7 @@ class _IpadPill extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         softWrap: true,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: 10.5,
           fontWeight: FontWeight.w900,

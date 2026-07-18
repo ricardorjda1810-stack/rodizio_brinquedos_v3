@@ -130,7 +130,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                       displayName,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textBody.copyWith(
+                      style: context.appTypography.body.copyWith(
                         color: UiTokens.textPrimary,
                         fontWeight: FontWeight.w700,
                         height: 1.2,
@@ -151,7 +151,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                   normalizedAspect,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: UiTokens.textSecondary,
                     height: 1.25,
                   ),
@@ -163,7 +163,7 @@ class _CategoryQuickPickerCard extends StatelessWidget {
                   normalizedExamples,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: UiTokens.textPrimary.withValues(alpha: 0.82),
                     height: 1.25,
                   ),

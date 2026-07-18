@@ -58,7 +58,7 @@ class AppShellHeader extends StatelessWidget {
                   children: [
                     Text(
                       eyebrow,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: UiTokens.primaryStrong,
                         letterSpacing: 0.4,
                       ),
@@ -66,14 +66,14 @@ class AppShellHeader extends StatelessWidget {
                     const SizedBox(height: UiTokens.spacingSm),
                     Text(
                       title,
-                      style: UiTokens.textTitle.copyWith(
+                      style: context.appTypography.pageTitle.copyWith(
                         color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: UiTokens.spacingXs),
                     Text(
                       subtitle,
-                      style: UiTokens.textBody.copyWith(
+                      style: context.appTypography.body.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
@@ -87,7 +87,8 @@ class AppShellHeader extends StatelessWidget {
                   children: actions
                       .map(
                         (action) => Padding(
-                          padding: const EdgeInsets.only(left: UiTokens.spacingXs),
+                          padding:
+                              const EdgeInsets.only(left: UiTokens.spacingXs),
                           child: Tooltip(
                             message: action.tooltip,
                             child: IconButton.filledTonal(

@@ -27,7 +27,7 @@ class InfoBar extends StatelessWidget {
       ),
       child: Text(
         message,
-        style: UiTokens.textCaption.copyWith(
+        style: context.appTypography.caption.copyWith(
           color: UiTokens.textSecondary,
         ),
       ),

@@ -506,7 +506,7 @@ class _PaywallIpadHeader extends StatelessWidget {
                   isBlocking
                       ? l10n.subscriptionRequired
                       : l10n.subscription.toUpperCase(),
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _PaywallIpadPalette.orangeDark,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0,
@@ -524,7 +524,7 @@ class _PaywallIpadHeader extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _PaywallIpadPalette.muted,
                     height: 1.35,
                   ),
@@ -587,7 +587,7 @@ class _PaywallIpadValueCard extends StatelessWidget {
                   : l10n.isEn
                       ? 'Subscription unlocks weekly planning'
                       : 'Assinatura libera o planejamento semanal',
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _PaywallIpadPalette.orangeDark,
                 fontWeight: FontWeight.w800,
               ),
@@ -599,7 +599,9 @@ class _PaywallIpadValueCard extends StatelessWidget {
                 ? (l10n.isEn
                     ? 'Keep using the features that organized your routine.'
                     : 'Continue usando todos os recursos que organizaram sua rotina.')
-                : 'Uma semana organizada antes da rotina começar.',
+                : (l10n.isEn
+                    ? 'An organized week before the routine begins.'
+                    : 'Uma semana organizada antes da rotina começar.'),
             style: textTheme.headlineSmall?.copyWith(
               color: _PaywallIpadPalette.ink,
               fontWeight: FontWeight.w800,
@@ -614,7 +616,7 @@ class _PaywallIpadValueCard extends StatelessWidget {
                 : (l10n.isEn
                     ? 'Plan ahead, distribute categories, and view the toy routine more clearly.'
                     : 'Monte a programação com antecedência, distribua categorias e veja a rotina de brinquedos com mais clareza.'),
-            style: UiTokens.textBody.copyWith(
+            style: context.appTypography.body.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.45,
             ),
@@ -692,7 +694,7 @@ class _PaywallIpadBenefit extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: UiTokens.textBody.copyWith(
+                style: context.appTypography.body.copyWith(
                   color: _PaywallIpadPalette.ink,
                   fontWeight: FontWeight.w800,
                 ),
@@ -700,7 +702,7 @@ class _PaywallIpadBenefit extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 text,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _PaywallIpadPalette.muted,
                   height: 1.35,
                 ),
@@ -788,7 +790,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
         children: [
           Text(
             l10n.choosePlan,
-            style: UiTokens.textSectionTitle.copyWith(
+            style: context.appTypography.sectionTitle.copyWith(
               color: _PaywallIpadPalette.ink,
               fontWeight: FontWeight.w800,
             ),
@@ -800,7 +802,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
                 : (l10n.isEn
                     ? 'Subscribe to unlock weekly planning.'
                     : 'Assine para liberar o planejamento semanal.'),
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _PaywallIpadPalette.muted,
               height: 1.35,
             ),
@@ -876,7 +878,7 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
               ),
               Text(
                 '|',
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _PaywallIpadPalette.muted,
                 ),
               ),

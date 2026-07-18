@@ -21,7 +21,7 @@ class PhotoViewerPage extends StatelessWidget {
     this.locationLabel = 'Sem local',
   });
 
-  Widget _infoRow(String label, String value) {
+  Widget _infoRow(BuildContext context, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,7 +29,7 @@ class PhotoViewerPage extends StatelessWidget {
           width: 72,
           child: Text(
             label,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: Colors.white70,
               fontWeight: FontWeight.w600,
             ),
@@ -39,7 +39,7 @@ class PhotoViewerPage extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: UiTokens.textBody.copyWith(
+            style: context.appTypography.body.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
@@ -100,11 +100,11 @@ class PhotoViewerPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _infoRow('Caixa', boxLabel),
+                  _infoRow(context, 'Caixa', boxLabel),
                   const SizedBox(height: UiTokens.spacingSm),
-                  _infoRow('Categoria', categoryLabel),
+                  _infoRow(context, 'Categoria', categoryLabel),
                   const SizedBox(height: UiTokens.spacingSm),
-                  _infoRow(locationFieldLabel, locationLabel),
+                  _infoRow(context, locationFieldLabel, locationLabel),
                 ],
               ),
             ),

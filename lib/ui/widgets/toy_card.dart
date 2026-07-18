@@ -56,7 +56,7 @@ class ToyCard extends StatelessWidget {
                   displayName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: UiTokens.textPrimary,
                   ),
                 ),

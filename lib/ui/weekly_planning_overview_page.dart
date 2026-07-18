@@ -255,7 +255,8 @@ class _WeeklyPlanningOverviewPageState
 
   @override
   Widget build(BuildContext context) {
-    final isIpad = MediaQuery.sizeOf(context).width >= 860;
+    final isIpad = context.usesTabletPresentation &&
+        MediaQuery.sizeOf(context).width >= 860;
     final l10n = context.l10n;
 
     return Scaffold(
@@ -343,7 +344,8 @@ class _OverviewContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isIpad = constraints.maxWidth >= 860;
+        final isIpad =
+            context.usesTabletPresentation && constraints.maxWidth >= 860;
 
         if (isIpad) {
           final gridHeight =
@@ -469,7 +471,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
                   l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _FigmaPlanningPalette.textMuted,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w800,
@@ -480,7 +482,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
                   l10n.weeklyPlanning,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: _FigmaPlanningPalette.text,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
@@ -498,7 +500,7 @@ class _FigmaPlanningHeader extends StatelessWidget {
                           : 'Ative a programação para personalizar os próximos dias.'),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _FigmaPlanningPalette.textMuted,
                     fontWeight: FontWeight.w600,
                     height: 1.45,
@@ -626,7 +628,7 @@ class _FigmaHeaderButton extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textButton.copyWith(
+                style: context.appTypography.button.copyWith(
                   color: textColor,
                   fontSize: 14,
                   fontWeight: primary ? FontWeight.w800 : FontWeight.w700,
@@ -672,7 +674,7 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                         l10n.currentWeek,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textSectionTitle.copyWith(
+                        style: context.appTypography.sectionTitle.copyWith(
                           color: _FigmaPlanningPalette.text,
                           fontSize: 16.5,
                           fontWeight: FontWeight.w900,
@@ -683,7 +685,7 @@ class _FigmaWeekPlanCard extends StatelessWidget {
                         '${_weekRangeLabel(overview.days, l10n)} · $readyDays ${l10n.daysPlanned}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textMicro.copyWith(
+                        style: context.appTypography.micro.copyWith(
                           color: _FigmaPlanningPalette.textMuted,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
@@ -790,7 +792,7 @@ class _FigmaDayPlanRow extends StatelessWidget {
                     _weekdayAbbr(day.weekday, l10n),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: status.today
                           ? _FigmaPlanningPalette.orange
                           : _FigmaPlanningPalette.text,
@@ -804,7 +806,7 @@ class _FigmaDayPlanRow extends StatelessWidget {
                     '${day.date.day} ${_shortMonth(day.date.month, l10n)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textMicro.copyWith(
+                    style: context.appTypography.micro.copyWith(
                       color: _FigmaPlanningPalette.textMuted,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,
@@ -830,7 +832,7 @@ class _FigmaDayPlanRow extends StatelessWidget {
                     day.total == 1 ? '1 brinquedo' : '${day.total} brinquedos',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textMicro.copyWith(
+                    style: context.appTypography.micro.copyWith(
                       color: _FigmaPlanningPalette.textMid,
                       fontSize: 12.5,
                       fontWeight: FontWeight.w700,
@@ -890,7 +892,7 @@ class _FigmaToyStack extends StatelessWidget {
         'Aguardando configuração',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _FigmaPlanningPalette.textMuted,
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -1047,7 +1049,7 @@ class _FigmaOverflowAvatar extends StatelessWidget {
                 ),
                 child: Text(
                   '+$count',
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _FigmaPlanningPalette.orange,
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
@@ -1097,7 +1099,7 @@ class _FigmaWeekFooter extends StatelessWidget {
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _FigmaPlanningPalette.textMuted,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
@@ -1109,7 +1111,7 @@ class _FigmaWeekFooter extends StatelessWidget {
             '$categories categorias cobertas',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _FigmaPlanningPalette.textMid,
               fontSize: 12.5,
               fontWeight: FontWeight.w800,
@@ -1243,7 +1245,7 @@ class _FigmaStatTile extends StatelessWidget {
               textAlign: TextAlign.right,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textTitle.copyWith(
+              style: context.appTypography.pageTitle.copyWith(
                 color: data.foreground,
                 fontSize: 25.5,
                 fontWeight: FontWeight.w900,
@@ -1257,7 +1259,7 @@ class _FigmaStatTile extends StatelessWidget {
               data.label,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _FigmaPlanningPalette.textMid,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -1298,7 +1300,7 @@ class _FigmaCategoriesCard extends StatelessWidget {
               l10n.isEn
                   ? 'Include at least one category to see the distribution.'
                   : 'Inclua pelo menos uma categoria para ver a distribuição.',
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _FigmaPlanningPalette.textMuted,
                 fontWeight: FontWeight.w600,
               ),
@@ -1353,7 +1355,7 @@ class _FigmaCategoryProgressRow extends StatelessWidget {
                 l10n.categoryName(item.categoryName),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: _FigmaPlanningPalette.text,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -1364,7 +1366,7 @@ class _FigmaCategoryProgressRow extends StatelessWidget {
             Text(
               l10n.compactToysCount(item.total),
               maxLines: 1,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _FigmaPlanningPalette.textMuted,
                 fontSize: 11.5,
                 fontWeight: FontWeight.w700,
@@ -1448,7 +1450,7 @@ class _FigmaQuickActionsCard extends StatelessWidget {
             l10n.isEn ? 'Quick actions' : 'Ações rápidas',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _FigmaPlanningPalette.text,
               fontSize: 14.8,
               fontWeight: FontWeight.w900,
@@ -1470,7 +1472,7 @@ class _FigmaQuickActionsCard extends StatelessWidget {
                   _weekRangeLabel(overview.days, l10n),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _FigmaPlanningPalette.textMuted,
                     fontSize: 11.2,
                     fontWeight: FontWeight.w700,
@@ -1546,7 +1548,7 @@ class _FigmaQuickActionTile extends StatelessWidget {
                   data.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textButton.copyWith(
+                  style: context.appTypography.button.copyWith(
                     color: _FigmaPlanningPalette.text,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -1585,7 +1587,7 @@ class _FigmaSideCardTitle extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             color: _FigmaPlanningPalette.text,
             fontSize: 14.8,
             fontWeight: FontWeight.w900,
@@ -1596,7 +1598,7 @@ class _FigmaSideCardTitle extends StatelessWidget {
           subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textMicro.copyWith(
+          style: context.appTypography.micro.copyWith(
             color: _FigmaPlanningPalette.textMuted,
             fontSize: 12.2,
             fontWeight: FontWeight.w600,
@@ -1638,7 +1640,7 @@ class _FigmaStatusPill extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: compact ? 11 : 12,
           fontWeight: FontWeight.w900,
@@ -1723,7 +1725,8 @@ class _CompactPlanningLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.sizeOf(context).width >= 700;
+    final isWide =
+        context.appTextScale < 1.5 && MediaQuery.sizeOf(context).width >= 820;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1790,7 +1793,8 @@ class _PlanningHeroCard extends StatelessWidget {
         foregroundColor: Colors.white,
         minimumSize: Size(isWide ? 196 : 0, 50),
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
+        textStyle:
+            context.appTypography.button.copyWith(fontWeight: FontWeight.w800),
         elevation: 0,
         shadowColor: UiTokens.actionOrange.withValues(alpha: 0.24),
         shape: RoundedRectangleBorder(
@@ -1876,7 +1880,10 @@ class _PlanningHeroCopy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalLabel = total == 1 ? '1 brinquedo' : '$total brinquedos';
+    final l10n = context.l10n;
+    final totalLabel = l10n.isEn
+        ? (total == 1 ? '1 toy' : '$total toys')
+        : (total == 1 ? '1 brinquedo' : '$total brinquedos');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1887,7 +1894,9 @@ class _PlanningHeroCopy extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             _PlanningPill(
-              label: '$totalLabel nesta semana',
+              label: l10n.isEn
+                  ? '$totalLabel this week'
+                  : '$totalLabel nesta semana',
               foreground: _WeeklyIpadPalette.orange,
               background: _WeeklyIpadPalette.orangeSoft,
               border: _WeeklyIpadPalette.orangeBorder,
@@ -1899,7 +1908,7 @@ class _PlanningHeroCopy extends StatelessWidget {
           title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textTitle.copyWith(
+          style: context.appTypography.pageTitle.copyWith(
             color: _WeeklyIpadPalette.text,
             fontSize: 24,
             fontWeight: FontWeight.w900,
@@ -1910,7 +1919,7 @@ class _PlanningHeroCopy extends StatelessWidget {
           subtitle,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             color: _WeeklyIpadPalette.textMid,
             height: 1.35,
             fontWeight: FontWeight.w600,
@@ -2140,16 +2149,36 @@ class _CategoryDistributionCard extends StatelessWidget {
                   ),
             )
           else
-            Wrap(
-              spacing: UiTokens.spacingSm,
-              runSpacing: UiTokens.spacingSm,
-              children: [
-                for (final item in items)
-                  _CategoryChip(
-                    item: item,
-                    icon: _iconForCategory(item.categoryId),
-                  ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final singleColumn = constraints.maxWidth < 720;
+                final chips = [
+                  for (final item in items)
+                    _CategoryChip(
+                      item: item,
+                      icon: _iconForCategory(item.categoryId),
+                      expanded: singleColumn,
+                    ),
+                ];
+                return singleColumn
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var index = 0;
+                              index < chips.length;
+                              index++) ...[
+                            chips[index],
+                            if (index != chips.length - 1)
+                              const SizedBox(height: UiTokens.spacingSm),
+                          ],
+                        ],
+                      )
+                    : Wrap(
+                        spacing: UiTokens.spacingSm,
+                        runSpacing: UiTokens.spacingSm,
+                        children: chips,
+                      );
+              },
             ),
         ],
       ),
@@ -2160,17 +2189,23 @@ class _CategoryDistributionCard extends StatelessWidget {
 class _CategoryChip extends StatelessWidget {
   final WeeklyPlanningCategoryDistribution item;
   final IconData icon;
+  final bool expanded;
 
   const _CategoryChip({
     required this.item,
     required this.icon,
+    this.expanded = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Container(
-      constraints: const BoxConstraints(minWidth: 142, maxWidth: 250),
+      width: expanded ? double.infinity : null,
+      constraints: BoxConstraints(
+        minWidth: 142,
+        maxWidth: expanded ? double.infinity : 360,
+      ),
       padding: const EdgeInsets.symmetric(
         horizontal: UiTokens.spacingMd,
         vertical: UiTokens.spacingSm,
@@ -2188,8 +2223,8 @@ class _CategoryChip extends StatelessWidget {
           Flexible(
             child: Text(
               l10n.categoryName(item.categoryName),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+              overflow: TextOverflow.visible,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -2278,7 +2313,7 @@ class _DayScheduleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compact = constraints.maxWidth < 430;
+        final compact = constraints.maxWidth < 720;
         final maxVisibleToys = constraints.maxWidth >= 760 ? 6 : 4;
 
         return Padding(
@@ -2316,7 +2351,7 @@ class _DayScheduleRow extends StatelessWidget {
               : Row(
                   children: [
                     SizedBox(
-                      width: 124,
+                      width: 180,
                       child: _DayLabelBlock(day: day),
                     ),
                     const SizedBox(width: UiTokens.spacingSm),
@@ -2645,7 +2680,7 @@ class _DayTotalTextButton extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: figma
-                    ? UiTokens.textMicro.copyWith(
+                    ? context.appTypography.micro.copyWith(
                         color: _FigmaPlanningPalette.textMuted,
                         fontSize: 12.5,
                         fontWeight: FontWeight.w800,
@@ -3106,7 +3141,7 @@ class _EditButtonBar extends StatelessWidget {
             backgroundColor: UiTokens.actionOrange,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(52),
-            textStyle: UiTokens.textButton.copyWith(
+            textStyle: context.appTypography.button.copyWith(
               fontWeight: FontWeight.w800,
             ),
             shape: RoundedRectangleBorder(
@@ -3527,7 +3562,7 @@ class _PlanningPill extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: 11,
           fontWeight: FontWeight.w900,

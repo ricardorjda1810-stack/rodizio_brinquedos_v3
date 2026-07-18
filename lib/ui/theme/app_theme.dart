@@ -4,7 +4,7 @@ import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData light() {
+  static ThemeData light({bool isTablet = false}) {
     const scheme = ColorScheme(
       brightness: Brightness.light,
       primary: UiTokens.actionOrange,
@@ -60,10 +60,11 @@ class AppTheme {
       actionSoft: UiTokens.actionOrangeSoft,
       accent: UiTokens.actionOrange,
       isDark: false,
+      isTablet: isTablet,
     );
   }
 
-  static ThemeData dark() {
+  static ThemeData dark({bool isTablet = false}) {
     const scheme = ColorScheme(
       brightness: Brightness.dark,
       primary: UiTokens.primaryDark,
@@ -119,6 +120,7 @@ class AppTheme {
       actionSoft: const Color(0xFF463723),
       accent: UiTokens.accentDark,
       isDark: true,
+      isTablet: isTablet,
     );
   }
 
@@ -136,12 +138,16 @@ class AppTheme {
     required Color actionSoft,
     required Color accent,
     required bool isDark,
+    required bool isTablet,
   }) {
     final textTheme = _buildTextTheme(
       base.textTheme,
       textPrimary,
       textSecondary,
+      isTablet: isTablet,
     );
+    final buttonTextStyle =
+        isTablet ? AppTypography.tablet.button : UiTokens.textButton;
 
     return base.copyWith(
       textTheme: textTheme,
@@ -228,7 +234,7 @@ class AppTheme {
           foregroundColor: isDark ? UiTokens.backgroundDark : surface,
           disabledBackgroundColor: border,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
+          textStyle: buttonTextStyle.copyWith(fontWeight: FontWeight.w800),
           elevation: 0,
           minimumSize: const Size(0, 50),
           shape: RoundedRectangleBorder(
@@ -247,7 +253,7 @@ class AppTheme {
           foregroundColor: textPrimary,
           surfaceTintColor: Colors.transparent,
           shadowColor: shadow,
-          textStyle: UiTokens.textButton,
+          textStyle: buttonTextStyle,
           minimumSize: const Size(0, 48),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiTokens.radiusButton),
@@ -263,7 +269,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: actionColor,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
+          textStyle: buttonTextStyle.copyWith(fontWeight: FontWeight.w800),
           minimumSize: const Size(0, 50),
           side:
               BorderSide(color: isDark ? border : UiTokens.actionOrangeBorder),
@@ -280,7 +286,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: actionColor,
           disabledForegroundColor: textSecondary,
-          textStyle: UiTokens.textButton.copyWith(fontWeight: FontWeight.w800),
+          textStyle: buttonTextStyle.copyWith(fontWeight: FontWeight.w800),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiTokens.radiusLg),
           ),
@@ -345,10 +351,8 @@ class AppTheme {
   }
 
   static TextTheme _buildTextTheme(
-    TextTheme base,
-    Color textPrimary,
-    Color textSecondary,
-  ) {
+      TextTheme base, Color textPrimary, Color textSecondary,
+      {required bool isTablet}) {
     return base.copyWith(
       displayLarge: base.displayLarge?.copyWith(
         color: textPrimary,
@@ -371,66 +375,68 @@ class AppTheme {
         letterSpacing: 0,
       ),
       headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: isTablet ? 32 : null,
         color: textPrimary,
         fontWeight: FontWeight.w700,
         letterSpacing: 0,
       ),
       headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: isTablet ? 28 : null,
         color: textPrimary,
         fontWeight: FontWeight.w700,
         letterSpacing: 0,
       ),
       titleLarge: base.titleLarge?.copyWith(
-        fontSize: UiTokens.appBarTitle,
+        fontSize: isTablet ? 24 : UiTokens.appBarTitle,
         height: 1.25,
         fontWeight: FontWeight.w600,
         letterSpacing: 0,
         color: textPrimary,
       ),
       titleMedium: base.titleMedium?.copyWith(
-        fontSize: 18,
+        fontSize: isTablet ? 21 : 18,
         height: 1.25,
         fontWeight: FontWeight.w600,
         letterSpacing: 0,
         color: textPrimary,
       ),
       titleSmall: base.titleSmall?.copyWith(
-        fontSize: 16,
+        fontSize: isTablet ? 18 : 16,
         height: 1.25,
         fontWeight: FontWeight.w600,
         color: textPrimary,
       ),
       bodyLarge: base.bodyLarge?.copyWith(
-        fontSize: UiTokens.body,
+        fontSize: isTablet ? 18 : UiTokens.body,
         height: 1.35,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
       bodyMedium: base.bodyMedium?.copyWith(
-        fontSize: UiTokens.body,
+        fontSize: isTablet ? 17 : UiTokens.body,
         height: 1.35,
         fontWeight: FontWeight.w400,
         color: textPrimary,
       ),
       bodySmall: base.bodySmall?.copyWith(
-        fontSize: UiTokens.secondary,
+        fontSize: isTablet ? 15 : UiTokens.secondary,
         height: 1.35,
         fontWeight: FontWeight.w400,
         color: textSecondary,
       ),
       labelLarge: base.labelLarge?.copyWith(
-        fontSize: 14,
-        height: 16 / 14,
+        fontSize: isTablet ? 16 : 14,
+        height: isTablet ? 1.25 : 16 / 14,
         fontWeight: FontWeight.w600,
         color: textPrimary,
       ),
       labelMedium: base.labelMedium?.copyWith(
-        fontSize: 13,
+        fontSize: isTablet ? 15 : 13,
         fontWeight: FontWeight.w600,
         color: textSecondary,
       ),
       labelSmall: base.labelSmall?.copyWith(
-        fontSize: 12,
+        fontSize: isTablet ? 14 : 12,
         fontWeight: FontWeight.w500,
         color: textSecondary,
       ),

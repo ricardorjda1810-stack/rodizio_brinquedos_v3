@@ -20,7 +20,7 @@ class WeeklyPlanningPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
 
     if (isTablet) {
       return _WeeklyPlanningIpadEditor(
@@ -249,7 +249,7 @@ class _PlanningEditorIpadHeader extends StatelessWidget {
                   'RODÍZIO DE BRINQUEDOS',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _PlanningEditorPalette.orange,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w900,
@@ -261,7 +261,7 @@ class _PlanningEditorIpadHeader extends StatelessWidget {
                   'Planejamento semanal',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: _PlanningEditorPalette.text,
                     fontSize: 31,
                     fontWeight: FontWeight.w900,
@@ -273,7 +273,7 @@ class _PlanningEditorIpadHeader extends StatelessWidget {
                   'Defina como a rodada distribui os brinquedos ao longo da semana.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _PlanningEditorPalette.textMid,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -366,7 +366,7 @@ class _PlanningEditorHeaderButton extends StatelessWidget {
                 backgroundColor: _PlanningEditorPalette.orange,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 18),
-                textStyle: UiTokens.textButton.copyWith(
+                textStyle: context.appTypography.button.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                 ),
@@ -388,7 +388,7 @@ class _PlanningEditorHeaderButton extends StatelessWidget {
                   width: 1.4,
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                textStyle: UiTokens.textButton.copyWith(
+                textStyle: context.appTypography.button.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                 ),
@@ -435,7 +435,7 @@ class _PlanningEditorStatusPill extends StatelessWidget {
           const SizedBox(width: 7),
           Text(
             enabled ? 'Ativo' : 'Desativado',
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: enabled
                   ? _PlanningEditorPalette.orange
                   : _PlanningEditorPalette.textMid,
@@ -613,7 +613,7 @@ class _PlanningEditorIpadFeatureSwitch extends StatelessWidget {
                   'Usar planejamento semanal',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _PlanningEditorPalette.text,
                     fontSize: 15,
                     fontWeight: FontWeight.w900,
@@ -624,7 +624,7 @@ class _PlanningEditorIpadFeatureSwitch extends StatelessWidget {
                   'Quando desligado, a rodada usa a configuração padrão de categorias.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _PlanningEditorPalette.textMid,
                     fontWeight: FontWeight.w700,
                     height: 1.28,
@@ -805,7 +805,7 @@ class _PlanningEditorIpadBalanceCardState
                       'Equilibrar a brincadeira',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _PlanningEditorPalette.text,
                         fontWeight: FontWeight.w900,
                       ),
@@ -816,7 +816,7 @@ class _PlanningEditorIpadBalanceCardState
               const SizedBox(height: 10),
               Text(
                 suggestion.message,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: _PlanningEditorPalette.textMid,
                   fontWeight: FontWeight.w700,
                   height: 1.35,
@@ -939,7 +939,7 @@ class _PlanningEditorIpadWeekdayCard extends StatelessWidget {
                       _weekdayName(config.weekday),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _PlanningEditorPalette.text,
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -986,7 +986,7 @@ class _PlanningEditorIpadWeekdayCard extends StatelessWidget {
                 children: [
                   Text(
                     'Usar padrão',
-                    style: UiTokens.textMicro.copyWith(
+                    style: context.appTypography.micro.copyWith(
                       color: _PlanningEditorPalette.textMuted,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1108,7 +1108,7 @@ class _PlanningEditorIpadDistributionSuggestion extends StatelessWidget {
                   'Distribuição sugerida',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _PlanningEditorPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1130,7 +1130,7 @@ class _PlanningEditorIpadDistributionSuggestion extends StatelessWidget {
           if (visibleEntries.isEmpty)
             Text(
               'Nenhuma categoria sugerida para este total.',
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _PlanningEditorPalette.textMid,
                 fontWeight: FontWeight.w700,
               ),
@@ -1194,7 +1194,7 @@ class _PlanningEditorIpadCategoryRow extends StatelessWidget {
               category.categoryName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: category.isIncluded
                     ? _PlanningEditorPalette.text
                     : _PlanningEditorPalette.textMuted,
@@ -1267,7 +1267,7 @@ class _IpadQuantityStepper extends StatelessWidget {
             child: Text(
               '$safeValue',
               textAlign: TextAlign.center,
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: enabled
                     ? _PlanningEditorPalette.text
                     : _PlanningEditorPalette.textMuted,
@@ -1349,7 +1349,7 @@ class _PlanningEditorIpadSummaryCard extends StatelessWidget {
         children: [
           Text(
             'Resumo',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _PlanningEditorPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -1357,7 +1357,7 @@ class _PlanningEditorIpadSummaryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Estado atual da programação',
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _PlanningEditorPalette.textMuted,
               fontWeight: FontWeight.w700,
             ),
@@ -1460,7 +1460,7 @@ class _PlanningEditorSummaryStat extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: color,
               fontSize: compact ? 23 : 21,
               fontWeight: FontWeight.w900,
@@ -1472,7 +1472,7 @@ class _PlanningEditorSummaryStat extends StatelessWidget {
             label,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _PlanningEditorPalette.textMid,
               fontWeight: FontWeight.w900,
               height: 1.18,
@@ -1515,7 +1515,7 @@ class _PlanningEditorIpadTipCard extends StatelessWidget {
               children: [
                 Text(
                   'Dica',
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _PlanningEditorPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1525,7 +1525,7 @@ class _PlanningEditorIpadTipCard extends StatelessWidget {
                   'Use a configuração padrão para manter consistência na semana. Personalize apenas os dias que precisam fugir do padrão.',
                   maxLines: 5,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _PlanningEditorPalette.textMid,
                     fontWeight: FontWeight.w700,
                     height: 1.32,
@@ -1597,7 +1597,7 @@ class _PlanningEditorIpadQuickActionsCard extends StatelessWidget {
         children: [
           Text(
             'Ações rápidas',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _PlanningEditorPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -1652,7 +1652,7 @@ class _PlanningEditorIpadSuggestionActionState
             'Sem sugestão de equilíbrio pendente.',
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _PlanningEditorPalette.textMuted,
               fontWeight: FontWeight.w700,
             ),
@@ -1679,7 +1679,7 @@ class _PlanningEditorIpadSuggestionActionState
             style: FilledButton.styleFrom(
               backgroundColor: _PlanningEditorPalette.orange,
               foregroundColor: Colors.white,
-              textStyle: UiTokens.textButton.copyWith(
+              textStyle: context.appTypography.button.copyWith(
                 fontWeight: FontWeight.w900,
               ),
               shape: RoundedRectangleBorder(
@@ -1740,7 +1740,7 @@ class _PlanningEditorActionTile extends StatelessWidget {
                   data.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _PlanningEditorPalette.text,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w900,
@@ -1784,7 +1784,7 @@ class _PlanningEditorSectionHeader extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _PlanningEditorPalette.text,
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
@@ -1795,7 +1795,7 @@ class _PlanningEditorSectionHeader extends StatelessWidget {
                 subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: _PlanningEditorPalette.textMuted,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -1876,7 +1876,7 @@ class _PlanningEditorMiniPill extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: 11,
           fontWeight: FontWeight.w900,
@@ -1917,7 +1917,7 @@ class _PlanningEditorStatBadge extends StatelessWidget {
           Text(
             value,
             maxLines: 1,
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: color,
               fontSize: 26,
               fontWeight: FontWeight.w900,
@@ -1929,7 +1929,7 @@ class _PlanningEditorStatBadge extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _PlanningEditorPalette.textMid,
               fontWeight: FontWeight.w900,
             ),
@@ -1963,7 +1963,7 @@ class _PlanningEditorDistributionLine extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _PlanningEditorPalette.textMid,
               fontWeight: FontWeight.w800,
             ),
@@ -1984,7 +1984,7 @@ class _PlanningEditorDistributionLine extends StatelessWidget {
         const SizedBox(width: 9),
         Text(
           '$value',
-          style: UiTokens.textMicro.copyWith(
+          style: context.appTypography.micro.copyWith(
             color: _PlanningEditorPalette.orange,
             fontWeight: FontWeight.w900,
           ),
@@ -2011,7 +2011,7 @@ class _PlanningEditorSummaryBox extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: _PlanningEditorPalette.textMid,
           fontWeight: FontWeight.w700,
           height: 1.3,
@@ -2049,7 +2049,7 @@ class _PlanningEditorEmptyState extends StatelessWidget {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _PlanningEditorPalette.textMuted,
                 fontWeight: FontWeight.w800,
               ),

@@ -493,6 +493,70 @@ class _RodadaPageState extends State<RodadaPage> {
                                           contentConstraints.maxWidth * 0.34,
                                         ),
                                       );
+                                      final checklist =
+                                          _RodadaIpadChecklistCard(
+                                        items: items,
+                                        progress: progress,
+                                        checklistByToyId: checklistByToyId,
+                                        categoryNamesById: categoryNamesById,
+                                        suggestionFuture: homeSuggestionFuture,
+                                        usingSuggestion: _startingRound,
+                                        onOpenToy: _openToyDetail,
+                                        onUseSuggestion: _startingRound
+                                            ? null
+                                            : _useHomeSuggestion,
+                                        onToggleCollected:
+                                            _toggleCollectedForToy,
+                                        categoryNameFor: _categoryNameFor,
+                                      );
+                                      final organization =
+                                          _RodadaIpadOrganizationCard(
+                                        items: items,
+                                        categoryNamesById: categoryNamesById,
+                                        categoryNameFor: _categoryNameFor,
+                                      );
+                                      final quickActions =
+                                          _RodadaIpadQuickActionsCard(
+                                        hasItems: items.isNotEmpty,
+                                        isReady: progress.isReady,
+                                        loadingSuggestion: _loadingSuggestion,
+                                        onMarkAll: items.isEmpty
+                                            ? null
+                                            : () => unawaited(
+                                                  _setCollectedForItems(
+                                                    items,
+                                                    true,
+                                                  ),
+                                                ),
+                                        onSuggestRound: () =>
+                                            _openRoundSuggestionSheet(
+                                          categoryNamesById,
+                                        ),
+                                        onOpenToys: widget.onOpenBrinquedosTab,
+                                        onOpenSettings: widget.onOpenSettings,
+                                      );
+
+                                      if (contentConstraints.maxWidth < 900) {
+                                        return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            SizedBox(
+                                              height: columnHeight,
+                                              child: checklist,
+                                            ),
+                                            const SizedBox(height: 18),
+                                            SizedBox(
+                                              height: 500,
+                                              child: organization,
+                                            ),
+                                            const SizedBox(height: 14),
+                                            const _RodadaIpadTipCard(),
+                                            const SizedBox(height: 14),
+                                            quickActions,
+                                          ],
+                                        );
+                                      }
 
                                       return SizedBox(
                                         height: columnHeight,
@@ -500,27 +564,7 @@ class _RodadaPageState extends State<RodadaPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.stretch,
                                           children: [
-                                            Expanded(
-                                              child: _RodadaIpadChecklistCard(
-                                                items: items,
-                                                progress: progress,
-                                                checklistByToyId:
-                                                    checklistByToyId,
-                                                categoryNamesById:
-                                                    categoryNamesById,
-                                                suggestionFuture:
-                                                    homeSuggestionFuture,
-                                                usingSuggestion: _startingRound,
-                                                onOpenToy: _openToyDetail,
-                                                onUseSuggestion: _startingRound
-                                                    ? null
-                                                    : _useHomeSuggestion,
-                                                onToggleCollected:
-                                                    _toggleCollectedForToy,
-                                                categoryNameFor:
-                                                    _categoryNameFor,
-                                              ),
-                                            ),
+                                            Expanded(child: checklist),
                                             const SizedBox(width: 18),
                                             SizedBox(
                                               width: sideColumnWidth,
@@ -529,45 +573,15 @@ class _RodadaPageState extends State<RodadaPage> {
                                                     CrossAxisAlignment.stretch,
                                                 children: [
                                                   Expanded(
-                                                    flex: 8,
-                                                    child:
-                                                        _RodadaIpadOrganizationCard(
-                                                      items: items,
-                                                      categoryNamesById:
-                                                          categoryNamesById,
-                                                      categoryNameFor:
-                                                          _categoryNameFor,
-                                                    ),
+                                                    flex: 7,
+                                                    child: organization,
                                                   ),
                                                   const SizedBox(height: 14),
                                                   const _RodadaIpadTipCard(),
                                                   const SizedBox(height: 14),
                                                   Expanded(
-                                                    flex: 5,
-                                                    child:
-                                                        _RodadaIpadQuickActionsCard(
-                                                      hasItems:
-                                                          items.isNotEmpty,
-                                                      isReady: progress.isReady,
-                                                      loadingSuggestion:
-                                                          _loadingSuggestion,
-                                                      onMarkAll: items.isEmpty
-                                                          ? null
-                                                          : () => unawaited(
-                                                                _setCollectedForItems(
-                                                                  items,
-                                                                  true,
-                                                                ),
-                                                              ),
-                                                      onSuggestRound: () =>
-                                                          _openRoundSuggestionSheet(
-                                                        categoryNamesById,
-                                                      ),
-                                                      onOpenToys: widget
-                                                          .onOpenBrinquedosTab,
-                                                      onOpenSettings:
-                                                          widget.onOpenSettings,
-                                                    ),
+                                                    flex: 6,
+                                                    child: quickActions,
                                                   ),
                                                 ],
                                               ),
@@ -597,7 +611,7 @@ class _RodadaPageState extends State<RodadaPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isTablet = context.usesTabletPresentation;
     if (isTablet) {
       return _buildIpadLayout(context);
     }
@@ -896,7 +910,7 @@ class _RodadaIpadHeader extends StatelessWidget {
                       '${l10n.appNameUpper} · ${todayLabel.toUpperCase()}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _RodadaIpadPalette.orange,
                         fontSize: 11.5,
                         fontWeight: FontWeight.w900,
@@ -908,7 +922,7 @@ class _RodadaIpadHeader extends StatelessWidget {
                       l10n.todaysRotation,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textTitle.copyWith(
+                      style: context.appTypography.pageTitle.copyWith(
                         color: _RodadaIpadPalette.text,
                         fontSize: 31,
                         fontWeight: FontWeight.w900,
@@ -926,7 +940,7 @@ class _RodadaIpadHeader extends StatelessWidget {
                               : 'Separe os brinquedos sugeridos e acompanhe o que j\u00e1 foi marcado.'),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _RodadaIpadPalette.textMid,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -1028,7 +1042,7 @@ class _RodadaIpadPrimaryButton extends StatelessWidget {
           foregroundColor: Colors.white,
           disabledForegroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 18),
-          textStyle: UiTokens.textButton.copyWith(
+          textStyle: context.appTypography.button.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w900,
           ),
@@ -1070,7 +1084,7 @@ class _RodadaIpadSecondaryButton extends StatelessWidget {
             width: 1.4,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          textStyle: UiTokens.textButton.copyWith(
+          textStyle: context.appTypography.button.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w900,
           ),
@@ -1141,7 +1155,7 @@ class _RodadaIpadChecklistCard extends StatelessWidget {
                             countLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: UiTokens.textSectionTitle.copyWith(
+                            style: context.appTypography.sectionTitle.copyWith(
                               color: _RodadaIpadPalette.text,
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
@@ -1156,7 +1170,7 @@ class _RodadaIpadChecklistCard extends StatelessWidget {
                                 : '${l10n.today} · ${l10n.toysCount(items.length)} ${l10n.isEn ? 'in rotation' : 'na rodada'}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: UiTokens.textMicro.copyWith(
+                            style: context.appTypography.micro.copyWith(
                               color: _RodadaIpadPalette.textMuted,
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,
@@ -1253,7 +1267,7 @@ class _RodadaIpadPercentPill extends StatelessWidget {
       ),
       child: Text(
         value,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontWeight: FontWeight.w900,
         ),
@@ -1347,7 +1361,7 @@ class _RodadaIpadChecklistItem extends StatelessWidget {
                               name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: UiTokens.textCaption.copyWith(
+                              style: context.appTypography.caption.copyWith(
                                 color: _RodadaIpadPalette.text,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w900,
@@ -1516,7 +1530,7 @@ class _RodadaIpadMiniPill extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: 11,
           fontWeight: FontWeight.w900,
@@ -1561,7 +1575,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                     ? 'Add toys to build a suggestion.'
                     : 'Cadastre brinquedos para montar uma sugest\u00e3o.',
                 textAlign: TextAlign.center,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _RodadaIpadPalette.textMuted,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1605,7 +1619,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                     ? '${suggestion.length} toys suggested for today'
                     : '${suggestion.length} brinquedos sugeridos para hoje',
                 textAlign: TextAlign.center,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _RodadaIpadPalette.text,
                   fontSize: 17,
                   fontWeight: FontWeight.w900,
@@ -1617,7 +1631,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                     ? 'Use the suggestion to turn this screen into a checklist.'
                     : 'Use a sugest\u00e3o para transformar esta tela em checklist.',
                 textAlign: TextAlign.center,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _RodadaIpadPalette.textMid,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1646,7 +1660,7 @@ class _RodadaIpadEmptyChecklist extends StatelessWidget {
                     horizontal: 20,
                     vertical: 13,
                   ),
-                  textStyle: UiTokens.textButton.copyWith(
+                  textStyle: context.appTypography.button.copyWith(
                     fontWeight: FontWeight.w900,
                   ),
                   shape: RoundedRectangleBorder(
@@ -1725,7 +1739,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
         children: [
           Text(
             l10n.isEn ? 'Organization' : 'Organiza\u00e7\u00e3o',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _RodadaIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -1735,7 +1749,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
             l10n.isEn ? 'Where to find each toy' : 'Onde buscar cada brinquedo',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _RodadaIpadPalette.textMuted,
               fontWeight: FontWeight.w700,
             ),
@@ -1749,7 +1763,7 @@ class _RodadaIpadOrganizationCard extends StatelessWidget {
                           ? 'Organization appears when there is an active rotation.'
                           : 'A organiza\u00e7\u00e3o aparece quando houver uma rodada ativa.',
                       textAlign: TextAlign.center,
-                      style: UiTokens.textMicro.copyWith(
+                      style: context.appTypography.micro.copyWith(
                         color: _RodadaIpadPalette.textMuted,
                         fontWeight: FontWeight.w700,
                       ),
@@ -1862,7 +1876,7 @@ class _RodadaIpadSideLabel extends StatelessWidget {
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: UiTokens.textMicro.copyWith(
+      style: context.appTypography.micro.copyWith(
         color: _RodadaIpadPalette.textMid,
         fontSize: 11.5,
         fontWeight: FontWeight.w900,
@@ -1902,7 +1916,7 @@ class _RodadaIpadCountRow extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _RodadaIpadPalette.text,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -1912,7 +1926,7 @@ class _RodadaIpadCountRow extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '$count',
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: color,
               fontWeight: FontWeight.w900,
             ),
@@ -1955,7 +1969,7 @@ class _RodadaIpadTipCard extends StatelessWidget {
               children: [
                 Text(
                   l10n.isEn ? 'Tip' : 'Dica',
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _RodadaIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1967,7 +1981,7 @@ class _RodadaIpadTipCard extends StatelessWidget {
                       : 'Depois de brincar, marque os brinquedos usados para melhorar as pr\u00f3ximas sugest\u00f5es.',
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _RodadaIpadPalette.textMid,
                     fontWeight: FontWeight.w700,
                     height: 1.32,
@@ -2049,7 +2063,7 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
         children: [
           Text(
             l10n.isEn ? 'Quick actions' : 'A\u00e7\u00f5es r\u00e1pidas',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _RodadaIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2060,7 +2074,7 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
             if (index < actions.length - 1)
               const Divider(height: 11, color: _RodadaIpadPalette.border),
           ],
-          const Spacer(),
+          const SizedBox(height: 10),
           Text(
             hasItems
                 ? (l10n.isEn
@@ -2071,7 +2085,7 @@ class _RodadaIpadQuickActionsCard extends StatelessWidget {
                     : 'Comece por uma sugest\u00e3o ou revise o cat\u00e1logo.'),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _RodadaIpadPalette.textMuted,
               fontWeight: FontWeight.w700,
             ),
@@ -2138,7 +2152,7 @@ class _RodadaIpadActionTile extends StatelessWidget {
                   data.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: enabled
                         ? _RodadaIpadPalette.text
                         : _RodadaIpadPalette.textMuted,
@@ -2225,7 +2239,7 @@ class _RoundMomentCard extends StatelessWidget {
                 l10n.playSet,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: colorScheme.onSurface,
                 ),
               ),
@@ -2235,7 +2249,7 @@ class _RoundMomentCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 softWrap: false,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -2249,7 +2263,7 @@ class _RoundMomentCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                 horizontal: UiTokens.spacingSm,
               ),
-              textStyle: UiTokens.textButton.copyWith(fontSize: 13),
+              textStyle: context.appTypography.button.copyWith(fontSize: 13),
             ),
             child: loadingSuggestion
                 ? const SizedBox(
@@ -2414,7 +2428,7 @@ class _AvailableToysGridCard extends StatelessWidget {
         title,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textTitle.copyWith(
+        style: context.appTypography.pageTitle.copyWith(
           fontSize: 21,
           fontWeight: FontWeight.w800,
           color: colorScheme.onSurface,
@@ -2436,7 +2450,7 @@ class _AvailableToysGridCard extends StatelessWidget {
           counterText,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             fontWeight: FontWeight.w700,
             color: colorScheme.onSurfaceVariant,
           ),
@@ -2458,7 +2472,7 @@ class _AvailableToysGridCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(
             horizontal: UiTokens.spacingXs,
           ),
-          textStyle: UiTokens.textButton.copyWith(fontSize: 12),
+          textStyle: context.appTypography.button.copyWith(fontSize: 12),
         ),
       );
     }
@@ -2662,7 +2676,7 @@ class _RoundToyGridItem extends StatelessWidget {
                 name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   fontSize: 13,
                   height: 1.2,
                   fontWeight: FontWeight.w700,
@@ -2674,7 +2688,7 @@ class _RoundToyGridItem extends StatelessWidget {
                 categoryName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   fontSize: 11,
                   height: 1.15,
                   fontWeight: FontWeight.w700,
@@ -2686,7 +2700,7 @@ class _RoundToyGridItem extends StatelessWidget {
                 locationLabel,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   fontSize: 11,
                   height: 1.15,
                   color: colorScheme.onSurfaceVariant,
@@ -2857,7 +2871,7 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
                   ? 'Add toys to build a suggestion.'
                   : 'Cadastre brinquedos para montar uma sugest\u00e3o.',
               textAlign: TextAlign.center,
-              style: UiTokens.textBody.copyWith(
+              style: context.appTypography.body.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
@@ -2917,7 +2931,8 @@ class _HomeSuggestionEmptyState extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(UiTokens.radiusMd),
                   ),
-                  textStyle: UiTokens.textButton.copyWith(fontSize: 13),
+                  textStyle:
+                      context.appTypography.button.copyWith(fontSize: 13),
                 ),
               ),
             ),

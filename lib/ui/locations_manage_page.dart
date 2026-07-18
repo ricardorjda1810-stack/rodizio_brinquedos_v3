@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -36,24 +37,25 @@ class LocationsManagePage extends StatelessWidget {
   });
 
   Future<void> _showAddDialog(BuildContext context) async {
+    final copy = _LocationsCopy(context.l10n.isEn);
     final controller = TextEditingController();
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Novo local'),
+        title: Text(copy.newLocation),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'Nome'),
+          decoration: InputDecoration(labelText: copy.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(copy.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Salvar'),
+            child: Text(copy.save),
           ),
         ],
       ),
@@ -67,24 +69,25 @@ class LocationsManagePage extends StatelessWidget {
     BuildContext context,
     LocationDefinition location,
   ) async {
+    final copy = _LocationsCopy(context.l10n.isEn);
     final controller = TextEditingController(text: location.name);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Editar local'),
+        title: Text(copy.editLocation),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'Nome'),
+          decoration: InputDecoration(labelText: copy.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(copy.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Salvar'),
+            child: Text(copy.save),
           ),
         ],
       ),
@@ -98,16 +101,19 @@ class LocationsManagePage extends StatelessWidget {
   }
 
   Future<void> _remove(
-      BuildContext context, LocationDefinition location) async {
+    BuildContext context,
+    LocationDefinition location,
+  ) async {
+    final copy = _LocationsCopy(context.l10n.isEn);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remover local?'),
+        title: Text(copy.removeLocationQuestion),
         content: Text(location.name),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancelar'),
+            child: Text(copy.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -115,7 +121,7 @@ class LocationsManagePage extends StatelessWidget {
               foregroundColor: UiTokens.surface,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Remover'),
+            child: Text(copy.remove),
           ),
         ],
       ),
@@ -173,6 +179,7 @@ class LocationsManagePage extends StatelessWidget {
     BuildContext context,
     List<LocationDefinition> locations,
   ) {
+    final copy = _LocationsCopy(context.l10n.isEn);
     final bottomPadding = AppBottomNavigation.reservedScrollPadding(context);
 
     return ListView(
@@ -189,64 +196,71 @@ class LocationsManagePage extends StatelessWidget {
                 const SizedBox(height: 18),
                 _ManageIpadHeader(
                   icon: Icons.place_outlined,
-                  title: 'Gerenciar locais',
-                  subtitle:
-                      'Defina os lugares da casa usados em caixas e brinquedos.',
-                  primaryLabel: 'Novo local',
+                  title: copy.manageLocations,
+                  subtitle: copy.manageSubtitle,
+                  primaryLabel: copy.newLocation,
                   onPrimary: () => _showAddDialog(context),
                   onBack: () => _closeRoute(context),
                 ),
                 const SizedBox(height: 18),
                 LayoutBuilder(
                   builder: (context, constraints) {
+                    final useSingleColumn = constraints.maxWidth < 900;
                     final gap = constraints.maxWidth >= 980 ? 22.0 : 18.0;
                     final leftWidth = (constraints.maxWidth - gap) * 0.61;
+                    final list = _ManageIpadSurface(
+                      child: _buildIpadLocationList(context, locations),
+                    );
+                    final details = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _ManageIpadSummaryCard(
+                          title: copy.summary,
+                          stats: [
+                            _ManageIpadStat(
+                              label: copy.registeredLocations,
+                              value: '${locations.length}',
+                              icon: Icons.place_outlined,
+                              semantic: true,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _ManageIpadTipCard(
+                          title: copy.tip,
+                          message: copy.tipMessage,
+                        ),
+                        const SizedBox(height: 16),
+                        _ManageIpadActionsCard(
+                          title: copy.quickActions,
+                          primaryLabel: copy.newLocation,
+                          onPrimary: () => _showAddDialog(context),
+                          secondaryLabel: copy.back,
+                          onSecondary: () => _closeRoute(context),
+                        ),
+                      ],
+                    );
+
+                    if (useSingleColumn) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          list,
+                          SizedBox(height: gap),
+                          details,
+                        ],
+                      );
+                    }
 
                     return Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
                           width: leftWidth.clamp(540.0, 680.0),
-                          child: _ManageIpadSurface(
-                            child: _buildIpadLocationList(
-                              context,
-                              locations,
-                            ),
-                          ),
+                          child: list,
                         ),
                         SizedBox(width: gap),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _ManageIpadSummaryCard(
-                                title: 'Resumo',
-                                stats: [
-                                  _ManageIpadStat(
-                                    label: 'Locais cadastrados',
-                                    value: '${locations.length}',
-                                    icon: Icons.place_outlined,
-                                    semantic: true,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              const _ManageIpadTipCard(
-                                title: 'Dica',
-                                message:
-                                    'Prefira nomes que a fam\u00edlia reconhece sem pensar: Sala, Quarto, Estante ou Tapete.',
-                              ),
-                              const SizedBox(height: 16),
-                              _ManageIpadActionsCard(
-                                title: 'A\u00e7\u00f5es r\u00e1pidas',
-                                primaryLabel: 'Novo local',
-                                onPrimary: () => _showAddDialog(context),
-                                secondaryLabel: 'Voltar',
-                                onSecondary: () => _closeRoute(context),
-                              ),
-                            ],
-                          ),
-                        ),
+                        Expanded(child: details),
                       ],
                     );
                   },
@@ -263,13 +277,13 @@ class LocationsManagePage extends StatelessWidget {
     BuildContext context,
     List<LocationDefinition> locations,
   ) {
+    final copy = _LocationsCopy(context.l10n.isEn);
     if (locations.isEmpty) {
       return _ManageIpadEmptyPanel(
         icon: Icons.place_outlined,
-        title: 'Nenhum local cadastrado',
-        message:
-            'Crie locais para deixar a organiza\u00e7\u00e3o da casa mais clara no cadastro das caixas e brinquedos.',
-        actionLabel: 'Novo local',
+        title: copy.noLocations,
+        message: copy.noLocationsMessage,
+        actionLabel: copy.newLocation,
         onAction: () => _showAddDialog(context),
       );
     }
@@ -277,10 +291,10 @@ class LocationsManagePage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _ManageIpadSectionTitle(
+        _ManageIpadSectionTitle(
           icon: Icons.place_outlined,
-          title: 'Locais da casa',
-          subtitle: 'Lista real usada em caixas e brinquedos sem caixa.',
+          title: copy.homeLocations,
+          subtitle: copy.listSubtitle,
         ),
         const SizedBox(height: 18),
         for (final location in locations) ...[
@@ -296,6 +310,7 @@ class LocationsManagePage extends StatelessWidget {
     BuildContext context,
     LocationDefinition location,
   ) {
+    final copy = _LocationsCopy(context.l10n.isEn);
     return Material(
       color: Colors.transparent,
       child: Padding(
@@ -304,27 +319,29 @@ class LocationsManagePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _ManageIpadIconBox(
-                icon: Icons.place_outlined, semantic: true),
+              icon: Icons.place_outlined,
+              semantic: true,
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    location.name,
+                    copy.locationName(location.name),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textBody.copyWith(
+                    style: context.appTypography.body.copyWith(
                       color: _ManageIpadPalette.text,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Sugest\u00e3o usada em caixas e brinquedos sem caixa.',
+                    copy.locationUsage,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _ManageIpadPalette.textMid,
                       fontWeight: FontWeight.w600,
                       height: 1.35,
@@ -335,13 +352,13 @@ class LocationsManagePage extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             _ManageIpadMiniButton(
-              tooltip: 'Editar local',
+              tooltip: copy.editLocation,
               icon: Icons.edit_outlined,
               onTap: () => _showRenameDialog(context, location),
             ),
             const SizedBox(width: 8),
             _ManageIpadMiniButton(
-              tooltip: 'Remover local',
+              tooltip: copy.removeLocation,
               icon: Icons.delete_outline_rounded,
               destructive: true,
               onTap: () => _remove(context, location),
@@ -354,16 +371,17 @@ class LocationsManagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final copy = _LocationsCopy(context.l10n.isEn);
+    final isIpad = context.usesTabletPresentation;
     if (isIpad) return _buildIpadScaffold(context);
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
-      appBar: AppBar(title: const Text('Gerenciar locais')),
+      appBar: AppBar(title: Text(copy.manageLocations)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDialog(context),
         icon: const Icon(Icons.add),
-        label: const Text('Novo local'),
+        label: Text(copy.newLocation),
       ),
       body: Padding(
         padding: const EdgeInsets.all(UiTokens.m),
@@ -378,10 +396,9 @@ class LocationsManagePage extends StatelessWidget {
             if (locations.isEmpty) {
               return EmptyState(
                 icon: Icons.place_outlined,
-                title: 'Nenhum local cadastrado',
-                message:
-                    'Crie locais para deixar a organiza\u00e7\u00e3o da casa mais clara no cadastro das caixas e brinquedos.',
-                actionLabel: 'Novo local',
+                title: copy.noLocations,
+                message: copy.noLocationsMessage,
+                actionLabel: copy.newLocation,
                 onAction: () => _showAddDialog(context),
               );
             }
@@ -396,12 +413,12 @@ class LocationsManagePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Locais da casa',
+                        copy.homeLocations,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: UiTokens.spacingXs),
                       Text(
-                        'Use nomes curtos para encontrar caixas e brinquedos mais rápido.',
+                        copy.shortNamesMessage,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
@@ -425,8 +442,9 @@ class LocationsManagePage extends StatelessWidget {
                             height: 44,
                             decoration: BoxDecoration(
                               color: UiTokens.primarySoft,
-                              borderRadius:
-                                  BorderRadius.circular(UiTokens.radiusLg),
+                              borderRadius: BorderRadius.circular(
+                                UiTokens.radiusLg,
+                              ),
                             ),
                             alignment: Alignment.center,
                             child: const Icon(
@@ -440,19 +458,19 @@ class LocationsManagePage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  location.name,
+                                  copy.locationName(location.name),
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                                 const SizedBox(height: UiTokens.spacingXs),
                                 Text(
-                                  'Sugest\u00e3o usada em caixas e brinquedos sem caixa.',
+                                  copy.locationUsage,
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
                           ),
                           PopupMenuButton<String>(
-                            tooltip: 'A\u00e7\u00f5es do local',
+                            tooltip: copy.locationActions,
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _showRenameDialog(context, location);
@@ -462,14 +480,14 @@ class LocationsManagePage extends StatelessWidget {
                                 _remove(context, location);
                               }
                             },
-                            itemBuilder: (context) => const [
+                            itemBuilder: (context) => [
                               PopupMenuItem<String>(
                                 value: 'edit',
-                                child: Text('Editar'),
+                                child: Text(copy.edit),
                               ),
                               PopupMenuItem<String>(
                                 value: 'delete',
-                                child: Text('Remover'),
+                                child: Text(copy.remove),
                               ),
                             ],
                           ),
@@ -485,6 +503,75 @@ class LocationsManagePage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _LocationsCopy {
+  final bool isEn;
+
+  const _LocationsCopy(this.isEn);
+
+  String get newLocation => isEn ? 'New location' : 'Novo local';
+  String get editLocation => isEn ? 'Edit location' : 'Editar local';
+  String get removeLocation => isEn ? 'Remove location' : 'Remover local';
+  String get removeLocationQuestion =>
+      isEn ? 'Remove location?' : 'Remover local?';
+  String get name => isEn ? 'Name' : 'Nome';
+  String get cancel => isEn ? 'Cancel' : 'Cancelar';
+  String get save => isEn ? 'Save' : 'Salvar';
+  String get remove => isEn ? 'Remove' : 'Remover';
+  String get edit => isEn ? 'Edit' : 'Editar';
+  String get back => isEn ? 'Back' : 'Voltar';
+  String get manageLocations => isEn ? 'Manage locations' : 'Gerenciar locais';
+  String get manageSubtitle => isEn
+      ? 'Define the places in your home used for boxes and toys.'
+      : 'Defina os lugares da casa usados em caixas e brinquedos.';
+  String get summary => isEn ? 'Summary' : 'Resumo';
+  String get registeredLocations =>
+      isEn ? 'Registered locations' : 'Locais cadastrados';
+  String get tip => isEn ? 'Tip' : 'Dica';
+  String get tipMessage => isEn
+      ? 'Use names your family recognizes instantly: Living room, Bedroom, Shelf, or Play mat.'
+      : 'Prefira nomes que a fam\u00edlia reconhece sem pensar: Sala, Quarto, Estante ou Tapete.';
+  String get quickActions =>
+      isEn ? 'Quick actions' : 'A\u00e7\u00f5es r\u00e1pidas';
+  String get noLocations =>
+      isEn ? 'No locations yet' : 'Nenhum local cadastrado';
+  String get noLocationsMessage => isEn
+      ? 'Create locations to make your home organization clearer when adding boxes and toys.'
+      : 'Crie locais para deixar a organiza\u00e7\u00e3o da casa mais clara no cadastro das caixas e brinquedos.';
+  String get homeLocations => isEn ? 'Home locations' : 'Locais da casa';
+  String get listSubtitle => isEn
+      ? 'The locations used for boxes and toys without a box.'
+      : 'Lista real usada em caixas e brinquedos sem caixa.';
+  String get locationUsage => isEn
+      ? 'Suggested for boxes and toys without a box.'
+      : 'Sugest\u00e3o usada em caixas e brinquedos sem caixa.';
+  String get shortNamesMessage => isEn
+      ? 'Use short names to find boxes and toys faster.'
+      : 'Use nomes curtos para encontrar caixas e brinquedos mais rápido.';
+  String get locationActions =>
+      isEn ? 'Location actions' : 'A\u00e7\u00f5es do local';
+
+  String locationName(String value) {
+    if (!isEn) return value;
+    return _defaultEnglishLocationNames[value] ?? value;
+  }
+
+  static const _defaultEnglishLocationNames = <String, String>{
+    'Sala': 'Living room',
+    'Quarto da criança': "Child's bedroom",
+    'Quarto da crianÃ§a': "Child's bedroom",
+    'Quarto': 'Bedroom',
+    'Cozinha': 'Kitchen',
+    'Banheiro': 'Bathroom',
+    'Varanda': 'Balcony',
+    'Área de serviço': 'Laundry room',
+    'Ãrea de serviÃ§o': 'Laundry room',
+    'Corredor': 'Hallway',
+    'Caixa de tecido': 'Fabric box',
+    'Estante Montessori': 'Montessori shelf',
+    'Prateleira baixa': 'Low shelf',
+  };
 }
 
 class _ManageIpadPalette {
@@ -586,8 +673,8 @@ class _ManageIpadHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ROD\u00cdZIO DE BRINQUEDOS',
-                  style: UiTokens.textMicro.copyWith(
+                  context.l10n.appNameUpper,
+                  style: context.appTypography.micro.copyWith(
                     color: _ManageIpadPalette.orange,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.7,
@@ -598,7 +685,7 @@ class _ManageIpadHeader extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: _ManageIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -606,7 +693,7 @@ class _ManageIpadHeader extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ManageIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                   ),
@@ -622,12 +709,13 @@ class _ManageIpadHeader extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back_rounded),
-                label: const Text('Voltar'),
+                label: Text(context.l10n.isEn ? 'Back' : 'Voltar'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(116, 52),
                   foregroundColor: _ManageIpadPalette.orangeDark,
-                  side:
-                      const BorderSide(color: _ManageIpadPalette.orangeBorder),
+                  side: const BorderSide(
+                    color: _ManageIpadPalette.orangeBorder,
+                  ),
                 ),
               ),
               FilledButton.icon(
@@ -682,7 +770,7 @@ class _ManageIpadSectionTitle extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _ManageIpadPalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -692,7 +780,7 @@ class _ManageIpadSectionTitle extends StatelessWidget {
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _ManageIpadPalette.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
@@ -709,10 +797,7 @@ class _ManageIpadIconBox extends StatelessWidget {
   final IconData icon;
   final bool semantic;
 
-  const _ManageIpadIconBox({
-    required this.icon,
-    this.semantic = false,
-  });
+  const _ManageIpadIconBox({required this.icon, this.semantic = false});
 
   @override
   Widget build(BuildContext context) {
@@ -806,10 +891,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
   final String title;
   final List<_ManageIpadStat> stats;
 
-  const _ManageIpadSummaryCard({
-    required this.title,
-    required this.stats,
-  });
+  const _ManageIpadSummaryCard({required this.title, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -820,7 +902,9 @@ class _ManageIpadSummaryCard extends StatelessWidget {
           _ManageIpadSectionTitle(
             icon: Icons.insights_outlined,
             title: title,
-            subtitle: 'Vis\u00e3o r\u00e1pida desta organiza\u00e7\u00e3o.',
+            subtitle: context.l10n.isEn
+                ? 'A quick view of this organization.'
+                : 'Vis\u00e3o r\u00e1pida desta organiza\u00e7\u00e3o.',
           ),
           const SizedBox(height: 16),
           for (final stat in stats) ...[
@@ -831,7 +915,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     stat.label,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _ManageIpadPalette.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
@@ -839,7 +923,7 @@ class _ManageIpadSummaryCard extends StatelessWidget {
                 ),
                 Text(
                   stat.value,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: stat.semantic
                         ? _ManageIpadPalette.green
                         : _ManageIpadPalette.text,
@@ -861,10 +945,7 @@ class _ManageIpadTipCard extends StatelessWidget {
   final String title;
   final String message;
 
-  const _ManageIpadTipCard({
-    required this.title,
-    required this.message,
-  });
+  const _ManageIpadTipCard({required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -880,7 +961,7 @@ class _ManageIpadTipCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ManageIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -888,7 +969,7 @@ class _ManageIpadTipCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ManageIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                     height: 1.35,
@@ -927,7 +1008,9 @@ class _ManageIpadActionsCard extends StatelessWidget {
           _ManageIpadSectionTitle(
             icon: Icons.touch_app_outlined,
             title: title,
-            subtitle: 'A\u00e7\u00f5es reais desta tela.',
+            subtitle: context.l10n.isEn
+                ? 'Actions available on this screen.'
+                : 'A\u00e7\u00f5es reais desta tela.',
           ),
           const SizedBox(height: 18),
           FilledButton.icon(
@@ -981,7 +1064,7 @@ class _ManageIpadEmptyPanel extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           title,
-          style: UiTokens.textSectionTitle.copyWith(
+          style: context.appTypography.sectionTitle.copyWith(
             color: _ManageIpadPalette.text,
             fontWeight: FontWeight.w900,
           ),
@@ -990,7 +1073,7 @@ class _ManageIpadEmptyPanel extends StatelessWidget {
         Text(
           message,
           textAlign: TextAlign.center,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             color: _ManageIpadPalette.textMid,
             fontWeight: FontWeight.w600,
             height: 1.35,

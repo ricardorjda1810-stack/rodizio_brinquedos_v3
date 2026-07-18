@@ -53,7 +53,7 @@ class ToyRowItem extends StatelessWidget {
                         displayName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textBody.copyWith(
+                        style: context.appTypography.body.copyWith(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: UiTokens.textPrimary,

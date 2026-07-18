@@ -597,7 +597,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
               if (locations.isNotEmpty)
                 Text(
                   'Use um local cadastrado ou informe um local manual.',
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _BoxCreateIpadPalette.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
@@ -696,7 +696,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                             const SizedBox(height: 10),
                             Text(
                               'Adicionar foto',
-                              style: UiTokens.textBody.copyWith(
+                              style: context.appTypography.body.copyWith(
                                 color: _BoxCreateIpadPalette.text,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -704,7 +704,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                             const SizedBox(height: 4),
                             Text(
                               'Opcional para identificar melhor',
-                              style: UiTokens.textCaption.copyWith(
+                              style: context.appTypography.caption.copyWith(
                                 color: _BoxCreateIpadPalette.textMuted,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -749,7 +749,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                         _boxName(nextNumber),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textBody.copyWith(
+                        style: context.appTypography.body.copyWith(
                           color: _BoxCreateIpadPalette.text,
                           fontWeight: FontWeight.w900,
                         ),
@@ -759,7 +759,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
                         local,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: _BoxCreateIpadPalette.textMid,
                           fontWeight: FontWeight.w700,
                         ),
@@ -850,7 +850,7 @@ class _BoxCreatePageState extends State<BoxCreatePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
+    final isIpad = context.usesTabletPresentation;
 
     return Scaffold(
       backgroundColor: isIpad ? _BoxCreateIpadPalette.bg : UiTokens.bg,
@@ -1019,7 +1019,7 @@ class _BoxCreateIpadHeader extends StatelessWidget {
               children: [
                 Text(
                   'ROD\u00cdZIO DE BRINQUEDOS',
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _BoxCreateIpadPalette.orange,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.7,
@@ -1030,7 +1030,7 @@ class _BoxCreateIpadHeader extends StatelessWidget {
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: _BoxCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1038,7 +1038,7 @@ class _BoxCreateIpadHeader extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _BoxCreateIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1117,7 +1117,7 @@ class _BoxCreateIpadSectionTitle extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _BoxCreateIpadPalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -1127,7 +1127,7 @@ class _BoxCreateIpadSectionTitle extends StatelessWidget {
                 subtitle,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                style: context.appTypography.caption.copyWith(
                   color: _BoxCreateIpadPalette.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1172,7 +1172,7 @@ class _BoxCreateIpadNotice extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _BoxCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1180,7 +1180,7 @@ class _BoxCreateIpadNotice extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   message,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _BoxCreateIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1230,7 +1230,7 @@ class _BoxCreateIpadSupportCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _BoxCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1238,7 +1238,7 @@ class _BoxCreateIpadSupportCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   message,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _BoxCreateIpadPalette.textMid,
                     fontWeight: FontWeight.w600,
                     height: 1.35,
@@ -1297,7 +1297,7 @@ class _BoxCreateIpadActionRow extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textBody.copyWith(
+                      style: context.appTypography.body.copyWith(
                         color: _BoxCreateIpadPalette.text,
                         fontWeight: FontWeight.w900,
                       ),
@@ -1307,7 +1307,7 @@ class _BoxCreateIpadActionRow extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _BoxCreateIpadPalette.textMuted,
                         fontWeight: FontWeight.w600,
                       ),

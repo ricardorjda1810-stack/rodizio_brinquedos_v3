@@ -922,7 +922,7 @@ class ToyDetailPage extends StatelessWidget {
               effectiveLocationLabel: effectiveLocationLabel,
               locationFieldLabel: locationFieldLabel,
             );
-            final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+            final isTablet = context.usesTabletPresentation;
 
             if (isTablet) {
               return _buildIpadScaffold(context, detail: detail);
@@ -1072,7 +1072,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
                   l10n.appNameUpper,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _ToyDetailIpadPalette.orange,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w900,
@@ -1084,7 +1084,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
                   detail.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: _ToyDetailIpadPalette.text,
                     fontSize: 31,
                     fontWeight: FontWeight.w900,
@@ -1096,7 +1096,7 @@ class _ToyDetailIpadHeader extends StatelessWidget {
                   '${detail.categoryLabel} · ${detail.effectiveLocationLabel}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyDetailIpadPalette.textMid,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1158,7 +1158,7 @@ class _ToyDetailIpadPhotoCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.toyPhoto,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: _ToyDetailIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1199,7 +1199,7 @@ class _ToyDetailIpadPhotoCard extends StatelessWidget {
                       : (l10n.isEn
                           ? 'Add a photo to make this toy easier to identify.'
                           : 'Adicione uma foto para facilitar a identificação.'),
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyDetailIpadPalette.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1245,7 +1245,7 @@ class _ToyDetailIpadPreviewCard extends StatelessWidget {
               children: [
                 Text(
                   l10n.isEn ? 'Catalog preview' : 'Prévia no catálogo',
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyDetailIpadPalette.textMuted,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1255,7 +1255,7 @@ class _ToyDetailIpadPreviewCard extends StatelessWidget {
                   detail.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textBody.copyWith(
+                  style: context.appTypography.body.copyWith(
                     color: _ToyDetailIpadPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -1265,7 +1265,7 @@ class _ToyDetailIpadPreviewCard extends StatelessWidget {
                   detail.categoryLabel,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _ToyDetailIpadPalette.orangeDark,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1385,7 +1385,7 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
                         l10n.isEn
                             ? 'Available for rotations'
                             : 'Disponível para rodadas',
-                        style: UiTokens.textBody.copyWith(
+                        style: context.appTypography.body.copyWith(
                           color: _ToyDetailIpadPalette.text,
                           fontWeight: FontWeight.w900,
                         ),
@@ -1395,7 +1395,7 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
                         l10n.isEn
                             ? 'Suggestions use the saved category, box, and location.'
                             : 'As sugestões usam a categoria, caixa e local cadastrados.',
-                        style: UiTokens.textCaption.copyWith(
+                        style: context.appTypography.caption.copyWith(
                           color: _ToyDetailIpadPalette.textMid,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1411,7 +1411,7 @@ class _ToyDetailIpadRotationCard extends StatelessWidget {
             l10n.isEn
                 ? 'This toy has no individual pause, donation, or forecast in this version.'
                 : 'Este cadastro não tem pausa, doação ou previsão individual nesta versão.',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _ToyDetailIpadPalette.textMuted,
               fontWeight: FontWeight.w600,
               height: 1.35,
@@ -1532,7 +1532,7 @@ class _ToyDetailIpadSectionTitle extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: UiTokens.textSectionTitle.copyWith(
+                style: context.appTypography.sectionTitle.copyWith(
                   color: _ToyDetailIpadPalette.text,
                   fontWeight: FontWeight.w900,
                 ),
@@ -1540,9 +1540,9 @@ class _ToyDetailIpadSectionTitle extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: UiTokens.textCaption.copyWith(
+                maxLines: 2,
+                overflow: TextOverflow.visible,
+                style: context.appTypography.caption.copyWith(
                   color: _ToyDetailIpadPalette.textMuted,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1614,7 +1614,7 @@ class _ToyDetailIpadInfoRow extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _ToyDetailIpadPalette.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1624,7 +1624,7 @@ class _ToyDetailIpadInfoRow extends StatelessWidget {
                     value,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textBody.copyWith(
+                    style: context.appTypography.body.copyWith(
                       color: _ToyDetailIpadPalette.text,
                       fontWeight: FontWeight.w900,
                     ),
@@ -1700,7 +1700,7 @@ class _ToyDetailIpadActionRow extends StatelessWidget {
                       title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textBody.copyWith(
+                      style: context.appTypography.body.copyWith(
                         color: destructive
                             ? _ToyDetailIpadPalette.red
                             : _ToyDetailIpadPalette.text,
@@ -1712,7 +1712,7 @@ class _ToyDetailIpadActionRow extends StatelessWidget {
                       subtitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: UiTokens.textCaption.copyWith(
+                      style: context.appTypography.caption.copyWith(
                         color: _ToyDetailIpadPalette.textMuted,
                         fontWeight: FontWeight.w600,
                       ),

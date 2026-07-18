@@ -243,7 +243,7 @@ class _TodayPlanningSummary extends StatelessWidget {
                 Text(
                   'HOJE',
                   maxLines: 1,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: UiTokens.primaryStrong,
                     fontWeight: FontWeight.w800,
                   ),

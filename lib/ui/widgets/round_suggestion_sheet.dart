@@ -12,7 +12,7 @@ Future<List<Toy>?> showRoundSuggestionPicker({
   required Map<String, String> categoryNamesById,
   required Map<String, Boxe> boxesById,
 }) {
-  final isIpad = MediaQuery.sizeOf(context).shortestSide >= 600;
+  final isIpad = context.usesTabletPresentation;
   final content = RoundSuggestionSheet(
     toys: toys,
     categoryNamesById: categoryNamesById,
@@ -50,7 +50,7 @@ class RoundSuggestionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final isIpad = size.shortestSide >= 600;
+    final isIpad = context.usesTabletPresentation;
 
     if (isIpad) {
       return _buildIpadDialog(context, size);
@@ -96,7 +96,7 @@ class RoundSuggestionSheet extends StatelessWidget {
               const SizedBox(height: UiTokens.spacingMd),
               Text(
                 'Sugest\u00e3o de rodada',
-                style: UiTokens.textTitle.copyWith(
+                style: context.appTypography.pageTitle.copyWith(
                   fontSize: 22,
                   color: colorScheme.onSurface,
                 ),
@@ -104,7 +104,7 @@ class RoundSuggestionSheet extends StatelessWidget {
               const SizedBox(height: UiTokens.spacingXs),
               Text(
                 'Com base no planejamento de hoje',
-                style: UiTokens.textBody.copyWith(
+                style: context.appTypography.body.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -260,7 +260,7 @@ class _SuggestionSummary extends StatelessWidget {
       ),
       child: Text(
         count == 1 ? '1 brinquedo' : '$count brinquedos',
-        style: UiTokens.textTitle.copyWith(
+        style: context.appTypography.pageTitle.copyWith(
           color: _RoundSuggestionPalette.orangeDark,
           fontWeight: FontWeight.w800,
         ),
@@ -303,7 +303,7 @@ class _SuggestedToyCard extends StatelessWidget {
             name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               fontSize: 13,
               height: 1.2,
               fontWeight: FontWeight.w700,
@@ -366,7 +366,7 @@ class _IpadSuggestionHeader extends StatelessWidget {
                 'Sugestão de rodada',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textTitle.copyWith(
+                style: context.appTypography.pageTitle.copyWith(
                   color: _RoundSuggestionPalette.text,
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
@@ -377,7 +377,7 @@ class _IpadSuggestionHeader extends StatelessWidget {
                 'Com base no planejamento de hoje',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textBody.copyWith(
+                style: context.appTypography.body.copyWith(
                   color: _RoundSuggestionPalette.textMid,
                   height: 1.35,
                   fontWeight: FontWeight.w600,
@@ -398,7 +398,7 @@ class _IpadSuggestionHeader extends StatelessWidget {
             badgeText,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _RoundSuggestionPalette.orangeDark,
               fontWeight: FontWeight.w900,
             ),
@@ -561,7 +561,7 @@ class _IpadSuggestedToyCard extends StatelessWidget {
                     name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: UiTokens.textCaption.copyWith(
+                    style: context.appTypography.caption.copyWith(
                       color: _RoundSuggestionPalette.text,
                       fontWeight: FontWeight.w900,
                       height: 1.2,
@@ -573,7 +573,7 @@ class _IpadSuggestedToyCard extends StatelessWidget {
                   categoryLabel,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _RoundSuggestionPalette.textMuted,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
@@ -645,7 +645,7 @@ class _IpadSuggestionSidePanel extends StatelessWidget {
                   'Resumo',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textSectionTitle.copyWith(
+                  style: context.appTypography.sectionTitle.copyWith(
                     color: _RoundSuggestionPalette.text,
                     fontWeight: FontWeight.w900,
                   ),
@@ -680,7 +680,7 @@ class _IpadSuggestionSidePanel extends StatelessWidget {
             ),
             child: Text(
               'Uma seleção pronta para começar a brincadeira de hoje.',
-              style: UiTokens.textCaption.copyWith(
+              style: context.appTypography.caption.copyWith(
                 color: _RoundSuggestionPalette.textMid,
                 fontWeight: FontWeight.w700,
                 height: 1.35,
@@ -711,7 +711,7 @@ class _IpadSuggestionMetric extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _RoundSuggestionPalette.textMuted,
               fontWeight: FontWeight.w800,
             ),
@@ -721,7 +721,7 @@ class _IpadSuggestionMetric extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: UiTokens.textCaption.copyWith(
+          style: context.appTypography.caption.copyWith(
             color: _RoundSuggestionPalette.text,
             fontWeight: FontWeight.w900,
           ),
@@ -756,7 +756,7 @@ class _IpadSuggestionFooter extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: UiTokens.textButton.copyWith(
+            textStyle: context.appTypography.button.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -777,7 +777,7 @@ class _IpadSuggestionFooter extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),
-            textStyle: UiTokens.textButton.copyWith(
+            textStyle: context.appTypography.button.copyWith(
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -823,7 +823,7 @@ class _IpadEmptySuggestionState extends StatelessWidget {
           Text(
             'Nenhum brinquedo disponível',
             textAlign: TextAlign.center,
-            style: UiTokens.textSectionTitle.copyWith(
+            style: context.appTypography.sectionTitle.copyWith(
               color: _RoundSuggestionPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -896,7 +896,7 @@ class _EmptySuggestionState extends StatelessWidget {
       child: Text(
         'Nenhum brinquedo dispon\u00edvel',
         textAlign: TextAlign.center,
-        style: UiTokens.textBody.copyWith(
+        style: context.appTypography.body.copyWith(
           color: UiTokens.textSecondary,
           fontWeight: FontWeight.w600,
         ),

@@ -993,7 +993,8 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final isIpad = constraints.maxWidth >= 860;
+          final isIpad =
+              context.usesTabletPresentation && constraints.maxWidth >= 860;
 
           return ColoredBox(
             color: isIpad ? _CatalogIpadPalette.bg : Colors.transparent,
@@ -1218,7 +1219,7 @@ class _CatalogIpadHeader extends StatelessWidget {
                   l10n.appName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textMicro.copyWith(
+                  style: context.appTypography.micro.copyWith(
                     color: _CatalogIpadPalette.textMuted,
                     fontSize: 11.5,
                     fontWeight: FontWeight.w900,
@@ -1230,7 +1231,7 @@ class _CatalogIpadHeader extends StatelessWidget {
                   l10n.toys,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textTitle.copyWith(
+                  style: context.appTypography.pageTitle.copyWith(
                     color: _CatalogIpadPalette.text,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
@@ -1243,7 +1244,7 @@ class _CatalogIpadHeader extends StatelessWidget {
                       : 'Veja todos os brinquedos cadastrados e mantenha o acervo organizado.',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: UiTokens.textCaption.copyWith(
+                  style: context.appTypography.caption.copyWith(
                     color: _CatalogIpadPalette.textMuted,
                     height: 1.35,
                     fontWeight: FontWeight.w600,
@@ -1302,7 +1303,7 @@ class _CatalogIpadHeaderStats extends StatelessWidget {
         children: [
           Text(
             '$visibleItems',
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: _CatalogIpadPalette.orange,
               fontSize: 21,
               fontWeight: FontWeight.w900,
@@ -1316,7 +1317,7 @@ class _CatalogIpadHeaderStats extends StatelessWidget {
                 : (l10n.isEn ? 'of $totalItems' : 'de $totalItems'),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _CatalogIpadPalette.textMid,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -1407,7 +1408,7 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                         l10n.catalog,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textSectionTitle.copyWith(
+                        style: context.appTypography.sectionTitle.copyWith(
                           color: _CatalogIpadPalette.text,
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
@@ -1422,7 +1423,7 @@ class _CatalogIpadCatalogCard extends StatelessWidget {
                             : subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: UiTokens.textMicro.copyWith(
+                        style: context.appTypography.micro.copyWith(
                           color: _CatalogIpadPalette.textMuted,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w600,
@@ -1516,7 +1517,7 @@ class _CatalogIpadEmptyCatalog extends StatelessWidget {
                     : 'Agora cadastre os brinquedos da sua casa')
                 : (l10n.isEn ? 'No toys found' : 'Nenhum brinquedo encontrado'),
             textAlign: TextAlign.center,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _CatalogIpadPalette.textMuted,
               fontWeight: FontWeight.w800,
             ),
@@ -1641,7 +1642,7 @@ class _CatalogIpadToyListItemState extends State<_CatalogIpadToyListItem> {
                           displayName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: UiTokens.textSectionTitle.copyWith(
+                          style: context.appTypography.sectionTitle.copyWith(
                             color: _CatalogIpadPalette.text,
                             fontSize: 16.5,
                             fontWeight: FontWeight.w900,
@@ -1818,7 +1819,7 @@ class _CatalogIpadLocationPill extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: foreground,
                 fontSize: 10.8,
                 fontWeight: FontWeight.w800,
@@ -1869,7 +1870,7 @@ class _CatalogIpadCatalogFooter extends StatelessWidget {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _CatalogIpadPalette.textMuted,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
@@ -2002,7 +2003,7 @@ class _CatalogIpadSearchCard extends StatelessWidget {
         children: [
           Text(
             l10n.searchToy,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _CatalogIpadPalette.textMuted,
               fontSize: 11.5,
               fontWeight: FontWeight.w900,
@@ -2013,13 +2014,13 @@ class _CatalogIpadSearchCard extends StatelessWidget {
           TextField(
             controller: controller,
             textInputAction: TextInputAction.search,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _CatalogIpadPalette.text,
               fontWeight: FontWeight.w600,
             ),
             decoration: InputDecoration(
               hintText: '${l10n.toyName}...',
-              hintStyle: UiTokens.textCaption.copyWith(
+              hintStyle: context.appTypography.caption.copyWith(
                 color: _CatalogIpadPalette.textMuted,
                 fontWeight: FontWeight.w500,
               ),
@@ -2107,7 +2108,7 @@ class _CatalogIpadFilterCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _CatalogIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2184,7 +2185,7 @@ class _CatalogIpadFilterChip extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: UiTokens.textMicro.copyWith(
+                style: context.appTypography.micro.copyWith(
                   color: foreground,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -2227,7 +2228,7 @@ class _CatalogIpadSummaryCard extends StatelessWidget {
         children: [
           Text(
             l10n.isEn ? 'Summary' : 'Resumo',
-            style: UiTokens.textCaption.copyWith(
+            style: context.appTypography.caption.copyWith(
               color: _CatalogIpadPalette.text,
               fontWeight: FontWeight.w900,
             ),
@@ -2360,7 +2361,7 @@ class _CatalogIpadStatTile extends StatelessWidget {
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textTitle.copyWith(
+            style: context.appTypography.pageTitle.copyWith(
               color: foreground,
               fontSize: 23,
               fontWeight: FontWeight.w900,
@@ -2372,7 +2373,7 @@ class _CatalogIpadStatTile extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _CatalogIpadPalette.textMid,
               fontSize: 11.5,
               fontWeight: FontWeight.w800,
@@ -2413,7 +2414,7 @@ class _CatalogIpadBreakdownRow extends StatelessWidget {
               data.label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: UiTokens.textMicro.copyWith(
+              style: context.appTypography.micro.copyWith(
                 color: _CatalogIpadPalette.textMid,
                 fontSize: 12.2,
                 fontWeight: FontWeight.w700,
@@ -2423,7 +2424,7 @@ class _CatalogIpadBreakdownRow extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '${data.value}',
-            style: UiTokens.textMicro.copyWith(
+            style: context.appTypography.micro.copyWith(
               color: _CatalogIpadPalette.textMid,
               fontSize: 12.2,
               fontWeight: FontWeight.w900,
@@ -2457,7 +2458,7 @@ class _CatalogIpadPrimaryButton extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         shadowColor: _CatalogIpadPalette.orange.withValues(alpha: 0.35),
-        textStyle: UiTokens.textButton.copyWith(
+        textStyle: context.appTypography.button.copyWith(
           fontWeight: FontWeight.w900,
           fontSize: 14,
         ),
@@ -2498,7 +2499,7 @@ class _CatalogIpadSecondaryButton extends StatelessWidget {
               : const Color(0xFFE7E5E4),
           width: 1.5,
         ),
-        textStyle: UiTokens.textButton.copyWith(
+        textStyle: context.appTypography.button.copyWith(
           fontWeight: FontWeight.w800,
           fontSize: 14,
         ),
@@ -2536,7 +2537,7 @@ class _CatalogIpadSmallPill extends StatelessWidget {
         label,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: UiTokens.textMicro.copyWith(
+        style: context.appTypography.micro.copyWith(
           color: foreground,
           fontSize: 10.5,
           fontWeight: FontWeight.w900,
