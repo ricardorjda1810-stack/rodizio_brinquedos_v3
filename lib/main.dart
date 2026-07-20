@@ -1,9 +1,10 @@
 // lib/main.dart
 import 'dart:async';
-import 'dart:ui';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -30,13 +31,7 @@ Future<void> main() async {
       runApp(const Bootstrap());
     },
     (error, stackTrace) {
-      unawaited(
-        _recordCrashlyticsError(
-          error,
-          stackTrace,
-          fatal: true,
-        ),
-      );
+      unawaited(_recordCrashlyticsError(error, stackTrace, fatal: true));
     },
   );
 }
@@ -47,6 +42,20 @@ Future<void> _initializeFirebaseServices() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     _crashlyticsEnabled = true;
+    if (!kIsWeb) {
+      try {
+        await FirebaseAppCheck.instance.activate(
+          providerAndroid: kDebugMode
+              ? const AndroidDebugProvider()
+              : const AndroidPlayIntegrityProvider(),
+          providerApple: kDebugMode
+              ? const AppleDebugProvider()
+              : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+        );
+      } catch (error, stackTrace) {
+        await _recordCrashlyticsError(error, stackTrace, fatal: false);
+      }
+    }
     await AppAnalytics.logAppOpen();
   } catch (error) {
     _crashlyticsEnabled = false;
@@ -63,13 +72,7 @@ void _configureGlobalErrorHandling() {
 
   PlatformDispatcher.instance.onError = (error, stackTrace) {
     if (!_crashlyticsEnabled) return false;
-    unawaited(
-      _recordCrashlyticsError(
-        error,
-        stackTrace,
-        fatal: true,
-      ),
-    );
+    unawaited(_recordCrashlyticsError(error, stackTrace, fatal: true));
     return true;
   };
 }

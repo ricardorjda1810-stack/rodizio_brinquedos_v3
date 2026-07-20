@@ -9,6 +9,7 @@ import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
+import 'package:rodizio_brinquedos_v3/services/toy_recognition_service.dart';
 import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/ui/box_create_page.dart';
 import 'package:rodizio_brinquedos_v3/ui/photo_crop_page.dart';
@@ -23,6 +24,7 @@ class ToyCreatePage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository? settingsRepository;
   final PurchaseService? purchaseService;
+  final ToyRecognitionService recognitionService;
   final VoidCallback? onOpenHomeTab;
   final VoidCallback? onOpenRoundTab;
   final VoidCallback? onOpenWeeklyPlanning;
@@ -35,6 +37,7 @@ class ToyCreatePage extends StatefulWidget {
     required this.toyRepository,
     this.settingsRepository,
     this.purchaseService,
+    this.recognitionService = const FirebaseToyRecognitionService(),
     this.onOpenHomeTab,
     this.onOpenRoundTab,
     this.onOpenWeeklyPlanning,
@@ -63,7 +66,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   String? _selectedLooseLocation;
   String? _photoSourcePath;
   bool _saving = false;
+  bool _recognizing = false;
   bool _boxSelectionTouched = false;
+  ToyRecognitionResult? _recognitionResult;
+  String? _recognitionError;
+  bool _recognitionApplied = false;
 
   @override
   void initState() {
@@ -129,16 +136,181 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     return true;
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImage(
+    ImageSource source,
+    List<CategoryDefinition> officialCategories,
+  ) async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(source: source, imageQuality: 85);
+    final image = await picker.pickImage(
+      source: source,
+      imageQuality: 85,
+      maxWidth: 1600,
+      maxHeight: 1600,
+    );
     if (image == null || !mounted) return;
     final croppedPath = await PhotoCropPage.open(
       context,
       sourcePath: image.path,
     );
     if (!mounted || croppedPath == null) return;
-    setState(() => _photoSourcePath = croppedPath);
+    setState(() {
+      _photoSourcePath = croppedPath;
+      _recognitionResult = null;
+      _recognitionError = null;
+      _recognitionApplied = false;
+    });
+    await _recognizeToy(officialCategories);
+  }
+
+  Future<void> _recognizeToy(
+    List<CategoryDefinition> officialCategories,
+  ) async {
+    final photoPath = (_photoSourcePath ?? '').trim();
+    if (_recognizing || photoPath.isEmpty) return;
+
+    final categories = officialCategories
+        .map(
+          (category) => ToyRecognitionCategory(
+            id: category.id,
+            name: toyFormCategoryName(category),
+            examples: toyFormCategoryExamples(category),
+            developmentAspect: toyFormCategoryDevelopmentAspect(category),
+          ),
+        )
+        .toList(growable: false);
+
+    setState(() {
+      _recognizing = true;
+      _recognitionError = null;
+      _recognitionResult = null;
+      _recognitionApplied = false;
+    });
+
+    try {
+      final result = await widget.recognitionService.recognize(
+        photoPath: photoPath,
+        categories: categories,
+        locale: context.l10n.isEn ? 'en-US' : 'pt-BR',
+      );
+      if (!mounted || _photoSourcePath != photoPath) return;
+      setState(() {
+        _recognizing = false;
+        _recognitionResult = result;
+      });
+    } on ToyRecognitionException catch (error) {
+      if (!mounted || _photoSourcePath != photoPath) return;
+      setState(() {
+        _recognizing = false;
+        _recognitionError = error.message;
+      });
+    } catch (_) {
+      if (!mounted || _photoSourcePath != photoPath) return;
+      setState(() {
+        _recognizing = false;
+        _recognitionError =
+            'Não foi possível reconhecer o brinquedo agora. Tente novamente.';
+      });
+    }
+  }
+
+  void _applyRecognitionResult() {
+    final result = _recognitionResult;
+    if (result == null) return;
+    _nameController.text = result.suggestedName;
+    setState(() {
+      _selectedCategoryId = result.categoryId;
+      _recognitionApplied = true;
+    });
+  }
+
+  void _discardRecognitionResult() {
+    setState(() {
+      _recognitionResult = null;
+      _recognitionError = null;
+      _recognitionApplied = false;
+    });
+  }
+
+  String _recognitionCategoryLabel(
+    String categoryId,
+    List<CategoryDefinition> officialCategories,
+  ) {
+    for (final category in officialCategories) {
+      if (category.id == categoryId) return toyFormCategoryName(category);
+    }
+    return categoryId;
+  }
+
+  Widget _buildRecognitionPanel(List<CategoryDefinition> officialCategories) {
+    if (_recognizing) {
+      return const _ToyRecognitionPanel(
+        icon: Icons.auto_awesome,
+        title: 'Reconhecendo brinquedo...',
+        message: 'A foto é analisada sem salvar automaticamente.',
+        loading: true,
+      );
+    }
+
+    final error = _recognitionError;
+    if (error != null) {
+      return _ToyRecognitionPanel(
+        icon: Icons.info_outline_rounded,
+        title: 'Não foi possível sugerir',
+        message: error,
+        actions: [
+          TextButton.icon(
+            onPressed: _saving ? null : () => _recognizeToy(officialCategories),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Tentar novamente'),
+          ),
+        ],
+      );
+    }
+
+    final result = _recognitionResult;
+    if (result == null) return const SizedBox.shrink();
+
+    final confidencePercent = (result.confidence * 100).round();
+    final categoryLabel = _recognitionCategoryLabel(
+      result.categoryId,
+      officialCategories,
+    );
+    if (_recognitionApplied) {
+      return _ToyRecognitionPanel(
+        icon: Icons.check_circle_outline_rounded,
+        title: 'Sugestão aplicada',
+        message:
+            '${result.suggestedName} · $categoryLabel. Revise os campos antes de salvar.',
+        positive: true,
+        actions: [
+          TextButton.icon(
+            onPressed: _saving ? null : () => _recognizeToy(officialCategories),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Analisar novamente'),
+          ),
+        ],
+      );
+    }
+
+    final explanation = result.explanation.isEmpty
+        ? 'Categoria sugerida: $categoryLabel.'
+        : result.explanation;
+    return _ToyRecognitionPanel(
+      icon: Icons.auto_awesome,
+      title: result.suggestedName,
+      message: '$categoryLabel · confiança $confidencePercent%. $explanation',
+      actions: [
+        FilledButton.icon(
+          onPressed: _saving ? null : _applyRecognitionResult,
+          icon: const Icon(Icons.check_rounded),
+          label: const Text('Usar sugestão'),
+        ),
+        TextButton(
+          onPressed: _saving ? null : _discardRecognitionResult,
+          child: const Text('Descartar'),
+        ),
+      ],
+    );
   }
 
   Future<void> _createBox() async {
@@ -217,8 +389,12 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       _nameController.clear();
       setState(() {
         _saving = false;
+        _recognizing = false;
         _photoSourcePath = null;
         _selectedLooseLocation = null;
+        _recognitionResult = null;
+        _recognitionError = null;
+        _recognitionApplied = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -245,9 +421,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     Navigator.of(context).maybePop();
   }
 
-  CategoryDefinition? _selectedCategory(
-    List<CategoryDefinition> categories,
-  ) {
+  CategoryDefinition? _selectedCategory(List<CategoryDefinition> categories) {
     final selectedId = _selectedCategoryId;
     if (selectedId == null) return null;
     for (final category in categories) {
@@ -335,7 +509,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildIpadPhotoCard(),
+                      _buildIpadPhotoCard(
+                        officialCategories: officialCategories,
+                      ),
                       const SizedBox(height: 16),
                       _buildIpadPreviewCard(
                         officialCategories: officialCategories,
@@ -514,7 +690,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     );
   }
 
-  Widget _buildIpadPhotoCard() {
+  Widget _buildIpadPhotoCard({
+    required List<CategoryDefinition> officialCategories,
+  }) {
     final hasPhoto = (_photoSourcePath ?? '').trim().isNotEmpty;
 
     return _ToyCreateIpadSurface(
@@ -542,11 +720,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: _saving
+                  onPressed: _saving || _recognizing
                       ? null
                       : () async {
                           await HapticFeedback.selectionClick();
-                          await _pickImage(ImageSource.camera);
+                          await _pickImage(
+                            ImageSource.camera,
+                            officialCategories,
+                          );
                         },
                   icon: const Icon(Icons.photo_camera_outlined),
                   label: const Text('Câmera'),
@@ -556,11 +737,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: _saving
+                  onPressed: _saving || _recognizing
                       ? null
                       : () async {
                           await HapticFeedback.selectionClick();
-                          await _pickImage(ImageSource.gallery);
+                          await _pickImage(
+                            ImageSource.gallery,
+                            officialCategories,
+                          );
                         },
                   icon: const Icon(Icons.photo_library_outlined),
                   label: const Text('Galeria'),
@@ -569,6 +753,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               ),
             ],
           ),
+          if (hasPhoto) ...[
+            const SizedBox(height: 14),
+            _buildRecognitionPanel(officialCategories),
+          ],
         ],
       ),
     );
@@ -826,10 +1014,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   runSpacing: 10,
                   children: [
                     for (final category in officialCategories)
-                      _buildIpadCategoryOption(
-                        category,
-                        width: optionWidth,
-                      ),
+                      _buildIpadCategoryOption(category, width: optionWidth),
                   ],
                 );
               },
@@ -1231,11 +1416,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                     builder: (context, locationsSnap) {
                       final locations =
                           locationsSnap.data ?? const <LocationDefinition>[];
-                      final officialCategories =
-                          officialToyFormCategories(categories);
+                      final officialCategories = officialToyFormCategories(
+                        categories,
+                      );
                       if (_selectedCategoryId != null &&
-                          !officialCategories
-                              .any((c) => c.id == _selectedCategoryId)) {
+                          !officialCategories.any(
+                            (c) => c.id == _selectedCategoryId,
+                          )) {
                         _selectedCategoryId = null;
                       }
 
@@ -1269,8 +1456,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                               ),
                               children: [
                                 AppSurfaceCard(
-                                  padding:
-                                      const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding: const EdgeInsets.all(
+                                    UiTokens.spacingMd,
+                                  ),
                                   color: UiTokens.actionOrangeSoft,
                                   child: Column(
                                     crossAxisAlignment:
@@ -1278,12 +1466,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                     children: [
                                       Text(
                                         'Novo brinquedo',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingXs),
+                                        height: UiTokens.spacingXs,
+                                      ),
                                       Text(
                                         'Foto, categoria e lugar de guardar. O essencial em poucos passos.',
                                         style: Theme.of(context)
@@ -1299,28 +1488,31 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding:
-                                      const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding: const EdgeInsets.all(
+                                    UiTokens.spacingMd,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Foto do brinquedo',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingXs),
+                                        height: UiTokens.spacingXs,
+                                      ),
                                       Text(
                                         'A foto aparece primeiro e ajuda a reconhecer tudo mais r\u00e1pido.',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingSm),
+                                        height: UiTokens.spacingSm,
+                                      ),
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(
                                           UiTokens.radiusCard,
@@ -1331,18 +1523,20 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         ),
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingSm),
+                                        height: UiTokens.spacingSm,
+                                      ),
                                       Row(
                                         children: [
                                           Expanded(
                                             child: OutlinedButton.icon(
-                                              onPressed: _saving
+                                              onPressed: _saving || _recognizing
                                                   ? null
                                                   : () async {
                                                       await HapticFeedback
                                                           .selectionClick();
                                                       await _pickImage(
                                                         ImageSource.camera,
+                                                        officialCategories,
                                                       );
                                                     },
                                               icon: const Icon(
@@ -1354,13 +1548,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           const SizedBox(width: UiTokens.s),
                                           Expanded(
                                             child: OutlinedButton.icon(
-                                              onPressed: _saving
+                                              onPressed: _saving || _recognizing
                                                   ? null
                                                   : () async {
                                                       await HapticFeedback
                                                           .selectionClick();
                                                       await _pickImage(
                                                         ImageSource.gallery,
+                                                        officialCategories,
                                                       );
                                                     },
                                               icon: const Icon(
@@ -1371,33 +1566,62 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           ),
                                         ],
                                       ),
+                                      if ((_photoSourcePath ?? '')
+                                          .trim()
+                                          .isNotEmpty) ...[
+                                        const SizedBox(
+                                          height: UiTokens.spacingSm,
+                                        ),
+                                        _buildRecognitionPanel(
+                                          officialCategories,
+                                        ),
+                                      ],
+                                      const SizedBox(
+                                        height: UiTokens.spacingMd,
+                                      ),
+                                      TextField(
+                                        controller: _nameController,
+                                        enabled: !_saving,
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Nome do brinquedo',
+                                          hintText: 'Ex: Blocos coloridos',
+                                          helperText:
+                                              'Opcional. Você pode editar a sugestão da IA.',
+                                          prefixIcon: Icon(Icons.toys_outlined),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding:
-                                      const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding: const EdgeInsets.all(
+                                    UiTokens.spacingMd,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Categoria principal',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingXs),
+                                        height: UiTokens.spacingXs,
+                                      ),
                                       Text(
                                         'Escolha s\u00f3 uma: a que melhor representa o est\u00edmulo principal.',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingSm),
+                                        height: UiTokens.spacingSm,
+                                      ),
                                       if (officialCategories.isNotEmpty)
                                         CategoryQuickPicker<CategoryDefinition>(
                                           categories: officialCategories,
@@ -1425,7 +1649,8 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                       ],
                                       if (_selectedCategoryId == null) ...[
                                         const SizedBox(
-                                            height: UiTokens.spacingSm),
+                                          height: UiTokens.spacingSm,
+                                        ),
                                         Text(
                                           'Obrigat\u00f3rio.',
                                           style: Theme.of(context)
@@ -1442,28 +1667,31 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                 ),
                                 const SizedBox(height: UiTokens.spacingMd),
                                 AppSurfaceCard(
-                                  padding:
-                                      const EdgeInsets.all(UiTokens.spacingMd),
+                                  padding: const EdgeInsets.all(
+                                    UiTokens.spacingMd,
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Onde guardar',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingXs),
+                                        height: UiTokens.spacingXs,
+                                      ),
                                       Text(
                                         'Voc\u00ea pode deixar em uma caixa ou marcar como item sem caixa.',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
                                       ),
                                       const SizedBox(
-                                          height: UiTokens.spacingMd),
+                                        height: UiTokens.spacingMd,
+                                      ),
                                       LayoutBuilder(
                                         builder: (context, constraints) {
                                           final compact =
@@ -1608,7 +1836,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                         (l) => DropdownMenuItem<
                                                             String?>(
                                                           value: l.name,
-                                                          child: Text(l.name),
+                                                          child: Text(
+                                                            l.name,
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
@@ -1704,14 +1934,103 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 }
 
+class _ToyRecognitionPanel extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String message;
+  final bool loading;
+  final bool positive;
+  final List<Widget> actions;
+
+  const _ToyRecognitionPanel({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.loading = false,
+    this.positive = false,
+    this.actions = const <Widget>[],
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = positive ? const Color(0xFF15803D) : colorScheme.primary;
+    final background = positive
+        ? const Color(0xFFEAFBF0)
+        : colorScheme.primaryContainer.withValues(alpha: 0.46);
+
+    return Semantics(
+      liveRegion: true,
+      label: '$title. $message',
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(UiTokens.spacingSm),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(UiTokens.radiusCard),
+          border: Border.all(color: accent.withValues(alpha: 0.22)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: loading
+                      ? CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: accent,
+                        )
+                      : Icon(icon, size: 22, color: accent),
+                ),
+                const SizedBox(width: UiTokens.s),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: UiTokens.spacingXs),
+                      Text(
+                        message,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              height: 1.35,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (actions.isNotEmpty) ...[
+              const SizedBox(height: UiTokens.spacingXs),
+              Wrap(
+                spacing: UiTokens.spacingXs,
+                runSpacing: UiTokens.spacingXs,
+                children: actions,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _ToyCreateIpadSurface extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
 
-  const _ToyCreateIpadSurface({
-    required this.child,
-    required this.padding,
-  });
+  const _ToyCreateIpadSurface({required this.child, required this.padding});
 
   @override
   Widget build(BuildContext context) {
