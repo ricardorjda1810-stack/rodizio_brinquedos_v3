@@ -1,7 +1,16 @@
+import {randomUUID} from "node:crypto";
+
 import {defineSecret} from "firebase-functions/params";
+import {logger} from "firebase-functions/logger";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import OpenAI from "openai";
 
+import {
+  classifyRecognitionError,
+  EmptyModelResponseError,
+  InvalidModelResponseError,
+  writeRecognitionFailureLog,
+} from "./recognitionErrors";
 import {
   buildRecognitionPrompt,
   parseRecognitionRequest,
@@ -21,6 +30,7 @@ export const recognizeToy = onCall(
     secrets: [openAiApiKey],
   },
   async (request) => {
+    const correlationId = randomUUID();
     let input;
     try {
       input = parseRecognitionRequest(request.data);
@@ -65,10 +75,16 @@ export const recognizeToy = onCall(
       });
 
       if (!response.output_text) {
-        throw new Error("empty_model_response");
+        throw new EmptyModelResponseError();
+      }
+      let modelOutput: unknown;
+      try {
+        modelOutput = JSON.parse(response.output_text);
+      } catch {
+        throw new InvalidModelResponseError();
       }
       const parsed = validateModelRecognition(
-        JSON.parse(response.output_text),
+        modelOutput,
         new Set(categoryIds),
       );
 
@@ -91,12 +107,18 @@ export const recognizeToy = onCall(
       };
     } catch (error) {
       if (error instanceof HttpsError) throw error;
-      console.error("recognizeToy failed", {
-        type: error instanceof Error ? error.name : "unknown",
-      });
+      const classification = classifyRecognitionError(error);
+      writeRecognitionFailureLog(
+        logger.write,
+        correlationId,
+        classification,
+      );
       throw new HttpsError(
-        "unavailable",
-        "O reconhecimento está temporariamente indisponível.",
+        classification.httpsCode,
+        classification.httpsCode === "unavailable" ||
+          classification.httpsCode === "resource-exhausted" ?
+          "O reconhecimento está temporariamente indisponível." :
+          "Não foi possível processar o reconhecimento.",
       );
     }
   },

@@ -1,6 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import {
+  APIConnectionError,
+  APIConnectionTimeoutError,
+  AuthenticationError,
+  BadRequestError,
+  InternalServerError,
+  PermissionDeniedError,
+  RateLimitError,
+} from "openai";
 
+import {
+  classifyRecognitionError,
+  EmptyModelResponseError,
+  InvalidModelResponseError,
+  RecognitionErrorClassification,
+  RecognitionFailureLogEntry,
+  writeRecognitionFailureLog,
+} from "./recognitionErrors";
 import {
   buildRecognitionPrompt,
   parseRecognitionRequest,
@@ -163,5 +180,213 @@ test("preserves privacy and ambiguity rejection statuses", () => {
     }, allowedCategoryIds);
 
     assert.equal(result.status, status);
+  }
+});
+
+const responseHeaders = new Headers({
+  authorization: "sensitive-header",
+});
+
+const apiErrorBody = {
+  code: "arbitrary_external_code",
+  type: "sensitive-provider-type",
+};
+
+test("classifies OpenAI HTTP failures without exposing raw errors", () => {
+  const cases = [
+    {
+      error: new BadRequestError(
+        400,
+        apiErrorBody,
+        "sensitive message",
+        responseHeaders,
+      ),
+      category: "openai_bad_request",
+      httpsCode: "internal",
+    },
+    {
+      error: new AuthenticationError(
+        401,
+        apiErrorBody,
+        "sensitive message",
+        responseHeaders,
+      ),
+      category: "openai_authentication",
+      httpsCode: "internal",
+    },
+    {
+      error: new PermissionDeniedError(
+        403,
+        apiErrorBody,
+        "sensitive message",
+        responseHeaders,
+      ),
+      category: "openai_permission",
+      httpsCode: "internal",
+    },
+    {
+      error: new RateLimitError(
+        429,
+        apiErrorBody,
+        "sensitive message",
+        responseHeaders,
+      ),
+      category: "openai_rate_limit",
+      httpsCode: "resource-exhausted",
+    },
+    {
+      error: new InternalServerError(
+        503,
+        apiErrorBody,
+        "sensitive message",
+        responseHeaders,
+      ),
+      category: "openai_api_error",
+      httpsCode: "unavailable",
+    },
+  ] as const;
+
+  for (const item of cases) {
+    const result = classifyRecognitionError(item.error);
+    assert.equal(result.category, item.category);
+    assert.equal(result.httpsCode, item.httpsCode);
+    assert.equal(result.source, "openai");
+    assert.equal(result.httpStatus, item.error.status);
+    assert.equal(result.providerCode, undefined);
+  }
+});
+
+test("allows only known provider codes in classifications and logs", () => {
+  const allowedError = new RateLimitError(
+    429,
+    {code: "rate_limit_exceeded"},
+    "sensitive message",
+    responseHeaders,
+  );
+  const allowedClassification = classifyRecognitionError(allowedError);
+  assert.equal(allowedClassification.providerCode, "rate_limit_exceeded");
+
+  const unknownError = new BadRequestError(
+    400,
+    {code: "arbitrary_external_code"},
+    "sensitive message",
+    responseHeaders,
+  );
+  const unknownClassification = classifyRecognitionError(unknownError);
+  assert.equal(unknownClassification.category, "openai_bad_request");
+  assert.equal(unknownClassification.httpStatus, 400);
+  assert.equal(unknownClassification.providerCode, undefined);
+
+  const entries: RecognitionFailureLogEntry[] = [];
+  writeRecognitionFailureLog(
+    (entry) => entries.push(entry),
+    "00000000-0000-4000-8000-000000000000",
+    allowedClassification,
+  );
+  writeRecognitionFailureLog(
+    (entry) => entries.push(entry),
+    "00000000-0000-4000-8000-000000000001",
+    unknownClassification,
+  );
+  assert.equal(entries[0].providerCode, "rate_limit_exceeded");
+  assert.equal(entries[1].providerCode, undefined);
+  assert.equal(JSON.stringify(entries).includes("arbitrary_external_code"), false);
+});
+
+test("classifies OpenAI timeout and connection failures", () => {
+  assert.deepEqual(
+    classifyRecognitionError(new APIConnectionTimeoutError()),
+    {
+      category: "openai_timeout",
+      source: "openai",
+      httpsCode: "unavailable",
+    },
+  );
+  assert.deepEqual(
+    classifyRecognitionError(new APIConnectionError({})),
+    {
+      category: "openai_connection",
+      source: "openai",
+      httpsCode: "unavailable",
+    },
+  );
+});
+
+test("classifies empty, invalid, and unexpected responses", () => {
+  assert.equal(
+    classifyRecognitionError(new EmptyModelResponseError()).category,
+    "empty_model_response",
+  );
+  assert.equal(
+    classifyRecognitionError(new InvalidModelResponseError()).category,
+    "invalid_model_response",
+  );
+  assert.equal(
+    classifyRecognitionError(new Error("sensitive message")).category,
+    "unexpected_error",
+  );
+});
+
+test("structured failure logging contains only allowlisted fields", () => {
+  const entries: RecognitionFailureLogEntry[] = [];
+  const malformedClassification = {
+    category: "openai_rate_limit",
+    source: "openai",
+    httpsCode: "resource-exhausted",
+    httpStatus: 429,
+    providerCode: "arbitrary_external_code",
+    message: "sensitive-message",
+    stack: "sensitive-stack",
+    headers: {authorization: "sensitive-header"},
+    prompt: "sensitive-prompt",
+    image: "sensitive-image",
+    base64: "sensitive-base64",
+    response: "sensitive-response",
+    apiKey: "sensitive-api-key",
+    token: "sensitive-token",
+    unexpectedProperty: "sensitive-unexpected-property",
+  } as unknown as RecognitionErrorClassification;
+
+  writeRecognitionFailureLog(
+    (entry) => entries.push(entry),
+    "00000000-0000-4000-8000-000000000000",
+    malformedClassification,
+  );
+
+  assert.equal(entries.length, 1);
+  assert.deepEqual(Object.keys(entries[0]).sort(), [
+    "category",
+    "correlationId",
+    "event",
+    "httpStatus",
+    "httpsCode",
+    "severity",
+    "source",
+  ]);
+  assert.deepEqual(entries[0], {
+    severity: "ERROR",
+    event: "recognize_toy_failure",
+    correlationId: "00000000-0000-4000-8000-000000000000",
+    category: "openai_rate_limit",
+    source: "openai",
+    httpsCode: "resource-exhausted",
+    httpStatus: 429,
+  });
+
+  const serialized = JSON.stringify(entries[0]);
+  for (const forbidden of [
+    "sensitive-message",
+    "sensitive-stack",
+    "sensitive-header",
+    "sensitive-image",
+    "sensitive-base64",
+    "sensitive-prompt",
+    "sensitive-response",
+    "sensitive-api-key",
+    "sensitive-token",
+    "sensitive-unexpected-property",
+    "arbitrary_external_code",
+  ]) {
+    assert.equal(serialized.includes(forbidden), false);
   }
 });

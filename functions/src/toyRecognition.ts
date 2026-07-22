@@ -1,3 +1,5 @@
+import {InvalidModelResponseError} from "./recognitionErrors";
+
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const MAX_BASE64_LENGTH = Math.ceil(MAX_IMAGE_BYTES / 3) * 4;
 export const MAX_CATEGORIES = 10;
@@ -164,11 +166,11 @@ export function validateModelRecognition(
   allowedCategoryIds: Set<string>,
 ): ModelRecognition {
   if (!isRecord(value)) {
-    throw new Error("invalid_model_response");
+    throw new InvalidModelResponseError();
   }
   const status = readString(value.status) as ModelRecognition["status"];
   if (!["ok", "no_toy", "multiple_toys", "person_detected"].includes(status)) {
-    throw new Error("invalid_model_response");
+    throw new InvalidModelResponseError();
   }
 
   if (status !== "ok") {
@@ -197,13 +199,13 @@ export function validateModelRecognition(
       !Array.isArray(rawAlternatives) || rawAlternatives.length > 2 ||
       typeof explanation !== "string" || explanation.trim().length > 240 ||
       typeof needsReview !== "boolean") {
-    throw new Error("invalid_model_response");
+    throw new InvalidModelResponseError();
   }
 
   const alternatives = rawAlternatives.map(readString);
   if (alternatives.some((id, index) => !allowedCategoryIds.has(id) ||
       id === categoryId || !id || alternatives.indexOf(id) !== index)) {
-    throw new Error("invalid_model_response");
+    throw new InvalidModelResponseError();
   }
 
   return {
