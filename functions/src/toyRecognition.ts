@@ -146,16 +146,15 @@ export function recognitionJsonSchema(categoryIds: string[]) {
         type: "string",
         enum: ["ok", "no_toy", "multiple_toys", "person_detected"],
       },
-      suggestedName: {type: "string", maxLength: 80},
+      suggestedName: {type: "string"},
       categoryId: {type: "string", enum: ["", ...categoryIds]},
       confidence: {type: "number", minimum: 0, maximum: 1},
       alternativeCategoryIds: {
         type: "array",
         maxItems: 2,
-        uniqueItems: true,
         items: {type: "string", enum: categoryIds},
       },
-      explanation: {type: "string", maxLength: 240},
+      explanation: {type: "string"},
       needsReview: {type: "boolean"},
     },
   } as const;

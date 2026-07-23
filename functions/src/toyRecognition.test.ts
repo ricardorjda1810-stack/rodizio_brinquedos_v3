@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 import test from "node:test";
 import {
   APIConnectionError,
@@ -21,6 +23,7 @@ import {
 import {
   buildRecognitionPrompt,
   parseRecognitionRequest,
+  recognitionJsonSchema,
   validateModelRecognition,
 } from "./toyRecognition";
 
@@ -136,6 +139,95 @@ test("validates and normalizes the model result", () => {
   assert.deepEqual(result.alternativeCategoryIds, ["imaginacao"]);
 });
 
+test("uses only the supported strict JSON Schema subset", () => {
+  const schema = recognitionJsonSchema(
+    categories.map((category) => category.id),
+  );
+  const forbiddenKeywords = new Set([
+    "uniqueItems",
+    "minLength",
+    "maxLength",
+  ]);
+
+  function assertNoForbiddenKeywords(value: unknown): void {
+    if (Array.isArray(value)) {
+      value.forEach(assertNoForbiddenKeywords);
+      return;
+    }
+    if (typeof value !== "object" || value === null) return;
+
+    for (const [key, child] of Object.entries(value)) {
+      assert.equal(forbiddenKeywords.has(key), false, `forbidden ${key}`);
+      assertNoForbiddenKeywords(child);
+    }
+  }
+
+  assertNoForbiddenKeywords(schema);
+  assert.equal(schema.additionalProperties, false);
+  assert.deepEqual(
+    [...schema.required].sort(),
+    Object.keys(schema.properties).sort(),
+  );
+  assert.equal(schema.properties.alternativeCategoryIds.maxItems, 2);
+
+  const indexSource = readFileSync(
+    join(__dirname, "../src/index.ts"),
+    "utf8",
+  );
+  assert.match(
+    indexSource,
+    /format:\s*{[\s\S]*?strict:\s*true,[\s\S]*?schema:\s*recognitionJsonSchema/,
+  );
+});
+
+test("rejects duplicate alternative categories", () => {
+  assert.throws(
+    () => validateModelRecognition({
+      status: "ok",
+      suggestedName: "Blocos",
+      categoryId: "maos",
+      confidence: 0.9,
+      alternativeCategoryIds: ["imaginacao", "imaginacao"],
+      explanation: "Brinquedo de montar.",
+      needsReview: false,
+    }, new Set(categories.map((category) => category.id))),
+    /invalid_model_response/,
+  );
+});
+
+test("enforces local suggested name and explanation limits", () => {
+  const allowedCategoryIds = new Set(
+    categories.map((category) => category.id),
+  );
+  const validResult = {
+    status: "ok",
+    suggestedName: "a".repeat(80),
+    categoryId: "maos",
+    confidence: 0.9,
+    alternativeCategoryIds: [],
+    explanation: "b".repeat(240),
+    needsReview: false,
+  } as const;
+
+  assert.doesNotThrow(
+    () => validateModelRecognition(validResult, allowedCategoryIds),
+  );
+  assert.throws(
+    () => validateModelRecognition({
+      ...validResult,
+      suggestedName: "a".repeat(81),
+    }, allowedCategoryIds),
+    /invalid_model_response/,
+  );
+  assert.throws(
+    () => validateModelRecognition({
+      ...validResult,
+      explanation: "b".repeat(241),
+    }, allowedCategoryIds),
+    /invalid_model_response/,
+  );
+});
+
 test("rejects a category outside the supplied taxonomy", () => {
   assert.throws(
     () => validateModelRecognition({
@@ -188,7 +280,7 @@ const responseHeaders = new Headers({
 });
 
 const apiErrorBody = {
-  code: "arbitrary_external_code",
+  code: "arbitrary-external-code",
   type: "sensitive-provider-type",
 };
 
@@ -256,26 +348,22 @@ test("classifies OpenAI HTTP failures without exposing raw errors", () => {
   }
 });
 
-test("allows only known provider codes in classifications and logs", () => {
+test("preserves safe provider metadata in classifications and logs", () => {
   const allowedError = new RateLimitError(
     429,
-    {code: "rate_limit_exceeded"},
+    {
+      type: "invalid_request_error",
+      code: "rate_limit_exceeded",
+      param: "text.format.schema",
+      message: "sensitive provider message",
+    },
     "sensitive message",
     responseHeaders,
   );
   const allowedClassification = classifyRecognitionError(allowedError);
+  assert.equal(allowedClassification.providerType, "invalid_request_error");
   assert.equal(allowedClassification.providerCode, "rate_limit_exceeded");
-
-  const unknownError = new BadRequestError(
-    400,
-    {code: "arbitrary_external_code"},
-    "sensitive message",
-    responseHeaders,
-  );
-  const unknownClassification = classifyRecognitionError(unknownError);
-  assert.equal(unknownClassification.category, "openai_bad_request");
-  assert.equal(unknownClassification.httpStatus, 400);
-  assert.equal(unknownClassification.providerCode, undefined);
+  assert.equal(allowedClassification.providerParam, "text.format.schema");
 
   const entries: RecognitionFailureLogEntry[] = [];
   writeRecognitionFailureLog(
@@ -283,14 +371,50 @@ test("allows only known provider codes in classifications and logs", () => {
     "00000000-0000-4000-8000-000000000000",
     allowedClassification,
   );
-  writeRecognitionFailureLog(
+  assert.equal(entries[0].providerType, "invalid_request_error");
+  assert.equal(entries[0].providerCode, "rate_limit_exceeded");
+  assert.equal(entries[0].providerParam, "text.format.schema");
+  assert.equal(
+    JSON.stringify(entries).includes("sensitive provider message"),
+    false,
+  );
+  assert.equal(JSON.stringify(entries).includes("sensitive message"), false);
+});
+
+test("omits unsafe provider metadata without throwing", () => {
+  const unsafeError = new BadRequestError(
+    400,
+    {
+      type: `invalid_${"x".repeat(64)}`,
+      code: "invalid-json-schema",
+      param: "text.format.schema\npayload",
+      message: "sensitive provider message",
+    },
+    "sensitive message",
+    responseHeaders,
+  );
+  const classification = classifyRecognitionError(unsafeError);
+
+  assert.equal(classification.category, "openai_bad_request");
+  assert.equal(classification.httpStatus, 400);
+  assert.equal(classification.providerType, undefined);
+  assert.equal(classification.providerCode, undefined);
+  assert.equal(classification.providerParam, undefined);
+
+  const entries: RecognitionFailureLogEntry[] = [];
+  assert.doesNotThrow(() => writeRecognitionFailureLog(
     (entry) => entries.push(entry),
     "00000000-0000-4000-8000-000000000001",
-    unknownClassification,
-  );
-  assert.equal(entries[0].providerCode, "rate_limit_exceeded");
-  assert.equal(entries[1].providerCode, undefined);
-  assert.equal(JSON.stringify(entries).includes("arbitrary_external_code"), false);
+    {
+      ...classification,
+      providerType: 123,
+      providerCode: "invalid code",
+      providerParam: "x".repeat(161),
+    } as unknown as RecognitionErrorClassification,
+  ));
+  assert.equal(entries[0].providerType, undefined);
+  assert.equal(entries[0].providerCode, undefined);
+  assert.equal(entries[0].providerParam, undefined);
 });
 
 test("classifies OpenAI timeout and connection failures", () => {
@@ -334,7 +458,9 @@ test("structured failure logging contains only allowlisted fields", () => {
     source: "openai",
     httpsCode: "resource-exhausted",
     httpStatus: 429,
-    providerCode: "arbitrary_external_code",
+    providerType: "invalid\ntype",
+    providerCode: "arbitrary-external-code",
+    providerParam: "text.format.schema payload",
     message: "sensitive-message",
     stack: "sensitive-stack",
     headers: {authorization: "sensitive-header"},
@@ -385,7 +511,7 @@ test("structured failure logging contains only allowlisted fields", () => {
     "sensitive-api-key",
     "sensitive-token",
     "sensitive-unexpected-property",
-    "arbitrary_external_code",
+    "arbitrary-external-code",
   ]) {
     assert.equal(serialized.includes(forbidden), false);
   }

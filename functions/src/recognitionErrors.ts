@@ -35,7 +35,9 @@ export type RecognitionErrorClassification = {
   source: RecognitionFailureSource;
   httpsCode: RecognitionHttpsCode;
   httpStatus?: number;
+  providerType?: string;
   providerCode?: string;
+  providerParam?: string;
 };
 
 export type RecognitionFailureLogEntry = RecognitionErrorClassification & {
@@ -44,13 +46,11 @@ export type RecognitionFailureLogEntry = RecognitionErrorClassification & {
   correlationId: string;
 };
 
-const allowedProviderCodes: ReadonlySet<string> = new Set([
-  "server_error",
-  "rate_limit_exceeded",
-  "invalid_prompt",
-  "invalid_image",
-  "image_content_policy_violation",
-]);
+const PROVIDER_TYPE_MAX_LENGTH = 64;
+const PROVIDER_CODE_MAX_LENGTH = 64;
+const PROVIDER_PARAM_MAX_LENGTH = 160;
+const providerIdentifierPattern = /^[a-z][a-z0-9_]*$/;
+const providerParamPattern = /^[A-Za-z0-9_.\[\]-]+$/;
 
 export class EmptyModelResponseError extends Error {
   constructor() {
@@ -126,7 +126,12 @@ export function writeRecognitionFailureLog(
   classification: RecognitionErrorClassification,
 ): void {
   const httpStatus = sanitizeHttpStatus(classification.httpStatus);
+  const providerType = sanitizeProviderIdentifier(
+    classification.providerType,
+    PROVIDER_TYPE_MAX_LENGTH,
+  );
   const providerCode = sanitizeProviderCode(classification.providerCode);
+  const providerParam = sanitizeProviderParam(classification.providerParam);
   writer({
     severity: "ERROR",
     event: "recognize_toy_failure",
@@ -135,7 +140,9 @@ export function writeRecognitionFailureLog(
     category: classification.category,
     httpsCode: classification.httpsCode,
     ...(httpStatus === undefined ? {} : {httpStatus}),
+    ...(providerType === undefined ? {} : {providerType}),
     ...(providerCode === undefined ? {} : {providerCode}),
+    ...(providerParam === undefined ? {} : {providerParam}),
   });
 }
 
@@ -149,13 +156,20 @@ function openAiClassification(
   error: APIError,
 ): RecognitionErrorClassification {
   const httpStatus = sanitizeHttpStatus(error.status);
+  const providerType = sanitizeProviderIdentifier(
+    error.type,
+    PROVIDER_TYPE_MAX_LENGTH,
+  );
   const providerCode = sanitizeProviderCode(error.code);
+  const providerParam = sanitizeProviderParam(error.param);
   return {
     category,
     source: "openai",
     httpsCode,
     ...(httpStatus === undefined ? {} : {httpStatus}),
+    ...(providerType === undefined ? {} : {providerType}),
     ...(providerCode === undefined ? {} : {providerCode}),
+    ...(providerParam === undefined ? {} : {providerParam}),
   };
 }
 
@@ -168,7 +182,25 @@ function sanitizeHttpStatus(status: number | undefined): number | undefined {
 }
 
 function sanitizeProviderCode(code: unknown): string | undefined {
-  if (typeof code !== "string") return undefined;
-  // Unknown provider values are deliberately omitted instead of being logged.
-  return allowedProviderCodes.has(code) ? code : undefined;
+  return sanitizeProviderIdentifier(code, PROVIDER_CODE_MAX_LENGTH);
+}
+
+function sanitizeProviderParam(param: unknown): string | undefined {
+  if (typeof param !== "string" || param.length === 0 ||
+      param.length > PROVIDER_PARAM_MAX_LENGTH ||
+      !providerParamPattern.test(param)) {
+    return undefined;
+  }
+  return param;
+}
+
+function sanitizeProviderIdentifier(
+  value: unknown,
+  maxLength: number,
+): string | undefined {
+  if (typeof value !== "string" || value.length === 0 ||
+      value.length > maxLength || !providerIdentifierPattern.test(value)) {
+    return undefined;
+  }
+  return value;
 }
