@@ -20,11 +20,19 @@ import 'package:rodizio_brinquedos_v3/ui/widgets/app_bottom_navigation.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/app_surface_card.dart';
 import 'package:rodizio_brinquedos_v3/ui/widgets/category_quick_picker.dart';
 
+typedef PickToyImage = Future<XFile?> Function(ImageSource source);
+typedef OpenPhotoCropPage = Future<String?> Function(
+  BuildContext context, {
+  required String sourcePath,
+});
+
 class ToyCreatePage extends StatefulWidget {
   final ToyRepository toyRepository;
   final SettingsRepository? settingsRepository;
   final PurchaseService? purchaseService;
   final ToyRecognitionService recognitionService;
+  final PickToyImage? pickImage;
+  final OpenPhotoCropPage openPhotoCropPage;
   final VoidCallback? onOpenHomeTab;
   final VoidCallback? onOpenRoundTab;
   final VoidCallback? onOpenWeeklyPlanning;
@@ -38,6 +46,8 @@ class ToyCreatePage extends StatefulWidget {
     this.settingsRepository,
     this.purchaseService,
     this.recognitionService = const FirebaseToyRecognitionService(),
+    this.pickImage,
+    this.openPhotoCropPage = PhotoCropPage.open,
     this.onOpenHomeTab,
     this.onOpenRoundTab,
     this.onOpenWeeklyPlanning,
@@ -140,15 +150,15 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     ImageSource source,
     List<CategoryDefinition> officialCategories,
   ) async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(
-      source: source,
-      imageQuality: 85,
-      maxWidth: 1600,
-      maxHeight: 1600,
-    );
+    final image = await (widget.pickImage?.call(source) ??
+        ImagePicker().pickImage(
+          source: source,
+          imageQuality: 85,
+          maxWidth: 1600,
+          maxHeight: 1600,
+        ));
     if (image == null || !mounted) return;
-    final croppedPath = await PhotoCropPage.open(
+    final croppedPath = await widget.openPhotoCropPage(
       context,
       sourcePath: image.path,
     );

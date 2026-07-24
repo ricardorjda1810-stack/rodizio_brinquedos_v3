@@ -1,17 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/services/photo_cropper_service.dart';
 
+typedef PhotoCropper = Future<String?> Function({
+  required String sourcePath,
+});
+
 class PhotoCropPage extends StatefulWidget {
   final String sourcePath;
+  final PhotoCropper cropper;
 
-  const PhotoCropPage({super.key, required this.sourcePath});
+  const PhotoCropPage({
+    super.key,
+    required this.sourcePath,
+    this.cropper = PhotoCropperService.cropToSquare,
+  });
 
   static Future<String?> open(
     BuildContext context, {
     required String sourcePath,
+    PhotoCropper cropper = PhotoCropperService.cropToSquare,
   }) {
     return Navigator.of(context).push<String?>(
-      MaterialPageRoute(builder: (_) => PhotoCropPage(sourcePath: sourcePath)),
+      MaterialPageRoute(
+        builder: (_) => PhotoCropPage(
+          sourcePath: sourcePath,
+          cropper: cropper,
+        ),
+      ),
     );
   }
 
@@ -27,9 +42,9 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
     setState(() => _saving = true);
 
     try {
-      final croppedPath = await PhotoCropperService.cropToSquare(
+      final croppedPath = await widget.cropper(
         sourcePath: widget.sourcePath,
-      ).timeout(const Duration(seconds: 60));
+      );
       if (!mounted) return;
 
       if (croppedPath == null) {
