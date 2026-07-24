@@ -6,8 +6,8 @@ import {HttpsError, onCall} from "firebase-functions/v2/https";
 import OpenAI from "openai";
 
 import {
+  assertModelResponseHasOutputText,
   classifyRecognitionError,
-  EmptyModelResponseError,
   InvalidModelResponseError,
   writeRecognitionFailureLog,
 } from "./recognitionErrors";
@@ -74,9 +74,7 @@ export const recognizeToy = onCall(
         },
       });
 
-      if (!response.output_text) {
-        throw new EmptyModelResponseError();
-      }
+      assertModelResponseHasOutputText(response);
       let modelOutput: unknown;
       try {
         modelOutput = JSON.parse(response.output_text);

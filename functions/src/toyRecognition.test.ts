@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import test from "node:test";
+import type {Response as OpenAIResponse} from "openai/resources/responses/responses";
 import {
   APIConnectionError,
   APIConnectionTimeoutError,
@@ -13,11 +14,14 @@ import {
 } from "openai";
 
 import {
+  assertModelResponseHasOutputText,
   classifyRecognitionError,
   EmptyModelResponseError,
+  IncompleteModelResponseError,
   InvalidModelResponseError,
   RecognitionErrorClassification,
   RecognitionFailureLogEntry,
+  summarizeModelResponse,
   writeRecognitionFailureLog,
 } from "./recognitionErrors";
 import {
@@ -45,6 +49,39 @@ const categories = [
 const jpegBase64 = Buffer.from([
   0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10,
 ]).toString("base64");
+
+function simulatedResponse(
+  overrides: Record<string, unknown>,
+): OpenAIResponse {
+  return {
+    id: "sensitive-response-id",
+    created_at: 0,
+    output_text: "",
+    error: null,
+    incomplete_details: null,
+    instructions: null,
+    metadata: null,
+    model: "gpt-5-mini",
+    object: "response",
+    output: [],
+    parallel_tool_calls: false,
+    temperature: null,
+    tool_choice: "auto",
+    tools: [],
+    top_p: null,
+    status: "completed",
+    ...overrides,
+  } as unknown as OpenAIResponse;
+}
+
+function captureError(callback: () => void): unknown {
+  try {
+    callback();
+  } catch (error) {
+    return error;
+  }
+  assert.fail("Expected callback to throw");
+}
 
 test("parses a bounded recognition request", () => {
   const request = parseRecognitionRequest({
@@ -273,6 +310,253 @@ test("preserves privacy and ambiguity rejection statuses", () => {
 
     assert.equal(result.status, status);
   }
+});
+
+test("classifies incomplete reasoning-only responses without content", () => {
+  const response = simulatedResponse({
+    status: "incomplete",
+    incomplete_details: {reason: "max_output_tokens"},
+    output: [
+      {
+        id: "sensitive-reasoning-id",
+        type: "reasoning",
+        status: "incomplete",
+        summary: [
+          {type: "summary_text", text: "sensitive reasoning summary"},
+        ],
+        encrypted_content: "sensitive encrypted content",
+      },
+    ],
+    usage: {
+      input_tokens: 321,
+      output_tokens: 400,
+      output_tokens_details: {reasoning_tokens: 400},
+      total_tokens: 721,
+    },
+  });
+
+  const error = captureError(
+    () => assertModelResponseHasOutputText(response),
+  );
+  assert.ok(error instanceof IncompleteModelResponseError);
+
+  const classification = classifyRecognitionError(error);
+  assert.equal(classification.category, "model_response_incomplete");
+  assert.equal(classification.source, "model_response");
+  assert.equal(classification.httpsCode, "internal");
+  assert.equal(classification.responseStatus, "incomplete");
+  assert.equal(classification.incompleteReason, "max_output_tokens");
+  assert.equal(classification.outputItemCount, 1);
+  assert.deepEqual(classification.outputItems, [
+    {type: "reasoning", status: "incomplete"},
+  ]);
+  assert.equal(classification.hasOutputText, false);
+  assert.equal(classification.outputTextLength, 0);
+  assert.deepEqual(classification.usage, {
+    input_tokens: 321,
+    output_tokens: 400,
+    output_tokens_details: {reasoning_tokens: 400},
+    total_tokens: 721,
+  });
+
+  const entries: RecognitionFailureLogEntry[] = [];
+  writeRecognitionFailureLog(
+    (entry) => entries.push(entry),
+    "00000000-0000-4000-8000-000000000002",
+    classification,
+  );
+  const serialized = JSON.stringify(entries[0]);
+  for (const forbidden of [
+    "sensitive-response-id",
+    "sensitive-reasoning-id",
+    "sensitive reasoning summary",
+    "sensitive encrypted content",
+  ]) {
+    assert.equal(serialized.includes(forbidden), false);
+  }
+});
+
+test("classifies incomplete responses even without a reason", () => {
+  const error = captureError(() => assertModelResponseHasOutputText(
+    simulatedResponse({
+      status: "incomplete",
+      incomplete_details: null,
+      output: [{type: "reasoning", status: "incomplete", summary: []}],
+    }),
+  ));
+
+  assert.ok(error instanceof IncompleteModelResponseError);
+  const classification = classifyRecognitionError(error);
+  assert.equal(classification.category, "model_response_incomplete");
+  assert.equal(classification.responseStatus, "incomplete");
+  assert.equal(classification.incompleteReason, undefined);
+});
+
+test("accepts completed responses with visible output text", () => {
+  const response = simulatedResponse({
+    status: "completed",
+    output_text: "{\"status\":\"ok\"}",
+    output: [
+      {
+        type: "message",
+        status: "completed",
+        content: [
+          {type: "output_text", text: "sensitive model output"},
+        ],
+      },
+    ],
+  });
+  const metadata = summarizeModelResponse(response);
+
+  assert.doesNotThrow(() => assertModelResponseHasOutputText(response));
+  assert.equal(metadata.responseStatus, "completed");
+  assert.equal(metadata.hasOutputText, true);
+  assert.equal(metadata.outputTextLength, 15);
+  assert.deepEqual(metadata.outputItems, [
+    {
+      type: "message",
+      status: "completed",
+      contentTypes: ["output_text"],
+    },
+  ]);
+  assert.equal(
+    JSON.stringify(metadata).includes("sensitive model output"),
+    false,
+  );
+});
+
+test("keeps completed empty responses classified as empty", () => {
+  const error = captureError(() => assertModelResponseHasOutputText(
+    simulatedResponse({
+      status: "completed",
+      output_text: "",
+      output: [],
+    }),
+  ));
+
+  assert.ok(error instanceof EmptyModelResponseError);
+  const classification = classifyRecognitionError(error);
+  assert.equal(classification.category, "empty_model_response");
+  assert.equal(classification.responseStatus, "completed");
+  assert.equal(classification.outputItemCount, 0);
+  assert.deepEqual(classification.outputItems, []);
+  assert.equal(classification.hasOutputText, false);
+});
+
+test("records refusal type without recording refusal text", () => {
+  const response = simulatedResponse({
+    status: "completed",
+    output_text: "",
+    output: [
+      {
+        type: "message",
+        status: "completed",
+        content: [
+          {type: "refusal", refusal: "sensitive refusal text"},
+        ],
+      },
+    ],
+  });
+  const error = captureError(
+    () => assertModelResponseHasOutputText(response),
+  );
+  const classification = classifyRecognitionError(error);
+  const entries: RecognitionFailureLogEntry[] = [];
+  writeRecognitionFailureLog(
+    (entry) => entries.push(entry),
+    "00000000-0000-4000-8000-000000000003",
+    classification,
+  );
+
+  assert.deepEqual(entries[0].outputItems, [
+    {
+      type: "message",
+      status: "completed",
+      contentTypes: ["refusal"],
+    },
+  ]);
+  assert.equal(
+    JSON.stringify(entries[0]).includes("sensitive refusal text"),
+    false,
+  );
+});
+
+test("bounds arrays and omits malformed response metadata", () => {
+  const output = [
+    {
+      type: "message",
+      status: "completed\nunexpected",
+      content: [
+        {type: "refusal"},
+        {type: "x".repeat(100)},
+        ...Array.from({length: 10}, () => ({type: "output_text"})),
+      ],
+    },
+    {type: "x".repeat(100), status: "completed"},
+    ...Array.from(
+      {length: 10},
+      () => ({type: "reasoning", status: "completed", summary: []}),
+    ),
+  ];
+  const metadata = summarizeModelResponse(simulatedResponse({
+    status: "x".repeat(100),
+    incomplete_details: {reason: "unexpected\nreason"},
+    output_text: 123,
+    output,
+    usage: {
+      input_tokens: -1,
+      output_tokens: 1.5,
+      output_tokens_details: {reasoning_tokens: "400"},
+      total_tokens: Number.NaN,
+    },
+  }));
+
+  assert.equal(metadata.responseStatus, undefined);
+  assert.equal(metadata.incompleteReason, undefined);
+  assert.equal(metadata.outputItemCount, 12);
+  assert.equal(metadata.outputItems?.length, 7);
+  assert.deepEqual(metadata.outputItems?.[0], {
+    type: "message",
+    contentTypes: [
+      "refusal",
+      "output_text",
+      "output_text",
+      "output_text",
+      "output_text",
+      "output_text",
+      "output_text",
+    ],
+  });
+  assert.equal(metadata.hasOutputText, false);
+  assert.equal(metadata.outputTextLength, 0);
+  assert.equal(metadata.usage, undefined);
+});
+
+test("records only allowed non-negative usage integers", () => {
+  const metadata = summarizeModelResponse(simulatedResponse({
+    usage: {
+      input_tokens: 100,
+      output_tokens: 80,
+      output_tokens_details: {
+        reasoning_tokens: 60,
+        sensitive_detail: "sensitive usage detail",
+      },
+      total_tokens: 180,
+      message: "sensitive usage message",
+      payload: "sensitive usage payload",
+    },
+  }));
+
+  assert.deepEqual(metadata.usage, {
+    input_tokens: 100,
+    output_tokens: 80,
+    output_tokens_details: {reasoning_tokens: 60},
+    total_tokens: 180,
+  });
+  const serialized = JSON.stringify(metadata);
+  assert.equal(serialized.includes("sensitive usage detail"), false);
+  assert.equal(serialized.includes("sensitive usage message"), false);
+  assert.equal(serialized.includes("sensitive usage payload"), false);
 });
 
 const responseHeaders = new Headers({
