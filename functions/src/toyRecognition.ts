@@ -1,8 +1,14 @@
+import type {
+  Response as OpenAIResponse,
+  ResponseCreateParamsNonStreaming,
+} from "openai/resources/responses/responses";
+
 import {InvalidModelResponseError} from "./recognitionErrors";
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 export const MAX_BASE64_LENGTH = Math.ceil(MAX_IMAGE_BYTES / 3) * 4;
 export const MAX_CATEGORIES = 10;
+export const MAX_RECOGNITION_OUTPUT_TOKENS = 2_000;
 
 export type ToyCategory = {
   id: string;
@@ -26,6 +32,12 @@ export type ModelRecognition = {
   alternativeCategoryIds: string[];
   explanation: string;
   needsReview: boolean;
+};
+
+export type RecognitionResponsesClient = {
+  create: (
+    params: ResponseCreateParamsNonStreaming,
+  ) => Promise<OpenAIResponse>;
 };
 
 const allowedMimeTypes = new Set([
@@ -126,6 +138,41 @@ export function buildRecognitionPrompt(request: RecognitionRequest): string {
     "Categorias permitidas:",
     ...categoryLines,
   ].join("\n");
+}
+
+export function createToyRecognitionResponse(
+  responses: RecognitionResponsesClient,
+  model: string,
+  request: RecognitionRequest,
+  categoryIds: string[],
+): Promise<OpenAIResponse> {
+  return responses.create({
+    model,
+    store: false,
+    max_output_tokens: MAX_RECOGNITION_OUTPUT_TOKENS,
+    reasoning: {effort: "low"},
+    input: [
+      {
+        role: "user",
+        content: [
+          {type: "input_text", text: buildRecognitionPrompt(request)},
+          {
+            type: "input_image",
+            detail: "low",
+            image_url: `data:${request.mimeType};base64,${request.imageBase64}`,
+          },
+        ],
+      },
+    ],
+    text: {
+      format: {
+        type: "json_schema",
+        name: "toy_recognition",
+        strict: true,
+        schema: recognitionJsonSchema(categoryIds),
+      },
+    },
+  });
 }
 
 export function recognitionJsonSchema(categoryIds: string[]) {

@@ -12,9 +12,8 @@ import {
   writeRecognitionFailureLog,
 } from "./recognitionErrors";
 import {
-  buildRecognitionPrompt,
+  createToyRecognitionResponse,
   parseRecognitionRequest,
-  recognitionJsonSchema,
   validateModelRecognition,
 } from "./toyRecognition";
 
@@ -44,35 +43,16 @@ export const recognizeToy = onCall(
     }
 
     const categoryIds = input.categories.map((category) => category.id);
+    const model = process.env.OPENAI_VISION_MODEL ?? "gpt-5-mini";
     const client = new OpenAI({apiKey: openAiApiKey.value()});
 
     try {
-      const response = await client.responses.create({
-        model: process.env.OPENAI_VISION_MODEL ?? "gpt-5-mini",
-        store: false,
-        max_output_tokens: 400,
-        input: [
-          {
-            role: "user",
-            content: [
-              {type: "input_text", text: buildRecognitionPrompt(input)},
-              {
-                type: "input_image",
-                detail: "low",
-                image_url: `data:${input.mimeType};base64,${input.imageBase64}`,
-              },
-            ],
-          },
-        ],
-        text: {
-          format: {
-            type: "json_schema",
-            name: "toy_recognition",
-            strict: true,
-            schema: recognitionJsonSchema(categoryIds),
-          },
-        },
-      });
+      const response = await createToyRecognitionResponse(
+        client.responses,
+        model,
+        input,
+        categoryIds,
+      );
 
       assertModelResponseHasOutputText(response);
       let modelOutput: unknown;
@@ -101,7 +81,7 @@ export const recognizeToy = onCall(
         alternativeCategoryIds: parsed.alternativeCategoryIds,
         explanation: parsed.explanation,
         needsReview: parsed.needsReview,
-        modelVersion: process.env.OPENAI_VISION_MODEL ?? "gpt-5-mini",
+        modelVersion: model,
       };
     } catch (error) {
       if (error instanceof HttpsError) throw error;

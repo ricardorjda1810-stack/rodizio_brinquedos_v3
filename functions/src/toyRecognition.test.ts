@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
-import {join} from "node:path";
 import test from "node:test";
-import type {Response as OpenAIResponse} from "openai/resources/responses/responses";
+import type {
+  Response as OpenAIResponse,
+  ResponseCreateParamsNonStreaming,
+} from "openai/resources/responses/responses";
 import {
   APIConnectionError,
   APIConnectionTimeoutError,
@@ -26,6 +27,7 @@ import {
 } from "./recognitionErrors";
 import {
   buildRecognitionPrompt,
+  createToyRecognitionResponse,
   parseRecognitionRequest,
   recognitionJsonSchema,
   validateModelRecognition,
@@ -206,15 +208,104 @@ test("uses only the supported strict JSON Schema subset", () => {
     Object.keys(schema.properties).sort(),
   );
   assert.equal(schema.properties.alternativeCategoryIds.maxItems, 2);
+});
 
-  const indexSource = readFileSync(
-    join(__dirname, "../src/index.ts"),
-    "utf8",
+test("sends one low-effort request with the existing output contract", async () => {
+  const request = parseRecognitionRequest({
+    imageBase64: jpegBase64,
+    mimeType: "image/jpeg",
+    locale: "pt-BR",
+    categories,
+  });
+  const categoryIds = categories.map((category) => category.id);
+  const modelOutput = {
+    status: "ok",
+    suggestedName: "Blocos coloridos",
+    categoryId: "maos",
+    confidence: 0.94,
+    alternativeCategoryIds: ["imaginacao"],
+    explanation: "Peças para montar e empilhar.",
+    needsReview: false,
+  };
+  const calls: ResponseCreateParamsNonStreaming[] = [];
+  const response = await createToyRecognitionResponse(
+    {
+      create: async (params) => {
+        calls.push(params);
+        return simulatedResponse({
+          status: "completed",
+          output_text: JSON.stringify(modelOutput),
+        });
+      },
+    },
+    "gpt-5-mini",
+    request,
+    categoryIds,
   );
-  assert.match(
-    indexSource,
-    /format:\s*{[\s\S]*?strict:\s*true,[\s\S]*?schema:\s*recognitionJsonSchema/,
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].model, "gpt-5-mini");
+  assert.equal(calls[0].store, false);
+  assert.equal(calls[0].max_output_tokens, 2_000);
+  assert.deepEqual(calls[0].reasoning, {effort: "low"});
+  assert.deepEqual(calls[0].input, [
+    {
+      role: "user",
+      content: [
+        {type: "input_text", text: buildRecognitionPrompt(request)},
+        {
+          type: "input_image",
+          detail: "low",
+          image_url: `data:${request.mimeType};base64,${request.imageBase64}`,
+        },
+      ],
+    },
+  ]);
+  assert.deepEqual(calls[0].text, {
+    format: {
+      type: "json_schema",
+      name: "toy_recognition",
+      strict: true,
+      schema: recognitionJsonSchema(categoryIds),
+    },
+  });
+
+  assert.doesNotThrow(() => assertModelResponseHasOutputText(response));
+  const parsed = validateModelRecognition(
+    JSON.parse(response.output_text),
+    new Set(categoryIds),
   );
+  assert.equal(parsed.suggestedName, "Blocos coloridos");
+  assert.equal(parsed.categoryId, "maos");
+});
+
+test("does not retry an incomplete model response", async () => {
+  let callCount = 0;
+  const response = await createToyRecognitionResponse(
+    {
+      create: async () => {
+        callCount += 1;
+        return simulatedResponse({
+          status: "incomplete",
+          incomplete_details: {reason: "max_output_tokens"},
+        });
+      },
+    },
+    "gpt-5-mini",
+    parseRecognitionRequest({
+      imageBase64: jpegBase64,
+      mimeType: "image/jpeg",
+      locale: "pt-BR",
+      categories,
+    }),
+    categories.map((category) => category.id),
+  );
+
+  assert.throws(
+    () => assertModelResponseHasOutputText(response),
+    IncompleteModelResponseError,
+  );
+  assert.equal(callCount, 1);
 });
 
 test("rejects duplicate alternative categories", () => {
