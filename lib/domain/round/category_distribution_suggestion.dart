@@ -10,15 +10,14 @@ class CategoryDistributionSuggestion {
 
 CategoryDistributionSuggestion buildDistribution(
   int total,
-  Iterable<String> categories, {
-  int maxTotal = 8,
-}) {
+  Iterable<String> categories,
+) {
   final categoryNames = categories
       .map((category) => category.trim())
       .where((category) => category.isNotEmpty)
       .toList(growable: false);
 
-  final safeTotal = total.clamp(0, maxTotal).toInt();
+  final safeTotal = total < 0 ? 0 : total;
   if (categoryNames.isEmpty || safeTotal == 0) {
     return CategoryDistributionSuggestion(
       distribution: {for (final category in categoryNames) category: 0},

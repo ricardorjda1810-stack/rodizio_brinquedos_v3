@@ -54,16 +54,25 @@ void main() {
     expect(_sum(suggestion.distribution), 8);
   });
 
-  test('limita sugestao generica a 8 brinquedos', () {
-    final suggestion = buildDistribution(12, const [
+  test('preserva presets de 9 e 10 brinquedos', () {
+    final suggestion9 = buildDistribution(9, const [
       'Sentidos e Exploração',
       'Comunicação e Histórias',
       'Imaginação e Criatividade',
       'Mãos e Construção',
     ]);
+    final suggestion10 = buildDistribution(10, const [
+      'Corpo e Respiração',
+      'Sentidos e Exploração',
+      'Mãos e Construção',
+      'Imaginação e Criatividade',
+      'Comunicação e Histórias',
+    ]);
 
-    expect(suggestion.total, 8);
-    expect(_sum(suggestion.distribution), 8);
+    expect(suggestion9.total, 9);
+    expect(_sum(suggestion9.distribution), 9);
+    expect(suggestion10.total, 10);
+    expect(_sum(suggestion10.distribution), 10);
   });
 }
 

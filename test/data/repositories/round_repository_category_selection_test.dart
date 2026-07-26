@@ -104,6 +104,341 @@ void main() {
     expect(selectedIds, ['b1', 'l1']);
   });
 
+  test('startRound evita a rodada anterior quando existem alternativas',
+      () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 1);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'anterior', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db,
+        id: 'alternativa', categoryId: 'corpo', createdAt: 200);
+    await _insertHistoricalRound(
+      db,
+      id: 'round_previous',
+      startAt: DateTime(2026, 1, 5, 12),
+      toyIds: const ['anterior'],
+    );
+
+    final result = await roundRepository.startRound(
+      date: DateTime(2026, 1, 6, 12),
+    );
+
+    expect(result.created, isTrue);
+    expect(await _selectedToyIdsByPosition(db), ['alternativa']);
+  });
+
+  test('sugestao e criacao direta usam a mesma selecao', () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 2);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'a', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'b', categoryId: 'corpo', createdAt: 200);
+    await _insertToy(db, id: 'c', categoryId: 'corpo', createdAt: 300);
+    await _insertHistoricalRound(
+      db,
+      id: 'round_previous',
+      startAt: DateTime(2026, 1, 5, 12),
+      toyIds: const ['a', 'b'],
+    );
+    final date = DateTime(2026, 1, 6, 12);
+
+    final suggestion = await roundRepository.suggestRoundForDate(date);
+    await roundRepository.startRound(date: date);
+
+    expect(
+      await _selectedToyIdsByPosition(db),
+      suggestion.map((toy) => toy.id).toList(growable: false),
+    );
+  });
+
+  test('historico prioriza nunca usado, recencia e menor total de usos',
+      () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 4);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db,
+        id: 'muito_usado', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db,
+        id: 'menos_usado', categoryId: 'corpo', createdAt: 200);
+    await _insertToy(db, id: 'recente', categoryId: 'corpo', createdAt: 300);
+    await _insertToy(db,
+        id: 'nunca_usado', categoryId: 'corpo', createdAt: 400);
+
+    await _insertHistoricalRound(
+      db,
+      id: 'round_old_1',
+      startAt: DateTime(2025, 12, 1, 12),
+      toyIds: const ['muito_usado'],
+    );
+    await _insertHistoricalRound(
+      db,
+      id: 'round_old_2',
+      startAt: DateTime(2025, 12, 15, 12),
+      toyIds: const ['muito_usado', 'menos_usado'],
+    );
+    await _insertHistoricalRound(
+      db,
+      id: 'round_recent',
+      startAt: DateTime(2026, 1, 1, 12),
+      toyIds: const ['recente'],
+    );
+
+    final suggestion = await roundRepository.suggestRoundForDate(
+      DateTime(2026, 1, 10, 12),
+    );
+
+    expect(
+      suggestion.map((toy) => toy.id),
+      ['nunca_usado', 'menos_usado', 'muito_usado', 'recente'],
+    );
+  });
+
+  test('planejamento semanal redistribui falta igual a sugestao diaria',
+      () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 2,
+      'exploracao': 2,
+      'maos': 0,
+      'imaginacao': 0,
+      'comunicacao': 0,
+    });
+    for (var index = 0; index < 8; index++) {
+      await _insertToy(
+        db,
+        id: 'corpo_$index',
+        categoryId: 'corpo',
+        createdAt: 100 + index,
+      );
+    }
+    final monday = DateTime(2026, 1, 5, 12);
+
+    final daily = await roundRepository.suggestRoundForDate(monday);
+    final weekly = await roundRepository.suggestWeeklyPlanningForWeek(monday);
+
+    expect(daily, hasLength(4));
+    expect(weekly[DateTime.monday], hasLength(4));
+  });
+
+  test('categoria personalizada permanece fora da resolucao efetiva', () async {
+    await toyRepository.addCategory(name: 'Personalizada');
+    final categories = await db.select(db.categoryDefinitions).get();
+    final custom = categories.singleWhere((category) {
+      return category.name == 'Personalizada';
+    });
+    await toyRepository.setCategoryIncludedInRound(
+      categoryId: custom.id,
+      isIncluded: true,
+    );
+    await toyRepository.setCategoryQuotaInRound(
+      categoryId: custom.id,
+      quota: 2,
+    );
+    await _insertToy(
+      db,
+      id: 'custom_1',
+      categoryId: custom.id,
+      createdAt: 100,
+    );
+
+    final suggestion = await roundRepository.suggestRoundForDate(
+      DateTime(2026, 1, 5, 12),
+    );
+
+    expect(suggestion.map((toy) => toy.id), isNot(contains('custom_1')));
+  });
+
+  test('confirmacao atualiza uma unica rodada efetiva no mesmo dia', () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 2);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'a', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'b', categoryId: 'corpo', createdAt: 200);
+    final date = DateTime(2026, 1, 5, 12);
+
+    await roundRepository.setActiveRoundFromToyIds(['a'], date: date);
+    await roundRepository.setActiveRoundFromToyIds(['b', 'b'], date: date);
+
+    expect(await db.select(db.rounds).get(), hasLength(1));
+    expect(await _selectedToyIdsByPosition(db), ['b']);
+  });
+
+  test('confirmacao em nova data cria nova entrada historica', () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 1);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'a', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'b', categoryId: 'corpo', createdAt: 200);
+
+    await roundRepository.setActiveRoundFromToyIds(
+      ['a'],
+      date: DateTime(2026, 1, 5, 12),
+    );
+    await roundRepository.setActiveRoundFromToyIds(
+      ['b'],
+      date: DateTime(2026, 1, 6, 12),
+    );
+
+    final rounds = await (db.select(db.rounds)
+          ..orderBy([(round) => OrderingTerm.asc(round.startAt)]))
+        .get();
+    expect(rounds, hasLength(2));
+    expect(rounds.first.endAt, isNotNull);
+    expect(rounds.last.endAt, isNull);
+  });
+
+  test('confirmacao rejeita ID inexistente', () async {
+    await expectLater(
+      roundRepository.setActiveRoundFromToyIds(
+        ['nao_existe'],
+        date: DateTime(2026, 1, 5, 12),
+      ),
+      throwsStateError,
+    );
+    expect(await db.select(db.rounds).get(), isEmpty);
+  });
+
+  test('confirmacao rejeita brinquedo de categoria inativa', () async {
+    await _insertToy(db, id: 'inativo', categoryId: 'corpo', createdAt: 100);
+    await (db.update(db.categoryDefinitions)
+          ..where((category) => category.id.equals('corpo')))
+        .write(
+      const CategoryDefinitionsCompanion(isActive: Value(false)),
+    );
+
+    await expectLater(
+      roundRepository.setActiveRoundFromToyIds(
+        ['inativo'],
+        date: DateTime(2026, 1, 5, 12),
+      ),
+      throwsStateError,
+    );
+  });
+
+  test('confirmacao rejeita categoria fora da configuracao da data', () async {
+    await _setAllOthersExcluded(toyRepository, const <String>{});
+    await _insertToy(db, id: 'fora', categoryId: 'corpo', createdAt: 100);
+
+    await expectLater(
+      roundRepository.setActiveRoundFromToyIds(
+        ['fora'],
+        date: DateTime(2026, 1, 5, 12),
+      ),
+      throwsStateError,
+    );
+  });
+
+  test('createdAt e ID produzem desempate deterministico', () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 3);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'z', categoryId: 'corpo', createdAt: 50);
+    await _insertToy(db, id: 'b', categoryId: 'corpo', createdAt: 100);
+    await _insertToy(db, id: 'a', categoryId: 'corpo', createdAt: 100);
+    final date = DateTime(2026, 1, 5, 12);
+
+    final first = await roundRepository.suggestRoundForDate(date);
+    final second = await roundRepository.suggestRoundForDate(date);
+
+    expect(first.map((toy) => toy.id), ['z', 'a', 'b']);
+    expect(second.map((toy) => toy.id), ['z', 'a', 'b']);
+  });
+
+  test('catalogo menor que total retorna todos sem duplicar', () async {
+    await _setCategoryState(toyRepository, 'corpo', included: true, quota: 5);
+    await _setAllOthersExcluded(toyRepository, const {'corpo'});
+    await _insertToy(db, id: 'unico', categoryId: 'corpo', createdAt: 100);
+
+    final suggestion = await roundRepository.suggestRoundForDate(
+      DateTime(2026, 1, 5, 12),
+    );
+
+    expect(suggestion.map((toy) => toy.id), ['unico']);
+  });
+
+  test('redistribuicao escolhe menor proporcao selecionados por cota',
+      () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 3,
+      'exploracao': 3,
+      'maos': 2,
+      'imaginacao': 0,
+      'comunicacao': 0,
+    });
+    await _insertOfficialToysForCategories(
+      db,
+      const ['corpo', 'maos'],
+      countPerCategory: 10,
+    );
+    await _insertToy(
+      db,
+      id: 'exploracao_unico',
+      categoryId: 'exploracao',
+      createdAt: 50000,
+    );
+
+    final suggestion = await roundRepository.suggestRoundForDate(
+      DateTime(2026, 1, 5, 12),
+    );
+
+    expect(_categoryCountsForToys(suggestion), {
+      'corpo': 4,
+      'exploracao': 1,
+      'maos': 3,
+    });
+  });
+
+  test('planejamento semanal repete quando nao existe alternativa', () async {
+    await _overwriteRoundCategoryQuotas(db, const {
+      'corpo': 1,
+      'exploracao': 0,
+      'maos': 0,
+      'imaginacao': 0,
+      'comunicacao': 0,
+    });
+    await _insertToy(db, id: 'unico', categoryId: 'corpo', createdAt: 100);
+
+    final week = await roundRepository.suggestWeeklyPlanningForWeek(
+      DateTime(2026, 1, 5, 12),
+    );
+
+    for (var weekday = DateTime.monday; weekday <= DateTime.sunday; weekday++) {
+      expect(week[weekday]!.map((toy) => toy.id), ['unico']);
+    }
+  });
+
+  test('todas as faixas preservam totais base e adicionais do fim de semana',
+      () async {
+    final settingsRepository = SettingsRepository(db);
+    await settingsRepository.load();
+    await _insertOfficialToys(db);
+    final service = AgePresetService(
+      db: db,
+      settingsRepository: settingsRepository,
+    );
+    final monday = DateTime(2026, 1, 5, 12);
+
+    for (final ageRange in ChildAgeRange.values) {
+      await service.applyAgePreset(ageRange);
+      final preset = AgePresetCatalog.presetFor(ageRange);
+
+      expect(
+        await roundRepository.suggestRoundForDate(monday),
+        hasLength(preset.total),
+        reason: ageRange.storageValue,
+      );
+      expect(
+        await roundRepository.suggestRoundForDate(
+          monday.add(const Duration(days: 5)),
+        ),
+        hasLength(preset.total + 1),
+        reason: '${ageRange.storageValue} saturday',
+      );
+      expect(
+        await roundRepository.suggestRoundForDate(
+          monday.add(const Duration(days: 6)),
+        ),
+        hasLength(preset.total + 1),
+        reason: '${ageRange.storageValue} sunday',
+      );
+    }
+
+    settingsRepository.dispose();
+  });
+
   test('suggestRoundForDate usa cotas efetivas de cada dia por idade',
       () async {
     final settingsRepository = SettingsRepository(db);
@@ -619,6 +954,31 @@ Future<void> _insertToy(
           photoPath: const Value(null),
         ),
       );
+}
+
+Future<void> _insertHistoricalRound(
+  AppDatabase db, {
+  required String id,
+  required DateTime startAt,
+  required List<String> toyIds,
+}) async {
+  await db.into(db.rounds).insert(
+        RoundsCompanion.insert(
+          id: id,
+          startAt: startAt.millisecondsSinceEpoch,
+          endAt: Value(
+              startAt.add(const Duration(hours: 1)).millisecondsSinceEpoch),
+        ),
+      );
+  for (var index = 0; index < toyIds.length; index++) {
+    await db.into(db.roundToys).insert(
+          RoundToysCompanion.insert(
+            roundId: id,
+            toyId: toyIds[index],
+            position: index,
+          ),
+        );
+  }
 }
 
 Future<void> _insertOfficialToys(
