@@ -221,6 +221,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      vars:
+        FIREBASE_ENV: production
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.rodiziobrinquedos.v3
@@ -242,6 +244,23 @@ workflows:
           cd ios
           pod install --repo-update
           cd ..
+
+      - name: Validate production Firebase configuration
+        script: |
+          set -eu
+
+          if [ "$FIREBASE_ENV" != "production" ]; then
+            echo "ERROR: The production workflow requires FIREBASE_ENV=production."
+            exit 1
+          fi
+
+          FIREBASE_ENV="$FIREBASE_ENV" \
+            ios/scripts/select_firebase_config.sh --validate-only
+
+          grep -Fq 'FIREBASE_ENV = production' \
+            ios/Flutter/Release-Production.xcconfig
+          grep -Fq 'buildConfiguration = "Release"' \
+            ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
 
       - name: Set up code signing
         script: |
@@ -265,6 +284,7 @@ workflows:
       - name: Build IPA
         script: |
           flutter build ipa --release \
+            --dart-define=FIREBASE_ENV=production \
             --export-options-plist=/Users/builder/export_options.plist
 
       - name: Upload Crashlytics dSYMs
@@ -411,3 +431,63 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+
+  staging-ios:
+    name: Staging iOS (unsigned)
+    instance_type: mac_mini_m2
+
+    # A future signed staging IPA requires staging-specific signing and an
+    # App Store Connect integration. No production credential is used here.
+    environment:
+      flutter: stable
+      xcode: latest
+      vars:
+        FIREBASE_ENV: staging
+
+    scripts:
+      - name: Pub get
+        script: flutter pub get
+
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Validate staging Firebase configuration
+        script: |
+          set -eu
+
+          if [ "$FIREBASE_ENV" != "staging" ]; then
+            echo "ERROR: The staging workflow requires FIREBASE_ENV=staging."
+            exit 1
+          fi
+
+          FIREBASE_ENV="$FIREBASE_ENV" \
+            ios/scripts/select_firebase_config.sh --validate-only
+
+          grep -Fq 'FIREBASE_ENV = staging' \
+            ios/Flutter/Release-Staging.xcconfig
+          grep -Fq 'buildConfiguration = "Release-staging"' \
+            ios/Runner.xcodeproj/xcshareddata/xcschemes/staging.xcscheme
+
+      - name: Analyze
+        script: flutter analyze --no-pub lib test
+
+      - name: Test
+        script: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "No tests directory found. Skipping flutter test."
+          fi
+
+      - name: Build unsigned staging app
+        script: |
+          flutter build ios --release \
+            --flavor staging \
+            --no-codesign \
+            --dart-define=FIREBASE_ENV=staging
+
+    artifacts:
+      - build/ios/iphoneos/Runner.app
