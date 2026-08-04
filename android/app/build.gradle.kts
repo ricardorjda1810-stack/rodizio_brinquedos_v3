@@ -32,7 +32,7 @@ android {
     defaultConfig {
         applicationId = "com.rodiziobrinquedos.v3"
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
