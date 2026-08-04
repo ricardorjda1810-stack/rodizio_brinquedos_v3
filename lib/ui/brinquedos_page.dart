@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
@@ -174,7 +175,9 @@ class _BrinquedosPageState extends State<BrinquedosPage> {
     setState(() => _startingRound = true);
     try {
       if (!mounted) return;
-      final result = await widget.roundRepository.startRound();
+      final result = await widget.roundRepository.startRound(
+        source: RoundCreationSource.toysTab,
+      );
       if (!mounted) return;
       if (!result.created) {
         ScaffoldMessenger.of(context).showSnackBar(

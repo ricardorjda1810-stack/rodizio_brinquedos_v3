@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -148,8 +149,10 @@ class _BrincadeiraProntaPageState extends State<BrincadeiraProntaPage> {
 
     setState(() => _saving = true);
     try {
-      await widget.roundRepository
-          .setActiveRoundFromToyIds(_selected.map((it) => it.toy.id).toList());
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        _selected.map((it) => it.toy.id).toList(),
+        source: RoundCreationSource.roundManual,
+      );
       if (!mounted) return;
       Navigator.of(context).pop(true);
     } catch (e) {

@@ -1,10 +1,106 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/apple_transaction_analytics_coordinator.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
+
 class AppAnalytics {
   const AppAnalytics._();
 
-  static Future<void> logAppOpen() => _logEvent('app_open');
+  static const String appOpenEventName = 'app_open';
+  static const String toyCreatedEventName = 'toy_created';
+  static const String firstRoundCreatedEventName = 'first_round_created';
+  static const String roundCreatedEventName = 'round_created';
+  static const String suggestionOpenedEventName = 'suggestion_opened';
+  static const String suggestionUsedEventName = 'suggestion_used';
+  static const String weeklyPlanningOpenedEventName = 'weekly_planning_opened';
+  static const String paywallViewedEventName = 'paywall_viewed';
+  static const String premiumPlanSelectedEventName = 'premium_plan_selected';
+  static const String purchaseStartedEventName = 'purchase_started';
+  static const String purchaseCompletedEventName = 'purchase_completed';
+  static const String purchaseRestoredEventName = 'purchase_restored';
+  static const String purchaseFailedEventName = 'purchase_failed';
+  static const String purchaseCanceledEventName = 'purchase_canceled';
+
+  @visibleForTesting
+  static const Set<String> knownEventNames = <String>{
+    appOpenEventName,
+    toyCreatedEventName,
+    firstRoundCreatedEventName,
+    roundCreatedEventName,
+    suggestionOpenedEventName,
+    suggestionUsedEventName,
+    weeklyPlanningOpenedEventName,
+    paywallViewedEventName,
+    premiumPlanSelectedEventName,
+    purchaseStartedEventName,
+    purchaseCompletedEventName,
+    purchaseRestoredEventName,
+    purchaseFailedEventName,
+    purchaseCanceledEventName,
+  };
+
+  static bool _environmentConfigured = false;
+
+  static final FirstRoundAnalyticsCoordinator firstRoundCreatedCoordinator =
+      FirstRoundAnalyticsCoordinator.withSharedPreferences(
+    isAnalyticsConfigured: () => isEnvironmentConfigured,
+    sendEvent: ({
+      required int toyCount,
+      required RoundCreationSource source,
+    }) {
+      return logFirstRoundCreated(
+        toyCount: toyCount,
+        source: source,
+      );
+    },
+  );
+
+  static final AppleTransactionAnalyticsCoordinator
+      appleTransactionAnalyticsCoordinator =
+      AppleTransactionAnalyticsCoordinator.withSharedPreferences(
+    isAnalyticsConfigured: () =>
+        isEnvironmentConfigured &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.iOS,
+    sendTransaction: FirebaseAnalytics.instance.logTransaction,
+  );
+
+  static bool get isEnvironmentConfigured => _environmentConfigured;
+
+  static Future<void> configureEnvironment({
+    required String environment,
+  }) async {
+    _environmentConfigured = false;
+    if (environment != 'staging' && environment != 'production') {
+      debugPrint('Analytics environment configuration skipped.');
+      return;
+    }
+
+    try {
+      await FirebaseAnalytics.instance.setDefaultEventParameters(
+        <String, Object>{
+          'app_environment': environment,
+        },
+      );
+      _environmentConfigured = true;
+      try {
+        await firstRoundCreatedCoordinator.retryPending();
+      } catch (error) {
+        debugPrint('Pending first round Analytics retry skipped: $error');
+      }
+      try {
+        await appleTransactionAnalyticsCoordinator.retryPending();
+      } catch (_) {
+        debugPrint('Pending Apple transaction Analytics retry skipped.');
+      }
+    } catch (_) {
+      debugPrint('Analytics environment configuration skipped.');
+    }
+  }
+
+  static Future<void> logAppOpen() => _logEvent(appOpenEventName);
 
   static Future<void> logToyCreated({
     required String category,
@@ -12,7 +108,7 @@ class AppAnalytics {
     required bool hasBox,
   }) {
     return _logEvent(
-      'toy_created',
+      toyCreatedEventName,
       parameters: <String, Object>{
         'category': _safeValue(category),
         'has_photo': _boolValue(hasPhoto),
@@ -21,13 +117,15 @@ class AppAnalytics {
     );
   }
 
-  static Future<void> logFirstRoundCreated({
+  static Future<bool> logFirstRoundCreated({
     required int toyCount,
+    required RoundCreationSource source,
   }) {
-    return _logEvent(
-      'first_round_created',
+    return _tryLogEvent(
+      firstRoundCreatedEventName,
       parameters: <String, Object>{
         'toy_count': _safeCount(toyCount),
+        'round_source': source.analyticsValue,
       },
     );
   }
@@ -37,7 +135,7 @@ class AppAnalytics {
     required String source,
   }) {
     return _logEvent(
-      'round_created',
+      roundCreatedEventName,
       parameters: <String, Object>{
         'toy_count': _safeCount(toyCount),
         'source': _safeValue(source),
@@ -49,7 +147,7 @@ class AppAnalytics {
     required String source,
   }) {
     return _logEvent(
-      'suggestion_opened',
+      suggestionOpenedEventName,
       parameters: <String, Object>{
         'source': _safeValue(source),
       },
@@ -61,7 +159,7 @@ class AppAnalytics {
     required String source,
   }) {
     return _logEvent(
-      'suggestion_used',
+      suggestionUsedEventName,
       parameters: <String, Object>{
         'toy_count': _safeCount(toyCount),
         'source': _safeValue(source),
@@ -73,7 +171,7 @@ class AppAnalytics {
     required String source,
   }) {
     return _logEvent(
-      'weekly_planning_opened',
+      weeklyPlanningOpenedEventName,
       parameters: <String, Object>{
         'source': _safeValue(source),
       },
@@ -81,39 +179,41 @@ class AppAnalytics {
   }
 
   static Future<void> logPaywallViewed({
-    required String source,
+    required PaywallAnalyticsContext context,
   }) {
     return _logEvent(
-      'paywall_viewed',
+      paywallViewedEventName,
       parameters: <String, Object>{
-        'source': _safeValue(source),
+        'paywall_source': context.source.analyticsValue,
+        'paywall_instance_id': context.instanceId,
       },
     );
   }
 
   static Future<void> logPremiumPlanSelected({
-    required String plan,
-    required String source,
+    required PaywallAnalyticsContext context,
+    required PremiumPlan plan,
+    required String productId,
+    required PlanSelectionMethod selectionMethod,
   }) {
     return _logEvent(
-      'premium_plan_selected',
+      premiumPlanSelectedEventName,
       parameters: <String, Object>{
-        'plan': _safeValue(plan),
-        'source': _safeValue(source),
+        'plan': plan.analyticsValue,
+        'product_id': productId,
+        'selection_method': selectionMethod.analyticsValue,
+        'paywall_source': context.source.analyticsValue,
+        'paywall_instance_id': context.instanceId,
       },
     );
   }
 
   static Future<void> logPurchaseStarted({
-    required String plan,
-    required String source,
+    required PurchaseAttemptContext context,
   }) {
     return _logEvent(
-      'purchase_started',
-      parameters: <String, Object>{
-        'plan': _safeValue(plan),
-        'source': _safeValue(source),
-      },
+      purchaseStartedEventName,
+      parameters: _purchaseAttemptParameters(context),
     );
   }
 
@@ -121,8 +221,9 @@ class AppAnalytics {
     required String plan,
     required String source,
   }) {
+    // Retired for new data; historical events remain quarantined.
     return _logEvent(
-      'purchase_completed',
+      purchaseCompletedEventName,
       parameters: <String, Object>{
         'plan': _safeValue(plan),
         'source': _safeValue(source),
@@ -134,7 +235,7 @@ class AppAnalytics {
     required String source,
   }) {
     return _logEvent(
-      'purchase_restored',
+      purchaseRestoredEventName,
       parameters: <String, Object>{
         'source': _safeValue(source),
       },
@@ -142,31 +243,67 @@ class AppAnalytics {
   }
 
   static Future<void> logPurchaseFailed({
-    required String plan,
-    required String source,
-    required String reason,
+    required PurchaseAttemptContext context,
+    required PurchaseFailureStage failureStage,
+    required PurchaseFailureCode failureCode,
   }) {
     return _logEvent(
-      'purchase_failed',
+      purchaseFailedEventName,
       parameters: <String, Object>{
-        'plan': _safeValue(plan),
-        'source': _safeValue(source),
-        'reason': _safeValue(reason),
+        ..._purchaseAttemptParameters(context),
+        'failure_stage': failureStage.analyticsValue,
+        'failure_code': failureCode.analyticsValue,
       },
     );
+  }
+
+  static Future<void> logPurchaseCanceled({
+    required PurchaseAttemptContext context,
+  }) {
+    return _logEvent(
+      purchaseCanceledEventName,
+      parameters: _purchaseAttemptParameters(context),
+    );
+  }
+
+  static Map<String, Object> _purchaseAttemptParameters(
+    PurchaseAttemptContext context,
+  ) {
+    return <String, Object>{
+      'plan': context.plan.analyticsValue,
+      'product_id': context.productId,
+      'paywall_source': context.paywall.source.analyticsValue,
+      'paywall_instance_id': context.paywall.instanceId,
+      'purchase_attempt_id': context.attemptId,
+    };
   }
 
   static Future<void> _logEvent(
     String name, {
     Map<String, Object>? parameters,
   }) async {
+    await _tryLogEvent(name, parameters: parameters);
+  }
+
+  static Future<bool> _tryLogEvent(
+    String name, {
+    Map<String, Object>? parameters,
+  }) async {
+    if (!_environmentConfigured) {
+      debugPrint(
+          'Analytics event "$name" skipped: environment not configured.');
+      return false;
+    }
+
     try {
       await FirebaseAnalytics.instance.logEvent(
         name: name,
         parameters: parameters,
       );
+      return true;
     } catch (error) {
       debugPrint('Analytics event "$name" skipped: $error');
+      return false;
     }
   }
 
@@ -183,5 +320,52 @@ class AppAnalytics {
         .replaceAll(RegExp(r'^_|_$'), '');
     if (normalized.isEmpty) return 'unknown';
     return normalized.length > 40 ? normalized.substring(0, 40) : normalized;
+  }
+}
+
+class FirebasePurchaseFunnelAnalytics implements PurchaseFunnelAnalytics {
+  const FirebasePurchaseFunnelAnalytics();
+
+  @override
+  Future<void> logPaywallViewed(PaywallAnalyticsContext context) {
+    return AppAnalytics.logPaywallViewed(context: context);
+  }
+
+  @override
+  Future<void> logPremiumPlanSelected({
+    required PaywallAnalyticsContext context,
+    required PremiumPlan plan,
+    required String productId,
+    required PlanSelectionMethod selectionMethod,
+  }) {
+    return AppAnalytics.logPremiumPlanSelected(
+      context: context,
+      plan: plan,
+      productId: productId,
+      selectionMethod: selectionMethod,
+    );
+  }
+
+  @override
+  Future<void> logPurchaseStarted(PurchaseAttemptContext context) {
+    return AppAnalytics.logPurchaseStarted(context: context);
+  }
+
+  @override
+  Future<void> logPurchaseCanceled(PurchaseAttemptContext context) {
+    return AppAnalytics.logPurchaseCanceled(context: context);
+  }
+
+  @override
+  Future<void> logPurchaseFailed({
+    required PurchaseAttemptContext context,
+    required PurchaseFailureStage failureStage,
+    required PurchaseFailureCode failureCode,
+  }) {
+    return AppAnalytics.logPurchaseFailed(
+      context: context,
+      failureStage: failureStage,
+      failureCode: failureCode,
+    );
   }
 }
