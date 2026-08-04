@@ -4,12 +4,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 import 'package:rodizio_brinquedos_v3/ui/theme/ui_tokens.dart';
@@ -57,9 +57,6 @@ class RodadaPage extends StatefulWidget {
 }
 
 class _RodadaPageState extends State<RodadaPage> {
-  static const String _firstRoundCreatedLoggedKey =
-      'analytics_first_round_created_logged';
-
   bool _startingRound = false;
   bool _loadingSuggestion = false;
   bool _assemblyMode = false;
@@ -158,7 +155,10 @@ class _RodadaPageState extends State<RodadaPage> {
         return;
       }
 
-      await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        toyIds,
+        source: RoundCreationSource.roundSuggestion,
+      );
       await AppAnalytics.logSuggestionUsed(
         toyCount: toyIds.length,
         source: 'home',
@@ -167,7 +167,6 @@ class _RodadaPageState extends State<RodadaPage> {
         toyCount: toyIds.length,
         source: 'home_suggestion',
       );
-      await _logFirstRoundCreatedOnce(toyIds.length);
       if (!mounted) return;
 
       _openAssemblyModeWith(suggestion);
@@ -227,6 +226,7 @@ class _RodadaPageState extends State<RodadaPage> {
 
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
+        source: RoundCreationSource.roundSuggestion,
       );
       await AppAnalytics.logSuggestionUsed(
         toyCount: selectedToys.length,
@@ -236,7 +236,6 @@ class _RodadaPageState extends State<RodadaPage> {
         toyCount: selectedToys.length,
         source: 'round_suggestion',
       );
-      await _logFirstRoundCreatedOnce(selectedToys.length);
       if (!mounted) return;
 
       _openAssemblyModeWith(_roundItemsFromToys(selectedToys, boxesById));
@@ -267,17 +266,6 @@ class _RodadaPageState extends State<RodadaPage> {
         });
       }
     }
-  }
-
-  Future<void> _logFirstRoundCreatedOnce(int toyCount) async {
-    final preferences = await SharedPreferences.getInstance();
-    final alreadyLogged =
-        preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
-
-    if (alreadyLogged) return;
-
-    await preferences.setBool(_firstRoundCreatedLoggedKey, true);
-    await AppAnalytics.logFirstRoundCreated(toyCount: toyCount);
   }
 
   String _categoryNameFor(

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -18,14 +19,18 @@ const String _termsOfUseUrl =
 
 class PaywallPage extends StatefulWidget {
   final PurchaseService purchaseService;
-  final String source;
+  final PaywallSource source;
   final bool blocking;
+  final PurchaseFunnelAnalytics purchaseFunnelAnalytics;
+  final AnalyticsOpaqueIdGenerator? analyticsIdGenerator;
 
   const PaywallPage({
     super.key,
     required this.purchaseService,
-    this.source = 'direct',
+    required this.source,
     this.blocking = false,
+    this.purchaseFunnelAnalytics = const FirebasePurchaseFunnelAnalytics(),
+    this.analyticsIdGenerator,
   });
 
   @override
@@ -36,11 +41,13 @@ class _PaywallPageState extends State<PaywallPage> {
   String? _lastErrorMessage;
   bool _lastPremiumState = false;
   String _selectedProductId = PurchaseService.yearlyProductId;
+  bool _defaultSelectionLogged = false;
+  late final PaywallAnalyticsContext _paywallAnalyticsContext;
 
   PurchaseService get _purchaseService => widget.purchaseService;
 
   bool get _isTrialExpiredPaywall =>
-      widget.blocking || widget.source == 'app_trial_expired';
+      widget.blocking || widget.source == PaywallSource.appTrialExpired;
 
   bool get _hasLoadedSubscriptionPlans =>
       _purchaseService.hasLoadedSubscriptionProducts;
@@ -89,10 +96,20 @@ class _PaywallPageState extends State<PaywallPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(AppAnalytics.logPaywallViewed(source: widget.source));
+    _paywallAnalyticsContext = PaywallAnalyticsContext.create(
+      source: widget.source,
+      idGenerator: widget.analyticsIdGenerator,
+    );
+    unawaited(
+      _runAnalyticsSafely(
+        () => widget.purchaseFunnelAnalytics
+            .logPaywallViewed(_paywallAnalyticsContext),
+      ),
+    );
     _lastPremiumState = _purchaseService.isPremium;
     _lastErrorMessage = _purchaseService.errorMessage;
     _purchaseService.addListener(_handlePurchaseStateChanged);
+    _logDefaultSelectionIfAvailable();
   }
 
   @override
@@ -104,6 +121,7 @@ class _PaywallPageState extends State<PaywallPage> {
   void _handlePurchaseStateChanged() {
     if (!mounted) return;
 
+    _logDefaultSelectionIfAvailable();
     final errorMessage = _purchaseService.errorMessage;
     if (errorMessage != null && errorMessage != _lastErrorMessage) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -132,7 +150,7 @@ class _PaywallPageState extends State<PaywallPage> {
     if (!isPaywallEnabledForCurrentPlatform) return;
     await _purchaseService.startPurchase(
       productId: _selectedProductId,
-      source: 'paywall',
+      paywallContext: _paywallAnalyticsContext,
     );
   }
 
@@ -184,11 +202,46 @@ class _PaywallPageState extends State<PaywallPage> {
     if (_selectedProductId == productId) return;
     setState(() => _selectedProductId = productId);
     unawaited(
-      AppAnalytics.logPremiumPlanSelected(
-        plan: PurchaseService.planForProductId(productId),
-        source: 'paywall',
+      _runAnalyticsSafely(
+        () => widget.purchaseFunnelAnalytics.logPremiumPlanSelected(
+          context: _paywallAnalyticsContext,
+          plan: PurchaseService.planForProductId(productId),
+          productId: productId,
+          selectionMethod: PlanSelectionMethod.manual,
+        ),
       ),
     );
+  }
+
+  void _logDefaultSelectionIfAvailable() {
+    if (_defaultSelectionLogged ||
+        _selectedProductId != PurchaseService.yearlyProductId ||
+        _purchaseService.productDetailsFor(PurchaseService.yearlyProductId) ==
+            null) {
+      return;
+    }
+
+    _defaultSelectionLogged = true;
+    unawaited(
+      _runAnalyticsSafely(
+        () => widget.purchaseFunnelAnalytics.logPremiumPlanSelected(
+          context: _paywallAnalyticsContext,
+          plan: PremiumPlan.yearly,
+          productId: PurchaseService.yearlyProductId,
+          selectionMethod: PlanSelectionMethod.defaultSelection,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _runAnalyticsSafely(
+    Future<void> Function() operation,
+  ) async {
+    try {
+      await operation();
+    } catch (_) {
+      debugPrint('Paywall funnel Analytics skipped.');
+    }
   }
 
   @override

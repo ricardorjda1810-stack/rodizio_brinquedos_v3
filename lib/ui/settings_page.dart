@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
@@ -208,7 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
       MaterialPageRoute(
         builder: (_) => PaywallPage(
           purchaseService: widget.purchaseService,
-          source: 'settings',
+          source: PaywallSource.settings,
         ),
       ),
     );

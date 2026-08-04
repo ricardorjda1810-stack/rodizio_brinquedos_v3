@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
@@ -53,9 +53,6 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  static const String _firstRoundCreatedLoggedKey =
-      'analytics_first_round_created_logged';
-
   int _currentIndex = 0;
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
@@ -66,6 +63,9 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    widget.roundRepository.attachFirstRoundAnalytics(
+      AppAnalytics.firstRoundCreatedCoordinator,
+    );
     final db = widget.roundRepository.db;
     if (db != null) {
       _weeklyPlanningRepository = WeeklyPlanningRepository(
@@ -79,6 +79,11 @@ class _MainShellState extends State<MainShell> {
   @override
   void didUpdateWidget(covariant MainShell oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.roundRepository != widget.roundRepository) {
+      widget.roundRepository.attachFirstRoundAnalytics(
+        AppAnalytics.firstRoundCreatedCoordinator,
+      );
+    }
     if (!oldWidget.trialStatus.introPending &&
         widget.trialStatus.introPending) {
       _trialIntroDialogScheduled = false;
@@ -329,6 +334,7 @@ class _MainShellState extends State<MainShell> {
 
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
+        source: RoundCreationSource.homeSuggestion,
       );
       await AppAnalytics.logSuggestionUsed(
         toyCount: selectedToys.length,
@@ -338,7 +344,6 @@ class _MainShellState extends State<MainShell> {
         toyCount: selectedToys.length,
         source: 'home_suggestion',
       );
-      await _logFirstRoundCreatedOnce(selectedToys.length);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -368,17 +373,6 @@ class _MainShellState extends State<MainShell> {
         });
       }
     }
-  }
-
-  Future<void> _logFirstRoundCreatedOnce(int toyCount) async {
-    final preferences = await SharedPreferences.getInstance();
-    final alreadyLogged =
-        preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
-
-    if (alreadyLogged) return;
-
-    await preferences.setBool(_firstRoundCreatedLoggedKey, true);
-    await AppAnalytics.logFirstRoundCreated(toyCount: toyCount);
   }
 
   Widget _buildMobileHomePage() {
@@ -1493,6 +1487,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
 
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
+        source: RoundCreationSource.homeIpadSuggestion,
       );
       await AppAnalytics.logSuggestionUsed(
         toyCount: selectedToys.length,
@@ -1546,7 +1541,10 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
         return;
       }
 
-      await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        toyIds,
+        source: RoundCreationSource.homeIpadStart,
+      );
       await AppAnalytics.logSuggestionUsed(
         toyCount: toyIds.length,
         source: 'home_ipad',
