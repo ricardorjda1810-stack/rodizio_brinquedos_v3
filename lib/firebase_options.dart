@@ -24,10 +24,7 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -51,6 +48,14 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyBxE1ibOHEG8hhLHirXa3ZEZQrxAElTGAg',
+    appId: '1:713670498412:android:74866eb0996df433f2e049',
+    messagingSenderId: '713670498412',
+    projectId: 'rodizio-de-brinquedos',
+    storageBucket: 'rodizio-de-brinquedos.firebasestorage.app',
+  );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCxhM2rLk1RObIYvOoR097LmhkvFpOx9-0',
