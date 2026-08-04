@@ -5,6 +5,13 @@
   },
   "flutter": {
     "platforms": {
+      "android": {
+        "default": {
+          "projectId": "rodizio-de-brinquedos",
+          "appId": "1:713670498412:android:74866eb0996df433f2e049",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
       "ios": {
         "targets": {
           "Runner": {
@@ -19,6 +26,7 @@
         "lib/firebase_options.dart": {
           "projectId": "rodizio-de-brinquedos",
           "configurations": {
+            "android": "1:713670498412:android:74866eb0996df433f2e049",
             "ios": "1:713670498412:ios:a73ec27898054ea1f2e049"
           }
         }

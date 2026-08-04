@@ -12,6 +12,8 @@ import 'package:intl/intl.dart';
 import 'package:rodizio_brinquedos_v3/bootstrap.dart'
     if (dart.library.html) 'package:rodizio_brinquedos_v3/bootstrap_web.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/config/app_check_provider_selection.dart';
+import 'package:rodizio_brinquedos_v3/core/config/firebase_environment.dart';
 import 'package:rodizio_brinquedos_v3/firebase_options.dart';
 
 bool _crashlyticsEnabled = false;
@@ -37,30 +39,72 @@ Future<void> main() async {
 }
 
 Future<void> _initializeFirebaseServices() async {
+  final requiresExplicitIosEnvironment =
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  FirebaseEnvironment? iosEnvironment;
+
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    _crashlyticsEnabled = true;
-    if (!kIsWeb) {
-      try {
-        await FirebaseAppCheck.instance.activate(
-          providerAndroid: kDebugMode
-              ? const AndroidDebugProvider()
-              : const AndroidPlayIntegrityProvider(),
-          providerApple: kDebugMode
-              ? const AppleDebugProvider()
-              : const AppleAppAttestWithDeviceCheckFallbackProvider(),
-        );
-      } catch (error, stackTrace) {
-        await _recordCrashlyticsError(error, stackTrace, fatal: false);
-      }
+    if (requiresExplicitIosEnvironment) {
+      final environment = FirebaseEnvironment.fromBuildConfiguration();
+      iosEnvironment = environment;
+      final app = await Firebase.initializeApp();
+      environment.validate(app.options);
+      await AppAnalytics.configureEnvironment(environment: environment.name);
+    } else {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      await AppAnalytics.configureEnvironment(
+        environment: FirebaseEnvironment.production.name,
+      );
     }
+    _crashlyticsEnabled = true;
+    await _activateFirebaseAppCheck(iosEnvironment: iosEnvironment);
     await AppAnalytics.logAppOpen();
-  } catch (error) {
+  } catch (error, stackTrace) {
     _crashlyticsEnabled = false;
+    if (requiresExplicitIosEnvironment) {
+      debugPrint(
+          'Firebase initialization failed for the declared iOS environment.');
+      Error.throwWithStackTrace(error, stackTrace);
+    }
     debugPrint('Firebase initialization skipped: $error');
   }
+}
+
+Future<void> _activateFirebaseAppCheck({
+  required FirebaseEnvironment? iosEnvironment,
+}) async {
+  final providers = selectFirebaseAppCheckProviders(
+    platform: _currentAppCheckPlatform(),
+    buildMode: _currentAppCheckBuildMode(),
+    iosEnvironment: iosEnvironment,
+  );
+  if (providers == null) return;
+
+  try {
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: providers.android,
+      providerApple: providers.apple,
+    );
+  } catch (error, stackTrace) {
+    await _recordCrashlyticsError(error, stackTrace, fatal: false);
+  }
+}
+
+AppCheckRuntimePlatform _currentAppCheckPlatform() {
+  if (kIsWeb) return AppCheckRuntimePlatform.unsupported;
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => AppCheckRuntimePlatform.android,
+    TargetPlatform.iOS => AppCheckRuntimePlatform.ios,
+    _ => AppCheckRuntimePlatform.unsupported,
+  };
+}
+
+AppCheckBuildMode _currentAppCheckBuildMode() {
+  if (kDebugMode) return AppCheckBuildMode.debug;
+  if (kProfileMode) return AppCheckBuildMode.profile;
+  return AppCheckBuildMode.release;
 }
 
 void _configureGlobalErrorHandling() {
