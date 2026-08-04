@@ -1,0 +1,5 @@
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile-staging.xcconfig"
+#include "Generated.xcconfig"
+
+FIREBASE_ENV = staging
+DART_DEFINES = $(inherited),RklSRUJBU0VfRU5WPXN0YWdpbmc=

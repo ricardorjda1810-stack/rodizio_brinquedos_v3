@@ -1,0 +1,4 @@
+#include "Release.xcconfig"
+
+FIREBASE_ENV = production
+DART_DEFINES = $(inherited),RklSRUJBU0VfRU5WPXByb2R1Y3Rpb24=

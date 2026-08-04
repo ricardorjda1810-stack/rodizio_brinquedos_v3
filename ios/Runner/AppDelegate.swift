@@ -1,3 +1,5 @@
+import FirebaseAppCheck
+import FirebaseCore
 import Flutter
 import UIKit
 
@@ -11,6 +13,15 @@ import UIKit
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    #if APP_ATTEST_RELEASE_STAGING
+      AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
+      FirebaseApp.configure()
+    #endif
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    if let registrar = engineBridge.pluginRegistry.registrar(
+      forPlugin: "StoreKitReconciliationPlugin"
+    ) {
+      StoreKitReconciliationPlugin.register(with: registrar)
+    }
   }
 }
