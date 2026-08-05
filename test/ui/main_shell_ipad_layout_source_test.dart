@@ -8,14 +8,18 @@ void main() {
       () {
     final source = File('lib/ui/main_shell.dart').readAsStringSync();
     final wideLayoutStart = source.indexOf('if (useTwoColumnLayout)');
-    final portraitLayoutStart = source.indexOf(
-      'return SingleChildScrollView(\n'
-      '                                      physics: const ClampingScrollPhysics(),',
+    final wideScrollStart = source.indexOf(
+      "'home-tablet-scroll-view'",
+      wideLayoutStart,
+    );
+    final portraitLayoutStart = source.lastIndexOf(
+      'return SingleChildScrollView(',
     );
 
     expect(wideLayoutStart, isNonNegative);
+    expect(wideScrollStart, greaterThan(wideLayoutStart));
     expect(portraitLayoutStart, greaterThan(wideLayoutStart));
-    expect(source, contains('fillHeight: useTwoColumnLayout'));
+    expect(source, contains('fillHeight: false'));
     expect(
         source,
         isNot(contains(
