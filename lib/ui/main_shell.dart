@@ -684,6 +684,7 @@ class _IphoneHomeContent extends StatelessWidget {
     final trialNotice = context.l10n.trialHomeNotice(trialStatus);
 
     return ListView(
+      key: const ValueKey('home-mobile-scroll-view'),
       padding: EdgeInsets.fromLTRB(
         UiTokens.spacingMd,
         UiTokens.spacingSm,
@@ -714,11 +715,14 @@ class _IphoneHomeContent extends StatelessWidget {
         const SizedBox(height: 14),
         _IphoneOrganizationCard(toyRepository: toyRepository),
         const SizedBox(height: 14),
-        _IphoneWeeklyPlanningCompactCard(
-          summaries: weeklySummaries,
-          todayCount: todayCount,
-          loading: weeklyLoading,
-          onTap: onOpenWeeklyPlanning,
+        KeyedSubtree(
+          key: const ValueKey('home-mobile-final-content'),
+          child: _IphoneWeeklyPlanningCompactCard(
+            summaries: weeklySummaries,
+            todayCount: todayCount,
+            loading: weeklyLoading,
+            onTap: onOpenWeeklyPlanning,
+          ),
         ),
       ],
     );
@@ -1673,7 +1677,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                       weeklyPlanningRepository:
                                           widget.weeklyPlanningRepository,
                                       todayCountOverride: todayCount,
-                                      fillHeight: useTwoColumnLayout,
+                                      fillHeight: false,
                                       onOpenWeeklyPlanning:
                                           widget.onOpenWeeklyPlanning,
                                       onOpenNewToy: widget.onOpenNewToy,
@@ -1683,24 +1687,33 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                     );
 
                                     if (useTwoColumnLayout) {
-                                      return Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            flex: 6,
-                                            child: roundTodayCard,
-                                          ),
-                                          SizedBox(width: gap),
-                                          Expanded(
-                                            flex: 4,
-                                            child: rightColumn,
-                                          ),
-                                        ],
+                                      return SingleChildScrollView(
+                                        key: const ValueKey(
+                                          'home-tablet-scroll-view',
+                                        ),
+                                        physics: const ClampingScrollPhysics(),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex: 6,
+                                              child: roundTodayCard,
+                                            ),
+                                            SizedBox(width: gap),
+                                            Expanded(
+                                              flex: 4,
+                                              child: rightColumn,
+                                            ),
+                                          ],
+                                        ),
                                       );
                                     }
 
                                     return SingleChildScrollView(
+                                      key: const ValueKey(
+                                        'home-tablet-scroll-view',
+                                      ),
                                       physics: const ClampingScrollPhysics(),
                                       child: Column(
                                         crossAxisAlignment:
@@ -3028,6 +3041,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
           const Divider(height: 1, color: _IpadHomePalette.border),
           const SizedBox(height: 14),
           Row(
+            key: const ValueKey('home-tablet-final-content'),
             children: [
               Expanded(
                 child: Text(
