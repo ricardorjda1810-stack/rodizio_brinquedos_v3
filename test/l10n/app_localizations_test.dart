@@ -98,5 +98,28 @@ void main() {
       expect(l10n.boxRenamed, 'Caixa renomeada.');
       expect(l10n.backToHome, 'Voltar ao início');
     });
+
+    test('formats app version in pt-BR without unsafe placeholders', () {
+      const l10n = AppLocalizations(Locale('pt', 'BR'));
+
+      expect(l10n.appVersionLabel('1.0.11', '121'), 'Versão 1.0.11 (121)');
+      expect(l10n.appVersionLabel('1.0.11', ''), 'Versão 1.0.11');
+      expect(l10n.appVersionLabel('', '121'), 'Versão indisponível');
+      expect(l10n.appVersionLabel('', ''), 'Versão indisponível');
+      expect(l10n.appVersionLoading, 'Versão —');
+      expect(l10n.appVersionLabel('1.0.11', ''), isNot(contains('()')));
+      expect(l10n.appVersionLabel('', ''), isNot(contains('null')));
+    });
+
+    test('formats app version in en-US and supports future builds', () {
+      const l10n = AppLocalizations(Locale('en', 'US'));
+
+      expect(l10n.appVersionLabel('1.0.11', '121'), 'Version 1.0.11 (121)');
+      expect(l10n.appVersionLabel('1.0.11', ''), 'Version 1.0.11');
+      expect(l10n.appVersionLabel('', '121'), 'Version unavailable');
+      expect(l10n.appVersionLabel('', ''), 'Version unavailable');
+      expect(l10n.appVersionLoading, 'Version —');
+      expect(l10n.appVersionLabel('1.0.11', '122'), 'Version 1.0.11 (122)');
+    });
   });
 }
