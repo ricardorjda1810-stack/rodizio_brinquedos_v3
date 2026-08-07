@@ -200,6 +200,22 @@ class AppLocalizations {
   String get termsOfUse => isEn ? 'Terms of Use' : 'Termos de uso';
   String get privacyPolicy =>
       isEn ? 'Privacy Policy' : 'Política de privacidade';
+  String get appVersionLoading => isEn ? 'Version —' : 'Versão —';
+  String get appVersionUnavailable =>
+      isEn ? 'Version unavailable' : 'Versão indisponível';
+  String appVersionLabel(String version, String buildNumber) {
+    final normalizedVersion = version.trim();
+    if (normalizedVersion.isEmpty) return appVersionUnavailable;
+
+    final prefix = isEn ? 'Version' : 'Versão';
+    final normalizedBuildNumber = buildNumber.trim();
+    if (normalizedBuildNumber.isEmpty) {
+      return '$prefix $normalizedVersion';
+    }
+
+    return '$prefix $normalizedVersion ($normalizedBuildNumber)';
+  }
+
   String get choosePlan => isEn ? 'Choose a plan' : 'Escolha um plano';
   String get annualPlan => isEn ? 'Annual plan' : 'Plano anual';
   String get monthlyPlan => isEn ? 'Monthly plan' : 'Plano mensal';
