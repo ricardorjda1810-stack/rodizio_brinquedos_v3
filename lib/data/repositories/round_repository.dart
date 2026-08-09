@@ -1230,14 +1230,13 @@ class RoundRepository {
 
     await d.transaction(() async {
       final hadPersistedUserRound = await (d.select(d.rounds)
-            ..where((round) => round.id.equals(_demoActiveRoundId).not())
-            ..limit(1))
-          .getSingleOrNull() !=
+                ..where((round) => round.id.equals(_demoActiveRoundId).not())
+                ..limit(1))
+              .getSingleOrNull() !=
           null;
       final existingRound = await _loadLatestRoundBetween(d, bounds);
-      final existingUserRound = existingRound?.id == _demoActiveRoundId
-          ? null
-          : existingRound;
+      final existingUserRound =
+          existingRound?.id == _demoActiveRoundId ? null : existingRound;
       final roundId = existingUserRound?.id ?? const Uuid().v4();
 
       await (d.update(d.rounds)
