@@ -244,6 +244,8 @@ class _DayBounds {
 }
 
 class RoundRepository {
+  static const String _demoActiveRoundId = 'demo_active_round';
+
   final AppDatabase? db;
   final WeeklyPlanningRepository? _weeklyPlanningRepository;
   FirstRoundAnalyticsCoordinator? _firstRoundAnalyticsCoordinator;
@@ -1227,10 +1229,16 @@ class RoundRepository {
     var createdFirstPersistedRound = false;
 
     await d.transaction(() async {
-      final hadPersistedRound =
-          await (d.select(d.rounds)..limit(1)).getSingleOrNull() != null;
+      final hadPersistedUserRound = await (d.select(d.rounds)
+            ..where((round) => round.id.equals(_demoActiveRoundId).not())
+            ..limit(1))
+          .getSingleOrNull() !=
+          null;
       final existingRound = await _loadLatestRoundBetween(d, bounds);
-      final roundId = existingRound?.id ?? const Uuid().v4();
+      final existingUserRound = existingRound?.id == _demoActiveRoundId
+          ? null
+          : existingRound;
+      final roundId = existingUserRound?.id ?? const Uuid().v4();
 
       await (d.update(d.rounds)
             ..where(
@@ -1238,7 +1246,7 @@ class RoundRepository {
             ))
           .write(RoundsCompanion(endAt: Value(eventAt)));
 
-      if (existingRound == null) {
+      if (existingUserRound == null) {
         await d.into(d.rounds).insert(
               RoundsCompanion.insert(
                 id: roundId,
@@ -1264,7 +1272,7 @@ class RoundRepository {
             );
       }
 
-      createdFirstPersistedRound = !hadPersistedRound;
+      createdFirstPersistedRound = !hadPersistedUserRound;
     });
 
     if (createdFirstPersistedRound) {

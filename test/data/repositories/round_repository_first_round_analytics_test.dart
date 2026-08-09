@@ -79,6 +79,42 @@ void main() {
     expect(await db.select(db.rounds).get(), hasLength(2));
   });
 
+  test('rodada demo não impede a primeira persistência do usuário', () async {
+    await db.into(db.rounds).insert(
+          RoundsCompanion.insert(
+            id: 'demo_active_round',
+            startAt: DateTime(2026, 7, 28, 8).millisecondsSinceEpoch,
+          ),
+        );
+    await db.into(db.roundToys).insert(
+          const RoundToysCompanion(
+            roundId: Value('demo_active_round'),
+            toyId: Value('toy_1'),
+            position: Value(0),
+          ),
+        );
+
+    await roundRepository.setActiveRoundFromToyIds(
+      const <String>['toy_2'],
+      date: DateTime(2026, 7, 28, 10),
+      source: RoundCreationSource.homeSuggestion,
+    );
+
+    expect(sentEvents, hasLength(1));
+    expect(sentEvents.single.source, RoundCreationSource.homeSuggestion);
+    expect(sentEvents.single.toyCount, 1);
+
+    final rounds = await db.select(db.rounds).get();
+    final demoRound = rounds.singleWhere(
+      (round) => round.id == 'demo_active_round',
+    );
+    final userRound = rounds.singleWhere(
+      (round) => round.id != 'demo_active_round',
+    );
+    expect(demoRound.endAt, isNotNull);
+    expect(userRound.endAt, isNull);
+  });
+
   test('startRound usa a mesma decisão central e preserva a origem', () async {
     final result = await roundRepository.startRound(
       date: DateTime(2026, 7, 28, 10),
