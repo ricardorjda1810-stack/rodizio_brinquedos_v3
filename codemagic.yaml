@@ -210,14 +210,6 @@ workflows:
     integrations:
       app_store_connect: asc_rodizio_v3
 
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-          source: true
-
     environment:
       flutter: stable
       xcode: latest
@@ -232,7 +224,6 @@ workflows:
         script: |
           flutter clean
           rm -rf ios/Pods
-          rm -f ios/Podfile.lock
           rm -rf ios/Runner.xcworkspace
           rm -rf ~/Library/Developer/Xcode/DerivedData/* || true
 
@@ -242,7 +233,7 @@ workflows:
       - name: Install CocoaPods
         script: |
           cd ios
-          pod install --repo-update
+          pod install --deployment
           cd ..
 
       - name: Validate production Firebase configuration
@@ -315,8 +306,8 @@ workflows:
           echo "Ensuring Flutter and CocoaPods dependencies are available."
           flutter pub get
           if [ ! -d ios/Pods ] || [ ! -f ios/Podfile.lock ] || ! grep -q "FirebaseCrashlytics" ios/Podfile.lock || ! find . -type f -name "upload-symbols" -print -quit | grep -q .; then
-            echo "Pods or Crashlytics upload-symbols are missing. Running pod install --repo-update as fallback."
-            (cd ios && pod install --repo-update)
+            echo "Pods or Crashlytics upload-symbols are missing. Running pod install --deployment as fallback."
+            (cd ios && pod install --deployment)
           fi
 
           echo "Crashlytics dependency lines after pod check:"
@@ -426,11 +417,6 @@ workflows:
       - build/ios/Release-iphoneos/**/*.dSYM
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
-
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
 
   staging-ios:
     name: Staging iOS (unsigned)
