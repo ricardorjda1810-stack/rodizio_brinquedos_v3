@@ -1,0 +1,6 @@
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-staging.xcconfig"
+#include "Generated.xcconfig"
+
+FIREBASE_ENV = staging
+DART_DEFINES = $(inherited),RklSRUJBU0VfRU5WPXN0YWdpbmc=
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) APP_ATTEST_RELEASE_STAGING

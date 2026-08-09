@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
@@ -243,10 +244,23 @@ class _DayBounds {
 }
 
 class RoundRepository {
+  static const String _demoActiveRoundId = 'demo_active_round';
+
   final AppDatabase? db;
   final WeeklyPlanningRepository? _weeklyPlanningRepository;
+  FirstRoundAnalyticsCoordinator? _firstRoundAnalyticsCoordinator;
 
-  RoundRepository(this.db, [this._weeklyPlanningRepository]);
+  RoundRepository(
+    this.db, [
+    this._weeklyPlanningRepository,
+    FirstRoundAnalyticsCoordinator? firstRoundAnalyticsCoordinator,
+  ]) : _firstRoundAnalyticsCoordinator = firstRoundAnalyticsCoordinator;
+
+  void attachFirstRoundAnalytics(
+    FirstRoundAnalyticsCoordinator coordinator,
+  ) {
+    _firstRoundAnalyticsCoordinator = coordinator;
+  }
 
   static const String insufficientTotalReason = 'insufficient_total';
   static const String noDominantOrLowReason = 'no_dominant_or_low';
@@ -542,7 +556,11 @@ class RoundRepository {
 
   // `size` remains in the public API for compatibility. The effective round
   // size is derived from the sum of included category quotas.
-  Future<StartRoundResult> startRound({int? size, DateTime? date}) async {
+  Future<StartRoundResult> startRound({
+    int? size,
+    DateTime? date,
+    RoundCreationSource source = RoundCreationSource.roundManual,
+  }) async {
     final d = db;
     if (d == null) {
       throw StateError('RoundRepository.db is null. Use um Fake no teste.');
@@ -559,7 +577,12 @@ class RoundRepository {
       selected.map((toy) => toy.id),
       roundDate,
     );
-    await _writeEffectiveRoundForDate(d, roundDate, validated);
+    await _writeEffectiveRoundForDate(
+      d,
+      roundDate,
+      validated,
+      source: source,
+    );
     return StartRoundResult.createdWithCount(validated.length);
   }
 
@@ -1108,6 +1131,7 @@ class RoundRepository {
   Future<void> setActiveRoundFromToyIds(
     List<String> toyIds, {
     DateTime? date,
+    RoundCreationSource source = RoundCreationSource.roundManual,
   }) async {
     final d = db;
     if (d == null) {
@@ -1119,7 +1143,12 @@ class RoundRepository {
     if (validated.isEmpty) {
       throw StateError('A rodada precisa ter ao menos um brinquedo válido.');
     }
-    await _writeEffectiveRoundForDate(d, roundDate, validated);
+    await _writeEffectiveRoundForDate(
+      d,
+      roundDate,
+      validated,
+      source: source,
+    );
   }
 
   Future<List<Toy>> _validateToyIdsForDate(
@@ -1192,14 +1221,23 @@ class RoundRepository {
   Future<void> _writeEffectiveRoundForDate(
     AppDatabase d,
     DateTime date,
-    List<Toy> toys,
-  ) async {
+    List<Toy> toys, {
+    required RoundCreationSource source,
+  }) async {
     final bounds = _dayBounds(date);
     final eventAt = date.millisecondsSinceEpoch;
+    var createdFirstPersistedRound = false;
 
     await d.transaction(() async {
+      final hadPersistedUserRound = await (d.select(d.rounds)
+                ..where((round) => round.id.equals(_demoActiveRoundId).not())
+                ..limit(1))
+              .getSingleOrNull() !=
+          null;
       final existingRound = await _loadLatestRoundBetween(d, bounds);
-      final roundId = existingRound?.id ?? const Uuid().v4();
+      final existingUserRound =
+          existingRound?.id == _demoActiveRoundId ? null : existingRound;
+      final roundId = existingUserRound?.id ?? const Uuid().v4();
 
       await (d.update(d.rounds)
             ..where(
@@ -1207,7 +1245,7 @@ class RoundRepository {
             ))
           .write(RoundsCompanion(endAt: Value(eventAt)));
 
-      if (existingRound == null) {
+      if (existingUserRound == null) {
         await d.into(d.rounds).insert(
               RoundsCompanion.insert(
                 id: roundId,
@@ -1232,7 +1270,16 @@ class RoundRepository {
               ),
             );
       }
+
+      createdFirstPersistedRound = !hadPersistedUserRound;
     });
+
+    if (createdFirstPersistedRound) {
+      await _firstRoundAnalyticsCoordinator?.recordFirstPersistence(
+        source: source,
+        toyCount: toys.length,
+      );
+    }
   }
 
   Future<_BalanceEvaluation> _evaluateCategoryBalance(AppDatabase d) async {

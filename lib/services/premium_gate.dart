@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
@@ -19,7 +20,7 @@ class PremiumGate {
       MaterialPageRoute(
         builder: (_) => PaywallPage(
           purchaseService: purchaseService,
-          source: 'weekly_planning_gate',
+          source: PaywallSource.weeklyPlanningGate,
         ),
       ),
     );

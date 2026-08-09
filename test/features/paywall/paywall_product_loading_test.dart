@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -125,7 +126,7 @@ Future<void> _pumpPaywall(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       home: PaywallPage(
         purchaseService: purchaseService,
-        source: 'app_trial_expired',
+        source: PaywallSource.appTrialExpired,
         blocking: true,
       ),
     ),

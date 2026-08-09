@@ -1,6 +1,7 @@
 // lib/app.dart
 import 'package:flutter/material.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
@@ -110,7 +111,7 @@ class _AppState extends State<App> {
                 )
               : PaywallPage(
                   purchaseService: widget.purchaseService,
-                  source: 'app_trial_expired',
+                  source: PaywallSource.appTrialExpired,
                   blocking: true,
                 ),
         );

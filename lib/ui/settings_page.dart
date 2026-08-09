@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/toy_repository.dart';
 import 'package:rodizio_brinquedos_v3/demo/demo_data_loader.dart';
 import 'package:rodizio_brinquedos_v3/domain/child_age/child_age_range.dart';
 import 'package:rodizio_brinquedos_v3/features/paywall/paywall_page.dart';
 import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
+import 'package:rodizio_brinquedos_v3/services/app_version_info.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/age_preset_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
@@ -20,7 +22,6 @@ const String _settingsPrivacyPolicyUrl =
     'https://first-lime-7b2.notion.site/Pol-tica-de-Privacidade-Rod-zio-de-Brinquedos-d40b83abf35f4d089e1ae5f46423b4ca?pvs=143';
 const String _settingsTermsOfUseUrl =
     'https://first-lime-7b2.notion.site/Termos-de-Uso-Rod-zio-de-Brinquedos-34c496b60a598015ba29cb3322ebfbc6?pvs=143';
-const String _settingsAppVersionLabel = '1.0.5+93';
 
 class SettingsPage extends StatefulWidget {
   final SettingsRepository settingsRepository;
@@ -31,6 +32,7 @@ class SettingsPage extends StatefulWidget {
   final VoidCallback? onOpenWeeklyPlanning;
   final VoidCallback? onOpenToysTab;
   final VoidCallback? onOpenBoxesTab;
+  final AppVersionInfoLoader? appVersionInfoLoader;
 
   const SettingsPage({
     super.key,
@@ -42,6 +44,7 @@ class SettingsPage extends StatefulWidget {
     this.onOpenWeeklyPlanning,
     this.onOpenToysTab,
     this.onOpenBoxesTab,
+    this.appVersionInfoLoader,
   });
 
   @override
@@ -56,6 +59,13 @@ class _SettingsPageState extends State<SettingsPage> {
   List<RoundCategorySettingRow> _latestRows = const <RoundCategorySettingRow>[];
   bool _draftInitialized = false;
   bool _demoActionInProgress = false;
+  late final Future<AppVersionInfo> _appVersionInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _appVersionInfo = loadAppVersionInfoSafely(widget.appVersionInfoLoader);
+  }
 
   void _initializeDraftIfNeeded(
     List<RoundCategorySettingRow> rows,
@@ -208,7 +218,7 @@ class _SettingsPageState extends State<SettingsPage> {
       MaterialPageRoute(
         builder: (_) => PaywallPage(
           purchaseService: widget.purchaseService,
-          source: 'settings',
+          source: PaywallSource.settings,
         ),
       ),
     );
@@ -1424,12 +1434,24 @@ class _SettingsPageState extends State<SettingsPage> {
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: const Color(0xFFFFD7AA)),
             ),
-            child: Text(
-              'Versão $_settingsAppVersionLabel',
-              style: textTheme.bodyMedium?.copyWith(
-                color: const Color(0xFF6B4F30),
-                fontWeight: FontWeight.w800,
-              ),
+            child: FutureBuilder<AppVersionInfo>(
+              future: _appVersionInfo,
+              builder: (context, snapshot) {
+                final label = snapshot.connectionState == ConnectionState.done
+                    ? l10n.appVersionLabel(
+                        snapshot.data?.version ?? '',
+                        snapshot.data?.buildNumber ?? '',
+                      )
+                    : l10n.appVersionLoading;
+
+                return Text(
+                  label,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF6B4F30),
+                    fontWeight: FontWeight.w800,
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 16),

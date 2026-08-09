@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
+import 'package:rodizio_brinquedos_v3/core/analytics/first_round_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/weekly_planning_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
@@ -53,9 +53,6 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  static const String _firstRoundCreatedLoggedKey =
-      'analytics_first_round_created_logged';
-
   int _currentIndex = 0;
   String? _requestedBoxFilterId;
   int _requestedBoxFilterVersion = 0;
@@ -66,6 +63,9 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    widget.roundRepository.attachFirstRoundAnalytics(
+      AppAnalytics.firstRoundCreatedCoordinator,
+    );
     final db = widget.roundRepository.db;
     if (db != null) {
       _weeklyPlanningRepository = WeeklyPlanningRepository(
@@ -79,6 +79,11 @@ class _MainShellState extends State<MainShell> {
   @override
   void didUpdateWidget(covariant MainShell oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.roundRepository != widget.roundRepository) {
+      widget.roundRepository.attachFirstRoundAnalytics(
+        AppAnalytics.firstRoundCreatedCoordinator,
+      );
+    }
     if (!oldWidget.trialStatus.introPending &&
         widget.trialStatus.introPending) {
       _trialIntroDialogScheduled = false;
@@ -329,6 +334,7 @@ class _MainShellState extends State<MainShell> {
 
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
+        source: RoundCreationSource.homeSuggestion,
       );
       await AppAnalytics.logSuggestionUsed(
         toyCount: selectedToys.length,
@@ -338,7 +344,6 @@ class _MainShellState extends State<MainShell> {
         toyCount: selectedToys.length,
         source: 'home_suggestion',
       );
-      await _logFirstRoundCreatedOnce(selectedToys.length);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -368,17 +373,6 @@ class _MainShellState extends State<MainShell> {
         });
       }
     }
-  }
-
-  Future<void> _logFirstRoundCreatedOnce(int toyCount) async {
-    final preferences = await SharedPreferences.getInstance();
-    final alreadyLogged =
-        preferences.getBool(_firstRoundCreatedLoggedKey) ?? false;
-
-    if (alreadyLogged) return;
-
-    await preferences.setBool(_firstRoundCreatedLoggedKey, true);
-    await AppAnalytics.logFirstRoundCreated(toyCount: toyCount);
   }
 
   Widget _buildMobileHomePage() {
@@ -690,6 +684,7 @@ class _IphoneHomeContent extends StatelessWidget {
     final trialNotice = context.l10n.trialHomeNotice(trialStatus);
 
     return ListView(
+      key: const ValueKey('home-mobile-scroll-view'),
       padding: EdgeInsets.fromLTRB(
         UiTokens.spacingMd,
         UiTokens.spacingSm,
@@ -720,11 +715,14 @@ class _IphoneHomeContent extends StatelessWidget {
         const SizedBox(height: 14),
         _IphoneOrganizationCard(toyRepository: toyRepository),
         const SizedBox(height: 14),
-        _IphoneWeeklyPlanningCompactCard(
-          summaries: weeklySummaries,
-          todayCount: todayCount,
-          loading: weeklyLoading,
-          onTap: onOpenWeeklyPlanning,
+        KeyedSubtree(
+          key: const ValueKey('home-mobile-final-content'),
+          child: _IphoneWeeklyPlanningCompactCard(
+            summaries: weeklySummaries,
+            todayCount: todayCount,
+            loading: weeklyLoading,
+            onTap: onOpenWeeklyPlanning,
+          ),
         ),
       ],
     );
@@ -1493,6 +1491,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
 
       await widget.roundRepository.setActiveRoundFromToyIds(
         selectedToys.map((toy) => toy.id).toList(growable: false),
+        source: RoundCreationSource.homeIpadSuggestion,
       );
       await AppAnalytics.logSuggestionUsed(
         toyCount: selectedToys.length,
@@ -1546,7 +1545,10 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
         return;
       }
 
-      await widget.roundRepository.setActiveRoundFromToyIds(toyIds);
+      await widget.roundRepository.setActiveRoundFromToyIds(
+        toyIds,
+        source: RoundCreationSource.homeIpadStart,
+      );
       await AppAnalytics.logSuggestionUsed(
         toyCount: toyIds.length,
         source: 'home_ipad',
@@ -1675,7 +1677,7 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                       weeklyPlanningRepository:
                                           widget.weeklyPlanningRepository,
                                       todayCountOverride: todayCount,
-                                      fillHeight: useTwoColumnLayout,
+                                      fillHeight: false,
                                       onOpenWeeklyPlanning:
                                           widget.onOpenWeeklyPlanning,
                                       onOpenNewToy: widget.onOpenNewToy,
@@ -1685,24 +1687,33 @@ class _IpadHomeDashboardState extends State<_IpadHomeDashboard> {
                                     );
 
                                     if (useTwoColumnLayout) {
-                                      return Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            flex: 6,
-                                            child: roundTodayCard,
-                                          ),
-                                          SizedBox(width: gap),
-                                          Expanded(
-                                            flex: 4,
-                                            child: rightColumn,
-                                          ),
-                                        ],
+                                      return SingleChildScrollView(
+                                        key: const ValueKey(
+                                          'home-tablet-scroll-view',
+                                        ),
+                                        physics: const ClampingScrollPhysics(),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex: 6,
+                                              child: roundTodayCard,
+                                            ),
+                                            SizedBox(width: gap),
+                                            Expanded(
+                                              flex: 4,
+                                              child: rightColumn,
+                                            ),
+                                          ],
+                                        ),
                                       );
                                     }
 
                                     return SingleChildScrollView(
+                                      key: const ValueKey(
+                                        'home-tablet-scroll-view',
+                                      ),
                                       physics: const ClampingScrollPhysics(),
                                       child: Column(
                                         crossAxisAlignment:
@@ -3030,6 +3041,7 @@ class _IpadQuickActionsPanel extends StatelessWidget {
           const Divider(height: 1, color: _IpadHomePalette.border),
           const SizedBox(height: 14),
           Row(
+            key: const ValueKey('home-tablet-final-content'),
             children: [
               Expanded(
                 child: Text(
