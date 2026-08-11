@@ -35,7 +35,7 @@ Future<void> main() async {
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      await _initializeFirebaseServices();
+      final firebaseEnvironment = await _initializeFirebaseServices();
       _configureGlobalErrorHandling();
       _configureCrashlyticsDebugTestHook();
       await initializeDateFormatting('pt_BR', null);
@@ -43,7 +43,7 @@ Future<void> main() async {
       final platformLocale = PlatformDispatcher.instance.locale;
       Intl.defaultLocale =
           platformLocale.languageCode == 'en' ? 'en_US' : 'pt_BR';
-      runApp(const Bootstrap());
+      runApp(Bootstrap(firebaseEnvironment: firebaseEnvironment));
     },
     (error, stackTrace) {
       unawaited(_recordCrashlyticsError(error, stackTrace, fatal: true));
@@ -51,7 +51,7 @@ Future<void> main() async {
   );
 }
 
-Future<void> _initializeFirebaseServices() async {
+Future<FirebaseEnvironment?> _initializeFirebaseServices() async {
   final requiresExplicitIosEnvironment =
       !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
   var startupStage = _FirebaseStartupStage.initializeDefaultApp;
@@ -110,6 +110,7 @@ Future<void> _initializeFirebaseServices() async {
     _crashlyticsEnabled = false;
     debugPrint('Firebase initialization skipped: $error');
   }
+  return iosEnvironment;
 }
 
 void _logFirebaseStartupFailure({

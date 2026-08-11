@@ -5,9 +5,9 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/apple_transaction_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
+import 'package:rodizio_brinquedos_v3/core/config/firebase_environment.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_bypass.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
-import 'package:rodizio_brinquedos_v3/services/storekit_pricing_diagnostics.dart';
 import 'package:rodizio_brinquedos_v3/services/storekit_reconciliation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,8 +25,12 @@ class PurchaseService extends ChangeNotifier {
   };
   static const String _premiumStorageKey = 'premium_active';
   static const Object _noValue = Object();
-  static const bool _defaultStoreKitDiagnosticsEnabled =
-      String.fromEnvironment('FIREBASE_ENV') == 'staging';
+  @visibleForTesting
+  static bool storeKitDiagnosticsEnabledForEnvironment(
+    FirebaseEnvironment? environment,
+  ) {
+    return environment == FirebaseEnvironment.staging;
+  }
 
   static PremiumPlan planForProductId(String productId) {
     switch (productId) {
@@ -56,7 +60,6 @@ class PurchaseService extends ChangeNotifier {
   final AnalyticsOpaqueIdGenerator _analyticsIdGenerator;
   final bool Function() _isPaywallEnabled;
   final StoreKitReconciliationClient? _storeKitReconciliationClient;
-  final StoreKitPricingDiagnostics? _storeKitPricingDiagnostics;
   final Future<Map<String, ProductDetails>> Function()? _productDetailsLoader;
   final bool _storeKitDiagnosticsEnabled;
   final StoreKitReconciliationDiagnosticsLogger _storeKitDiagnosticsLogger;
@@ -101,7 +104,6 @@ class PurchaseService extends ChangeNotifier {
     required AnalyticsOpaqueIdGenerator analyticsIdGenerator,
     required bool Function() isPaywallEnabled,
     required StoreKitReconciliationClient? storeKitReconciliationClient,
-    required StoreKitPricingDiagnostics? storeKitPricingDiagnostics,
     required Future<Map<String, ProductDetails>> Function()?
         productDetailsLoader,
     required bool storeKitDiagnosticsEnabled,
@@ -119,7 +121,6 @@ class PurchaseService extends ChangeNotifier {
         _analyticsIdGenerator = analyticsIdGenerator,
         _isPaywallEnabled = isPaywallEnabled,
         _storeKitReconciliationClient = storeKitReconciliationClient,
-        _storeKitPricingDiagnostics = storeKitPricingDiagnostics,
         _productDetailsLoader = productDetailsLoader,
         _storeKitDiagnosticsEnabled = storeKitDiagnosticsEnabled,
         _storeKitDiagnosticsLogger = storeKitDiagnosticsLogger,
@@ -142,7 +143,6 @@ class PurchaseService extends ChangeNotifier {
     AnalyticsOpaqueIdGenerator analyticsIdGenerator = generateAnalyticsOpaqueId,
     bool paywallEnabled = true,
     StoreKitReconciliationClient? storeKitReconciliationClient,
-    StoreKitPricingDiagnostics? storeKitPricingDiagnostics,
     Future<Map<String, ProductDetails>> Function()? productDetailsLoader,
     bool storeKitDiagnosticsEnabled = false,
     StoreKitReconciliationDiagnosticsLogger? storeKitDiagnosticsLogger,
@@ -166,7 +166,6 @@ class PurchaseService extends ChangeNotifier {
       analyticsIdGenerator: analyticsIdGenerator,
       isPaywallEnabled: () => paywallEnabled,
       storeKitReconciliationClient: storeKitReconciliationClient,
-      storeKitPricingDiagnostics: storeKitPricingDiagnostics,
       productDetailsLoader: productDetailsLoader,
       storeKitDiagnosticsEnabled: storeKitDiagnosticsEnabled,
       storeKitDiagnosticsLogger: storeKitDiagnosticsLogger ?? debugPrint,
@@ -186,7 +185,9 @@ class PurchaseService extends ChangeNotifier {
     return service;
   }
 
-  static Future<PurchaseService> create() async {
+  static Future<PurchaseService> create({
+    required FirebaseEnvironment? firebaseEnvironment,
+  }) async {
     final preferences = await SharedPreferences.getInstance();
     final inAppPurchase = InAppPurchase.instance;
     final isIosPlatform =
@@ -210,16 +211,10 @@ class PurchaseService extends ChangeNotifier {
       storeKitReconciliationClient: isIosPlatform
           ? const MethodChannelStoreKitReconciliationClient()
           : null,
-      storeKitPricingDiagnostics: isIosPlatform
-          ? StoreKitPricingDiagnostics(
-              client: const MethodChannelStoreKitPricingDiagnosticsClient(
-                supportedProductIds: productIds,
-              ),
-              supportedProductIds: productIds,
-            )
-          : null,
       productDetailsLoader: null,
-      storeKitDiagnosticsEnabled: _defaultStoreKitDiagnosticsEnabled,
+      storeKitDiagnosticsEnabled: storeKitDiagnosticsEnabledForEnvironment(
+        firebaseEnvironment,
+      ),
       storeKitDiagnosticsLogger: debugPrint,
       initialStoreKitReconciliationComplete: !isIosPlatform,
     );
@@ -236,13 +231,6 @@ class PurchaseService extends ChangeNotifier {
       _productDetailsById[productId];
   bool get hasLoadedSubscriptionProducts => _productDetailsById.isNotEmpty;
   String? get errorMessage => _errorMessage;
-
-  void logStoreKitPricingPaywallDisplay({required String flutterLocale}) {
-    _storeKitPricingDiagnostics?.logPaywallDisplay(
-      flutterLocale: flutterLocale,
-      productsById: _productDetailsById,
-    );
-  }
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -347,17 +335,7 @@ class PurchaseService extends ChangeNotifier {
         return;
       }
 
-      final pricingQuerySequence = _storeKitPricingDiagnostics?.logQueryStart();
       final response = await inAppPurchase.queryProductDetails(productIds);
-      if (pricingQuerySequence != null) {
-        unawaited(
-          _storeKitPricingDiagnostics!.logQueryResult(
-            sequence: pricingQuerySequence,
-            flutterProducts: response.productDetails,
-            flutterNotFoundProductIds: response.notFoundIDs,
-          ),
-        );
-      }
       if (response.error != null) {
         _setState(
           isLoading: false,
