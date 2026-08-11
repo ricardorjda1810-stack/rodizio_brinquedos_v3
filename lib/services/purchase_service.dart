@@ -7,12 +7,11 @@ import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_bypass.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
+import 'package:rodizio_brinquedos_v3/services/storekit_pricing_diagnostics.dart';
 import 'package:rodizio_brinquedos_v3/services/storekit_reconciliation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-typedef StoreKitReconciliationDiagnosticsLogger = void Function(
-  String message,
-);
+typedef StoreKitReconciliationDiagnosticsLogger = void Function(String message);
 
 class PurchaseService extends ChangeNotifier {
   static const Duration _defaultCompletePurchaseTimeout = Duration(seconds: 20);
@@ -57,6 +56,7 @@ class PurchaseService extends ChangeNotifier {
   final AnalyticsOpaqueIdGenerator _analyticsIdGenerator;
   final bool Function() _isPaywallEnabled;
   final StoreKitReconciliationClient? _storeKitReconciliationClient;
+  final StoreKitPricingDiagnostics? _storeKitPricingDiagnostics;
   final Future<Map<String, ProductDetails>> Function()? _productDetailsLoader;
   final bool _storeKitDiagnosticsEnabled;
   final StoreKitReconciliationDiagnosticsLogger _storeKitDiagnosticsLogger;
@@ -101,6 +101,7 @@ class PurchaseService extends ChangeNotifier {
     required AnalyticsOpaqueIdGenerator analyticsIdGenerator,
     required bool Function() isPaywallEnabled,
     required StoreKitReconciliationClient? storeKitReconciliationClient,
+    required StoreKitPricingDiagnostics? storeKitPricingDiagnostics,
     required Future<Map<String, ProductDetails>> Function()?
         productDetailsLoader,
     required bool storeKitDiagnosticsEnabled,
@@ -118,6 +119,7 @@ class PurchaseService extends ChangeNotifier {
         _analyticsIdGenerator = analyticsIdGenerator,
         _isPaywallEnabled = isPaywallEnabled,
         _storeKitReconciliationClient = storeKitReconciliationClient,
+        _storeKitPricingDiagnostics = storeKitPricingDiagnostics,
         _productDetailsLoader = productDetailsLoader,
         _storeKitDiagnosticsEnabled = storeKitDiagnosticsEnabled,
         _storeKitDiagnosticsLogger = storeKitDiagnosticsLogger,
@@ -140,6 +142,7 @@ class PurchaseService extends ChangeNotifier {
     AnalyticsOpaqueIdGenerator analyticsIdGenerator = generateAnalyticsOpaqueId,
     bool paywallEnabled = true,
     StoreKitReconciliationClient? storeKitReconciliationClient,
+    StoreKitPricingDiagnostics? storeKitPricingDiagnostics,
     Future<Map<String, ProductDetails>> Function()? productDetailsLoader,
     bool storeKitDiagnosticsEnabled = false,
     StoreKitReconciliationDiagnosticsLogger? storeKitDiagnosticsLogger,
@@ -163,6 +166,7 @@ class PurchaseService extends ChangeNotifier {
       analyticsIdGenerator: analyticsIdGenerator,
       isPaywallEnabled: () => paywallEnabled,
       storeKitReconciliationClient: storeKitReconciliationClient,
+      storeKitPricingDiagnostics: storeKitPricingDiagnostics,
       productDetailsLoader: productDetailsLoader,
       storeKitDiagnosticsEnabled: storeKitDiagnosticsEnabled,
       storeKitDiagnosticsLogger: storeKitDiagnosticsLogger ?? debugPrint,
@@ -173,8 +177,9 @@ class PurchaseService extends ChangeNotifier {
     service._isPremium = isPremium;
     service._isLoading = false;
     service._storeAvailable = true;
-    service._productDetailsById =
-        Map<String, ProductDetails>.unmodifiable(productDetailsById);
+    service._productDetailsById = Map<String, ProductDetails>.unmodifiable(
+      productDetailsById,
+    );
     service._productDetails = productDetailsById[monthlyProductId] ??
         productDetailsById[yearlyProductId] ??
         (productDetailsById.isEmpty ? null : productDetailsById.values.first);
@@ -205,6 +210,14 @@ class PurchaseService extends ChangeNotifier {
       storeKitReconciliationClient: isIosPlatform
           ? const MethodChannelStoreKitReconciliationClient()
           : null,
+      storeKitPricingDiagnostics: isIosPlatform
+          ? StoreKitPricingDiagnostics(
+              client: const MethodChannelStoreKitPricingDiagnosticsClient(
+                supportedProductIds: productIds,
+              ),
+              supportedProductIds: productIds,
+            )
+          : null,
       productDetailsLoader: null,
       storeKitDiagnosticsEnabled: _defaultStoreKitDiagnosticsEnabled,
       storeKitDiagnosticsLogger: debugPrint,
@@ -223,6 +236,13 @@ class PurchaseService extends ChangeNotifier {
       _productDetailsById[productId];
   bool get hasLoadedSubscriptionProducts => _productDetailsById.isNotEmpty;
   String? get errorMessage => _errorMessage;
+
+  void logStoreKitPricingPaywallDisplay({required String flutterLocale}) {
+    _storeKitPricingDiagnostics?.logPaywallDisplay(
+      flutterLocale: flutterLocale,
+      productsById: _productDetailsById,
+    );
+  }
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -327,7 +347,17 @@ class PurchaseService extends ChangeNotifier {
         return;
       }
 
+      final pricingQuerySequence = _storeKitPricingDiagnostics?.logQueryStart();
       final response = await inAppPurchase.queryProductDetails(productIds);
+      if (pricingQuerySequence != null) {
+        unawaited(
+          _storeKitPricingDiagnostics!.logQueryResult(
+            sequence: pricingQuerySequence,
+            flutterProducts: response.productDetails,
+            flutterNotFoundProductIds: response.notFoundIDs,
+          ),
+        );
+      }
       if (response.error != null) {
         _setState(
           isLoading: false,
@@ -504,9 +534,7 @@ class PurchaseService extends ChangeNotifier {
     );
   }
 
-  Future<void> restorePurchases({
-    String source = 'unknown',
-  }) async {
+  Future<void> restorePurchases({String source = 'unknown'}) async {
     if (_uncertainCompletionProductIds.isNotEmpty) {
       return;
     }
@@ -586,8 +614,9 @@ class PurchaseService extends ChangeNotifier {
               _StoreKitTransactionSource.purchaseStream,
             )
           : null;
-      final transactionDiagnostic =
-          _storeKitTransactionDiagnostic(transactionState);
+      final transactionDiagnostic = _storeKitTransactionDiagnostic(
+        transactionState,
+      );
       final contextPresent = _activePurchaseAttemptsByProductId.containsKey(
         purchaseDetails.productID,
       );
@@ -919,8 +948,9 @@ class PurchaseService extends ChangeNotifier {
           }
           completionResolution = finish.value.completionResolution;
         } else {
-          completionResolution =
-              await _completePurchaseWithDiagnostics(purchaseDetails);
+          completionResolution = await _completePurchaseWithDiagnostics(
+            purchaseDetails,
+          );
         }
         completePurchaseResultLogged = true;
         if (completionResolution?.isUncertain ?? false) {
@@ -953,8 +983,9 @@ class PurchaseService extends ChangeNotifier {
   }
 
   Future<void> _handlePurchaseStreamFailure() async {
-    final attempts =
-        _activePurchaseAttemptsByProductId.values.toList(growable: false);
+    final attempts = _activePurchaseAttemptsByProductId.values.toList(
+      growable: false,
+    );
     _activePurchaseAttemptsByProductId.clear();
     for (final attempt in attempts) {
       await _logPurchaseFailed(
@@ -979,9 +1010,7 @@ class PurchaseService extends ChangeNotifier {
     );
   }
 
-  Future<bool> _runAnalyticsSafely(
-    Future<void> Function() operation,
-  ) async {
+  Future<bool> _runAnalyticsSafely(Future<void> Function() operation) async {
     try {
       await operation();
       return true;
@@ -1106,9 +1135,7 @@ class PurchaseService extends ChangeNotifier {
     return current;
   }
 
-  Future<void> _recordAppleTransaction(
-    PurchaseDetails purchaseDetails,
-  ) async {
+  Future<void> _recordAppleTransaction(PurchaseDetails purchaseDetails) async {
     if (!_isIosPlatform()) return;
 
     final transactionId = purchaseDetails.purchaseID;
@@ -1215,8 +1242,9 @@ class PurchaseService extends ChangeNotifier {
           _StoreKitTransactionSource.currentEntitlement,
         );
       }
-      final transactionDiagnostic =
-          _storeKitTransactionDiagnostic(transactionState);
+      final transactionDiagnostic = _storeKitTransactionDiagnostic(
+        transactionState,
+      );
       final ledgerBefore = _storeKitDiagnosticsEnabled
           ? await _appleTransactionAnalyticsCoordinator.stateForTransaction(
               candidate.transaction.transactionId,
@@ -1437,20 +1465,14 @@ class PurchaseService extends ChangeNotifier {
   ) async {
     final existing = state.analyticsOperation;
     if (existing != null) {
-      return _CoordinatedResult<bool>(
-        value: await existing,
-        coalesced: true,
-      );
+      return _CoordinatedResult<bool>(value: await existing, coalesced: true);
     }
 
     final processing = Future<bool>.sync(operation).whenComplete(() {
       state.analyticsCompleted = true;
     });
     state.analyticsOperation = processing;
-    return _CoordinatedResult<bool>(
-      value: await processing,
-      coalesced: false,
-    );
+    return _CoordinatedResult<bool>(value: await processing, coalesced: false);
   }
 
   Future<_CoordinatedResult<_TransactionFinishOutcome>>
@@ -1484,10 +1506,7 @@ class PurchaseService extends ChangeNotifier {
     final existing = state.terminalOperation;
     if (existing != null) {
       await existing;
-      return const _CoordinatedResult<void>(
-        value: null,
-        coalesced: true,
-      );
+      return const _CoordinatedResult<void>(value: null, coalesced: true);
     }
 
     final processing = Future<void>.sync(operation).whenComplete(() {
@@ -1495,10 +1514,7 @@ class PurchaseService extends ChangeNotifier {
     });
     state.terminalOperation = processing;
     await processing;
-    return const _CoordinatedResult<void>(
-      value: null,
-      coalesced: false,
-    );
+    return const _CoordinatedResult<void>(value: null, coalesced: false);
   }
 
   Future<void> _synchronizePremium(bool value) async {
@@ -1613,20 +1629,13 @@ class _StoreKitTransactionSessionState {
 }
 
 class _CoordinatedResult<T> {
-  const _CoordinatedResult({
-    required this.value,
-    required this.coalesced,
-  });
+  const _CoordinatedResult({required this.value, required this.coalesced});
 
   final T value;
   final bool coalesced;
 }
 
-enum _TransactionFinishResult {
-  success,
-  alreadyFinished,
-  failure,
-}
+enum _TransactionFinishResult { success, alreadyFinished, failure }
 
 class _TransactionFinishOutcome {
   const _TransactionFinishOutcome.success({this.completionResolution})
@@ -1643,9 +1652,7 @@ class _TransactionFinishOutcome {
   factory _TransactionFinishOutcome.fromCompletion(
     _PurchaseCompletionResolution resolution,
   ) {
-    return _TransactionFinishOutcome.success(
-      completionResolution: resolution,
-    );
+    return _TransactionFinishOutcome.success(completionResolution: resolution);
   }
 
   final _TransactionFinishResult result;
