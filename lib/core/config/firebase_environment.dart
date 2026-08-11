@@ -10,22 +10,20 @@ enum FirebaseEnvironment {
     appId: '1:713670498412:ios:a73ec27898054ea1f2e049',
   );
 
-  const FirebaseEnvironment({
-    required this.projectId,
-    required this.appId,
-  });
+  const FirebaseEnvironment({required this.projectId, required this.appId});
 
   final String projectId;
   final String appId;
 
+  static const String configuredValue = String.fromEnvironment('FIREBASE_ENV');
+
   static FirebaseEnvironment fromBuildConfiguration() {
-    const configuredValue = String.fromEnvironment('FIREBASE_ENV');
     return switch (configuredValue) {
       'staging' => FirebaseEnvironment.staging,
       'production' => FirebaseEnvironment.production,
       _ => throw StateError(
-          'FIREBASE_ENV must be explicitly set to staging or production.',
-        ),
+        'FIREBASE_ENV must be explicitly set to staging or production.',
+      ),
     };
   }
 
