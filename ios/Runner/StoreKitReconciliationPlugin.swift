@@ -26,8 +26,65 @@ final class StoreKitReconciliationPlugin: NSObject, FlutterPlugin {
       loadSnapshot(result: result)
     case "finish":
       finishTransaction(arguments: call.arguments, result: result)
+    case "pricingDiagnostics":
+      loadPricingDiagnostics(result: result)
     default:
       result(FlutterMethodNotImplemented)
+    }
+  }
+
+  private func loadPricingDiagnostics(result: @escaping FlutterResult) {
+    guard #available(iOS 15.0, *) else {
+      result(["status": "unavailable"])
+      return
+    }
+
+    Task { @MainActor in
+      do {
+        let requestedProductIds = Self.supportedProductIds.sorted()
+        let storefront = await Storefront.current
+        let loadedProducts = try await Product.products(
+          for: requestedProductIds
+        )
+        let products = loadedProducts.sorted { $0.id < $1.id }
+        let foundProductIds = Set(products.map(\.id))
+        let missingProductIds = requestedProductIds.filter {
+          !foundProductIds.contains($0)
+        }
+
+        let storefrontRepresentation: [String: Any]
+        if let storefront {
+          storefrontRepresentation = [
+            "status": "available",
+            "countryCode": storefront.countryCode,
+            "id": storefront.id,
+          ]
+        } else {
+          storefrontRepresentation = ["status": "unavailable"]
+        }
+
+        result([
+          "status": "success",
+          "storefront": storefrontRepresentation,
+          "products": products.map { product in
+            [
+              "productId": product.id,
+              "displayPrice": product.displayPrice,
+              "rawPrice": NSDecimalNumber(decimal: product.price).stringValue,
+              "currencyCode": product.priceFormatStyle.currencyCode,
+            ]
+          },
+          "notFoundProductIds": missingProductIds,
+        ])
+      } catch {
+        result(
+          FlutterError(
+            code: "storekit_pricing_failed",
+            message: nil,
+            details: nil
+          )
+        )
+      }
     }
   }
 

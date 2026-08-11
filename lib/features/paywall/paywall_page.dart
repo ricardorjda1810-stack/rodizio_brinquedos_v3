@@ -78,8 +78,9 @@ class _PaywallPageState extends State<PaywallPage> {
   }
 
   String? _yearlyDescription(AppLocalizations l10n) {
-    final details =
-        _purchaseService.productDetailsFor(PurchaseService.yearlyProductId);
+    final details = _purchaseService.productDetailsFor(
+      PurchaseService.yearlyProductId,
+    );
     if (details != null && details.rawPrice > 0) {
       final monthly = details.rawPrice / 12;
       final formatted = NumberFormat.simpleCurrency(
@@ -102,14 +103,23 @@ class _PaywallPageState extends State<PaywallPage> {
     );
     unawaited(
       _runAnalyticsSafely(
-        () => widget.purchaseFunnelAnalytics
-            .logPaywallViewed(_paywallAnalyticsContext),
+        () => widget.purchaseFunnelAnalytics.logPaywallViewed(
+          _paywallAnalyticsContext,
+        ),
       ),
     );
     _lastPremiumState = _purchaseService.isPremium;
     _lastErrorMessage = _purchaseService.errorMessage;
     _purchaseService.addListener(_handlePurchaseStateChanged);
     _logDefaultSelectionIfAvailable();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _purchaseService.logStoreKitPricingPaywallDisplay(
+      flutterLocale: Localizations.localeOf(context).toLanguageTag(),
+    );
   }
 
   @override
@@ -124,9 +134,9 @@ class _PaywallPageState extends State<PaywallPage> {
     _logDefaultSelectionIfAvailable();
     final errorMessage = _purchaseService.errorMessage;
     if (errorMessage != null && errorMessage != _lastErrorMessage) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     }
 
     if (_purchaseService.isPremium && !_lastPremiumState) {
@@ -180,10 +190,7 @@ class _PaywallPageState extends State<PaywallPage> {
       return;
     }
 
-    final opened = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -234,9 +241,7 @@ class _PaywallPageState extends State<PaywallPage> {
     );
   }
 
-  Future<void> _runAnalyticsSafely(
-    Future<void> Function() operation,
-  ) async {
+  Future<void> _runAnalyticsSafely(Future<void> Function() operation) async {
     try {
       await operation();
     } catch (_) {
@@ -258,9 +263,7 @@ class _PaywallPageState extends State<PaywallPage> {
 
     return Scaffold(
       backgroundColor: UiTokens.bg,
-      appBar: AppBar(
-        title: Text(l10n.subscription),
-      ),
+      appBar: AppBar(title: Text(l10n.subscription)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(UiTokens.spacingMd),
@@ -925,20 +928,14 @@ class _PaywallIpadPlansPanel extends StatelessWidget {
             alignment: WrapAlignment.center,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              TextButton(
-                onPressed: onTerms,
-                child: Text(l10n.termsOfUse),
-              ),
+              TextButton(onPressed: onTerms, child: Text(l10n.termsOfUse)),
               Text(
                 '|',
                 style: context.appTypography.caption.copyWith(
                   color: _PaywallIpadPalette.muted,
                 ),
               ),
-              TextButton(
-                onPressed: onPrivacy,
-                child: Text(l10n.privacyPolicy),
-              ),
+              TextButton(onPressed: onPrivacy, child: Text(l10n.privacyPolicy)),
             ],
           ),
         ],
@@ -961,9 +958,7 @@ class _PlanLoadErrorCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: UiTokens.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(UiTokens.radiusMd),
-        border: Border.all(
-          color: UiTokens.warning.withValues(alpha: 0.28),
-        ),
+        border: Border.all(color: UiTokens.warning.withValues(alpha: 0.28)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,10 +1018,7 @@ class _PlanCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(UiTokens.radiusCard),
-          border: Border.all(
-            color: borderColor,
-            width: isSelected ? 1.4 : 1,
-          ),
+          border: Border.all(color: borderColor, width: isSelected ? 1.4 : 1),
           boxShadow: UiTokens.softShadow,
         ),
         child: Material(
@@ -1051,8 +1043,9 @@ class _PlanCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: UiTokens.accent.withValues(alpha: 0.16),
-                              borderRadius:
-                                  BorderRadius.circular(UiTokens.radiusSm),
+                              borderRadius: BorderRadius.circular(
+                                UiTokens.radiusSm,
+                              ),
                             ),
                             child: Text(
                               badge!,
@@ -1132,9 +1125,9 @@ class _BenefitRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: UiTokens.textPrimary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: UiTokens.textPrimary),
           ),
         ),
       ],
