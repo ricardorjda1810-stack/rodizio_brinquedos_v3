@@ -18,6 +18,19 @@ import 'package:rodizio_brinquedos_v3/firebase_options.dart';
 
 bool _crashlyticsEnabled = false;
 
+enum _FirebaseStartupStage {
+  resolveEnvironment('resolve_environment'),
+  initializeDefaultApp('initialize_default_app'),
+  validateOptions('validate_options'),
+  configureAnalytics('configure_analytics'),
+  activateAppCheck('activate_app_check'),
+  logAppOpen('log_app_open');
+
+  const _FirebaseStartupStage(this.label);
+
+  final String label;
+}
+
 Future<void> main() async {
   await runZonedGuarded<Future<void>>(
     () async {
@@ -28,8 +41,9 @@ Future<void> main() async {
       await initializeDateFormatting('pt_BR', null);
       await initializeDateFormatting('en_US', null);
       final platformLocale = PlatformDispatcher.instance.locale;
-      Intl.defaultLocale =
-          platformLocale.languageCode == 'en' ? 'en_US' : 'pt_BR';
+      Intl.defaultLocale = platformLocale.languageCode == 'en'
+          ? 'en_US'
+          : 'pt_BR';
       runApp(const Bootstrap());
     },
     (error, stackTrace) {
@@ -41,34 +55,91 @@ Future<void> main() async {
 Future<void> _initializeFirebaseServices() async {
   final requiresExplicitIosEnvironment =
       !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+  var startupStage = _FirebaseStartupStage.resolveEnvironment;
   FirebaseEnvironment? iosEnvironment;
+  FirebaseOptions? initializedOptions;
 
   try {
     if (requiresExplicitIosEnvironment) {
       final environment = FirebaseEnvironment.fromBuildConfiguration();
       iosEnvironment = environment;
+      startupStage = _FirebaseStartupStage.initializeDefaultApp;
       final app = await Firebase.initializeApp();
+      initializedOptions = app.options;
+      startupStage = _FirebaseStartupStage.validateOptions;
       environment.validate(app.options);
+      startupStage = _FirebaseStartupStage.configureAnalytics;
       await AppAnalytics.configureEnvironment(environment: environment.name);
     } else {
-      await Firebase.initializeApp(
+      startupStage = _FirebaseStartupStage.initializeDefaultApp;
+      final app = await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
+      initializedOptions = app.options;
+      startupStage = _FirebaseStartupStage.configureAnalytics;
       await AppAnalytics.configureEnvironment(
         environment: FirebaseEnvironment.production.name,
       );
     }
     _crashlyticsEnabled = true;
+    startupStage = _FirebaseStartupStage.activateAppCheck;
     await _activateFirebaseAppCheck(iosEnvironment: iosEnvironment);
+    startupStage = _FirebaseStartupStage.logAppOpen;
     await AppAnalytics.logAppOpen();
   } catch (error, stackTrace) {
-    _crashlyticsEnabled = false;
     if (requiresExplicitIosEnvironment) {
+      _logFirebaseStartupFailure(
+        stage: startupStage,
+        error: error,
+        stackTrace: stackTrace,
+        environment: iosEnvironment,
+        initializedOptions: initializedOptions,
+      );
+      _crashlyticsEnabled = false;
       debugPrint(
-          'Firebase initialization failed for the declared iOS environment.');
+        'Firebase initialization failed for the declared iOS environment.',
+      );
       Error.throwWithStackTrace(error, stackTrace);
     }
+    _crashlyticsEnabled = false;
     debugPrint('Firebase initialization skipped: $error');
+  }
+}
+
+void _logFirebaseStartupFailure({
+  required _FirebaseStartupStage stage,
+  required Object error,
+  required StackTrace stackTrace,
+  required FirebaseEnvironment? environment,
+  required FirebaseOptions? initializedOptions,
+}) {
+  const marker = '[FirebaseStartup]';
+  final configuredValue = switch (FirebaseEnvironment.configuredValue) {
+    'staging' || 'production' => FirebaseEnvironment.configuredValue,
+    '' => '<empty>',
+    _ => '<unsupported>',
+  };
+
+  debugPrint('$marker status=failed');
+  debugPrint('$marker stage=${stage.label}');
+  debugPrint('$marker error_type=${error.runtimeType}');
+  debugPrint('$marker error_message=$error');
+  debugPrint('$marker firebase_env=$configuredValue');
+  debugPrint(
+    '$marker expected_environment=${environment?.name ?? '<unresolved>'}',
+  );
+  debugPrint(
+    '$marker expected_project_id=${environment?.projectId ?? '<unavailable>'}',
+  );
+  debugPrint(
+    '$marker expected_app_id=${environment?.appId ?? '<unavailable>'}',
+  );
+  if (initializedOptions != null) {
+    debugPrint('$marker received_project_id=${initializedOptions.projectId}');
+    debugPrint('$marker received_app_id=${initializedOptions.appId}');
+  }
+  for (final line in stackTrace.toString().split('\n')) {
+    if (line.isNotEmpty) debugPrint('$marker stack_trace=$line');
   }
 }
 
