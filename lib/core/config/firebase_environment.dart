@@ -17,22 +17,46 @@ enum FirebaseEnvironment {
 
   static const String configuredValue = String.fromEnvironment('FIREBASE_ENV');
 
-  static FirebaseEnvironment fromBuildConfiguration() {
+  static FirebaseEnvironment resolveIos({
+    required String configuredValue,
+    required FirebaseOptions options,
+  }) {
     return switch (configuredValue) {
-      'staging' => FirebaseEnvironment.staging,
-      'production' => FirebaseEnvironment.production,
+      'staging' => _validated(FirebaseEnvironment.staging, options),
+      'production' => _validated(FirebaseEnvironment.production, options),
+      '' => _fromOptions(options),
       _ => throw StateError(
-        'FIREBASE_ENV must be explicitly set to staging or production.',
-      ),
+          'FIREBASE_ENV must be empty, staging, or production.',
+        ),
     };
   }
 
   void validate(FirebaseOptions options) {
-    if (options.projectId != projectId || options.appId != appId) {
+    if (!_matches(options)) {
       throw StateError(
         'Firebase configuration does not match the declared '
         'FIREBASE_ENV=$name.',
       );
     }
+  }
+
+  bool _matches(FirebaseOptions options) {
+    return options.projectId == projectId && options.appId == appId;
+  }
+
+  static FirebaseEnvironment _validated(
+    FirebaseEnvironment environment,
+    FirebaseOptions options,
+  ) {
+    environment.validate(options);
+    return environment;
+  }
+
+  static FirebaseEnvironment _fromOptions(FirebaseOptions options) {
+    final matches = FirebaseEnvironment.values
+        .where((environment) => environment._matches(options))
+        .toList(growable: false);
+    if (matches.length == 1) return matches.single;
+    throw StateError('Firebase options do not match a known iOS environment.');
   }
 }

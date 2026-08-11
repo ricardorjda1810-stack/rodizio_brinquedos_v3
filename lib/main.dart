@@ -41,9 +41,8 @@ Future<void> main() async {
       await initializeDateFormatting('pt_BR', null);
       await initializeDateFormatting('en_US', null);
       final platformLocale = PlatformDispatcher.instance.locale;
-      Intl.defaultLocale = platformLocale.languageCode == 'en'
-          ? 'en_US'
-          : 'pt_BR';
+      Intl.defaultLocale =
+          platformLocale.languageCode == 'en' ? 'en_US' : 'pt_BR';
       runApp(const Bootstrap());
     },
     (error, stackTrace) {
@@ -55,17 +54,21 @@ Future<void> main() async {
 Future<void> _initializeFirebaseServices() async {
   final requiresExplicitIosEnvironment =
       !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-  var startupStage = _FirebaseStartupStage.resolveEnvironment;
+  var startupStage = _FirebaseStartupStage.initializeDefaultApp;
   FirebaseEnvironment? iosEnvironment;
   FirebaseOptions? initializedOptions;
 
   try {
     if (requiresExplicitIosEnvironment) {
-      final environment = FirebaseEnvironment.fromBuildConfiguration();
-      iosEnvironment = environment;
       startupStage = _FirebaseStartupStage.initializeDefaultApp;
       final app = await Firebase.initializeApp();
       initializedOptions = app.options;
+      startupStage = _FirebaseStartupStage.resolveEnvironment;
+      final environment = FirebaseEnvironment.resolveIos(
+        configuredValue: FirebaseEnvironment.configuredValue,
+        options: app.options,
+      );
+      iosEnvironment = environment;
       startupStage = _FirebaseStartupStage.validateOptions;
       environment.validate(app.options);
       startupStage = _FirebaseStartupStage.configureAnalytics;
@@ -86,6 +89,9 @@ Future<void> _initializeFirebaseServices() async {
     await _activateFirebaseAppCheck(iosEnvironment: iosEnvironment);
     startupStage = _FirebaseStartupStage.logAppOpen;
     await AppAnalytics.logAppOpen();
+    if (requiresExplicitIosEnvironment && iosEnvironment != null) {
+      _logFirebaseStartupSuccess(iosEnvironment);
+    }
   } catch (error, stackTrace) {
     if (requiresExplicitIosEnvironment) {
       _logFirebaseStartupFailure(
@@ -114,17 +120,12 @@ void _logFirebaseStartupFailure({
   required FirebaseOptions? initializedOptions,
 }) {
   const marker = '[FirebaseStartup]';
-  final configuredValue = switch (FirebaseEnvironment.configuredValue) {
-    'staging' || 'production' => FirebaseEnvironment.configuredValue,
-    '' => '<empty>',
-    _ => '<unsupported>',
-  };
 
   debugPrint('$marker status=failed');
   debugPrint('$marker stage=${stage.label}');
   debugPrint('$marker error_type=${error.runtimeType}');
   debugPrint('$marker error_message=$error');
-  debugPrint('$marker firebase_env=$configuredValue');
+  debugPrint('$marker firebase_env=${_configuredFirebaseEnvironmentForLog()}');
   debugPrint(
     '$marker expected_environment=${environment?.name ?? '<unresolved>'}',
   );
@@ -141,6 +142,27 @@ void _logFirebaseStartupFailure({
   for (final line in stackTrace.toString().split('\n')) {
     if (line.isNotEmpty) debugPrint('$marker stack_trace=$line');
   }
+}
+
+void _logFirebaseStartupSuccess(FirebaseEnvironment environment) {
+  const marker = '[FirebaseStartup]';
+  final resolutionSource = FirebaseEnvironment.configuredValue.isEmpty
+      ? 'firebase_options'
+      : 'dart_define';
+  debugPrint(
+    '$marker status=initialized '
+    'configured_env=${_configuredFirebaseEnvironmentForLog()} '
+    'resolved_environment=${environment.name} '
+    'resolution_source=$resolutionSource',
+  );
+}
+
+String _configuredFirebaseEnvironmentForLog() {
+  return switch (FirebaseEnvironment.configuredValue) {
+    'staging' || 'production' => FirebaseEnvironment.configuredValue,
+    '' => '<empty>',
+    _ => '<unsupported>',
+  };
 }
 
 Future<void> _activateFirebaseAppCheck({
