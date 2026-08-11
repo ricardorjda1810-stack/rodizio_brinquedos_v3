@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rodizio_brinquedos_v3/app.dart';
+import 'package:rodizio_brinquedos_v3/core/config/firebase_environment.dart';
 import 'package:rodizio_brinquedos_v3/data/db/app_database.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/round_repository.dart';
 import 'package:rodizio_brinquedos_v3/data/repositories/settings_repository.dart';
@@ -12,7 +13,9 @@ import 'package:rodizio_brinquedos_v3/services/app_trial_service.dart';
 import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
 class Bootstrap extends StatefulWidget {
-  const Bootstrap({super.key});
+  const Bootstrap({super.key, required this.firebaseEnvironment});
+
+  final FirebaseEnvironment? firebaseEnvironment;
 
   @override
   State<Bootstrap> createState() => _BootstrapState();
@@ -57,9 +60,7 @@ class _BootstrapState extends State<Bootstrap> {
             debugShowCheckedModeBanner: false,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
@@ -69,9 +70,7 @@ class _BootstrapState extends State<Bootstrap> {
             debugShowCheckedModeBanner: false,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
@@ -104,7 +103,9 @@ class _BootstrapState extends State<Bootstrap> {
     );
     await DemoDataLoader.load(_db);
     await _settingsRepository.load();
-    _purchaseService = await PurchaseService.create();
+    _purchaseService = await PurchaseService.create(
+      firebaseEnvironment: widget.firebaseEnvironment,
+    );
     _appTrialService = await AppTrialService.create();
   }
 }
@@ -113,10 +114,7 @@ class _BootstrapErrorScreen extends StatelessWidget {
   final String? error;
   final VoidCallback onRetry;
 
-  const _BootstrapErrorScreen({
-    required this.error,
-    required this.onRetry,
-  });
+  const _BootstrapErrorScreen({required this.error, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -134,10 +132,7 @@ class _BootstrapErrorScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 46,
-                  ),
+                  const Icon(Icons.error_outline, size: 46),
                   const SizedBox(height: 12),
                   Text(
                     'Falha ao iniciar o aplicativo',

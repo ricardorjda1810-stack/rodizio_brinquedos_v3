@@ -115,14 +115,6 @@ class _PaywallPageState extends State<PaywallPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _purchaseService.logStoreKitPricingPaywallDisplay(
-      flutterLocale: Localizations.localeOf(context).toLanguageTag(),
-    );
-  }
-
-  @override
   void dispose() {
     _purchaseService.removeListener(_handlePurchaseStateChanged);
     super.dispose();

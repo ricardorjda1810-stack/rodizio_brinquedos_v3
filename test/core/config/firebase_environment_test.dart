@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rodizio_brinquedos_v3/core/config/firebase_environment.dart';
+import 'package:rodizio_brinquedos_v3/services/purchase_service.dart';
 
 void main() {
   const productionProjectId = 'rodizio-de-brinquedos';
@@ -148,5 +149,57 @@ void main() {
       ),
       throwsA(isA<StateError>()),
     );
+  });
+
+  group('diagnósticos StoreKit usam o ambiente iOS resolvido', () {
+    for (final testCase in <({
+      String name,
+      String configuredValue,
+      String projectId,
+      String appId,
+      bool enabled,
+    })>[
+      (
+        name: 'staging explícito',
+        configuredValue: 'staging',
+        projectId: stagingProjectId,
+        appId: stagingAppId,
+        enabled: true,
+      ),
+      (
+        name: 'staging inferido pelo plist',
+        configuredValue: '',
+        projectId: stagingProjectId,
+        appId: stagingAppId,
+        enabled: true,
+      ),
+      (
+        name: 'produção explícita',
+        configuredValue: 'production',
+        projectId: productionProjectId,
+        appId: productionAppId,
+        enabled: false,
+      ),
+      (
+        name: 'produção inferida pelo plist',
+        configuredValue: '',
+        projectId: productionProjectId,
+        appId: productionAppId,
+        enabled: false,
+      ),
+    ]) {
+      test(testCase.name, () {
+        final environment = resolve(
+          configuredValue: testCase.configuredValue,
+          projectId: testCase.projectId,
+          appId: testCase.appId,
+        );
+
+        expect(
+          PurchaseService.storeKitDiagnosticsEnabledForEnvironment(environment),
+          testCase.enabled,
+        );
+      });
+    }
   });
 }
