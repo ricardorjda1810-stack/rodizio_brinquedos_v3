@@ -152,6 +152,8 @@ void main() {
     productsResult.complete(<String, ProductDetails>{
       PurchaseService.yearlyProductId:
           _product(PurchaseService.yearlyProductId),
+      PurchaseService.monthlyProductId:
+          _product(PurchaseService.monthlyProductId),
     });
     await Future.wait(<Future<void>>[first, second]);
 
@@ -510,6 +512,8 @@ Future<PurchaseService> _service({
         <String, ProductDetails>{
           PurchaseService.yearlyProductId:
               _product(PurchaseService.yearlyProductId),
+          PurchaseService.monthlyProductId:
+              _product(PurchaseService.monthlyProductId),
         },
     purchaseFunnelAnalytics: analytics,
     analyticsIdGenerator: idGenerator ?? () => 'attempt-fixed',

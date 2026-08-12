@@ -37,7 +37,7 @@ class PaywallPage extends StatefulWidget {
   State<PaywallPage> createState() => _PaywallPageState();
 }
 
-class _PaywallPageState extends State<PaywallPage> {
+class _PaywallPageState extends State<PaywallPage> with WidgetsBindingObserver {
   String? _lastErrorMessage;
   bool _lastPremiumState = false;
   String _selectedProductId = PurchaseService.yearlyProductId;
@@ -111,11 +111,21 @@ class _PaywallPageState extends State<PaywallPage> {
     _lastPremiumState = _purchaseService.isPremium;
     _lastErrorMessage = _purchaseService.errorMessage;
     _purchaseService.addListener(_handlePurchaseStateChanged);
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_purchaseService.refreshProductDetails());
     _logDefaultSelectionIfAvailable();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_purchaseService.refreshProductDetails());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _purchaseService.removeListener(_handlePurchaseStateChanged);
     super.dispose();
   }

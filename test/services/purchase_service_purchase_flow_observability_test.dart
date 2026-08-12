@@ -357,6 +357,8 @@ Future<PurchaseService> _service({
     productDetailsById: <String, ProductDetails>{
       PurchaseService.yearlyProductId:
           _product(PurchaseService.yearlyProductId),
+      PurchaseService.monthlyProductId:
+          _product(PurchaseService.monthlyProductId),
     },
     appleTransactionAnalyticsCoordinator: coordinator ?? _coordinator(),
     isIosPlatform: isIos,
