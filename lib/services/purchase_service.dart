@@ -83,6 +83,7 @@ class PurchaseService extends ChangeNotifier {
   bool _initialStoreKitReconciliationComplete;
   bool _drainingInitialPurchaseUpdates = false;
   bool _disposed = false;
+  int _productRefreshGeneration = 0;
   int _nextStoreKitTransactionOrdinal = 0;
   String _lastRestoreSource = 'unknown';
   String? _errorMessage;
@@ -166,7 +167,8 @@ class PurchaseService extends ChangeNotifier {
       analyticsIdGenerator: analyticsIdGenerator,
       isPaywallEnabled: () => paywallEnabled,
       storeKitReconciliationClient: storeKitReconciliationClient,
-      productDetailsLoader: productDetailsLoader,
+      productDetailsLoader: productDetailsLoader ??
+          () async => Map<String, ProductDetails>.of(productDetailsById),
       storeKitDiagnosticsEnabled: storeKitDiagnosticsEnabled,
       storeKitDiagnosticsLogger: storeKitDiagnosticsLogger ?? debugPrint,
       initialStoreKitReconciliationComplete:
@@ -229,7 +231,8 @@ class PurchaseService extends ChangeNotifier {
   ProductDetails? get productDetails => _productDetails;
   ProductDetails? productDetailsFor(String productId) =>
       _productDetailsById[productId];
-  bool get hasLoadedSubscriptionProducts => _productDetailsById.isNotEmpty;
+  bool get hasLoadedSubscriptionProducts =>
+      productIds.every(_productDetailsById.containsKey);
   String? get errorMessage => _errorMessage;
 
   Future<void> initialize() async {
@@ -297,6 +300,7 @@ class PurchaseService extends ChangeNotifier {
   }
 
   Future<void> refreshProductDetails() async {
+    final refreshGeneration = ++_productRefreshGeneration;
     if (!_isPaywallEnabled()) {
       _setState(
         isLoading: false,
@@ -308,16 +312,30 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
-    _setState(isLoading: true, errorMessage: null);
+    _setState(
+      isLoading: true,
+      errorMessage: null,
+      productDetails: null,
+      productDetailsById: <String, ProductDetails>{},
+    );
 
     try {
+      final productDetailsLoader = _productDetailsLoader;
+      if (productDetailsLoader != null) {
+        final detailsById = await productDetailsLoader();
+        _publishProductRefresh(
+          refreshGeneration: refreshGeneration,
+          detailsById: detailsById,
+          storeAvailable: true,
+        );
+        return;
+      }
+
       final inAppPurchase = _inAppPurchase;
       if (inAppPurchase == null) {
-        _setState(
-          isLoading: false,
+        _setProductRefreshFailure(
+          refreshGeneration: refreshGeneration,
           errorMessage: 'Compras no app indisponíveis neste dispositivo.',
-          productDetails: null,
-          productDetailsById: <String, ProductDetails>{},
           storeAvailable: false,
         );
         return;
@@ -325,11 +343,9 @@ class PurchaseService extends ChangeNotifier {
 
       final available = await inAppPurchase.isAvailable();
       if (!available) {
-        _setState(
-          isLoading: false,
+        _setProductRefreshFailure(
+          refreshGeneration: refreshGeneration,
           errorMessage: 'Compras no app indisponíveis neste dispositivo.',
-          productDetails: null,
-          productDetailsById: <String, ProductDetails>{},
           storeAvailable: false,
         );
         return;
@@ -337,11 +353,9 @@ class PurchaseService extends ChangeNotifier {
 
       final response = await inAppPurchase.queryProductDetails(productIds);
       if (response.error != null) {
-        _setState(
-          isLoading: false,
+        _setProductRefreshFailure(
+          refreshGeneration: refreshGeneration,
           errorMessage: response.error!.message,
-          productDetails: null,
-          productDetailsById: <String, ProductDetails>{},
           storeAvailable: true,
         );
         return;
@@ -350,60 +364,62 @@ class PurchaseService extends ChangeNotifier {
       final detailsById = <String, ProductDetails>{
         for (final details in response.productDetails) details.id: details,
       };
-      final details = detailsById[monthlyProductId] ??
-          detailsById[yearlyProductId] ??
-          (response.productDetails.isEmpty
-              ? null
-              : response.productDetails.first);
-
-      _setState(
-        isLoading: false,
-        errorMessage:
-            details == null ? 'Assinaturas não encontradas na loja.' : null,
-        productDetails: details,
-        productDetailsById: detailsById,
+      _publishProductRefresh(
+        refreshGeneration: refreshGeneration,
+        detailsById: detailsById,
         storeAvailable: true,
       );
     } catch (error) {
-      _setState(
-        isLoading: false,
+      _setProductRefreshFailure(
+        refreshGeneration: refreshGeneration,
         errorMessage: 'Falha ao carregar assinatura: $error',
-        productDetails: null,
-        productDetailsById: <String, ProductDetails>{},
         storeAvailable: false,
       );
     }
   }
 
-  Future<void> _refreshProductsForPurchase() async {
-    final loader = _productDetailsLoader;
-    if (loader == null) {
-      await refreshProductDetails();
+  void _publishProductRefresh({
+    required int refreshGeneration,
+    required Map<String, ProductDetails> detailsById,
+    required bool storeAvailable,
+  }) {
+    if (_disposed || refreshGeneration != _productRefreshGeneration) {
       return;
     }
 
-    try {
-      final detailsById = await loader();
-      final details = detailsById[monthlyProductId] ??
-          detailsById[yearlyProductId] ??
-          (detailsById.isEmpty ? null : detailsById.values.first);
+    if (!productIds.every(detailsById.containsKey)) {
       _setState(
         isLoading: false,
-        errorMessage:
-            details == null ? 'Assinaturas não encontradas na loja.' : null,
-        productDetails: details,
-        productDetailsById: detailsById,
-        storeAvailable: true,
-      );
-    } catch (_) {
-      _setState(
-        isLoading: false,
-        errorMessage: 'Falha ao carregar assinatura.',
+        errorMessage: 'Assinaturas não encontradas na loja.',
         productDetails: null,
         productDetailsById: <String, ProductDetails>{},
-        storeAvailable: false,
+        storeAvailable: storeAvailable,
       );
+      return;
     }
+
+    _setState(
+      isLoading: false,
+      errorMessage: null,
+      productDetails: detailsById[monthlyProductId],
+      productDetailsById: detailsById,
+      storeAvailable: storeAvailable,
+    );
+  }
+
+  void _setProductRefreshFailure({
+    required int refreshGeneration,
+    required String errorMessage,
+    required bool storeAvailable,
+  }) {
+    if (_disposed || refreshGeneration != _productRefreshGeneration) return;
+    _setState(
+      isLoading: false,
+      errorMessage: errorMessage,
+      productDetails: null,
+      productDetailsById: <String, ProductDetails>{},
+      storeAvailable: storeAvailable,
+    );
   }
 
   Future<void> startPurchase({
@@ -432,13 +448,9 @@ class PurchaseService extends ChangeNotifier {
     _activePurchaseAttemptsByProductId[productId] = attempt;
     _setState(isLoading: true, errorMessage: null);
 
-    if ((!_storeAvailable || !_productDetailsById.containsKey(productId)) &&
-        (_inAppPurchase != null || _productDetailsLoader != null)) {
-      await _refreshProductsForPurchase();
-    }
+    await refreshProductDetails();
 
-    final details = _productDetailsById[productId] ??
-        (productId == PurchaseService.productId ? _productDetails : null);
+    final details = _productDetailsById[productId];
     if (!_storeAvailable || details == null) {
       _consumePurchaseAttempt(productId, expected: attempt);
       await _logPurchaseFailed(
@@ -455,6 +467,8 @@ class PurchaseService extends ChangeNotifier {
       );
       return;
     }
+
+    _setState(isLoading: true, errorMessage: null);
 
     final purchaseLauncher = _purchaseLauncher;
     if (purchaseLauncher == null) {

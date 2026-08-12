@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -97,6 +99,101 @@ void main() {
       expect(subscribeButton.onPressed, isNotNull);
     },
   );
+
+  testWidgets(
+    'abertura oculta USD e publica preços e equivalente mensal em BRL',
+    (tester) async {
+      await _setIphoneViewport(tester);
+      SharedPreferences.setMockInitialValues({});
+      final preferences = await SharedPreferences.getInstance();
+      final result = Completer<Map<String, ProductDetails>>();
+      var loadCount = 0;
+      final purchaseService = PurchaseService.forTesting(
+        preferences: preferences,
+        productDetailsById: _products(
+          yearlyPrice: r'$14.99',
+          yearlyRawPrice: 14.99,
+          monthlyPrice: r'$1.99',
+          monthlyRawPrice: 1.99,
+          currencyCode: 'USD',
+          currencySymbol: r'$',
+        ),
+        productDetailsLoader: () {
+          loadCount++;
+          return result.future;
+        },
+      );
+
+      await _pumpPaywallWithoutSettling(
+        tester,
+        purchaseService: purchaseService,
+      );
+
+      expect(loadCount, 1);
+      expect(find.text(r'$14.99'), findsNothing);
+      expect(find.text(r'$1.99'), findsNothing);
+      expect(find.text('Plano indisponível'), findsWidgets);
+
+      result.complete(
+        _products(
+          yearlyPrice: r'R$ 120,00',
+          yearlyRawPrice: 120,
+          monthlyPrice: r'R$ 18,00',
+          monthlyRawPrice: 18,
+          currencyCode: 'BRL',
+          currencySymbol: r'R$',
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(r'R$ 120,00'), findsOneWidget);
+      expect(find.text(r'R$ 18,00'), findsOneWidget);
+      expect(find.textContaining('10,00/mês'), findsOneWidget);
+      expect(find.text(r'$14.99'), findsNothing);
+      expect(find.text(r'$1.99'), findsNothing);
+    },
+  );
+
+  testWidgets('somente resumed atualiza e observer é removido no descarte', (
+    tester,
+  ) async {
+    await _setIphoneViewport(tester);
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    var loadCount = 0;
+    final products = _products(
+      yearlyPrice: r'R$ 120,00',
+      yearlyRawPrice: 120,
+      monthlyPrice: r'R$ 18,00',
+      monthlyRawPrice: 18,
+      currencyCode: 'BRL',
+      currencySymbol: r'R$',
+    );
+    final purchaseService = PurchaseService.forTesting(
+      preferences: preferences,
+      productDetailsLoader: () async {
+        loadCount++;
+        return products;
+      },
+    );
+
+    await _pumpPaywall(tester, purchaseService: purchaseService);
+    expect(loadCount, 1);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump();
+    expect(loadCount, 1);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(loadCount, 2);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(loadCount, 2);
+  });
 }
 
 ProductDetails _product({
@@ -113,6 +210,36 @@ ProductDetails _product({
     currencyCode: 'USD',
     currencySymbol: r'$',
   );
+}
+
+Map<String, ProductDetails> _products({
+  required String yearlyPrice,
+  required double yearlyRawPrice,
+  required String monthlyPrice,
+  required double monthlyRawPrice,
+  required String currencyCode,
+  required String currencySymbol,
+}) {
+  return <String, ProductDetails>{
+    PurchaseService.yearlyProductId: ProductDetails(
+      id: PurchaseService.yearlyProductId,
+      title: PurchaseService.yearlyProductId,
+      description: PurchaseService.yearlyProductId,
+      price: yearlyPrice,
+      rawPrice: yearlyRawPrice,
+      currencyCode: currencyCode,
+      currencySymbol: currencySymbol,
+    ),
+    PurchaseService.monthlyProductId: ProductDetails(
+      id: PurchaseService.monthlyProductId,
+      title: PurchaseService.monthlyProductId,
+      description: PurchaseService.monthlyProductId,
+      price: monthlyPrice,
+      rawPrice: monthlyRawPrice,
+      currencyCode: currencyCode,
+      currencySymbol: currencySymbol,
+    ),
+  };
 }
 
 Future<void> _pumpPaywall(
@@ -132,6 +259,25 @@ Future<void> _pumpPaywall(
     ),
   );
   await tester.pumpAndSettle();
+}
+
+Future<void> _pumpPaywallWithoutSettling(
+  WidgetTester tester, {
+  required PurchaseService purchaseService,
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      home: PaywallPage(
+        purchaseService: purchaseService,
+        source: PaywallSource.appTrialExpired,
+        blocking: true,
+      ),
+    ),
+  );
+  await tester.pump();
 }
 
 Future<void> _setIphoneViewport(WidgetTester tester) async {
