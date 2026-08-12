@@ -11,7 +11,8 @@
 - GitHub é a fonte oficial do código e do histórico. Trabalhe em uma branch ou worktree isolada por tarefa; nunca trabalhe diretamente na `main`.
 - Antes de agir localmente, inspecione o estado Git. Nunca formate, mova, descarte, faça commit ou misture alterações locais preexistentes que não pertençam à tarefa.
 - Não execute `reset`, `clean`, `stash`, rebase, force push ou operações destrutivas sem autorização explícita.
-- Não faça merge, publicação, upload para TestFlight, App Store, Google Play, Codemagic, Xcode Cloud ou outra ação externa/irreversível sem autorização humana explícita.
+- Criar commit, fazer qualquer push, criar ou alterar PR, marcar PR como pronto, fazer merge e publicar ou alterar serviço externo exigem, cada ação, autorização humana específica e separada.
+- Atualizar arquivos localmente ou executar validações não autoriza automaticamente nenhuma dessas ações.
 - Antes de concluir, revise o diff completo e não invente resultados de testes, builds ou validações.
 
 ## Regra oficial de versionamento
@@ -31,7 +32,7 @@ Antes de qualquer build para Google Play ou App Store, confirme a versão atual,
 
 ## Validações
 
-- Após alterar código Dart/Flutter do app principal, execute `flutter analyze --no-pub lib test` e, se `test/` existir, `flutter test`.
+- Após alterar código Dart/Flutter do app principal, execute `flutter analyze` e, se `test/` existir, `flutter test`.
 - Para alterações Android, consulte a documentação oficial do Android antes de alterar APIs, Gradle ou Google Play Billing.
 - Validações dependentes de Xcode, CocoaPods, Simulator, Keychain, assinatura ou credenciais locais devem ser executadas e relatadas no Mac; não presuma seus resultados remotamente.
 
@@ -39,6 +40,7 @@ Antes de qualquer build para Google Play ou App Store, confirme a versão atual,
 
 - Planejamento Semanal é recurso Premium; cadastro, categorias, caixas, locais, rodízio diário e sugestão de rodada permanecem disponíveis no app gratuito.
 - Mantenha a coerência com `paywall_platform.dart`. Não altere paywall, compras, assinatura, Product IDs ou disponibilidade por plataforma sem confirmação explícita da loja de destino.
+- Se as compras no Android estiverem temporariamente indisponíveis, trate isso como decisão operacional explícita e documentada, não como regra permanente do produto.
 - Preserve StoreKit 2, os ambientes staging/produção e a instrumentação analítica existente, salvo solicitação explícita e escopo confirmado.
 - Não altere Gradle, Xcode, AndroidManifest, Info.plist ou `pubspec.yaml` para builds ou paywall sem instrução explícita.
 

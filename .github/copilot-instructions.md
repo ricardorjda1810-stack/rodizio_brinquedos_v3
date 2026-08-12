@@ -8,4 +8,4 @@ Leia e siga primeiro o `AGENTS.md`, que é a fonte principal das regras do repos
 - Diferencie claramente fatos confirmados, hipóteses e itens não verificados. Nunca invente resultados de análise, testes, builds ou validações locais.
 - Use os comandos definidos no `AGENTS.md` para o escopo alterado e revise o diff completo antes de concluir.
 - Não exija reproduzir todos os arquivos completos na resposta; apresente somente o contexto e os trechos necessários.
-- Trabalhe em branch ou worktree isolada. Não faça commit direto na `main`, merge, publicação, upload, alteração de serviços externos ou outra ação irreversível sem autorização humana explícita.
+- Trabalhe em branch ou worktree isolada e siga as autorizações separadas do `AGENTS.md`: editar ou validar localmente não autoriza commit, qualquer push, criação ou alteração de PR, marcar PR como pronto, merge, publicação ou alteração de serviço externo.

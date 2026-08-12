@@ -36,8 +36,8 @@ Não permita que dois agentes alterem simultaneamente os mesmos arquivos. Divida
 3. Implementar a menor mudança necessária.
 4. Executar validações aplicáveis ao escopo e ao ambiente disponível.
 5. Revisar o diff, incluindo nomes de arquivos e alterações inesperadas.
-6. Criar PR em **draft** contra `main` com SHA-base, SHA final, testes e pendências.
-7. Revisar código, checks e riscos. Só após autorização humana explícita o PR pode ficar pronto para merge e ser mesclado.
+6. Somente após obter as autorizações específicas e separadas correspondentes, criar o commit, fazer push da branch e criar o PR em **draft** contra `main`, com SHA-base, SHA final, testes e pendências.
+7. Revisar código, checks e riscos. Marcar o PR como pronto e fazer merge são ações distintas e cada uma exige sua própria autorização humana explícita.
 
 ## Transferência entre ferramentas
 
@@ -54,7 +54,9 @@ Não trate uma validação remota como substituta de uma validação dependente 
 
 ## Ações que exigem autorização humana
 
-Exigem autorização explícita: merge, auto-merge, push direto na `main`, force push, rebase, reset, limpeza destrutiva, alteração de proteção de branch, publicação, TestFlight, App Store, Google Play, Codemagic, Xcode Cloud, assinatura, certificados, segredos, Keychain, serviços externos e mudanças de versão/build ou dependências.
+Cada uma destas ações exige autorização humana específica e separada: criar commit; fazer qualquer push; criar ou alterar PR; marcar PR como pronto; fazer merge ou habilitar auto-merge; publicar ou alterar serviço externo. Isso inclui TestFlight, App Store, Google Play, Codemagic, Xcode Cloud, assinatura, certificados, segredos, Keychain, proteção de branch e mudanças de versão/build ou dependências.
+
+Force push, rebase, reset e limpeza destrutiva também exigem autorização explícita. Atualizar arquivos localmente ou executar validações não autoriza automaticamente nenhuma das ações acima.
 
 ## Modelo de relatório de entrega
 
