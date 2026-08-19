@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rodizio_brinquedos_v3/data/services/photo_cropper_service.dart';
+import 'package:rodizio_brinquedos_v3/l10n/app_localizations.dart';
 
 typedef PhotoCropper = Future<String?> Function({
   required String sourcePath,
@@ -50,9 +51,7 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
       if (croppedPath == null) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nao foi possivel usar a foto. Tente novamente.'),
-          ),
+          SnackBar(content: Text(context.l10n.photoUnavailable)),
         );
         return;
       }
@@ -64,18 +63,17 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
       if (!mounted) return;
       setState(() => _saving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao processar a foto.'),
-        ),
+        SnackBar(content: Text(context.l10n.photoProcessingFailure)),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajustar foto'),
+        title: Text(l10n.adjustPhoto),
         leading: IconButton(
           onPressed: _saving ? null : () => Navigator.of(context).pop(null),
           icon: const Icon(Icons.close),
@@ -89,8 +87,8 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
             children: [
               const Icon(Icons.crop_square, size: 40),
               const SizedBox(height: 16),
-              const Text(
-                'Toque em "Usar foto" para abrir o ajuste e concluir o recorte.',
+              Text(
+                l10n.cropPhotoInstruction,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -104,14 +102,14 @@ class _PhotoCropPageState extends State<PhotoCropPage> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Usar foto'),
+                      : Text(l10n.usePhoto),
                 ),
               ),
               const SizedBox(height: 8),
               TextButton(
                 onPressed:
                     _saving ? null : () => Navigator.of(context).pop(null),
-                child: const Text('Cancelar'),
+                child: Text(l10n.cancel),
               ),
             ],
           ),

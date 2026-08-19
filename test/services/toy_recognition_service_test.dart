@@ -6,6 +6,14 @@ import 'package:rodizio_brinquedos_v3/services/toy_recognition_service.dart';
 void main() {
   const allowedCategoryIds = <String>{'maos', 'imaginacao', 'corpo'};
 
+  test('recognition exceptions expose a stable failure instead of user copy',
+      () {
+    const error = ToyRecognitionException(ToyRecognitionFailure.timeout);
+
+    expect(error.failure, ToyRecognitionFailure.timeout);
+    expect(error.toString(), 'ToyRecognitionException(timeout)');
+  });
+
   group('ToyRecognitionResult.fromCallableData', () {
     test('normalizes a valid recognition result', () {
       final result = ToyRecognitionResult.fromCallableData(<String, Object?>{

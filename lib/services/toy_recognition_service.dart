@@ -51,7 +51,6 @@ class ToyRecognitionResult {
     if (data is! Map) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.invalidResponse,
-        'A resposta do reconhecimento não pôde ser lida.',
       );
     }
 
@@ -69,7 +68,6 @@ class ToyRecognitionResult {
         rawConfidence > 1) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.invalidResponse,
-        'A IA retornou uma confiança inválida.',
       );
     }
     final confidence = rawConfidence.toDouble();
@@ -77,13 +75,11 @@ class ToyRecognitionResult {
     if (suggestedName.isEmpty || suggestedName.length > 80) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.invalidResponse,
-        'A IA não retornou um nome válido para o brinquedo.',
       );
     }
     if (!allowedCategoryIds.contains(categoryId)) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.invalidResponse,
-        'A IA retornou uma categoria que não existe no aplicativo.',
       );
     }
 
@@ -105,7 +101,6 @@ class ToyRecognitionResult {
     if (rawNeedsReview != null && rawNeedsReview is! bool) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.invalidResponse,
-        'A IA retornou uma revisão inválida.',
       );
     }
     final explanation = readString('explanation');
@@ -133,12 +128,14 @@ class ToyRecognitionResult {
 
 enum ToyRecognitionFailure {
   noPhoto,
+  categoriesUnavailable,
   unsupportedImage,
   imageTooLarge,
   noToy,
   multipleToys,
   personDetected,
   unavailable,
+  timeout,
   permissionDenied,
   invalidResponse,
   unknown,
@@ -146,12 +143,11 @@ enum ToyRecognitionFailure {
 
 class ToyRecognitionException implements Exception {
   final ToyRecognitionFailure failure;
-  final String message;
 
-  const ToyRecognitionException(this.failure, this.message);
+  const ToyRecognitionException(this.failure);
 
   @override
-  String toString() => message;
+  String toString() => 'ToyRecognitionException(${failure.name})';
 }
 
 abstract interface class ToyRecognitionService {
@@ -178,13 +174,11 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     if (normalizedPath.isEmpty) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.noPhoto,
-        'Adicione uma foto antes de iniciar o reconhecimento.',
       );
     }
     if (categories.isEmpty) {
       throw const ToyRecognitionException(
-        ToyRecognitionFailure.unavailable,
-        'As categorias ainda estão sendo preparadas. Tente novamente.',
+        ToyRecognitionFailure.categoriesUnavailable,
       );
     }
 
@@ -192,7 +186,6 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     if (!await file.exists()) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.noPhoto,
-        'A foto selecionada não está mais disponível.',
       );
     }
 
@@ -200,13 +193,11 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     if (fileLength <= 0) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.noPhoto,
-        'A foto selecionada está vazia.',
       );
     }
     if (fileLength > maxImageBytes) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.imageTooLarge,
-        'A foto ficou muito grande. Recorte mais perto do brinquedo.',
       );
     }
 
@@ -214,13 +205,11 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     if (bytes.isEmpty) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.noPhoto,
-        'A foto selecionada está vazia.',
       );
     }
     if (bytes.length > maxImageBytes) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.imageTooLarge,
-        'A foto ficou muito grande. Recorte mais perto do brinquedo.',
       );
     }
 
@@ -228,7 +217,6 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     if (mimeType == null) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.unsupportedImage,
-        'Use uma foto JPG, PNG ou WebP.',
       );
     }
 
@@ -257,7 +245,6 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
     } catch (_) {
       throw const ToyRecognitionException(
         ToyRecognitionFailure.unknown,
-        'Não foi possível reconhecer o brinquedo agora. Tente novamente.',
       );
     }
   }
@@ -297,53 +284,45 @@ class FirebaseToyRecognitionService implements ToyRecognitionService {
       case 'person_detected':
         return const ToyRecognitionException(
           ToyRecognitionFailure.personDetected,
-          'Para proteger a privacidade, use uma foto que mostre somente o brinquedo.',
         );
       case 'multiple_toys':
         return const ToyRecognitionException(
           ToyRecognitionFailure.multipleToys,
-          'O MVP reconhece um brinquedo por vez. Recorte a foto mais de perto.',
         );
       case 'no_toy':
         return const ToyRecognitionException(
           ToyRecognitionFailure.noToy,
-          'Não encontramos um brinquedo com segurança nessa foto.',
         );
       case 'image_too_large':
         return const ToyRecognitionException(
           ToyRecognitionFailure.imageTooLarge,
-          'A foto ficou muito grande. Recorte mais perto do brinquedo.',
         );
       case 'invalid_image':
         return const ToyRecognitionException(
           ToyRecognitionFailure.unsupportedImage,
-          'Use uma foto JPG, PNG ou WebP válida.',
         );
       case 'invalid_categories':
         return const ToyRecognitionException(
           ToyRecognitionFailure.invalidResponse,
-          'As categorias oficiais não puderam ser validadas.',
         );
     }
 
     if (error.code == 'permission-denied' || error.code == 'unauthenticated') {
       return const ToyRecognitionException(
         ToyRecognitionFailure.permissionDenied,
-        'O reconhecimento ainda não está autorizado neste dispositivo.',
       );
     }
-    if (error.code == 'deadline-exceeded' ||
-        error.code == 'unavailable' ||
-        error.code == 'resource-exhausted') {
+    if (error.code == 'deadline-exceeded') {
+      return const ToyRecognitionException(ToyRecognitionFailure.timeout);
+    }
+    if (error.code == 'unavailable' || error.code == 'resource-exhausted') {
       return const ToyRecognitionException(
         ToyRecognitionFailure.unavailable,
-        'O reconhecimento está temporariamente indisponível. Tente novamente.',
       );
     }
 
     return const ToyRecognitionException(
       ToyRecognitionFailure.unknown,
-      'Não foi possível reconhecer o brinquedo agora.',
     );
   }
 }

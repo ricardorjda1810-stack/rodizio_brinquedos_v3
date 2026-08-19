@@ -65,8 +65,6 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     milliseconds: 200,
   );
   static const String _noBoxOptionValue = '__sem_caixa__';
-  static const String _locationRequiredMessage =
-      'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
   static String? _lastCategoryId;
 
   final TextEditingController _nameController = TextEditingController();
@@ -79,7 +77,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   bool _recognizing = false;
   bool _boxSelectionTouched = false;
   ToyRecognitionResult? _recognitionResult;
-  String? _recognitionError;
+  ToyRecognitionFailure? _recognitionFailure;
   bool _recognitionApplied = false;
 
   @override
@@ -121,19 +119,24 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     return value.isEmpty ? null : value;
   }
 
-  String get _previewToyName => _manualToyName ?? 'Nome gerado automaticamente';
+  String get _previewToyName =>
+      _manualToyName ?? context.l10n.generatedToyNamePreview;
 
   void _showLocationSelectionWarning() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text(_locationRequiredMessage)));
+    ).showSnackBar(
+      SnackBar(content: Text(context.l10n.selectStorageValidation)),
+    );
   }
 
   bool _validateBeforeSave() {
     if (_selectedCategoryId == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria.')));
+      ).showSnackBar(
+        SnackBar(content: Text(context.l10n.selectCategoryValidation)),
+      );
       return false;
     }
 
@@ -166,7 +169,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     setState(() {
       _photoSourcePath = croppedPath;
       _recognitionResult = null;
-      _recognitionError = null;
+      _recognitionFailure = null;
       _recognitionApplied = false;
     });
     await _recognizeToy(officialCategories);
@@ -191,7 +194,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
 
     setState(() {
       _recognizing = true;
-      _recognitionError = null;
+      _recognitionFailure = null;
       _recognitionResult = null;
       _recognitionApplied = false;
     });
@@ -211,14 +214,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       if (!mounted || _photoSourcePath != photoPath) return;
       setState(() {
         _recognizing = false;
-        _recognitionError = error.message;
+        _recognitionFailure = error.failure;
       });
     } catch (_) {
       if (!mounted || _photoSourcePath != photoPath) return;
       setState(() {
         _recognizing = false;
-        _recognitionError =
-            'Não foi possível reconhecer o brinquedo agora. Tente novamente.';
+        _recognitionFailure = ToyRecognitionFailure.unknown;
       });
     }
   }
@@ -236,7 +238,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   void _discardRecognitionResult() {
     setState(() {
       _recognitionResult = null;
-      _recognitionError = null;
+      _recognitionFailure = null;
       _recognitionApplied = false;
     });
   }
@@ -246,32 +248,59 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     List<CategoryDefinition> officialCategories,
   ) {
     for (final category in officialCategories) {
-      if (category.id == categoryId) return toyFormCategoryName(category);
+      if (category.id == categoryId) {
+        return context.l10n.categoryNameById(
+          category.id,
+          toyFormCategoryName(category),
+        );
+      }
     }
     return categoryId;
   }
 
+  String _recognitionFailureMessage(ToyRecognitionFailure failure) {
+    final l10n = context.l10n;
+    return switch (failure) {
+      ToyRecognitionFailure.noPhoto => l10n.recognitionNoPhoto,
+      ToyRecognitionFailure.categoriesUnavailable =>
+        l10n.recognitionCategoriesUnavailable,
+      ToyRecognitionFailure.unsupportedImage =>
+        l10n.recognitionUnsupportedImage,
+      ToyRecognitionFailure.imageTooLarge => l10n.recognitionImageTooLarge,
+      ToyRecognitionFailure.noToy => l10n.recognitionNoToy,
+      ToyRecognitionFailure.multipleToys => l10n.recognitionMultipleToys,
+      ToyRecognitionFailure.personDetected => l10n.recognitionPersonDetected,
+      ToyRecognitionFailure.unavailable => l10n.recognitionUnavailable,
+      ToyRecognitionFailure.timeout => l10n.recognitionTimeout,
+      ToyRecognitionFailure.permissionDenied =>
+        l10n.recognitionPermissionDenied,
+      ToyRecognitionFailure.invalidResponse => l10n.recognitionInvalidResponse,
+      ToyRecognitionFailure.unknown => l10n.recognitionUnknownFailure,
+    };
+  }
+
   Widget _buildRecognitionPanel(List<CategoryDefinition> officialCategories) {
+    final l10n = context.l10n;
     if (_recognizing) {
-      return const _ToyRecognitionPanel(
+      return _ToyRecognitionPanel(
         icon: Icons.auto_awesome,
-        title: 'Reconhecendo brinquedo...',
-        message: 'A foto é analisada sem salvar automaticamente.',
+        title: l10n.recognizingToy,
+        message: l10n.recognitionLoadingMessage,
         loading: true,
       );
     }
 
-    final error = _recognitionError;
-    if (error != null) {
+    final failure = _recognitionFailure;
+    if (failure != null) {
       return _ToyRecognitionPanel(
         icon: Icons.info_outline_rounded,
-        title: 'Não foi possível sugerir',
-        message: error,
+        title: l10n.recognitionSuggestionFailureTitle,
+        message: _recognitionFailureMessage(failure),
         actions: [
           TextButton.icon(
             onPressed: _saving ? null : () => _recognizeToy(officialCategories),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Tentar novamente'),
+            label: Text(l10n.tryAgain),
           ),
         ],
       );
@@ -288,36 +317,42 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     if (_recognitionApplied) {
       return _ToyRecognitionPanel(
         icon: Icons.check_circle_outline_rounded,
-        title: 'Sugestão aplicada',
-        message:
-            '${result.suggestedName} · $categoryLabel. Revise os campos antes de salvar.',
+        title: l10n.suggestionApplied,
+        message: l10n.recognitionAppliedMessage(
+          result.suggestedName,
+          categoryLabel,
+        ),
         positive: true,
         actions: [
           TextButton.icon(
             onPressed: _saving ? null : () => _recognizeToy(officialCategories),
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Analisar novamente'),
+            label: Text(l10n.analyzeAgain),
           ),
         ],
       );
     }
 
     final explanation = result.explanation.isEmpty
-        ? 'Categoria sugerida: $categoryLabel.'
+        ? l10n.suggestedCategory(categoryLabel)
         : result.explanation;
     return _ToyRecognitionPanel(
       icon: Icons.auto_awesome,
       title: result.suggestedName,
-      message: '$categoryLabel · confiança $confidencePercent%. $explanation',
+      message: l10n.recognitionResultMessage(
+        categoryLabel,
+        confidencePercent,
+        explanation,
+      ),
       actions: [
         FilledButton.icon(
           onPressed: _saving ? null : _applyRecognitionResult,
           icon: const Icon(Icons.check_rounded),
-          label: const Text('Usar sugestão'),
+          label: Text(l10n.useSuggestion),
         ),
         TextButton(
           onPressed: _saving ? null : _discardRecognitionResult,
-          child: const Text('Descartar'),
+          child: Text(l10n.discard),
         ),
       ],
     );
@@ -370,7 +405,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao salvar brinquedo: $e')));
+      ).showSnackBar(
+        SnackBar(content: Text(context.l10n.saveToyFailure(e))),
+      );
       setState(() => _saving = false);
     }
   }
@@ -403,18 +440,20 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         _photoSourcePath = null;
         _selectedLooseLocation = null;
         _recognitionResult = null;
-        _recognitionError = null;
+        _recognitionFailure = null;
         _recognitionApplied = false;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Brinquedo salvo! Adicione outro.')),
+        SnackBar(content: Text(context.l10n.toySavedAddAnother)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao salvar brinquedo: $e')));
+      ).showSnackBar(
+        SnackBar(content: Text(context.l10n.saveToyFailure(e))),
+      );
       setState(() => _saving = false);
     }
   }
@@ -451,28 +490,33 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
 
   String _categoryLabel(List<CategoryDefinition> categories) {
     final category = _selectedCategory(categories);
-    if (category == null) return 'Categoria pendente';
-    return toyFormCategoryName(category);
+    if (category == null) return context.l10n.categoryPending;
+    return context.l10n.categoryNameById(
+      category.id,
+      toyFormCategoryName(category),
+    );
   }
 
   String _storageLabel(List<Boxe> boxes) {
     if (_isWithoutBoxSelected) {
       final local = (_selectedLooseLocation ?? '').trim();
-      return local.isEmpty ? 'Sem caixa' : 'Sem caixa · $local';
+      return local.isEmpty
+          ? context.l10n.noBox
+          : '${context.l10n.noBox} · ${context.l10n.value(local)}';
     }
 
     final box = _selectedBox(boxes);
-    if (box == null) return 'Local pendente';
-    return 'Caixa ${box.number} · ${box.local}';
+    if (box == null) return context.l10n.locationPending;
+    return context.l10n.boxLocationLabel(box.number, box.local);
   }
 
   String _statusLabel() {
     if (_selectedCategoryId == null && !_hasExplicitBoxSelection) {
-      return 'Faltam categoria e local';
+      return context.l10n.missingCategoryAndLocation;
     }
-    if (_selectedCategoryId == null) return 'Falta categoria';
-    if (!_hasExplicitBoxSelection) return 'Falta local';
-    return 'Pronto para salvar';
+    if (_selectedCategoryId == null) return context.l10n.missingCategory;
+    if (!_hasExplicitBoxSelection) return context.l10n.missingLocation;
+    return context.l10n.readyToSave;
   }
 
   bool get _isReadyToSave =>
@@ -608,9 +652,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
         ),
         const SizedBox(height: 5),
         Text(
-          l10n.isEn
-              ? 'Add a toy to include it in the rotation.'
-              : 'Cadastre um brinquedo para incluir no rodízio.',
+          l10n.toyCreateHeaderSubtitle,
           style: context.appTypography.body.copyWith(
             color: _ToyCreateIpadPalette.textMid,
             fontWeight: FontWeight.w600,
@@ -645,9 +687,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             )
           : const Icon(Icons.save_outlined, size: 19),
       label: Text(
-        _saving
-            ? (l10n.isEn ? 'Saving...' : 'Salvando...')
-            : (l10n.isEn ? 'Save toy' : 'Salvar brinquedo'),
+        _saving ? l10n.saving : l10n.saveToy,
       ),
       style: FilledButton.styleFrom(
         backgroundColor: _ToyCreateIpadPalette.orange,
@@ -703,6 +743,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   Widget _buildIpadPhotoCard({
     required List<CategoryDefinition> officialCategories,
   }) {
+    final l10n = context.l10n;
     final hasPhoto = (_photoSourcePath ?? '').trim().isNotEmpty;
 
     return _ToyCreateIpadSurface(
@@ -710,11 +751,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyCreateIpadSectionHeader(
+          _ToyCreateIpadSectionHeader(
             icon: Icons.photo_camera_outlined,
-            title: 'Foto do brinquedo',
-            subtitle:
-                'A foto aparece primeiro e ajuda a reconhecer tudo mais rápido.',
+            title: l10n.toyPhoto,
+            subtitle: l10n.toyCreatePhotoSubtitle,
           ),
           const SizedBox(height: 16),
           ClipRRect(
@@ -740,7 +780,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                           );
                         },
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Câmera'),
+                  label: Text(l10n.camera),
                   style: _ToyCreateIpadButtonStyles.outline(),
                 ),
               ),
@@ -757,7 +797,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                           );
                         },
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Galeria'),
+                  label: Text(l10n.gallery),
                   style: _ToyCreateIpadButtonStyles.outline(),
                 ),
               ),
@@ -776,6 +816,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     required List<CategoryDefinition> officialCategories,
     required List<Boxe> boxes,
   }) {
+    final l10n = context.l10n;
     final hasPhoto = (_photoSourcePath ?? '').trim().isNotEmpty;
     final categoryLabel = _categoryLabel(officialCategories);
     final storageLabel = _storageLabel(boxes);
@@ -785,10 +826,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyCreateIpadSectionHeader(
+          _ToyCreateIpadSectionHeader(
             icon: Icons.visibility_outlined,
-            title: 'Prévia',
-            subtitle: 'Como o brinquedo começa a aparecer no catálogo.',
+            title: l10n.preview,
+            subtitle: l10n.toyPreviewSubtitle,
           ),
           const SizedBox(height: 16),
           Container(
@@ -866,6 +907,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Widget _buildIpadStatusCard() {
+    final l10n = context.l10n;
     final ready = _isReadyToSave;
 
     return Container(
@@ -914,9 +956,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  ready
-                      ? 'Tudo certo para entrar no rodízio.'
-                      : 'Complete os campos obrigatórios antes de salvar.',
+                  ready ? l10n.readyForRotation : l10n.completeRequiredFields,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: context.appTypography.caption.copyWith(
@@ -936,15 +976,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     required List<CategoryDefinition> officialCategories,
     required List<Boxe> boxes,
   }) {
+    final l10n = context.l10n;
     return _ToyCreateIpadSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyCreateIpadSectionHeader(
+          _ToyCreateIpadSectionHeader(
             icon: Icons.edit_note_rounded,
-            title: 'Informações principais',
-            subtitle: 'Digite um nome ou deixe vazio para o app gerar.',
+            title: l10n.mainInformation,
+            subtitle: l10n.toyNameOptionalSubtitle,
           ),
           const SizedBox(height: 16),
           TextField(
@@ -952,11 +993,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             enabled: !_saving,
             textInputAction: TextInputAction.next,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Nome do brinquedo',
-              hintText: 'Ex: Blocos de montar',
-              prefixIcon: Icon(Icons.toys_outlined),
-              helperText: 'Opcional: vazio usa o nome automático por caixa.',
+            decoration: InputDecoration(
+              labelText: l10n.toyName,
+              hintText: l10n.toyNameExample,
+              prefixIcon: const Icon(Icons.toys_outlined),
+              helperText: l10n.toyNameOptionalHelper,
               helperMaxLines: 2,
             ),
           ),
@@ -965,7 +1006,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             children: [
               Expanded(
                 child: _ToyCreateIpadInfoTile(
-                  label: 'Categoria',
+                  label: l10n.category,
                   value: _categoryLabel(officialCategories),
                   icon: Icons.category_outlined,
                   color: _selectedCategoryId == null
@@ -977,7 +1018,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
           ),
           const SizedBox(height: 12),
           _ToyCreateIpadInfoTile(
-            label: 'Organização',
+            label: l10n.organization,
             value: _storageLabel(boxes),
             icon: Icons.inventory_2_outlined,
             color: _hasExplicitBoxSelection
@@ -992,21 +1033,21 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   Widget _buildIpadCategoryCard({
     required List<CategoryDefinition> officialCategories,
   }) {
+    final l10n = context.l10n;
     return _ToyCreateIpadSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyCreateIpadSectionHeader(
+          _ToyCreateIpadSectionHeader(
             icon: Icons.interests_outlined,
-            title: 'Categoria',
-            subtitle:
-                'Escolha o estímulo principal para equilibrar as rodadas.',
+            title: l10n.category,
+            subtitle: l10n.categorySelectionSubtitle,
           ),
           const SizedBox(height: 16),
           if (officialCategories.isEmpty)
             Text(
-              'Preparando categorias oficiais...',
+              l10n.preparingOfficialCategories,
               style: context.appTypography.caption.copyWith(
                 color: _ToyCreateIpadPalette.textMuted,
                 fontWeight: FontWeight.w700,
@@ -1031,15 +1072,15 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             ),
           if (_selectedCategoryId == null) ...[
             const SizedBox(height: 14),
-            const _ToyCreateIpadInlineNotice(
+            _ToyCreateIpadInlineNotice(
               icon: Icons.error_outline_rounded,
-              label: 'Categoria obrigatória para salvar.',
+              label: l10n.categoryRequiredToSave,
               color: _ToyCreateIpadPalette.orange,
             ),
           ],
           const SizedBox(height: 14),
           Text(
-            'A categoria equilibra as rodadas e garante variedade nas brincadeiras.',
+            l10n.categoryBalanceHelp,
             style: context.appTypography.caption.copyWith(
               color: _ToyCreateIpadPalette.textMid,
               fontWeight: FontWeight.w700,
@@ -1113,7 +1154,10 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      toyFormCategoryName(category),
+                      context.l10n.categoryNameById(
+                        category.id,
+                        toyFormCategoryName(category),
+                      ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: context.appTypography.caption.copyWith(
@@ -1123,9 +1167,11 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                       ),
                     ),
                     finalText(
-                      toyFormCategoryDevelopmentAspect(category) ??
-                          toyFormCategoryExamples(category) ??
-                          '',
+                      context.l10n.categoryDevelopmentAspectById(
+                        category.id,
+                        toyFormCategoryDevelopmentAspect(category) ??
+                            toyFormCategoryExamples(category),
+                      ),
                     ),
                   ],
                 ),
@@ -1160,15 +1206,16 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
     required List<LocationDefinition> locations,
     required bool showLocal,
   }) {
+    final l10n = context.l10n;
     return _ToyCreateIpadSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const _ToyCreateIpadSectionHeader(
+          _ToyCreateIpadSectionHeader(
             icon: Icons.inventory_2_outlined,
-            title: 'Organização',
-            subtitle: 'Escolha onde o brinquedo fica guardado.',
+            title: l10n.organization,
+            subtitle: l10n.storageSubtitle,
           ),
           const SizedBox(height: 16),
           LayoutBuilder(
@@ -1194,31 +1241,31 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                       initialValue: _selectedBoxSelection,
                       isExpanded: true,
                       decoration: InputDecoration(
-                        labelText: 'Caixa',
+                        labelText: l10n.box,
                         prefixIcon: const Icon(Icons.inventory_2_outlined),
-                        helperText: 'Escolha uma caixa ou marque "Sem caixa".',
+                        helperText: l10n.chooseBoxOrNoBox,
                         errorText:
                             _boxSelectionTouched && !_hasExplicitBoxSelection
-                                ? _locationRequiredMessage
+                                ? l10n.selectStorageValidation
                                 : null,
                       ),
                       items: <DropdownMenuItem<String?>>[
-                        const DropdownMenuItem<String?>(
+                        DropdownMenuItem<String?>(
                           value: null,
                           child: Text(
-                            'Selecione uma caixa',
+                            l10n.selectABox,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const DropdownMenuItem<String?>(
+                        DropdownMenuItem<String?>(
                           value: _noBoxOptionValue,
-                          child: Text('Sem caixa'),
+                          child: Text(l10n.noBox),
                         ),
                         ...boxes.map(
                           (box) => DropdownMenuItem<String?>(
                             value: box.id,
                             child: Text(
-                              'Caixa ${box.number} - ${box.local}',
+                              l10n.boxLocationLabel(box.number, box.local),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -1241,7 +1288,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                     child: FilledButton.tonalIcon(
                       onPressed: _saving ? null : _createBox,
                       icon: const Icon(Icons.add_box_outlined),
-                      label: const Text('Nova caixa'),
+                      label: Text(l10n.newBox),
                       style: FilledButton.styleFrom(
                         backgroundColor: _ToyCreateIpadPalette.orangeLight,
                         foregroundColor: const Color(0xFFC2410C),
@@ -1279,19 +1326,19 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                       padding: const EdgeInsets.only(top: 16),
                       child: DropdownButtonFormField<String?>(
                         initialValue: _selectedLooseLocation,
-                        decoration: const InputDecoration(
-                          labelText: 'Local',
-                          prefixIcon: Icon(Icons.place_outlined),
+                        decoration: InputDecoration(
+                          labelText: l10n.location,
+                          prefixIcon: const Icon(Icons.place_outlined),
                         ),
                         items: <DropdownMenuItem<String?>>[
-                          const DropdownMenuItem<String?>(
+                          DropdownMenuItem<String?>(
                             value: null,
-                            child: Text('Sem local'),
+                            child: Text(l10n.noLocation),
                           ),
                           ...locations.map(
                             (location) => DropdownMenuItem<String?>(
                               value: location.name,
-                              child: Text(location.name),
+                              child: Text(l10n.value(location.name)),
                             ),
                           ),
                         ],
@@ -1308,9 +1355,9 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
             ),
           ),
           const SizedBox(height: 16),
-          const _ToyCreateIpadInlineNotice(
+          _ToyCreateIpadInlineNotice(
             icon: Icons.check_circle_outline,
-            label: 'Todo brinquedo novo entra no rodízio após salvar.',
+            label: l10n.newToyRotationNote,
             color: _ToyCreateIpadPalette.green,
           ),
         ],
@@ -1319,6 +1366,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
   }
 
   Widget _buildIpadSecondaryActionsCard() {
+    final l10n = context.l10n;
     return _ToyCreateIpadSurface(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       child: Row(
@@ -1328,7 +1376,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ações',
+                  l10n.actions,
                   style: context.appTypography.body.copyWith(
                     color: _ToyCreateIpadPalette.text,
                     fontWeight: FontWeight.w900,
@@ -1336,7 +1384,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Salve e continue cadastrando quando estiver organizando muitos brinquedos.',
+                  l10n.saveAnotherHelp,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: context.appTypography.caption.copyWith(
@@ -1351,7 +1399,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
           FilledButton.tonalIcon(
             onPressed: _saving ? null : _saveAndAddAnother,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Salvar e outro'),
+            label: Text(l10n.saveAndAddAnother),
             style: FilledButton.styleFrom(
               backgroundColor: _ToyCreateIpadPalette.orangeLight,
               foregroundColor: const Color(0xFFC2410C),
@@ -1391,13 +1439,14 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final showLocal = _isWithoutBoxSelected;
     final colorScheme = Theme.of(context).colorScheme;
     final isTablet = context.usesTabletPresentation;
 
     return Scaffold(
       backgroundColor: isTablet ? _ToyCreateIpadPalette.bg : UiTokens.bg,
-      appBar: isTablet ? null : AppBar(title: const Text('Novo brinquedo')),
+      appBar: isTablet ? null : AppBar(title: Text(l10n.newToy)),
       body: SafeArea(
         child: Padding(
           padding:
@@ -1475,7 +1524,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Novo brinquedo',
+                                        l10n.newToy,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleMedium,
@@ -1484,7 +1533,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         height: UiTokens.spacingXs,
                                       ),
                                       Text(
-                                        'Foto, categoria e lugar de guardar. O essencial em poucos passos.',
+                                        l10n.toyCreateIntro,
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium
@@ -1506,7 +1555,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Foto do brinquedo',
+                                        l10n.toyPhoto,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleSmall,
@@ -1515,7 +1564,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         height: UiTokens.spacingXs,
                                       ),
                                       Text(
-                                        'A foto aparece primeiro e ajuda a reconhecer tudo mais r\u00e1pido.',
+                                        l10n.toyCreatePhotoSubtitle,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall,
@@ -1552,7 +1601,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                               icon: const Icon(
                                                 Icons.photo_camera_outlined,
                                               ),
-                                              label: const Text('C\u00e2mera'),
+                                              label: Text(l10n.camera),
                                             ),
                                           ),
                                           const SizedBox(width: UiTokens.s),
@@ -1571,7 +1620,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                               icon: const Icon(
                                                 Icons.photo_library_outlined,
                                               ),
-                                              label: const Text('Galeria'),
+                                              label: Text(l10n.gallery),
                                             ),
                                           ),
                                         ],
@@ -1594,12 +1643,13 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         enabled: !_saving,
                                         textCapitalization:
                                             TextCapitalization.sentences,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Nome do brinquedo',
-                                          hintText: 'Ex: Blocos coloridos',
+                                        decoration: InputDecoration(
+                                          labelText: l10n.toyName,
+                                          hintText: l10n.toyNameExample,
                                           helperText:
-                                              'Opcional. Você pode editar a sugestão da IA.',
-                                          prefixIcon: Icon(Icons.toys_outlined),
+                                              l10n.toyNameRecognitionHelper,
+                                          prefixIcon:
+                                              const Icon(Icons.toys_outlined),
                                         ),
                                       ),
                                     ],
@@ -1615,7 +1665,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Categoria principal',
+                                        l10n.primaryCategory,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleSmall,
@@ -1624,7 +1674,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         height: UiTokens.spacingXs,
                                       ),
                                       Text(
-                                        'Escolha s\u00f3 uma: a que melhor representa o est\u00edmulo principal.',
+                                        l10n.primaryCategoryInstruction,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall,
@@ -1638,17 +1688,30 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           selectedId: _selectedCategoryId,
                                           disabled: _saving,
                                           getId: (c) => c.id,
-                                          getName: toyFormCategoryName,
-                                          getExamples: toyFormCategoryExamples,
-                                          getDevelopmentAspect:
-                                              toyFormCategoryDevelopmentAspect,
+                                          getName: (category) =>
+                                              l10n.categoryNameById(
+                                            category.id,
+                                            toyFormCategoryName(category),
+                                          ),
+                                          getExamples: (category) =>
+                                              l10n.categoryExamplesById(
+                                            category.id,
+                                            toyFormCategoryExamples(category),
+                                          ),
+                                          getDevelopmentAspect: (category) =>
+                                              l10n.categoryDevelopmentAspectById(
+                                            category.id,
+                                            toyFormCategoryDevelopmentAspect(
+                                              category,
+                                            ),
+                                          ),
                                           onSelected: (id) => setState(
                                             () => _selectedCategoryId = id,
                                           ),
                                         ),
                                       if (officialCategories.isEmpty) ...[
                                         Text(
-                                          'Preparando categorias oficiais...',
+                                          l10n.preparingOfficialCategories,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
@@ -1662,7 +1725,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                           height: UiTokens.spacingSm,
                                         ),
                                         Text(
-                                          'Obrigat\u00f3rio.',
+                                          l10n.required,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
@@ -1685,7 +1748,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Onde guardar',
+                                        l10n.whereToStore,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.titleSmall,
@@ -1694,7 +1757,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                         height: UiTokens.spacingXs,
                                       ),
                                       Text(
-                                        'Voc\u00ea pode deixar em uma caixa ou marcar como item sem caixa.',
+                                        l10n.storageInstruction,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall,
@@ -1722,36 +1785,38 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                       _selectedBoxSelection,
                                                   isExpanded: true,
                                                   decoration: InputDecoration(
-                                                    labelText: 'Caixa',
+                                                    labelText: l10n.box,
                                                     helperText:
-                                                        'Escolha uma caixa ou marque "Sem caixa".',
+                                                        l10n.chooseBoxOrNoBox,
                                                     errorText: _boxSelectionTouched &&
                                                             !_hasExplicitBoxSelection
-                                                        ? _locationRequiredMessage
+                                                        ? l10n
+                                                            .selectStorageValidation
                                                         : null,
                                                   ),
                                                   items: <DropdownMenuItem<
                                                       String?>>[
-                                                    const DropdownMenuItem<
-                                                        String?>(
+                                                    DropdownMenuItem<String?>(
                                                       value: null,
                                                       child: Text(
-                                                        'Selecione uma caixa',
+                                                        l10n.selectABox,
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
                                                     ),
-                                                    const DropdownMenuItem<
-                                                        String?>(
+                                                    DropdownMenuItem<String?>(
                                                       value: _noBoxOptionValue,
-                                                      child: Text('Sem caixa'),
+                                                      child: Text(l10n.noBox),
                                                     ),
                                                     ...boxes.map(
                                                       (b) => DropdownMenuItem<
                                                           String?>(
                                                         value: b.id,
                                                         child: Text(
-                                                          'Caixa ${b.number} - ${b.local}',
+                                                          l10n.boxLocationLabel(
+                                                            b.number,
+                                                            b.local,
+                                                          ),
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                         ),
@@ -1785,7 +1850,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                   icon: const Icon(
                                                     Icons.add_box_outlined,
                                                   ),
-                                                  label: const Text('Nova'),
+                                                  label: Text(l10n.newShort),
                                                 ),
                                               ),
                                             ],
@@ -1829,17 +1894,15 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                           String?>(
                                                     initialValue:
                                                         _selectedLooseLocation,
-                                                    decoration:
-                                                        const InputDecoration(
-                                                      labelText: 'Local',
+                                                    decoration: InputDecoration(
+                                                      labelText: l10n.location,
                                                     ),
                                                     items: <DropdownMenuItem<
                                                         String?>>[
-                                                      const DropdownMenuItem<
-                                                          String?>(
+                                                      DropdownMenuItem<String?>(
                                                         value: null,
                                                         child: Text(
-                                                          'Sem local',
+                                                          l10n.noLocation,
                                                         ),
                                                       ),
                                                       ...locations.map(
@@ -1847,7 +1910,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                                             String?>(
                                                           value: l.name,
                                                           child: Text(
-                                                            l.name,
+                                                            l10n.value(l.name),
                                                           ),
                                                         ),
                                                       ),
@@ -1888,7 +1951,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                       onPressed: _saving ? null : _save,
                                       icon: const Icon(Icons.save_outlined),
                                       label: Text(
-                                        _saving ? 'Salvando...' : 'Salvar',
+                                        _saving ? l10n.saving : l10n.save,
                                       ),
                                     ),
                                   );
@@ -1899,7 +1962,7 @@ class _ToyCreatePageState extends State<ToyCreatePage> {
                                       onPressed:
                                           _saving ? null : _saveAndAddAnother,
                                       icon: const Icon(Icons.add),
-                                      label: const Text('Salvar e outro'),
+                                      label: Text(l10n.saveAndAddAnother),
                                     ),
                                   );
 
@@ -2126,6 +2189,7 @@ class _ToyCreateIpadPhotoEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       color: _ToyCreateIpadPalette.photoBg,
       child: Center(
@@ -2148,7 +2212,7 @@ class _ToyCreateIpadPhotoEmpty extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              'Nenhuma foto adicionada',
+              l10n.noPhotoAdded,
               style: context.appTypography.body.copyWith(
                 color: _ToyCreateIpadPalette.text,
                 fontWeight: FontWeight.w900,
@@ -2156,7 +2220,7 @@ class _ToyCreateIpadPhotoEmpty extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              'Toque em câmera ou galeria para incluir.',
+              l10n.addPhotoFromCameraOrGallery,
               style: context.appTypography.caption.copyWith(
                 color: _ToyCreateIpadPalette.textMuted,
                 fontWeight: FontWeight.w700,
