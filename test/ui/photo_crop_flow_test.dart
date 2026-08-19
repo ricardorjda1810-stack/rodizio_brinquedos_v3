@@ -120,7 +120,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Ajustar foto'), findsOneWidget);
-    expect(find.text('Nao foi possivel usar a foto. Tente novamente.'),
+    expect(find.text('Não foi possível usar a foto. Tente novamente.'),
         findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Usar foto'), findsOneWidget);
     expect(cropCalls, 1);

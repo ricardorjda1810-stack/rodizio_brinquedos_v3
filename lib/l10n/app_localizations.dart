@@ -156,6 +156,178 @@ class AppLocalizations {
   String get deleteToy => isEn ? 'Delete toy' : 'Excluir brinquedo';
   String get save => isEn ? 'Save' : 'Salvar';
   String get cancel => isEn ? 'Cancel' : 'Cancelar';
+  String get camera => isEn ? 'Camera' : 'Câmera';
+  String get gallery => isEn ? 'Gallery' : 'Galeria';
+  String get saving => isEn ? 'Saving...' : 'Salvando...';
+  String get saveToy => isEn ? 'Save toy' : 'Salvar brinquedo';
+  String get saveAndAddAnother =>
+      isEn ? 'Save and add another' : 'Salvar e outro';
+  String get toyCreateIntro => isEn
+      ? 'Photo, category, and storage. The essentials in just a few steps.'
+      : 'Foto, categoria e lugar de guardar. O essencial em poucos passos.';
+  String get toyCreateHeaderSubtitle => isEn
+      ? 'Add a toy to include it in the rotation.'
+      : 'Cadastre um brinquedo para incluir no rodízio.';
+  String get toyCreatePhotoSubtitle => isEn
+      ? 'The photo appears first and helps recognize everything faster.'
+      : 'A foto aparece primeiro e ajuda a reconhecer tudo mais rápido.';
+  String get noPhotoAdded =>
+      isEn ? 'No photo added' : 'Nenhuma foto adicionada';
+  String get addPhotoFromCameraOrGallery => isEn
+      ? 'Tap camera or gallery to add one.'
+      : 'Toque em câmera ou galeria para incluir.';
+  String get adjustPhoto => isEn ? 'Adjust photo' : 'Ajustar foto';
+  String get cropPhotoInstruction => isEn
+      ? 'Tap "Use photo" to open the editor and finish cropping.'
+      : 'Toque em "Usar foto" para abrir o ajuste e concluir o recorte.';
+  String get usePhoto => isEn ? 'Use photo' : 'Usar foto';
+  String get photoUnavailable => isEn
+      ? "Couldn't use the photo. Try again."
+      : 'Não foi possível usar a foto. Tente novamente.';
+  String get photoProcessingFailure =>
+      isEn ? 'Error processing the photo.' : 'Erro ao processar a foto.';
+  String get preview => isEn ? 'Preview' : 'Prévia';
+  String get toyPreviewSubtitle => isEn
+      ? 'How the toy will first appear in the catalog.'
+      : 'Como o brinquedo começa a aparecer no catálogo.';
+  String get generatedToyNamePreview =>
+      isEn ? 'Automatically generated name' : 'Nome gerado automaticamente';
+  String get categoryPending =>
+      isEn ? 'Category pending' : 'Categoria pendente';
+  String get locationPending => isEn ? 'Location pending' : 'Local pendente';
+  String get missingCategoryAndLocation =>
+      isEn ? 'Category and location missing' : 'Faltam categoria e local';
+  String get missingCategory => isEn ? 'Category missing' : 'Falta categoria';
+  String get missingLocation => isEn ? 'Location missing' : 'Falta local';
+  String get readyToSave => isEn ? 'Ready to save' : 'Pronto para salvar';
+  String get readyForRotation => isEn
+      ? 'Everything is ready for the rotation.'
+      : 'Tudo certo para entrar no rodízio.';
+  String get completeRequiredFields => isEn
+      ? 'Complete the required fields before saving.'
+      : 'Complete os campos obrigatórios antes de salvar.';
+  String get mainInformation =>
+      isEn ? 'Main information' : 'Informações principais';
+  String get toyNameOptionalSubtitle => isEn
+      ? 'Enter a name or leave it blank for the app to generate one.'
+      : 'Digite um nome ou deixe vazio para o app gerar.';
+  String get toyNameExample =>
+      isEn ? 'E.g. Building blocks' : 'Ex: Blocos de montar';
+  String get toyNameOptionalHelper => isEn
+      ? 'Optional. Leave blank to use the automatic box-based name.'
+      : 'Opcional: vazio usa o nome automático por caixa.';
+  String get toyNameRecognitionHelper => isEn
+      ? 'Optional. You can edit the AI suggestion.'
+      : 'Opcional. Você pode editar a sugestão da IA.';
+  String get organization => isEn ? 'Organization' : 'Organização';
+  String get primaryCategory =>
+      isEn ? 'Primary category' : 'Categoria principal';
+  String get categorySelectionSubtitle => isEn
+      ? 'Choose the main stimulus to balance rotations.'
+      : 'Escolha o estímulo principal para equilibrar as rodadas.';
+  String get primaryCategoryInstruction => isEn
+      ? 'Choose just one: the category that best represents the main stimulus.'
+      : 'Escolha só uma: a que melhor representa o estímulo principal.';
+  String get preparingOfficialCategories => isEn
+      ? 'Preparing official categories...'
+      : 'Preparando categorias oficiais...';
+  String get required => isEn ? 'Required.' : 'Obrigatório.';
+  String get categoryRequiredToSave => isEn
+      ? 'A category is required to save.'
+      : 'Categoria obrigatória para salvar.';
+  String get categoryBalanceHelp => isEn
+      ? 'The category balances rotations and keeps play varied.'
+      : 'A categoria equilibra as rodadas e garante variedade nas brincadeiras.';
+  String get storageSubtitle => isEn
+      ? 'Choose where the toy is stored.'
+      : 'Escolha onde o brinquedo fica guardado.';
+  String get whereToStore => isEn ? 'Where to store it' : 'Onde guardar';
+  String get storageInstruction => isEn
+      ? 'You can store it in a box or mark it as an item without a box.'
+      : 'Você pode deixar em uma caixa ou marcar como item sem caixa.';
+  String get chooseBoxOrNoBox => isEn
+      ? 'Choose a box or select "No box".'
+      : 'Escolha uma caixa ou marque "Sem caixa".';
+  String get selectABox => isEn ? 'Select a box' : 'Selecione uma caixa';
+  String get newShort => isEn ? 'New' : 'Nova';
+  String get newToyRotationNote => isEn
+      ? 'Every new toy enters the rotation after it is saved.'
+      : 'Todo brinquedo novo entra no rodízio após salvar.';
+  String get actions => isEn ? 'Actions' : 'Ações';
+  String get saveAnotherHelp => isEn
+      ? 'Save and keep adding toys when organizing several at once.'
+      : 'Salve e continue cadastrando quando estiver organizando muitos brinquedos.';
+  String get selectCategoryValidation =>
+      isEn ? 'Select a category.' : 'Selecione uma categoria.';
+  String get selectStorageValidation => isEn
+      ? 'Select a box or choose "No box" to save the toy.'
+      : 'Selecione uma caixa ou escolha "Sem caixa" para salvar o brinquedo.';
+  String get toySavedAddAnother =>
+      isEn ? 'Toy saved! Add another one.' : 'Brinquedo salvo! Adicione outro.';
+  String saveToyFailure(Object error) =>
+      isEn ? 'Error saving toy: $error' : 'Erro ao salvar brinquedo: $error';
+  String get recognizingToy =>
+      isEn ? 'Recognizing toy...' : 'Reconhecendo brinquedo...';
+  String get recognitionLoadingMessage => isEn
+      ? 'The photo is analyzed without saving automatically.'
+      : 'A foto é analisada sem salvar automaticamente.';
+  String get recognitionSuggestionFailureTitle =>
+      isEn ? "Couldn't suggest a toy" : 'Não foi possível sugerir';
+  String get suggestionApplied =>
+      isEn ? 'Suggestion applied' : 'Sugestão aplicada';
+  String recognitionAppliedMessage(String name, String category) => isEn
+      ? '$name · $category. Review the fields before saving.'
+      : '$name · $category. Revise os campos antes de salvar.';
+  String get analyzeAgain => isEn ? 'Analyze again' : 'Analisar novamente';
+  String suggestedCategory(String category) => isEn
+      ? 'Suggested category: $category.'
+      : 'Categoria sugerida: $category.';
+  String recognitionResultMessage(
+    String category,
+    int confidencePercent,
+    String explanation,
+  ) =>
+      isEn
+          ? '$category · $confidencePercent% confidence. $explanation'
+          : '$category · confiança $confidencePercent%. $explanation';
+  String get useSuggestion => isEn ? 'Use suggestion' : 'Usar sugestão';
+  String get discard => isEn ? 'Discard' : 'Descartar';
+  String get recognitionNoPhoto => isEn
+      ? 'Add an available photo before starting recognition.'
+      : 'Adicione uma foto disponível antes de iniciar o reconhecimento.';
+  String get recognitionCategoriesUnavailable => isEn
+      ? 'Categories are still being prepared. Try again.'
+      : 'As categorias ainda estão sendo preparadas. Tente novamente.';
+  String get recognitionUnsupportedImage => isEn
+      ? 'Use a valid JPG, PNG, or WebP photo.'
+      : 'Use uma foto JPG, PNG ou WebP válida.';
+  String get recognitionImageTooLarge => isEn
+      ? 'The photo is too large. Crop closer to the toy.'
+      : 'A foto ficou muito grande. Recorte mais perto do brinquedo.';
+  String get recognitionNoToy => isEn
+      ? "We couldn't confidently find a toy in this photo."
+      : 'Não encontramos um brinquedo com segurança nessa foto.';
+  String get recognitionMultipleToys => isEn
+      ? 'Recognition supports one toy at a time. Crop the photo closer.'
+      : 'O reconhecimento funciona com um brinquedo por vez. Recorte a foto mais de perto.';
+  String get recognitionPersonDetected => isEn
+      ? 'To protect privacy, use a photo that shows only the toy.'
+      : 'Para proteger a privacidade, use uma foto que mostre somente o brinquedo.';
+  String get recognitionUnavailable => isEn
+      ? 'Recognition is temporarily unavailable. Try again.'
+      : 'O reconhecimento está temporariamente indisponível. Tente novamente.';
+  String get recognitionTimeout => isEn
+      ? 'Recognition took too long. Try again.'
+      : 'O reconhecimento demorou demais. Tente novamente.';
+  String get recognitionPermissionDenied => isEn
+      ? 'Recognition is not authorized on this device yet.'
+      : 'O reconhecimento ainda não está autorizado neste dispositivo.';
+  String get recognitionInvalidResponse => isEn
+      ? 'The recognition response could not be validated. Try again.'
+      : 'A resposta do reconhecimento não pôde ser validada. Tente novamente.';
+  String get recognitionUnknownFailure => isEn
+      ? "We couldn't recognize the toy right now. Try again."
+      : 'Não foi possível reconhecer o brinquedo agora. Tente novamente.';
   String get selectBox => isEn ? 'Select box' : 'Selecionar caixa';
   String get chooseCategory =>
       isEn ? 'Choose a category' : 'Escolha uma categoria';
@@ -412,6 +584,23 @@ class AppLocalizations {
         value(trimmedFallback);
   }
 
+  String categoryExamplesById(String categoryId, String? fallback) {
+    final trimmedFallback = fallback?.trim() ?? '';
+    if (!isEn) return trimmedFallback;
+    return _enCategoryExamplesById[categoryId.trim().toLowerCase()] ??
+        trimmedFallback;
+  }
+
+  String categoryDevelopmentAspectById(
+    String categoryId,
+    String? fallback,
+  ) {
+    final trimmedFallback = fallback?.trim() ?? '';
+    if (!isEn) return trimmedFallback;
+    return _enCategoryDevelopmentAspectsById[categoryId.trim().toLowerCase()] ??
+        trimmedFallback;
+  }
+
   String toyDisplayName(String? text) {
     final original = text?.trim() ?? '';
     if (original.isEmpty) return unnamedToy;
@@ -514,6 +703,40 @@ class AppLocalizations {
     'comunicacao': 'Communication and Stories',
     'comunicação': 'Communication and Stories',
     'livros': 'Communication and Stories',
+  };
+
+  static const Map<String, String> _enCategoryExamplesById = {
+    'corpo': 'movement • balance • breathing • body pause',
+    'movimento': 'movement • balance • breathing • body pause',
+    'exploracao': 'textures • sounds • colors • water • sand • discovery',
+    'exploração': 'textures • sounds • colors • water • sand • discovery',
+    'coordenacao': 'textures • sounds • colors • water • sand • discovery',
+    'maos': 'fitting • stacking • building • problem-solving',
+    'mãos': 'fitting • stacking • building • problem-solving',
+    'construcao': 'fitting • stacking • building • problem-solving',
+    'imaginacao': 'pretend play • art • creation • expression',
+    'imaginação': 'pretend play • art • creation • expression',
+    'faz_de_conta': 'pretend play • art • creation • expression',
+    'comunicacao': 'books • speaking • listening • storytelling • conversation',
+    'comunicação': 'books • speaking • listening • storytelling • conversation',
+    'livros': 'books • speaking • listening • storytelling • conversation',
+  };
+
+  static const Map<String, String> _enCategoryDevelopmentAspectsById = {
+    'corpo': 'Movement, balance, breathing, and body pause',
+    'movimento': 'Movement, balance, breathing, and body pause',
+    'exploracao': 'Textures, sounds, colors, water, sand, and discovery',
+    'exploração': 'Textures, sounds, colors, water, sand, and discovery',
+    'coordenacao': 'Textures, sounds, colors, water, sand, and discovery',
+    'maos': 'Fitting, stacking, building, and problem-solving',
+    'mãos': 'Fitting, stacking, building, and problem-solving',
+    'construcao': 'Fitting, stacking, building, and problem-solving',
+    'imaginacao': 'Pretend play, art, creation, and expression',
+    'imaginação': 'Pretend play, art, creation, and expression',
+    'faz_de_conta': 'Pretend play, art, creation, and expression',
+    'comunicacao': 'Books, speaking, listening, storytelling, and conversation',
+    'comunicação': 'Books, speaking, listening, storytelling, and conversation',
+    'livros': 'Books, speaking, listening, storytelling, and conversation',
   };
 
   static const Map<String, String> _enDemoToyNamesById = {

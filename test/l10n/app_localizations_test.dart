@@ -66,6 +66,37 @@ void main() {
       );
     });
 
+    test('localizes toy creation copy and official category details in en-US',
+        () {
+      const l10n = AppLocalizations(Locale('en', 'US'));
+
+      expect(l10n.newToy, 'New toy');
+      expect(l10n.camera, 'Camera');
+      expect(l10n.gallery, 'Gallery');
+      expect(l10n.primaryCategory, 'Primary category');
+      expect(l10n.recognizingToy, 'Recognizing toy...');
+      expect(l10n.suggestionApplied, 'Suggestion applied');
+      expect(l10n.analyzeAgain, 'Analyze again');
+      expect(l10n.useSuggestion, 'Use suggestion');
+      expect(l10n.adjustPhoto, 'Adjust photo');
+      expect(l10n.usePhoto, 'Use photo');
+      expect(l10n.photoProcessingFailure, 'Error processing the photo.');
+      expect(
+        l10n.categoryExamplesById(
+          'maos',
+          'encaixar • empilhar • montar • resolver problemas',
+        ),
+        'fitting • stacking • building • problem-solving',
+      );
+      expect(
+        l10n.categoryDevelopmentAspectById(
+          'comunicacao',
+          'Livros, fala, escuta, narrativa e conversa',
+        ),
+        'Books, speaking, listening, storytelling, and conversation',
+      );
+    });
+
     test('keeps pt-BR official copy unchanged', () {
       const l10n = AppLocalizations(Locale('pt', 'BR'));
       final now = DateTime(2026, 1, 1, 8);
@@ -97,6 +128,14 @@ void main() {
       expect(l10n.boxNameRequired, 'Informe o nome da caixa.');
       expect(l10n.boxRenamed, 'Caixa renomeada.');
       expect(l10n.backToHome, 'Voltar ao início');
+      expect(l10n.camera, 'Câmera');
+      expect(l10n.gallery, 'Galeria');
+      expect(l10n.primaryCategory, 'Categoria principal');
+      expect(l10n.recognizingToy, 'Reconhecendo brinquedo...');
+      expect(l10n.suggestionApplied, 'Sugestão aplicada');
+      expect(l10n.adjustPhoto, 'Ajustar foto');
+      expect(l10n.usePhoto, 'Usar foto');
+      expect(l10n.photoProcessingFailure, 'Erro ao processar a foto.');
     });
 
     test('formats app version in pt-BR without unsafe placeholders', () {
