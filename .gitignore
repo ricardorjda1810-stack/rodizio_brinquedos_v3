@@ -10,6 +10,7 @@ android/key.properties
 *.jks
 *.keystore
 .dart_tool/
+.flutter-plugins-dependencies
 .idea/
 build/
 *.iml
