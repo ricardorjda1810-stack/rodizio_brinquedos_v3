@@ -1,22 +1,11 @@
-# Rodízio de Brinquedos 2.1 — Instruções para Agentes (FIVC)
+# Instruções para GitHub Copilot
 
-## Princípios
-- Simplicidade acima de tudo.
-- Mudanças previsíveis e auditáveis.
-- Evitar inconsistência entre arquivos (ex: UiTokens.*).
+Leia e siga primeiro o `AGENTS.md`, que é a fonte principal das regras do repositório.
 
-## Regra de Entrega (obrigatória)
-Sempre entregar mudanças como:
-1) Lista de arquivos alterados
-2) Cada arquivo completo (pronto para copiar/colar)
-3) Checklist "Find in project" com símbolos-chave para validar compatibilidade
-
-## Estrutura
-- lib/data: db + repositories
-- lib/features: módulos (boxes, round, toys)
-- lib/ui: tema + widgets
-
-## Proibições
-- Não criar regras paralelas fora do Chat 0.0.
-- Não introduzir novos tokens/constantes sem entregar o arquivo completo do contrato (ex: ui_tokens.dart completo).
-- Evitar mudanças espalhadas sem necessidade.
+- Confirme qual projeto está no escopo. Para tarefas do app principal, use a raiz (`pubspec.yaml`, `lib/`, `test/`, `android/`, `ios/`) e não altere `alerta_de_crise/` sem solicitação explícita.
+- Faça somente a menor mudança relacionada à tarefa; não inclua refatorações, formatação ampla ou arquivos não relacionados.
+- Antes de editar localmente, preserve alterações preexistentes. Não as mova, descarte, formate, inclua em commits ou misture com a tarefa.
+- Diferencie claramente fatos confirmados, hipóteses e itens não verificados. Nunca invente resultados de análise, testes, builds ou validações locais.
+- Use os comandos definidos no `AGENTS.md` para o escopo alterado e revise o diff completo antes de concluir.
+- Não exija reproduzir todos os arquivos completos na resposta; apresente somente o contexto e os trechos necessários.
+- Trabalhe em branch ou worktree isolada e siga as autorizações separadas do `AGENTS.md`: editar ou validar localmente não autoriza commit, qualquer push, criação ou alteração de PR, marcar PR como pronto, merge, publicação ou alteração de serviço externo.

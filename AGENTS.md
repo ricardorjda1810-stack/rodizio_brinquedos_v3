@@ -1,96 +1,49 @@
-## Regra oficial de versionamento - Rodizio de Brinquedos
+# Instruções para agentes — Rodízio de Brinquedos
 
-No Rodizio de Brinquedos, o campo `version:` do `pubspec.yaml` e a fonte oficial de versionamento.
+## Escopo do projeto
 
-Exemplo de formato:
-`version: X.Y.Z+N`
+- O aplicativo Flutter principal está na raiz deste repositório: `pubspec.yaml`, `lib/`, `test/`, `android/` e `ios/`.
+- `alerta_de_crise/` é um projeto Flutter aninhado e separado. Não o modifique, valide, versione ou inclua em uma tarefa do app principal sem solicitação explícita.
+- Preserve o escopo mínimo: não altere arquivos não relacionados à tarefa.
 
-Onde:
-- `X.Y.Z` e a versao visivel para o usuario.
-- `N` e o numero interno do build.
+## Git e segurança operacional
 
-A versao atual nunca deve ser inferida a partir deste arquivo. Antes de qualquer decisao de versao ou build, sempre obter a versao real com:
+- GitHub é a fonte oficial do código e do histórico. Trabalhe em uma branch ou worktree isolada por tarefa; nunca trabalhe diretamente na `main`.
+- Antes de agir localmente, inspecione o estado Git. Nunca formate, mova, descarte, faça commit ou misture alterações locais preexistentes que não pertençam à tarefa.
+- Não execute `reset`, `clean`, `stash`, rebase, force push ou operações destrutivas sem autorização explícita.
+- Criar commit, fazer qualquer push, criar ou alterar PR, marcar PR como pronto, fazer merge e publicar ou alterar serviço externo exigem, cada ação, autorização humana específica e separada.
+- Atualizar arquivos localmente ou executar validações não autoriza automaticamente nenhuma dessas ações.
+- Antes de concluir, revise o diff completo e não invente resultados de testes, builds ou validações.
 
-```sh
-grep "^version:" pubspec.yaml
-```
+## Regra oficial de versionamento
 
-Em caso de divergencia entre `AGENTS.md`, `docs/VERSIONAMENTO.md` e `pubspec.yaml`, o `pubspec.yaml` vence.
+No Rodízio de Brinquedos, o campo `version:` do `pubspec.yaml` é a fonte oficial de versionamento.
 
-O numero interno do build deve seguir uma fila unica e crescente para Android e iOS.
+Formato: `version: X.Y.Z+N`
 
-Regra obrigatoria:
-- Nunca repetir build number.
-- Nunca diminuir build number.
-- Sempre incrementar +1 antes de enviar uma nova build para qualquer loja.
-- A fila e unica para iOS e Android.
-- Nao existe fila separada para Android e iOS.
-- Se Android usou `+N`, a proxima build, mesmo que seja iOS, deve usar `+(N+1)`.
-- Se iOS usou `+N`, a proxima build, mesmo que seja Android, deve usar `+(N+1)`.
+- `X.Y.Z` é a versão visível para a pessoa usuária.
+- `N` é o número interno do build.
+- Nunca infira a versão atual deste arquivo. Antes de decidir versão ou build, execute `grep "^version:" pubspec.yaml`.
+- Em caso de divergência entre este arquivo, `docs/VERSIONAMENTO.md` e `pubspec.yaml`, `pubspec.yaml` prevalece.
+- O número de build é uma fila única e crescente para Android e iOS: nunca o repita ou diminua; incremente-o antes de enviar uma nova build para qualquer loja.
+- Não altere versão diretamente no Gradle ou Xcode sem refletir em `pubspec.yaml`.
 
-Exemplos corretos:
-- `1.2.0+100` Android teste interno
-- `1.2.0+101` Android correcao
-- `1.2.0+102` iOS TestFlight
-- `1.2.1+103` proxima versao publica maior
+Antes de qualquer build para Google Play ou App Store, confirme a versão atual, o próximo build livre, a loja de destino e se o número já foi enviado.
 
-Exemplos proibidos:
-- Reutilizar um build number ja enviado.
-- Voltar para build number menor.
-- Usar o mesmo build number no Android e depois tentar usar o mesmo build number no iOS.
-- Alterar versao diretamente no Gradle ou Xcode sem alinhar com `pubspec.yaml`.
+## Validações
 
-Antes de qualquer build para Google Play ou App Store, sempre executar:
+- Após alterar código Dart/Flutter do app principal, execute `flutter analyze` e, se `test/` existir, `flutter test`.
+- Para alterações Android, consulte a documentação oficial do Android antes de alterar APIs, Gradle ou Google Play Billing.
+- Validações dependentes de Xcode, CocoaPods, Simulator, Keychain, assinatura ou credenciais locais devem ser executadas e relatadas no Mac; não presuma seus resultados remotamente.
 
-```sh
-grep "^version:" pubspec.yaml
-```
+## Paywall, compras e ambientes
 
-Depois confirmar:
-- build number atual
-- proximo build number livre
-- loja de destino
-- se ja existe build anterior enviado com aquele numero
+- Planejamento Semanal é recurso Premium; cadastro, categorias, caixas, locais, rodízio diário e sugestão de rodada permanecem disponíveis no app gratuito.
+- Mantenha a coerência com `paywall_platform.dart`. Não altere paywall, compras, assinatura, Product IDs ou disponibilidade por plataforma sem confirmação explícita da loja de destino.
+- Se as compras no Android estiverem temporariamente indisponíveis, trate isso como decisão operacional explícita e documentada, não como regra permanente do produto.
+- Preserve StoreKit 2, os ambientes staging/produção e a instrumentação analítica existente, salvo solicitação explícita e escopo confirmado.
+- Não altere Gradle, Xcode, AndroidManifest, Info.plist ou `pubspec.yaml` para builds ou paywall sem instrução explícita.
 
-Android:
-- `versionName` vem da parte visivel de `version:`
-- `versionCode` vem da parte apos `+`
-- Google Play nao aceita `versionCode` repetido
-- Sempre subir o `+build` antes de enviar novo AAB
+## Entrega obrigatória
 
-iOS:
-- versao visivel pode ser igual a do Android
-- build number tambem deve seguir a fila global
-- nao voltar para builds antigos
-- nao alterar versao manualmente no Xcode sem refletir no `pubspec.yaml`
-
-Regra de simplicidade:
-- A versao visivel so muda quando houver mudanca relevante para o usuario.
-- O build number muda em toda submissao.
-
-Exemplos:
-- Correcao pequena antes da publicacao: `1.2.0+100` -> `1.2.0+101`
-- Nova versao com recurso relevante: `1.2.0+101` -> `1.2.1+102`
-
-## Validacoes antes de commit ou entrega
-
-Depois de alterar codigo Dart/Flutter, sempre rodar:
-
-```sh
-flutter analyze
-```
-
-Se existir pasta `test/`, rodar tambem:
-
-```sh
-flutter test
-```
-
-## Paywall e compras
-
-- Planejamento Semanal e recurso Premium.
-- O app gratuito mantem cadastro, categorias, caixas, locais, rodizio diario e sugestao de rodada liberados.
-- A regra de bloqueio deve ser coerente com `paywall_platform.dart`.
-- Nao alterar comportamento de paywall, compras, assinatura, Product IDs ou disponibilidade por plataforma sem confirmacao explicita da loja de destino.
-- Se Android estiver temporariamente sem compra ativa na loja, tratar como decisao operacional explicita e documentada, nao como regra padrao do produto.
-- Nao alterar Gradle, Xcode, AndroidManifest, Info.plist ou `pubspec.yaml` para builds ou paywall sem instrucao explicita.
+Ao final de cada tarefa, informe: SHA-base, SHA final, branch, arquivos alterados, validações executadas e seus resultados, itens não validados, pendências, riscos e autorizações ainda necessárias.
