@@ -36,11 +36,22 @@ print_flutter() {
   fi
 }
 
+print_dart() {
+  local dart_path
+
+  if dart_path="$(command -v dart 2>/dev/null)"; then
+    printf 'FOUND   %-12s %s\n' 'Dart' "$dart_path"
+    printf '%s\n' '        version not executed because Dart may use the Flutter cache wrapper'
+  else
+    printf 'MISSING %-12s command not found\n' 'Dart'
+  fi
+}
+
 printf '%s\n' '== macOS development toolchain (read-only) =='
 print_found 'Git' git --version
 print_found 'GitHub CLI' gh --version
 print_flutter
-print_found 'Dart' dart --version
+print_dart
 print_xcode
 print_found 'CocoaPods' pod --version
 print_found 'Ruby' ruby --version
