@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/apple_transaction_analytics_coordinator.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/app_analytics.dart';
 import 'package:rodizio_brinquedos_v3/core/analytics/paywall_analytics_context.dart';
 import 'package:rodizio_brinquedos_v3/core/config/firebase_environment.dart';
+import 'package:rodizio_brinquedos_v3/services/android_subscription_query.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_bypass.dart';
 import 'package:rodizio_brinquedos_v3/services/paywall_platform.dart';
 import 'package:rodizio_brinquedos_v3/services/storekit_reconciliation.dart';
@@ -13,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 typedef StoreKitReconciliationDiagnosticsLogger = void Function(String message);
 
-class PurchaseService extends ChangeNotifier {
+class PurchaseService extends ChangeNotifier with WidgetsBindingObserver {
   static const Duration _defaultCompletePurchaseTimeout = Duration(seconds: 20);
   static const String monthlyProductId =
       'com.rodiziobrinquedos.premium.monthly';
@@ -49,6 +51,11 @@ class PurchaseService extends ChangeNotifier {
 
   final InAppPurchase? _inAppPurchase;
   final SharedPreferences _preferences;
+  final bool Function() _isAndroidPlatform;
+  final Future<List<PurchaseDetails>> Function()? _androidPurchasesLoader;
+  final Stream<List<PurchaseDetails>>? _purchaseStream;
+  int _androidEntitlementGeneration = 0;
+  bool _observingLifecycle = false;
   final AppleTransactionAnalyticsCoordinator
       _appleTransactionAnalyticsCoordinator;
   final bool Function() _isIosPlatform;
@@ -92,6 +99,9 @@ class PurchaseService extends ChangeNotifier {
 
   PurchaseService._({
     required InAppPurchase? inAppPurchase,
+    required bool Function() isAndroidPlatform,
+    required Future<List<PurchaseDetails>> Function()? androidPurchasesLoader,
+    required Stream<List<PurchaseDetails>>? purchaseStream,
     required SharedPreferences preferences,
     required AppleTransactionAnalyticsCoordinator
         appleTransactionAnalyticsCoordinator,
@@ -111,6 +121,9 @@ class PurchaseService extends ChangeNotifier {
     required StoreKitReconciliationDiagnosticsLogger storeKitDiagnosticsLogger,
     required bool initialStoreKitReconciliationComplete,
   })  : _inAppPurchase = inAppPurchase,
+        _isAndroidPlatform = isAndroidPlatform,
+        _androidPurchasesLoader = androidPurchasesLoader,
+        _purchaseStream = purchaseStream,
         _preferences = preferences,
         _appleTransactionAnalyticsCoordinator =
             appleTransactionAnalyticsCoordinator,
@@ -136,6 +149,10 @@ class PurchaseService extends ChangeNotifier {
         const <String, ProductDetails>{},
     AppleTransactionAnalyticsCoordinator? appleTransactionAnalyticsCoordinator,
     bool isIosPlatform = false,
+    bool isAndroidPlatform = false,
+    bool initialized = true,
+    Future<List<PurchaseDetails>> Function()? androidPurchasesLoader,
+    Stream<List<PurchaseDetails>>? purchaseStream,
     Future<void> Function(PurchaseDetails purchaseDetails)? completePurchase,
     Duration completePurchaseTimeout = _defaultCompletePurchaseTimeout,
     Future<bool> Function(ProductDetails productDetails)? purchaseLauncher,
@@ -151,6 +168,9 @@ class PurchaseService extends ChangeNotifier {
   }) {
     final service = PurchaseService._(
       inAppPurchase: null,
+      isAndroidPlatform: () => isAndroidPlatform,
+      androidPurchasesLoader: androidPurchasesLoader,
+      purchaseStream: purchaseStream,
       preferences: preferences,
       appleTransactionAnalyticsCoordinator:
           appleTransactionAnalyticsCoordinator ??
@@ -174,7 +194,7 @@ class PurchaseService extends ChangeNotifier {
       initialStoreKitReconciliationComplete:
           initialStoreKitReconciliationComplete,
     );
-    service._initialized = true;
+    service._initialized = initialized;
     service._isPremium = isPremium;
     service._isLoading = false;
     service._storeAvailable = true;
@@ -194,8 +214,17 @@ class PurchaseService extends ChangeNotifier {
     final inAppPurchase = InAppPurchase.instance;
     final isIosPlatform =
         !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    final isAndroidPlatform =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
     final service = PurchaseService._(
       inAppPurchase: inAppPurchase,
+      isAndroidPlatform: () => isAndroidPlatform,
+      androidPurchasesLoader: isAndroidPlatform
+          ? () => queryAndroidSubscriptions(inAppPurchase)
+          : null,
+      purchaseStream: isPaywallEnabledForCurrentPlatform
+          ? inAppPurchase.purchaseStream
+          : null,
       preferences: preferences,
       appleTransactionAnalyticsCoordinator:
           AppAnalytics.appleTransactionAnalyticsCoordinator,
@@ -251,10 +280,11 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
-    final inAppPurchase = _inAppPurchase;
-    if (inAppPurchase == null) return;
-
-    _purchaseSubscription = inAppPurchase.purchaseStream.listen(
+    if (_isAndroidPlatform()) {
+      WidgetsBinding.instance.addObserver(this);
+      _observingLifecycle = true;
+    }
+    _purchaseSubscription = _purchaseStream?.listen(
       _handlePurchaseUpdates,
       onError: (Object error, StackTrace stackTrace) {
         unawaited(_handlePurchaseStreamFailure());
@@ -266,8 +296,56 @@ class PurchaseService extends ChangeNotifier {
     );
 
     notifyListeners();
+    // Query ownership independently of product catalog loading. The Android
+    // plugin establishes/re-establishes the BillingClient connection here.
+    final androidReconciliation = _reconcileAndroidPurchases();
     await refreshProductDetails();
+    await androidReconciliation;
     await _runInitialStoreKitReconciliation();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_disposed) {
+      unawaited(_reconcileAndroidPurchases());
+    }
+  }
+
+  Future<bool> _reconcileAndroidPurchases() async {
+    final loader = _androidPurchasesLoader;
+    if (_disposed ||
+        !_isAndroidPlatform() ||
+        !_isPaywallEnabled() ||
+        loader == null) {
+      return false;
+    }
+    final generation = ++_androidEntitlementGeneration;
+    try {
+      final purchases = await loader();
+      if (_disposed) return false;
+      // A newer query or purchase has taken responsibility for the state.
+      if (generation != _androidEntitlementGeneration) return true;
+      final active = purchases
+          .where((purchase) =>
+              productIds.contains(purchase.productID) &&
+              purchase.status == PurchaseStatus.purchased)
+          .toList();
+      // Play still returns PURCHASED during grace periods and after renewal
+      // cancellation until expiration. Do not infer expiry from purchase time
+      // or autoRenewing. A successful empty snapshot is conclusive.
+      await _synchronizePremium(active.isNotEmpty);
+      for (final purchase in active) {
+        if (_disposed || generation != _androidEntitlementGeneration) break;
+        if (purchase.pendingCompletePurchase) {
+          await _completePurchaseWithDiagnostics(purchase);
+        }
+      }
+      return true;
+    } catch (_) {
+      // Offline, disconnected, partial/failed queries are not revocations.
+      // An obsolete restore must not publish an error over a newer purchase.
+      return !_disposed && generation != _androidEntitlementGeneration;
+    }
   }
 
   Future<void> _runInitialStoreKitReconciliation() async {
@@ -537,6 +615,20 @@ class PurchaseService extends ChangeNotifier {
       return;
     }
 
+    if (_isAndroidPlatform()) {
+      _setState(isLoading: true, errorMessage: null);
+      final success = await _reconcileAndroidPurchases();
+      if (!_disposed) {
+        _setState(
+          isLoading: false,
+          errorMessage: success
+              ? null
+              : 'Não foi possível verificar as compras. Tente novamente.',
+        );
+      }
+      return;
+    }
+
     final inAppPurchase = _inAppPurchase;
     if (inAppPurchase == null) {
       _setState(
@@ -577,6 +669,14 @@ class PurchaseService extends ChangeNotifier {
     List<PurchaseDetails> purchaseDetailsList,
   ) async {
     if (_disposed) return;
+    if (_isAndroidPlatform() &&
+        purchaseDetailsList.any((purchase) =>
+            productIds.contains(purchase.productID) &&
+            (purchase.status == PurchaseStatus.purchased ||
+                purchase.status == PurchaseStatus.restored))) {
+      // Invalidate before any asynchronous persistence/acknowledgement.
+      ++_androidEntitlementGeneration;
+    }
     if (_isIosPlatform() &&
         (!_initialStoreKitReconciliationComplete ||
             _drainingInitialPurchaseUpdates)) {
@@ -1572,6 +1672,7 @@ class PurchaseService extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    if (_observingLifecycle) WidgetsBinding.instance.removeObserver(this);
     _queuedInitialPurchaseUpdates.clear();
     _purchaseSubscription?.cancel();
     super.dispose();
